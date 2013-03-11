@@ -39,5 +39,3 @@ install(DIRECTORY
     pages
     DESTINATION ${CMAKE_INSTALL_PREFIX}/share/documents
 )
-
-add_custom_target(deploy ${CMAKE_SOURCE_DIR}/deploy.sh COMMENT "Deploying to emulator...")
