@@ -9,16 +9,17 @@ set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 find_package(Qt4 REQUIRED QtDeclarative)
 find_package(Silica REQUIRED)
 find_package(Booster REQUIRED)
-
-add_definitions(-DHAVE_BOOSTER)
+#find_package(Calligra REQUIRED)
 
 include(${QT_USE_FILE})
 
 include_directories(
-    sailfishapplication
+    ${CMAKE_CURRENT_BINARY_DIR}
     ${QT_INCLUDES}
     ${BOOSTER_INCLUDE_DIR}
 )
+
+configure_file(config.h.in config.h)
     
 set(documents_SRCS
     main.cpp
