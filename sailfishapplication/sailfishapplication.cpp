@@ -3,72 +3,38 @@
 #include <QDir>
 #include <QGraphicsObject>
 
-#ifdef DESKTOP
-#include <QGLWidget>
-#endif
 
 #include <QDeclarativeComponent>
 #include <QDeclarativeEngine>
 #include <QDeclarativeContext>
 #include <QDeclarativeView>
 
-#ifdef HAS_BOOSTER
 #include <MDeclarativeCache>
-#endif
 
 #include "sailfishapplication.h"
+#include "config.h"
 
-QApplication *Sailfish::createApplication(int &argc, char **argv)
+QSharedPointer<QApplication> Sailfish::createApplication(int &argc, char **argv)
 {
-#ifdef HAS_BOOSTER
-    return MDeclarativeCache::qApplication(argc, argv);
-#else
-    return new QApplication(argc, argv);
-#endif
+    return QSharedPointer<QApplication>(MDeclarativeCache::qApplication(argc, argv));
 }
 
-QDeclarativeView *Sailfish::createView(const QString &file)
+QSharedPointer<QDeclarativeView> Sailfish::createView(const QString &file)
 {
-    QDeclarativeView *view;
-#ifdef HAS_BOOSTER
-    view = MDeclarativeCache::qDeclarativeView();
-#else
-    view = new QDeclarativeView;
-#endif
-    
-    bool isDesktop = qApp->arguments().contains("-desktop");
-    
-    QString path;
-    if (isDesktop) {
-        path = qApp->applicationDirPath() + QDir::separator();
-#ifdef DESKTOP
-        view->setViewport(new QGLWidget);
-#endif
-    } else {
-        path = QString("/opt/sdk/share/documents/");
-    }
-    view->setSource(QUrl::fromLocalFile(path + file));
-    
+    QSharedPointer<QDeclarativeView> view(MDeclarativeCache::qDeclarativeView());
+    view->setSource(QUrl::fromLocalFile(QML_INSTALL_DIR + file));
+    view->engine()->addImportPath(CALLIGRA_QML_PLUGIN_DIR);
     return view;
 }
 
-void Sailfish::showView(QDeclarativeView* view) {
+void Sailfish::showView(const QSharedPointer<QDeclarativeView> &view) 
+{
     view->setResizeMode(QDeclarativeView::SizeRootObjectToView);
-    
-    bool isDesktop = qApp->arguments().contains("-desktop");
-    
-    if (isDesktop) {
-        view->setFixedSize(480, 854);
-        view->rootObject()->setProperty("_desktop", true);
-        view->show();
-    } else {
-        view->setAttribute(Qt::WA_OpaquePaintEvent);
-        view->setAttribute(Qt::WA_NoSystemBackground);
-        view->viewport()->setAttribute(Qt::WA_OpaquePaintEvent);
-        view->viewport()->setAttribute(Qt::WA_NoSystemBackground);
-        
-        view->showFullScreen();
-    }
+    view->setAttribute(Qt::WA_OpaquePaintEvent);
+    view->setAttribute(Qt::WA_NoSystemBackground);
+    view->viewport()->setAttribute(Qt::WA_OpaquePaintEvent);
+    view->viewport()->setAttribute(Qt::WA_NoSystemBackground);
+    view->showFullScreen();
 }
 
 

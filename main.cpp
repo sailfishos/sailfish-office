@@ -2,7 +2,7 @@
 #include <QApplication>
 #include <QDeclarativeView>
 
-#include "sailfishapplication.h"
+#include "sailfishapplication/sailfishapplication.h"
 
 Q_DECL_EXPORT int main(int argc, char *argv[])
 {
@@ -11,10 +11,5 @@ Q_DECL_EXPORT int main(int argc, char *argv[])
     
     Sailfish::showView(view);
     
-    app->exec();
-    
-    delete app;
-    delete view;
-    
-    return 0;
+    return app->exec();
 }
