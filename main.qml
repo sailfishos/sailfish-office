@@ -4,6 +4,8 @@ import "pages"
 
 ApplicationWindow
 {
-    initialPage: FirstPage { }
+    initialPage: fileListPage;
     cover: Qt.resolvedUrl("cover/CoverPage.qml")
+    
+    Component { id: fileListPage; FileListPage { } }
 }
