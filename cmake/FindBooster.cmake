@@ -1,11 +1,11 @@
 find_path(BOOSTER_INCLUDE_DIR
-    booster.h
+    MDeclarativeCache
     PATH_SUFFIXES
     applauncherd
 )
 
 find_library(BOOSTER_LIBRARY
-    NAMES applauncherd
+    NAMES mdeclarativecache
 )
 
 include(FindPackageHandleStandardArgs)
