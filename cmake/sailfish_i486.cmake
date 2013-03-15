@@ -8,6 +8,8 @@ set(CMAKE_FIND_ROOT_PATH $ENV{HOME}/SailfishOS/mersdk/targets/SailfishOS-i486-x8
 
 set(QT_QMAKE_EXECUTABLE $ENV{HOME}/SailfishOS/mersdk/targets/SailfishOS-i486-x86/usr/bin/qmake)
 
+set(CMAKE_INSTALL_PREFIX /opt/sdk)
+
 add_custom_target(deploy COMMENT "Deploying to emulator...")
 add_custom_command(TARGET deploy POST_BUILD COMMAND mkdir ARGS -p deploy)
 add_custom_command(TARGET deploy POST_BUILD COMMAND make ARGS DESTDIR=deploy install)
@@ -16,5 +18,5 @@ add_custom_command(TARGET deploy POST_BUILD COMMAND rm ARGS -rf deploy)
 add_dependencies(deploy all)
 
 add_custom_target(run COMMENT "Running application...")
-add_custom_command(TARGET run POST_BUILD COMMAND ssh ARGS -p 2223 -i $ENV{HOME}/.ssh/mer-qt-creator-rsa root@localhost "DISPLAY=:0 /usr/bin/invoker --type=j -s /opt/sdk/bin/documents")
+add_custom_command(TARGET run POST_BUILD COMMAND ssh ARGS -p 2223 -i $ENV{HOME}/.ssh/mer-qt-creator-rsa root@localhost "DISPLAY=:0 /usr/bin/invoker --type=j -s /opt/sdk/bin/sailfish-office")
 add_dependencies(run deploy)
