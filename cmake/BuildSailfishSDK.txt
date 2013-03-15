@@ -1,0 +1,6 @@
+mkdir build
+cd build
+cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/sailfish_i486.cmake ..
+make
+make deploy
+make run
