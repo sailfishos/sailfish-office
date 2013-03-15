@@ -1,8 +1,10 @@
  
 #include <QApplication>
+#include <QtDeclarative/QtDeclarative>
 #include <QDeclarativeView>
 
 #include "sailfishapplication/sailfishapplication.h"
+#include "models/documentlistmodel.h"
 
 Q_DECL_EXPORT int main(int argc, char *argv[])
 {

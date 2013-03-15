@@ -1,5 +1,6 @@
 import QtQuick 1.1
 import Sailfish.Silica 1.0
+import Sailfish.Office 1.0
 
 Page {
     id: page
@@ -15,31 +16,8 @@ Page {
         }
         
         ScrollDecorator { flickable: parent; }
-        
-        header: PageHeader {
-            title: "Documents";
-        }
-        
-        model: ListModel {
-            ListElement { name: "Document"; type: "OpenDocument Text"; size: "10KiB"; }
-            ListElement { name: "Document"; type: "OpenDocument Text"; size: "10KiB"; }
-            ListElement { name: "Document"; type: "OpenDocument Text"; size: "10KiB"; }
-            ListElement { name: "Document"; type: "OpenDocument Text"; size: "10KiB"; }
-            ListElement { name: "Document"; type: "OpenDocument Text"; size: "10KiB"; }
-            ListElement { name: "Document"; type: "OpenDocument Text"; size: "10KiB"; }
-            ListElement { name: "Document"; type: "OpenDocument Text"; size: "10KiB"; }
-            ListElement { name: "Document"; type: "OpenDocument Text"; size: "10KiB"; }
-            ListElement { name: "Document"; type: "OpenDocument Text"; size: "10KiB"; }
-            ListElement { name: "Document"; type: "OpenDocument Text"; size: "10KiB"; }
-            ListElement { name: "Document"; type: "OpenDocument Text"; size: "10KiB"; }
-            ListElement { name: "Document"; type: "OpenDocument Text"; size: "10KiB"; }
-            ListElement { name: "Document"; type: "OpenDocument Text"; size: "10KiB"; }
-            ListElement { name: "Document"; type: "OpenDocument Text"; size: "10KiB"; }
-            ListElement { name: "Document"; type: "OpenDocument Text"; size: "10KiB"; }
-            ListElement { name: "Document"; type: "OpenDocument Text"; size: "10KiB"; }
-            ListElement { name: "Document"; type: "OpenDocument Text"; size: "10KiB"; }
-            ListElement { name: "Document"; type: "OpenDocument Text"; size: "10KiB"; }
-        }
+        header: PageHeader { title: "Documents"; }
+        model: DocumentListModel { path: "/home/nemo/Documents"; }
         
         spacing: theme.paddingLarge;
         
@@ -51,7 +29,7 @@ Page {
                     top: parent.top;
                     topMargin: theme.paddingSmall;
                 }
-                text: model.name;
+                text: model.fileName;
                 
                 font.pixelSize: theme.fontSizeLarge;
             }
@@ -62,7 +40,7 @@ Page {
                     bottom: parent.bottom;
                     bottomMargin: theme.paddingSmall;
                 }
-                text: model.type;
+                text: model.fileType;
                 
                 font.pixelSize: theme.fontSizeSmall;
                 color: theme.secondaryColor;
@@ -75,14 +53,14 @@ Page {
                     bottomMargin: theme.paddingSmall;
                 }
                 
-                text: model.size;
+                text: model.fileSize;
                 
                 font.pixelSize: theme.fontSizeSmall;
                 color: theme.secondaryColor;
             }
             MouseArea {
                 anchors.fill: parent;
-                onClicked: pageStack.push(Qt.resolvedUrl("DocumentPage.qml"));
+                onClicked: pageStack.push(Qt.resolvedUrl("DocumentPage.qml"), { title: model.fileName, path: model.filePath });
             }
         }
     }
