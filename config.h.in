@@ -1,7 +1,7 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#define QML_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/share/documents/"
+#define QML_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/share/sailfish-office/"
 #define CALLIGRA_QML_PLUGIN_DIR "${CMAKE_INSTALL_PREFIX}/share/calligra/imports"
 
 #endif //CONFIG_H

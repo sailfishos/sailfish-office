@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Documents
+Icon=icon-launcher-office
+Exec=invoker --type=j -s /usr/bin/sailfish-office
+Comment=Document Viewer
+
+

@@ -1,8 +1,0 @@
-[Desktop Entry]
-Type=Application
-Name=Documents
-Icon=icon-launcher-gallery
-Exec=invoker --type=j -s /opt/sdk/bin/Documents
-Comment=Sailfish UI application
-
-
