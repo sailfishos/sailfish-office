@@ -5,7 +5,6 @@ Summary: Sailfish office viewer
 Group: System/Base
 License: GPLv2
 Source0: %{name}-%{version}.tar.gz
-#BuildRequires: pkgconfig(glib-2.0)
 BuildRequires: pkgconfig(QtDeclarative)
 BuildRequires: pkgconfig(qdeclarative-boostable)
 BuildRequires: cmake
@@ -20,7 +19,7 @@ Requires: sailfishsilica
 %defattr(-,root,root,-)
 %{_bindir}/*
 %{_datadir}/applications/*.desktop
-%{_datadir}/documents/
+%{_datadir}/%{name}/
 
 
 %prep
