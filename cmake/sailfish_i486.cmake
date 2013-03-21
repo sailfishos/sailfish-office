@@ -18,5 +18,5 @@ add_custom_command(TARGET deploy POST_BUILD COMMAND rm ARGS -rf deploy)
 add_dependencies(deploy all)
 
 add_custom_target(run COMMENT "Running application...")
-add_custom_command(TARGET run POST_BUILD COMMAND ssh ARGS -p 2223 -i $ENV{HOME}/.ssh/mer-qt-creator-rsa root@localhost "DISPLAY=:0 /usr/bin/invoker --type=j -s /opt/sdk/bin/sailfish-office")
+add_custom_command(TARGET run POST_BUILD COMMAND ssh ARGS -p 2223 -i $ENV{HOME}/.ssh/mer-qt-creator-rsa nemo@localhost "DISPLAY=:0 /usr/bin/invoker --type=j -s /opt/sdk/bin/sailfish-office")
 add_dependencies(run deploy)
