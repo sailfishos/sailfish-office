@@ -9,34 +9,6 @@ Page {
     property string title;
     property string path;
     
-    Component.onCompleted: console.log( "Opening " + path );
-    
-//     Rectangle {
-//         id: rect;
-//         anchors.fill: parent;
-//         color: "grey";
-//         
-// //         SilicaFlickable {
-// //             id: document;
-// //             contentHeight: childrenRect.height;
-// //             
-// //         }
-//         
-// //         ScrollDecorator { flickable: document; }
-//         
-//         Rectangle {
-//             color: "white";
-//             x: page.width * 0.1;
-//             y: page.height * 0.1;
-//             width: page.width * 0.8;
-//             height: page.height * 0.8;
-//         }
-//         
-//         MouseArea {
-//             anchors.fill: parent;
-//             onClicked: { header.opacity = 1; fullScreenTimer.restart(); }
-//         }
-//     }
     Calligra.TextDocumentCanvas {
         id: document;
         anchors.fill: parent;

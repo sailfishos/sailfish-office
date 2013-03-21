@@ -70,7 +70,7 @@ void DocumentListModel::setPath(const QString& newPath)
         beginRemoveRows( QModelIndex(), 0, d->entries.count() );
         d->entries.clear();
         endRemoveRows();
-        d->entries.append(d->directory.entryInfoList( QStringList() << "*.odt", QDir::Files, QDir::Name ));
+        d->entries = d->directory.entryInfoList( QStringList() << "*.odt" << "*.ods" << "*.odp", QDir::Files, QDir::Name );
         beginInsertRows( QModelIndex(), 0, d->entries.count() );
         endInsertRows();
         emit pathChanged();
