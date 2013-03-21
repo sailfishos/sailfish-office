@@ -50,8 +50,10 @@ QVariant DocumentListModel::data(const QModelIndex& index, int role) const
     return QVariant();
 }
 
-int DocumentListModel::rowCount(const QModelIndex& /*parent*/) const
+int DocumentListModel::rowCount(const QModelIndex& parent) const
 {
+    if(parent.isValid())
+        return 0;
     return d->entries.count();
 }
 
@@ -66,8 +68,9 @@ void DocumentListModel::setPath(const QString& newPath)
     {
         d->directory.setPath( newPath );
         beginRemoveRows( QModelIndex(), 0, d->entries.count() );
+        d->entries.clear();
         endRemoveRows();
-        d->entries = d->directory.entryInfoList( QStringList() << "*.odt", QDir::Files, QDir::Name );
+        d->entries.append(d->directory.entryInfoList( QStringList() << "*.odt", QDir::Files, QDir::Name ));
         beginInsertRows( QModelIndex(), 0, d->entries.count() );
         endInsertRows();
         emit pathChanged();

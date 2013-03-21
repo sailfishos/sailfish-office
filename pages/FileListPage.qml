@@ -4,8 +4,11 @@ import Sailfish.Office 1.0
 
 Page {
     id: page
-    
+    property alias model: listView.model;
+    property string title: "Documents"
+
     SilicaListView {
+        id: listView;
         anchors.fill: parent
         
         PullDownMenu {
@@ -16,8 +19,8 @@ Page {
         }
         
         ScrollDecorator { flickable: parent; }
-        header: PageHeader { title: "Documents"; }
-        model: DocumentListModel { path: "/home/nemo/Documents"; }
+        header: PageHeader { title: page.title; }
+        //model: DocumentListModel { path: "/home/nemo/Documents"; }
         
         spacing: theme.paddingLarge;
         

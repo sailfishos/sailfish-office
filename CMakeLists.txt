@@ -22,6 +22,9 @@ set(sailfishoffice_SRCS
     main.cpp
     sailfishapplication/sailfishapplication.cpp
     models/documentlistmodel.cpp
+    models/documentproviderlistmodel.cpp
+    models/documentproviderplugin.cpp
+    models/trackerdocumentprovider.cpp
 )
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -fPIC -pie -rdynamic")
