@@ -9,11 +9,15 @@ find_package(Booster REQUIRED)
 
 include(${QT_USE_FILE})
 
+#include(FindPkgConfig)
+#pkg_check_modules(QSPARQL REQUIRED QtSparql)
+
 include_directories(
     ${CMAKE_SOURCE_DIR}
     ${CMAKE_BINARY_DIR}
     ${QT_INCLUDES}
     ${BOOSTER_INCLUDE_DIR}
+    /usr/include
 )
 
 configure_file(config.h.in config.h)
@@ -31,7 +35,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -fPIC -pie -rdynamic")
 
 qt4_automoc(${sailfishoffice_SRCS})
 add_executable(sailfish-office ${sailfishoffice_SRCS})
-target_link_libraries(sailfish-office stdc++ ${QT_LIBRARIES} ${BOOSTER_LIBRARY})
+target_link_libraries(sailfish-office stdc++ ${QT_LIBRARIES} ${BOOSTER_LIBRARY} QtSparql)
 
 install(TARGETS sailfish-office DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 install(FILES main.qml DESTINATION ${CMAKE_INSTALL_PREFIX}/share/sailfish-office)
