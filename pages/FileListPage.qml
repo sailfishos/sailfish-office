@@ -60,7 +60,16 @@ Page {
             }
             MouseArea {
                 anchors.fill: parent;
-                onClicked: pageStack.push(Qt.resolvedUrl("DocumentPage.qml"), { title: model.fileName, path: model.filePath });
+                onClicked: {
+                    switch(model.fileType) {
+                        case "odt":
+                            pageStack.push(Qt.resolvedUrl("TextDocumentPage.qml"), { title: model.fileName, path: model.filePath });
+                        case "ods":
+                            pageStack.push(Qt.resolvedUrl("SpreadsheetPage.qml"), { title: model.fileName, path: model.filePath });
+                        case "odp":
+                            pageStack.push(Qt.resolvedUrl("PresentationPage.qml"), { title: model.fileName, path: model.filePath });
+                    }
+                }
             }
         }
     }
