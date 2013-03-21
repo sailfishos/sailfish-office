@@ -1,50 +1,40 @@
 import QtQuick 1.1
 import Sailfish.Silica 1.0
+import com.jolla.components.views 1.0
 import org.calligra.CalligraComponents 0.1 as Calligra
 
-Page {
+SplitViewPage {
     id: page
-    backNavigation: header.opacity > 0;
 
     property string title;
     property string path;
 
-    Calligra.SpreadsheetCanvas {
-        id: document;
-        anchors.fill: parent;
-        source: page.path;
-        //zoomMode: Calligra.TextDocumentCanvas.ZOOM_WIDTH;
-    }
+    PageHeader { anchors.right: parent.right; title: page.title; }
 
-    MouseArea {
-        anchors.fill: parent;
-        onClicked: { header.opacity = 1; fullScreenTimer.restart(); }
-    }
+    contentItem: Rectangle {
+        color: "grey";
+        SilicaFlickable {
+            anchors.fill: parent;
 
-    Rectangle {
-        id: header;
+            contentWidth: document.width;
+            contentHeight: document.height;
+            clip: true;
 
-        anchors {
-            top: parent.top;
-            left: parent.left;
-            right: parent.right;
-        }
-        height: childrenRect.height;
+            Calligra.SpreadsheetCanvas {
+                id: document;
+                width: page.width * 2;
+                height: page.height * 2;
+            }
 
-        Behavior on opacity { NumberAnimation { } }
-        color: "black";
-
-        PageHeader {
-            title: page.title;
+            ScrollDecorator { flickable: parent; }
+            MouseArea { anchors.fill: parent; onClicked: page.splitActive = !page.splitActive; }
         }
     }
 
-    Timer {
-        id: fullScreenTimer;
-        interval: 5000;
-        running: true;
-        repeat: false;
-
-        onTriggered: header.opacity = 0;
+    onStatusChanged: {
+        //Delay loading the document until the page has been activated.
+        if(status == PageStatus.Active) {
+            document.source = page.path;
+        }
     }
 }
