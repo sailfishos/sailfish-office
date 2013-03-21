@@ -1,36 +1,37 @@
 import QtQuick 1.1
 import Sailfish.Silica 1.0
+import com.jolla.components.views 1.0
 import org.calligra.CalligraComponents 0.1 as Calligra
 
-Page {
+SplitViewPage {
     id: page
     
     property string title;
     property string path;
 
-    Rectangle {
-        anchors.fill: parent;
+    PageHeader { title: page.title; }
+
+    contentItem: Rectangle {
         color: "grey";
-    }
+        SilicaFlickable {
+            id: flickable
 
-    SilicaFlickable {
-        id: flickable
+            anchors.fill: parent;
 
-        anchors.fill: parent;
+            contentWidth: document.width;
+            contentHeight: document.height
+            clip: true;
 
-        contentWidth: document.width;
-        contentHeight: document.height
-        clip: true;
+            Calligra.TextDocumentCanvas {
+                id: document;
+                width: page.width;
+                height: page.height * 10;
+                zoomMode: Calligra.TextDocumentCanvas.ZOOM_WIDTH;
+            }
 
-        Calligra.TextDocumentCanvas {
-            id: document;
-            width: page.width;
-            height: page.height * 10;
-            zoomMode: Calligra.TextDocumentCanvas.ZOOM_WIDTH;
+            ScrollDecorator { flickable: parent; }
+            MouseArea { anchors.fill: parent; onClicked: page.splitActive = !page.splitActive; }
         }
-
-        ScrollDecorator { flickable: parent; }
-        MouseArea { anchors.fill: parent; onClicked: mouse.accept(); }
     }
 
     onStatusChanged: {
