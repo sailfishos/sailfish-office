@@ -6,11 +6,19 @@
 
 #include <QDir>
 
+struct DocumentListModelEntry
+{
+    QString fileName;
+    QString filePath;
+    QString fileType;
+    int fileSize;
+    QDateTime fileRead;
+};
+
 class DocumentListModel::Private
 {
 public:
-    QDir directory;
-    QFileInfoList entries;
+    QList<DocumentListModelEntry> entries;
 };
 
 DocumentListModel::DocumentListModel(QObject* parent)
@@ -21,6 +29,7 @@ DocumentListModel::DocumentListModel(QObject* parent)
     roles.insert( FilePathRole, "filePath" );
     roles.insert( FileTypeRole, "fileType" );
     roles.insert( FileSizeRole, "fileSize" );
+    roles.insert( FileReadRole, "fileRead" );
     setRoleNames( roles );
 }
 
@@ -36,13 +45,15 @@ QVariant DocumentListModel::data(const QModelIndex& index, int role) const
     switch( role )
     {
         case FileNameRole:
-            return d->entries.at( index.row() ).fileName().split( '.' ).at( 0 );
+            return d->entries.at( index.row() ).fileName;
         case FilePathRole:
-            return d->entries.at( index.row() ).filePath();
+            return d->entries.at( index.row() ).filePath;
         case FileTypeRole:
-            return d->entries.at( index.row() ).fileName().split( '.' ).at( 1 );
+            return d->entries.at( index.row() ).fileType;
         case FileSizeRole:
-            return QString( "%1 KiB" ).arg( d->entries.at( index.row() ).size() / 1024 );
+            return QString( "%1 KiB" ).arg( d->entries.at( index.row() ).fileSize / 1024 );
+        case FileReadRole:
+            return d->entries.at( index.row() ).fileRead;
         default:
             break;
     }
@@ -57,24 +68,34 @@ int DocumentListModel::rowCount(const QModelIndex& parent) const
     return d->entries.count();
 }
 
-QString DocumentListModel::path() const
+void DocumentListModel::addItem(QString name, QString path, QString type, int size, QDateTime lastRead)
 {
-    return d->directory.path();
+    DocumentListModelEntry entry;
+    entry.fileName = name;
+    entry.filePath = path;
+    entry.fileType = type;
+    entry.fileSize = size;
+    entry.fileRead = lastRead;
+    beginInsertRows(QModelIndex(), d->entries.count(), d->entries.count());
+    d->entries.append(entry);
+    endInsertRows();
 }
 
-void DocumentListModel::setPath(const QString& newPath)
+void DocumentListModel::removeAt(int index)
 {
-    if( newPath != d->directory.path() )
+    if(index > -1 && index < d->entries.count())
     {
-        d->directory.setPath( newPath );
-        beginRemoveRows( QModelIndex(), 0, d->entries.count() );
-        d->entries.clear();
+        beginRemoveRows(QModelIndex(), index, index);
+        d->entries.removeAt(index);
         endRemoveRows();
-        d->entries = d->directory.entryInfoList( QStringList() << "*.odt" << "*.ods" << "*.odp", QDir::Files, QDir::Name );
-        beginInsertRows( QModelIndex(), 0, d->entries.count() );
-        endInsertRows();
-        emit pathChanged();
     }
+}
+
+void DocumentListModel::clear()
+{
+    beginResetModel();
+    d->entries.clear();
+    endResetModel();
 }
 
 #include "documentlistmodel.moc"

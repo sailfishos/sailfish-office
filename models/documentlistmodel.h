@@ -6,36 +6,35 @@
 #define DOCUMENTLISTMODEL_H
 
 #include <QAbstractListModel>
+#include <qdatetime.h>
 
 class DocumentListModelPrivate;
 
 class DocumentListModel : public QAbstractListModel
 {
     Q_OBJECT
-    Q_PROPERTY(QString path READ path WRITE setPath NOTIFY pathChanged)
 public:
     enum Roles
     {
         FileNameRole = Qt::UserRole + 1,
         FilePathRole,
         FileTypeRole,
-        FileSizeRole
+        FileSizeRole,
+        FileReadRole
     };
-    
+
     DocumentListModel( QObject* parent = 0 );
     ~DocumentListModel();
-    
+
     DocumentListModel( const DocumentListModel& ) = delete;
     DocumentListModel& operator=( const DocumentListModel& ) = delete;
-    
+
     virtual QVariant data(const QModelIndex& index, int role) const;
     virtual int rowCount(const QModelIndex& parent) const;
-    
-    QString path() const;
-    void setPath(const QString& newPath);
 
-Q_SIGNALS:
-    void pathChanged();
+    void addItem(QString name, QString path, QString type, int size, QDateTime lastRead);
+    void removeAt(int index);
+    void clear();
 
 private:
     class Private;
