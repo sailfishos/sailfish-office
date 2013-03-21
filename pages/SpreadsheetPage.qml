@@ -4,47 +4,36 @@ import org.calligra.CalligraComponents 0.1 as Calligra
 
 Page {
     id: page
-    backNavigation: header.opacity > 0;
 
     property string title;
     property string path;
 
-    Calligra.SpreadsheetCanvas {
-        id: document;
-        anchors.fill: parent;
-        source: page.path;
-        //zoomMode: Calligra.TextDocumentCanvas.ZOOM_WIDTH;
-    }
-
-    MouseArea {
-        anchors.fill: parent;
-        onClicked: { header.opacity = 1; fullScreenTimer.restart(); }
-    }
-
     Rectangle {
-        id: header;
-
-        anchors {
-            top: parent.top;
-            left: parent.left;
-            right: parent.right;
-        }
-        height: childrenRect.height;
-
-        Behavior on opacity { NumberAnimation { } }
-        color: "black";
-
-        PageHeader {
-            title: page.title;
-        }
+        anchors.fill: parent;
+        color: "grey";
     }
 
-    Timer {
-        id: fullScreenTimer;
-        interval: 5000;
-        running: true;
-        repeat: false;
+    SilicaFlickable {
+        anchors.fill: parent;
 
-        onTriggered: header.opacity = 0;
+        contentWidth: document.width;
+        contentHeight: document.height;
+        clip: true;
+
+        Calligra.SpreadsheetCanvas {
+            id: document;
+            width: page.width * 2;
+            height: page.height * 2;
+        }
+
+        ScrollDecorator { flickable: parent; }
+        MouseArea { anchors.fill: parent; onClicked: mouse.accept(); }
+    }
+
+    onStatusChanged: {
+        //Delay loading the document until the page has been activated.
+        if(status == PageStatus.Active) {
+            document.source = page.path;
+        }
     }
 }
