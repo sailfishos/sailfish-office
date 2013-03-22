@@ -13,20 +13,21 @@ SplitViewPage {
 
     contentItem: Rectangle {
         color: "grey";
+        clip: true;
         SilicaFlickable {
             id: flickable
 
             anchors.fill: parent;
 
-            contentWidth: document.width;
-            contentHeight: document.height
+            contentWidth: document.documentSize.width;
+            contentHeight: document.documentSize.height;
             clip: true;
 
             Calligra.TextDocumentCanvas {
                 id: document;
-                width: page.width;
-                height: page.height * 10;
-                zoomMode: Calligra.TextDocumentCanvas.ZOOM_WIDTH;
+                width: documentSize.width;
+                height: documentSize.height;
+                zoomMode: Calligra.TextDocumentCanvas.ZOOM_PAGE`;
             }
 
             ScrollDecorator { flickable: parent; }
