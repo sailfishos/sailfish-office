@@ -7,6 +7,7 @@ License: GPLv2
 Source0: %{name}-%{version}.tar.gz
 BuildRequires: pkgconfig(QtDeclarative)
 BuildRequires: pkgconfig(qdeclarative-boostable)
+BuildRequires: pkgconfig(QtSparql)
 BuildRequires: cmake
 Requires: calligra-components
 Requires: sailfishsilica
