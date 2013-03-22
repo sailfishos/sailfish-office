@@ -15,7 +15,7 @@ include_directories(
     ${CMAKE_BINARY_DIR}
     ${QT_INCLUDES}
     ${BOOSTER_INCLUDE_DIR}
-    ${QTSPARQL_INCLUDES_DIR}
+    ${QTSPARQL_INCLUDE_DIR}
 )
 
 configure_file(config.h.in config.h)
@@ -33,7 +33,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -fPIC -pie -rdynamic")
 
 qt4_automoc(${sailfishoffice_SRCS})
 add_executable(sailfish-office ${sailfishoffice_SRCS})
-target_link_libraries(sailfish-office stdc++ ${QT_LIBRARIES} ${BOOSTER_LIBRARY} QtSparql)
+target_link_libraries(sailfish-office stdc++ ${QT_LIBRARIES} ${BOOSTER_LIBRARY} ${QTSPARQL_LIBRARY})
 
 install(TARGETS sailfish-office DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 install(FILES main.qml DESTINATION ${CMAKE_INSTALL_PREFIX}/share/sailfish-office)
