@@ -6,22 +6,20 @@ set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 find_package(Qt4 REQUIRED QtDeclarative)
 find_package(Booster REQUIRED)
+find_package(QtSparql REQUIRED)
 
 include(${QT_USE_FILE})
-
-#include(FindPkgConfig)
-#pkg_check_modules(QSPARQL REQUIRED QtSparql)
 
 include_directories(
     ${CMAKE_SOURCE_DIR}
     ${CMAKE_BINARY_DIR}
     ${QT_INCLUDES}
     ${BOOSTER_INCLUDE_DIR}
-    /usr/include
+    ${QTSPARQL_INCLUDES_DIR}
 )
 
 configure_file(config.h.in config.h)
-    
+
 set(sailfishoffice_SRCS
     main.cpp
     sailfishapplication/sailfishapplication.cpp
