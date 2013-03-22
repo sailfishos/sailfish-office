@@ -13,7 +13,7 @@ Page {
             id: delegateItem
             width: view.width
             height: thumbnail.height
-            enabled: count > 0
+            enabled: model.count > 0
             opacity: enabled ? 1.0 : 0.5
 
             Label {
@@ -24,7 +24,7 @@ Page {
                     rightMargin: theme.paddingLarge
                     verticalCenter: parent.verticalCenter
                 }
-                text: count
+                text: model.count
                 color: delegateItem.down ? theme.highlightColor : theme.primaryColor
                 font.pixelSize: theme.fontSizeLarge
             }
@@ -35,7 +35,7 @@ Page {
                 x: width - theme.paddingLarge
                 width: theme.itemSizeExtraLarge
                 height: width
-                source: icon != "" ? icon : "PhotoIcon.qml"
+                source: model.icon != "" ? model.icon : "PhotoIcon.qml"
                 opacity: delegateItem.down ? 0.5 : 1
             }
 
@@ -44,7 +44,7 @@ Page {
                 objectName: "titleLabel"
                 elide: Text.ElideRight
                 font.pixelSize: theme.fontSizeLarge
-                text: title
+                text: model.title
                 color: delegateItem.down ? theme.highlightColor : theme.primaryColor
                 anchors {
                     left: thumbnail.right
@@ -56,9 +56,9 @@ Page {
 
             onClicked: {
                     console.debug("Model name: " + providerModel.objectName);
-                    window.pageStack.push(page != "" ? Qt.resolvedUrl(page) : Qt.resolvedUrl("FileListPage.qml") , {
-                    title: title,
-                    model: providerModel,
+                    window.pageStack.push(model.page != "" ? Qt.resolvedUrl(model.page) : Qt.resolvedUrl("FileListPage.qml") , {
+                    title: model.title,
+                    model: model.providerModel,
                     //thumbnailDelegate: thumbnail != "" ? thumbnail : Qt.resolvedUrl("GridImageThumbnail.qml")
             } ) }
         }
