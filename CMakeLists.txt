@@ -18,6 +18,7 @@ include_directories(
     ${QTSPARQL_INCLUDE_DIR}
 )
 
+set(CALLIGRA_QML_PLUGIN_DIR ${CMAKE_INSTALL_PREFIX}/lib/calligra/imports CACHE PATH "The location of the Calligra QtQuick Components")
 configure_file(config.h.in config.h)
 
 set(sailfishoffice_SRCS
