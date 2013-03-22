@@ -13,7 +13,7 @@ Page {
             id: delegateItem
             width: view.width
             height: thumbnail.height
-            enabled: count > 0
+            //enabled: count > 0
             opacity: enabled ? 1.0 : 0.5
 
             Label {
