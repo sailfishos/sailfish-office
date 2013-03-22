@@ -1,5 +1,6 @@
 import QtQuick 1.1
 import Sailfish.Silica 1.0
+import Sailfish.TransferEngine 1.0
 import com.jolla.components.views 1.0
 import org.calligra.CalligraComponents 0.1 as Calligra
 
@@ -9,7 +10,25 @@ SplitViewPage {
     property string title;
     property string path;
 
-    PageHeader { title: page.title; }
+    ShareMethodList {
+        anchors {
+            top: parent.top;
+            left: parent.left;
+            right: parent.right;
+            bottom: parent.verticalCenter;
+        }
+
+        header: PageHeader { title: page.title; }
+
+        PullDownMenu {
+            MenuItem {
+                text: "Select";
+            }
+        }
+
+        model: SailfishTransferMethodsModel { }
+        source: page.path;
+    }
 
     contentItem: Rectangle {
         color: "grey";
