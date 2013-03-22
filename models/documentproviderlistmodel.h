@@ -51,6 +51,7 @@ Q_SIGNALS:
 
 private slots:
     void updateActiveSources();
+    void sourceInfoChanged();
 
 private:
     class Private;

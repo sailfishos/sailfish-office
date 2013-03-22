@@ -8,10 +8,12 @@
 class DocumentProviderListModel::Private
 {
 public:
-    Private()
-        : completed(false)
+    Private(DocumentProviderListModel* qq)
+        : q(qq)
+        , completed(false)
         , albumDelegate(0)
     {}
+    DocumentProviderListModel* q;
     bool completed;
     QList<DocumentProviderPlugin*> providers;
     QDeclarativeComponent* albumDelegate;
@@ -21,6 +23,13 @@ public:
         Private *d = static_cast<Private *>(property->data);
         DocumentProviderListModel *q = static_cast<DocumentProviderListModel *>(property->object);
         d->providers.append(source);
+        QObject::connect(source, SIGNAL(countChanged()), q, SLOT(sourceInfoChanged()));
+        QObject::connect(source, SIGNAL(iconChanged()), q, SLOT(sourceInfoChanged()));
+        QObject::connect(source, SIGNAL(thumbnailChanged()), q, SLOT(sourceInfoChanged()));
+        QObject::connect(source, SIGNAL(pageChanged()), q, SLOT(sourceInfoChanged()));
+        QObject::connect(source, SIGNAL(titleChanged()), q, SLOT(sourceInfoChanged()));
+        QObject::connect(source, SIGNAL(modelChanged()), q, SLOT(sourceInfoChanged()));
+        QObject::connect(source, SIGNAL(readyChanged()), q, SLOT(sourceInfoChanged()));
 
         if (source->isReady())
             q->updateActiveSources();
@@ -41,7 +50,7 @@ public:
 
 DocumentProviderListModel::DocumentProviderListModel(QObject* parent)
     : QAbstractListModel(parent)
-    , d(new Private)
+    , d(new Private(this))
 {
     QHash<int, QByteArray> roles;
     roles[Title] = "title";
@@ -87,6 +96,16 @@ QDeclarativeListProperty< DocumentProviderPlugin > DocumentProviderListModel::so
 void DocumentProviderListModel::updateActiveSources()
 {
 
+}
+
+void DocumentProviderListModel::sourceInfoChanged()
+{
+    DocumentProviderPlugin* source = qobject_cast< DocumentProviderPlugin* >(sender());
+    int index = d->providers.indexOf(source);
+    if(index > -1) {
+        QModelIndex changedIndex = createIndex(index, 0);
+        dataChanged(changedIndex, changedIndex);
+    }
 }
 
 QDeclarativeComponent* DocumentProviderListModel::albumDelegate() const
