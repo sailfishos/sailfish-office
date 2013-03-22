@@ -36,6 +36,7 @@ public:
     virtual void classBegin();
     virtual void componentComplete();
 
+public Q_SLOTS:
     void startSearch();
     void stopSearch();
     void searchFinished();
