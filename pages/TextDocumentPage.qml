@@ -44,9 +44,9 @@ SplitViewPage {
 
             Calligra.TextDocumentCanvas {
                 id: document;
-                width: documentSize.width;
-                height: documentSize.height;
-                zoomMode: Calligra.TextDocumentCanvas.ZOOM_PAGE`;
+                width: page.width;
+                height: page.height;
+                zoomMode: Calligra.TextDocumentCanvas.ZOOM_PAGE;
             }
 
             ScrollDecorator { flickable: parent; }
