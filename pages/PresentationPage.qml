@@ -14,17 +14,22 @@ SplitViewPage {
     contentItem: Rectangle {
         color: "grey";
 
+        Calligra.PresentationCanvas {
+            id: document;
+            anchors.fill: parent;
+        }
+
         SilicaFlickable {
+            id: flickable
+
             anchors.fill: parent;
 
-            contentWidth: document.width;
-            contentHeight: document.height;
-            clip: true;
+            contentWidth: canvasController.documentSize.width;
+            contentHeight: canvasController.documentSize.height;
 
-            Calligra.PresentationCanvas {
-                id: document;
-                width: page.width;
-                height: page.height;
+            Calligra.CanvasControllerItem {
+                id: canvasController;
+                canvas: document;
             }
 
             ScrollDecorator { flickable: parent; }
