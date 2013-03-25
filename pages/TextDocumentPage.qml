@@ -1,5 +1,6 @@
 import QtQuick 1.1
 import Sailfish.Silica 1.0
+import Sailfish.TransferEngine 1.0
 import com.jolla.components.views 1.0
 import org.calligra.CalligraComponents 0.1 as Calligra
 
@@ -9,24 +10,43 @@ SplitViewPage {
     property string title;
     property string path;
 
-    PageHeader { title: page.title; }
+    ShareMethodList {
+        anchors {
+            top: parent.top;
+            left: parent.left;
+            right: parent.right;
+            bottom: parent.verticalCenter;
+        }
+
+        header: PageHeader { title: page.title; }
+
+        PullDownMenu {
+            MenuItem {
+                text: "Select";
+            }
+        }
+
+        model: SailfishTransferMethodsModel { }
+        source: page.path;
+    }
 
     contentItem: Rectangle {
         color: "grey";
+        clip: true;
         SilicaFlickable {
             id: flickable
 
             anchors.fill: parent;
 
-            contentWidth: document.width;
-            contentHeight: document.height
+            contentWidth: document.documentSize.width;
+            contentHeight: document.documentSize.height;
             clip: true;
 
             Calligra.TextDocumentCanvas {
                 id: document;
-                width: page.width;
-                height: page.height * 10;
-                zoomMode: Calligra.TextDocumentCanvas.ZOOM_WIDTH;
+                width: documentSize.width;
+                height: documentSize.height;
+                zoomMode: Calligra.TextDocumentCanvas.ZOOM_PAGE`;
             }
 
             ScrollDecorator { flickable: parent; }

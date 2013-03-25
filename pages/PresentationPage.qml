@@ -23,7 +23,7 @@ SplitViewPage {
 
             Calligra.PresentationCanvas {
                 id: document;
-                width: page.width * 2;
+                width: page.width;
                 height: page.height;
             }
 
