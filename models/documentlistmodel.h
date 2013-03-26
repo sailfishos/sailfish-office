@@ -20,7 +20,9 @@ public:
         FilePathRole,
         FileTypeRole,
         FileSizeRole,
-        FileReadRole
+        FileReadRole,
+        FileMimeTypeRole,
+        FileDocumentClass
     };
 
     DocumentListModel( QObject* parent = 0 );
@@ -32,7 +34,7 @@ public:
     virtual QVariant data(const QModelIndex& index, int role) const;
     virtual int rowCount(const QModelIndex& parent) const;
 
-    void addItem(QString name, QString path, QString type, int size, QDateTime lastRead);
+    void addItem(QString name, QString path, QString type, int size, QDateTime lastRead, QString mimeType);
     void removeAt(int index);
     void clear();
 

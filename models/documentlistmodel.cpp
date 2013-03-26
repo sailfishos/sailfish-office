@@ -6,6 +6,13 @@
 
 #include <QDir>
 
+enum DocumentClass {
+    UnknownDocument,
+    TextDocument,
+    SpreadSheetDocument,
+    PresentationDocument
+};
+
 struct DocumentListModelEntry
 {
     QString fileName;
@@ -13,6 +20,8 @@ struct DocumentListModelEntry
     QString fileType;
     int fileSize;
     QDateTime fileRead;
+    QString mimeType;
+    DocumentClass documentClass;
 };
 
 class DocumentListModel::Private
@@ -30,6 +39,8 @@ DocumentListModel::DocumentListModel(QObject* parent)
     roles.insert( FileTypeRole, "fileType" );
     roles.insert( FileSizeRole, "fileSize" );
     roles.insert( FileReadRole, "fileRead" );
+    roles.insert( FileMimeTypeRole, "fileMimeType" );
+    roles.insert( FileDocumentClass, "fileDocumentClass" );
     setRoleNames( roles );
 }
 
@@ -54,10 +65,24 @@ QVariant DocumentListModel::data(const QModelIndex& index, int role) const
             return QString( "%1 KiB" ).arg( d->entries.at( index.row() ).fileSize / 1024 );
         case FileReadRole:
             return d->entries.at( index.row() ).fileRead;
+        case FileMimeTypeRole:
+            return d->entries.at( index.row() ).mimeType;
+        case FileDocumentClass:
+            switch( d->entries.at( index.row() ).documentClass )
+            {
+                case TextDocument:
+                    return QString("TextDocument");
+                case SpreadSheetDocument:
+                    return QString("SpreadSheetDocument");
+                case PresentationDocument:
+                    return QString("PresentationDocument");
+                default:
+                    return QString("Unknown");
+            }
         default:
             break;
     }
-    
+
     return QVariant();
 }
 
@@ -68,7 +93,7 @@ int DocumentListModel::rowCount(const QModelIndex& parent) const
     return d->entries.count();
 }
 
-void DocumentListModel::addItem(QString name, QString path, QString type, int size, QDateTime lastRead)
+void DocumentListModel::addItem(QString name, QString path, QString type, int size, QDateTime lastRead, QString mimeType)
 {
     DocumentListModelEntry entry;
     entry.fileName = name;
@@ -76,6 +101,44 @@ void DocumentListModel::addItem(QString name, QString path, QString type, int si
     entry.fileType = type;
     entry.fileSize = size;
     entry.fileRead = lastRead;
+    entry.mimeType = mimeType;
+
+    if(entry.mimeType == QLatin1String("application/vnd.oasis.opendocument.text") ||
+       entry.mimeType == QLatin1String("application/msword") ||
+       entry.mimeType == QLatin1String("application/vnd.openxmlformats-officedocument.wordprocessingml.document") ||
+       entry.mimeType == QLatin1String("application/vnd.openxmlformats-officedocument.wordprocessingml.template") ||
+       entry.mimeType == QLatin1String("application/vnd.ms-word.document.macroEnabled.12") ||
+       entry.mimeType == QLatin1String("application/vnd.ms-word.template.macroEnabled.12"))
+    {
+        entry.documentClass = TextDocument;
+    }
+    else
+    if(entry.mimeType == QLatin1String("application/vnd.oasis.opendocument.presentation") ||
+       entry.mimeType == QLatin1String("application/vnd.ms-powerpoint") ||
+       entry.mimeType == QLatin1String("application/vnd.openxmlformats-officedocument.presentationml.presentation") ||
+       entry.mimeType == QLatin1String("application/vnd.openxmlformats-officedocument.presentationml.template") ||
+       entry.mimeType == QLatin1String("application/vnd.openxmlformats-officedocument.presentationml.slideshow") ||
+       entry.mimeType == QLatin1String("application/vnd.ms-powerpoint.presentation.macroEnabled.12") ||
+       entry.mimeType == QLatin1String("application/vnd.ms-powerpoint.template.macroEnabled.12") ||
+       entry.mimeType == QLatin1String("application/vnd.ms-powerpoint.slideshow.macroEnabled.12") )
+    {
+        entry.documentClass = PresentationDocument;
+    }
+    else
+    if(entry.mimeType == QLatin1String("application/vnd.oasis.opendocument.spreadsheet") ||
+       entry.mimeType == QLatin1String("application/vnd.ms-excel") ||
+       entry.mimeType == QLatin1String("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") ||
+       entry.mimeType == QLatin1String("application/vnd.openxmlformats-officedocument.spreadsheetml.template") ||
+       entry.mimeType == QLatin1String("application/vnd.ms-excel.sheet.macroEnabled") ||
+       entry.mimeType == QLatin1String("application/vnd.ms-excel.sheet.macroEnabled.12") ||
+       entry.mimeType == QLatin1String("application/vnd.ms-excel.template.macroEnabled.12") )
+    {
+        entry.documentClass = SpreadSheetDocument;
+    }
+    else {
+        entry.documentClass = UnknownDocument;
+    }
+
     beginInsertRows(QModelIndex(), d->entries.count(), d->entries.count());
     d->entries.append(entry);
     endInsertRows();

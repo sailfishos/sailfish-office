@@ -29,12 +29,13 @@ void SearchThread::run()
         "PREFIX nfo: <http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#> "
         "PREFIX nie: <http://www.semanticdesktop.org/ontologies/2007/01/19/nie#> "
         "PREFIX nco: <http://www.semanticdesktop.org/ontologies/2007/03/22/nco#> "
-        "SELECT ?name ?path ?size ?lastAccessed " // ?lastModified ?type ?uuid "
+        "SELECT ?name ?path ?size ?lastAccessed ?mimeType " // ?lastModified ?type ?uuid "
         "WHERE { "
         "?u nfo:fileName ?name . "
         "?u nie:url ?path . "
         "?u nfo:fileSize ?size . "
         "?u nfo:fileLastAccessed ?lastAccessed . "
+        "?u nie:mimeType ?mimeType . "
 //        "?u nfo:fileLastModified ?lastModified . "
 //        "?u rdf:type ?type . "
 //        "?u nie:isStoredAs ?uuid . "
@@ -45,7 +46,7 @@ void SearchThread::run()
     if(!result->hasError())
     {
         while (result->next() && !m_abort) {
-            qDebug() << result->binding(0).value().toString();
+            qDebug() << result->binding(0).value().toString() << result->binding(4).value().toString();
             
             //CMDocumentListModel::DocumentInfo info;
             m_model->addItem(
@@ -53,7 +54,8 @@ void SearchThread::run()
                 result->binding(1).value().toString(),
                 result->binding(1).value().toString().split('.').last(),
                 result->binding(2).value().toInt(),
-                result->binding(3).value().toDateTime()
+                result->binding(3).value().toDateTime(),
+                result->binding(4).value().toString()
             );
 //             info.fileName = ;
 //             info.filePath = ;
