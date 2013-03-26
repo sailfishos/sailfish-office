@@ -64,13 +64,15 @@ Page {
             MouseArea {
                 anchors.fill: parent;
                 onClicked: {
-                    switch(model.fileType) {
-                        case "odt":
-                            pageStack.push(Qt.resolvedUrl("TextDocumentPage.qml"), { title: model.fileName, path: model.filePath });
-                        case "ods":
-                            pageStack.push(Qt.resolvedUrl("SpreadsheetPage.qml"), { title: model.fileName, path: model.filePath });
-                        case "odp":
-                            pageStack.push(Qt.resolvedUrl("PresentationPage.qml"), { title: model.fileName, path: model.filePath });
+                    switch(model.fileDocumentClass) {
+                        case "TextDocument":
+                            pageStack.push(Qt.resolvedUrl("TextDocumentPage.qml"), { title: model.fileName, path: model.filePath, mimeType: model.fileMimeType });
+                        case "SpreadSheetDocument":
+                            pageStack.push(Qt.resolvedUrl("SpreadsheetPage.qml"), { title: model.fileName, path: model.filePath, mimeType: model.fileMimeType });
+                        case "PresentationDocument":
+                            pageStack.push(Qt.resolvedUrl("PresentationPage.qml"), { title: model.fileName, path: model.filePath, mimeType: model.fileMimeType });
+                        default:
+                            console.log("Unknown file format for file " + model.fileName + " with stated mimetype " + model.fileMimeType);
                     }
                 }
             }
