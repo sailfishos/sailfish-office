@@ -26,12 +26,15 @@ SplitViewPage {
 
             anchors.fill: parent;
 
-            contentWidth: canvasController.documentSize.width;
-            contentHeight: canvasController.documentSize.height;
-
             Calligra.CanvasControllerItem {
                 id: canvasController;
                 canvas: document;
+                flickable: flickable;
+
+                PinchArea {
+                    anchors.fill: parent;
+                    onPinchUpdated: parent.zoom += pinch.scale - pinch.previousScale;
+                }
             }
 
             ScrollDecorator { flickable: parent; }
