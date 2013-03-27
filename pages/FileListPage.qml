@@ -11,12 +11,12 @@ Page {
         id: listView;
         anchors.fill: parent
         
-        PullDownMenu {
+        /*PullDownMenu {
             MenuItem {
                 text: "Action";
                 onClicked: console.log("Hello World!");
             }
-        }
+        }*/
         
         ScrollDecorator { flickable: parent; }
         header: PageHeader { title: page.title; }
