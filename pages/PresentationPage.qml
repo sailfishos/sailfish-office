@@ -8,6 +8,7 @@ SplitViewPage {
 
     property string title;
     property string path;
+    property string mimeType;
 
     PageHeader { anchors.right: parent.right; title: page.title; }
 
@@ -33,7 +34,7 @@ SplitViewPage {
             }
 
             ScrollDecorator { flickable: parent; }
-            MouseArea { anchors.fill: parent; onClicked: page.splitActive = !page.splitActive; }
+            MouseArea { anchors.fill: parent; onClicked: page.toggleSplit(); }
         }
     }
 
