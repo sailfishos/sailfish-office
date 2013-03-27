@@ -203,7 +203,7 @@ QUrl TrackerDocumentProvider::thumbnail() const
 
 QString TrackerDocumentProvider::title() const
 {
-    return QString("Tracker docs");
+    return QString("This Device");
 }
 
 #include "trackerdocumentprovider.moc"
