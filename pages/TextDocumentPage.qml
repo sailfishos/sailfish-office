@@ -107,7 +107,7 @@ SplitViewPage {
 
             PinchArea {
                 anchors.fill: parent;
-                onPinchUpdated: parent.zoom += pinch.scale - pinch.previousScale;
+                onPinchUpdated: canvasController.zoom += pinch.scale - pinch.previousScale;
 
                 MouseArea { anchors.fill: parent; onClicked: page.toggleSplit(); }
             }
