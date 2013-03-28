@@ -24,7 +24,7 @@ SplitViewPage {
         model: transferMethodsModel;
         source: page.path;
 
-        anchors.fill: {
+        anchors {
             left: parent.left
             top: parent.top
             right: isPortrait ? parent.right : parent.horizontalCenter
@@ -37,7 +37,8 @@ SplitViewPage {
             }
         }
 */
-        //listHeader: "Share"
+        listHeader: "Share"
+        visible: transferMethodsModel.count > 0;
 
         header: Item {
             height: theme.itemSizeLarge
