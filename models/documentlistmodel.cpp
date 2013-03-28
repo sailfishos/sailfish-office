@@ -60,7 +60,7 @@ QVariant DocumentListModel::data(const QModelIndex& index, int role) const
         case FilePathRole:
             return d->entries.at( index.row() ).filePath;
         case FileTypeRole:
-            return d->entries.at( index.row() ).fileType;
+            return QString().append(d->entries.at( index.row() ).fileType).append(d->entries.at( index.row() ).fileRead.toString(Qt::ISODate));
         case FileSizeRole:
             return QString( "%1 KiB" ).arg( d->entries.at( index.row() ).fileSize / 1024 );
         case FileReadRole:
@@ -95,6 +95,12 @@ int DocumentListModel::rowCount(const QModelIndex& parent) const
 
 void DocumentListModel::addItem(QString name, QString path, QString type, int size, QDateTime lastRead, QString mimeType)
 {
+    // We sometimes get duplicate entries... and that's kind of silly.
+    foreach(const DocumentListModelEntry& entry, d->entries) {
+        if(entry.filePath == path)
+            return;
+    }
+
     DocumentListModelEntry entry;
     entry.fileName = name;
     entry.filePath = path;
@@ -139,8 +145,14 @@ void DocumentListModel::addItem(QString name, QString path, QString type, int si
         entry.documentClass = UnknownDocument;
     }
 
-    beginInsertRows(QModelIndex(), d->entries.count(), d->entries.count());
-    d->entries.append(entry);
+    int index = 0;
+    for(; index < d->entries.count(); ++index) {
+        if(d->entries.at(index).fileRead < entry.fileRead)
+            break;
+    }
+
+    beginInsertRows(QModelIndex(), index, index);
+    d->entries.insert(index, entry);
     endInsertRows();
 }
 
