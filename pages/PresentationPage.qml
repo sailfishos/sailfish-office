@@ -31,12 +31,17 @@ SplitViewPage {
             bottom: isPortrait ? parent.verticalCenter : parent.bottom
         }
 
-/*        PullDownMenu {
+        PullDownMenu {
             MenuItem {
-                text: "Select";
+                text: "Next Slide";
+                onClicked: document.currentSlide++;
+            }
+            MenuItem {
+                text: "Previous Slide";
+                onClicked: document.currentSlide--;
             }
         }
-*/
+
         listHeader: "Share"
 
         header: Item {
