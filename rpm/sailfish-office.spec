@@ -8,6 +8,8 @@ Source0: %{name}-%{version}.tar.gz
 BuildRequires: pkgconfig(QtDeclarative)
 BuildRequires: pkgconfig(qdeclarative-boostable)
 BuildRequires: pkgconfig(QtSparql)
+BuildRequires: pkgconfig(QtWebKit)
+BuildRequires: pkgconfig(libjollasignonuiservice)
 BuildRequires: cmake
 Requires: calligra-components
 Requires: sailfishsilica
@@ -21,7 +23,7 @@ Requires: sailfishsilica
 %{_bindir}/*
 %{_datadir}/applications/*.desktop
 %{_datadir}/%{name}/
-
+%{_datadir}/dbus-1/services/org.sailfish.documents.service
 
 %prep
 %setup -q -n %{name}-%{version}
