@@ -1,0 +1,3 @@
+[D-BUS Service]
+Name=org.sailfish.documents
+Exec=/usr/bin/sailfish-documents
