@@ -3,6 +3,9 @@
 #include <QtDeclarative/QtDeclarative>
 #include <QDeclarativeView>
 
+#include <QtDBus/QDBusConnection>
+// #include <libjollasignonuiservice/signonuiservice.h>
+
 #include "sailfishapplication/sailfishapplication.h"
 #include "models/documentlistmodel.h"
 
@@ -10,8 +13,33 @@ Q_DECL_EXPORT int main(int argc, char *argv[])
 {
     auto app = Sailfish::createApplication(argc, argv);
     auto view = Sailfish::createView("main.qml");
-    
+
+    // We want to have SignonUI in process, if user wants to create account from Documents
+//     SignonUiService *ssoui = new SignonUiService(0, true); // in process
+//     ssoui->setInProcessServiceName(QLatin1String("com.jolla.documents"));
+//     ssoui->setInProcessObjectPath(QLatin1String("/JollaDocumentsSignonUi"));
+// 
+//     QDBusConnection sessionBus = QDBusConnection::sessionBus();
+//     bool registeredService = sessionBus.registerService(QLatin1String("com.jolla.gallery"));
+//     bool registeredObject = sessionBus.registerObject(QLatin1String("/JollaGallerySignonUi"), ssoui,
+//             QDBusConnection::ExportAllContents);
+// 
+//     if (!registeredService || !registeredObject) {
+//         qWarning() << Q_FUNC_INFO << "CRITICAL: unable to register signon ui service:"
+//                    << QLatin1String("com.jolla.gallery") << "at object path:"
+//                    << QLatin1String("/JollaGallerySignonUi");
+//     }
+// 
+//     view->rootContext()->setContextProperty("jolla_signon_ui_service", ssoui);
+
     Sailfish::showView(view);
-    
-    return app->exec();
+
+    int retn = app->exec();
+
+//     if (registeredService)
+//         sessionBus.unregisterService(QLatin1String("com.jolla.documents"));
+//     if (registeredObject)
+//         sessionBus.unregisterObject(QLatin1String("/JollaDocumentsSignonUi"));
+//     delete ssoui;
+    return retn;
 }
