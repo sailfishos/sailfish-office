@@ -46,24 +46,24 @@ ShareMethodList {
 
     // Add "add account" to the footer. User must be able to
     // create accounts in a case there are none.
-//     footer: BackgroundItem {
-//         Label {
-//             //% "Add account"
-//             text: "Add account"
-//             x: theme.paddingLarge
-//             anchors.verticalCenter: parent.verticalCenter
-//             color: parent.down ? theme.highlightColor : theme.primaryColor
-//             visible: true
-//         }
-// 
-//         onClicked: {
-//             jolla_signon_ui_service.inProcessParent = visualParent
-//             pageStack.push(accountsPage)
-//         }
-//     }
-// 
-//     Component {
-//         id: accountsPage
-//         AccountsPage { }
-//     }
+    footer: BackgroundItem {
+        Label {
+            //% "Add account"
+            text: "Add account"
+            x: theme.paddingLarge
+            anchors.verticalCenter: parent.verticalCenter
+            color: parent.down ? theme.highlightColor : theme.primaryColor
+            visible: true
+        }
+
+        onClicked: {
+            jolla_signon_ui_service.inProcessParent = visualParent
+            pageStack.push(accountsPage)
+        }
+    }
+
+    Component {
+        id: accountsPage
+        AccountsPage { }
+    }
 }
