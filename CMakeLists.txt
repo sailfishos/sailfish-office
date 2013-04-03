@@ -7,6 +7,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 find_package(Qt4 REQUIRED QtDeclarative)
 find_package(Booster REQUIRED)
 find_package(QtSparql REQUIRED)
+find_package(JollaSignonUiService REQUIRED)
 
 include(${QT_USE_FILE})
 
@@ -41,6 +42,7 @@ install(FILES main.qml DESTINATION ${CMAKE_INSTALL_PREFIX}/share/sailfish-office
 install(FILES sailfish-office.desktop DESTINATION ${CMAKE_INSTALL_PREFIX}/share/applications)
 install(DIRECTORY 
     cover
+    components
     pages
     DESTINATION ${CMAKE_INSTALL_PREFIX}/share/sailfish-office
 )
