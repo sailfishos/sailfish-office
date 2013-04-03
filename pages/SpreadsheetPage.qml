@@ -17,16 +17,6 @@ SplitViewPage {
         visualParent: page;
         path: page.path;
         mimeType: page.mimeType;
-        PullDownMenu {
-            MenuItem {
-                text: "Next Sheet";
-                onClicked: document.currentSheet++;
-            }
-            MenuItem {
-                text: "Previous Sheet";
-                onClicked: document.currentSheet--;
-            }
-        }
     }
 
     contentItem: Rectangle {
@@ -64,6 +54,15 @@ SplitViewPage {
         //Delay loading the document until the page has been activated.
         if(status == PageStatus.Active) {
             document.source = page.path;
+
+            if(pageStack.nextPage(page) === null) {
+                pageStack.pushAttached(Qt.resolvedUrl("SpreadsheetListPage.qml"), { title: page.title, canvas: document } );
+            }
+        }
+
+        if(status == PageStatus.Activating) {
+            flickable.contentX = 0;
+            flickable.contentY = 0;
         }
     }
 }
