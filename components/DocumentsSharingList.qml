@@ -25,24 +25,7 @@ ShareMethodList {
 
     listHeader: "Share"
 
-    header: Item {
-        height: theme.itemSizeLarge
-        width: menuList.width * 0.7 - theme.paddingLarge
-        x: menuList.width * 0.3
-
-        Label {
-            text: visualParent.title
-            width: parent.width
-            truncationMode: TruncationMode.Fade
-            color: theme.highlightColor
-            anchors.verticalCenter: parent.verticalCenter
-            horizontalAlignment: Text.AlignRight
-            font {
-                pixelSize: theme.fontSizeLarge
-                family: theme.fontFamilyHeading
-            }
-        }
-    }
+    header: PageHeader{ title: visualParent.title }
 
     // Add "add account" to the footer. User must be able to
     // create accounts in a case there are none.
