@@ -5,7 +5,7 @@ find_path(JOLLASIGNONUISERVICE_INCLUDE_DIR
 )
 
 find_library(JOLLASIGNONUISERVICE_LIBRARY
-    libjollasignonuiservice
+    libjollasignonuiservice.so
 )
 
 include(FindPackageHandleStandardArgs)
