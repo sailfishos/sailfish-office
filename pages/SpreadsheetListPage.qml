@@ -15,14 +15,30 @@ Page {
 
         model: Calligra.SpreadsheetListModel {
             canvas: page.canvas;
+            thumbnailSize.width: theme.itemSizeLarge;
+            thumbnailSize.height: theme.itemSizeLarge;
         }
 
         delegate: BackgroundItem {
             highlighted: model.index == page.canvas.currentSheet;
 
-            Label {
+            Calligra.Thumbnail {
+                id: thumbnail;
+
                 anchors {
                     left: parent.left;
+                    verticalCenter: parent.verticalCenter;
+                }
+
+                width: parent.height;
+                height: parent.height;
+
+                content: model.thumbnail;
+            }
+
+            Label {
+                anchors {
+                    left: thumbnail.right;
                     leftMargin: theme.paddingLarge;
                     verticalCenter: parent.verticalCenter;
                 }
