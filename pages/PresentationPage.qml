@@ -63,6 +63,15 @@ SplitViewPage {
         //Delay loading the document until the page has been activated.
         if(status == PageStatus.Active) {
             document.source = page.path;
+
+            if(pageStack.nextPage(page) === null) {
+                pageStack.pushAttached(thumbnailPage, { title: page.title, canvas: document } );
+            }
         }
+    }
+
+    Component {
+        id: thumbnailPage;
+        PresentationThumbnailPage { }
     }
 }
