@@ -4,8 +4,6 @@ import Sailfish.Silica 1.0
 CoverBackground {
     CoverPlaceholder {
         text: "Documents"
-        icon.source: "icon-launcher-office";
+        icon.source: "image://theme/icon-launcher-office";
     }
 }
-
-
