@@ -7,6 +7,7 @@ Page {
 
     property string title;
     property Item canvas;
+    property Item view;
 
     SilicaGridView {
         id: view;
@@ -15,6 +16,8 @@ Page {
 
         cellWidth: page.width / 3;
         cellHeight: cellWidth * 0.75;
+
+        currentIndex: page.view.currentIndex;
 
         header: PageHeader { title: page.title; }
 
@@ -25,6 +28,7 @@ Page {
         }
 
         delegate: Item {
+            id: base;
             width: GridView.view.cellWidth;
             height: GridView.view.cellHeight;
 
@@ -42,8 +46,9 @@ Page {
                     width: label.width + theme.paddingMedium;
                     height: label.height;
                     radius: theme.paddingSmall;
-                    color: theme.secondaryHighlightColor;
+                    color: base.GridView.isCurrentItem ? theme.highlightColor : theme.secondaryHighlightColor;
                 }
+
                 Label {
                     id: label;
                     anchors.centerIn: parent;
@@ -54,7 +59,7 @@ Page {
             MouseArea {
                 anchors.fill: parent;
                 onClicked: {
-                    page.canvas.currentSlide = model.index;
+                    page.view.currentIndex = model.index;
                     pageStack.navigateBack(PageStackAction.Animated);
                 }
             }
