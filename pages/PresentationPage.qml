@@ -17,21 +17,11 @@ SplitViewPage {
         visualParent: page;
         path: page.path;
         mimeType: page.mimeType;
-        PullDownMenu {
-            MenuItem {
-                text: "Next Slide";
-                onClicked: document.currentSlide++;
-            }
-            MenuItem {
-                text: "Previous Slide";
-                onClicked: document.currentSlide--;
-            }
-        }
     }
 
     contentItem: Item {
         clip: true;
-        
+
         SlideshowView {
             id: view;
             anchors.fill: parent;
