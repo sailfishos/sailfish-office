@@ -39,7 +39,7 @@ SplitViewPage {
 
             delegate: ZoomableThumbnail {
                 width: view.width;
-                height: Math.max(view.width * 0.75, itemHeight);
+                height: Math.min(itemHeight, view.height);
                 content: model.thumbnail;
 
                 onClicked: page.toggleSplit();
