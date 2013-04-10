@@ -54,6 +54,10 @@ SplitViewPage {
         //Delay loading the document until the page has been activated.
         if(status == PageStatus.Active) {
             document.source = page.path;
+
+            if(pageStack.nextPage(page) === null) {
+                pageStack.pushAttached(Qt.resolvedUrl("TextDocumentToCPage.qml"), { title: page.title, canvas: document } );
+            }
         }
     }
 }
