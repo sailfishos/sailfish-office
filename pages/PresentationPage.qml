@@ -29,35 +29,47 @@ SplitViewPage {
         }
     }
 
-    contentItem: Rectangle {
-        color: "grey";
+    contentItem: Item {
+        clip: true;
+        
+        SlideshowView {
+            id: view;
+            anchors.fill: parent;
+
+            property Item currentItem;
+            interactive: !currentItem.scaled;
+
+            model: Calligra.PresentationModel {
+                id: presentationModel;
+
+                canvas: document;
+                thumbnailSize.width: view.width;
+                thumbnailSize.height: view.width * 0.75;
+            }
+
+            delegate: ZoomableThumbnail {
+                width: view.width;
+                height: Math.max(view.width * 0.75, itemHeight);
+                content: model.thumbnail;
+
+                onClicked: page.toggleSplit();
+            }
+
+            Connections {
+                target: view.currentItem;
+                onUpdateSize: presentationModel.thumbnailSize = Qt.size(newWidth, newHeight);
+            }
+
+            onCurrentIndexChanged: presentationModel.thumbnailSize = Qt.size(view.width, view.width * 0.75);
+        }
 
         Calligra.PresentationCanvas {
             id: document;
             anchors.fill: parent;
-        }
-
-        SilicaFlickable {
-            id: flickable
-
-            anchors.fill: parent;
-
-            Calligra.CanvasControllerItem {
-                id: canvasController;
-                canvas: document;
-                flickable: flickable;
-            }
-
-            ScrollDecorator { flickable: parent; }
-
-            PinchArea {
-                anchors.fill: parent;
-                onPinchUpdated: canvasController.zoom += pinch.scale - pinch.previousScale;
-
-                MouseArea { anchors.fill: parent; onClicked: page.toggleSplit(); }
-            }
+            visible: false;
         }
     }
+
 
     onStatusChanged: {
         //Delay loading the document until the page has been activated.
@@ -65,7 +77,7 @@ SplitViewPage {
             document.source = page.path;
 
             if(pageStack.nextPage(page) === null) {
-                pageStack.pushAttached(thumbnailPage, { title: page.title, canvas: document } );
+                pageStack.pushAttached(thumbnailPage, { title: page.title, canvas: document, view: view } );
             }
         }
     }
