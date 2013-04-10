@@ -2,7 +2,7 @@
 Type=Application
 Name=Documents
 Icon=icon-launcher-office
-Exec=invoker --type=j -s /usr/bin/sailfish-office
+Exec=env KDEHOME=/home/nemo/.cache/sailfish-office invoker --type=j -s /usr/bin/sailfish-office
 Comment=Document Viewer
 
 
