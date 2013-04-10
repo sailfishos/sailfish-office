@@ -19,8 +19,7 @@ SplitViewPage {
         mimeType: page.mimeType;
     }
 
-    contentItem: Rectangle {
-        color: "grey";
+    contentItem: Item {
         clip: true;
 
         Calligra.TextDocumentCanvas {
@@ -40,7 +39,7 @@ SplitViewPage {
                 flickable: aFlickable;
             }
 
-            ScrollDecorator { flickable: parent; }
+            ScrollDecorator { flickable: flickable; }
 
             PinchArea {
                 anchors.fill: parent;
