@@ -80,6 +80,8 @@ SilicaFlickable {
         }
     }
 
+    children: ScrollDecorator { }
+
     QtObject {
         id: d;
 

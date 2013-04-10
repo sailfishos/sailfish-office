@@ -38,7 +38,7 @@ SplitViewPage {
                 flickable: flickable;
             }
 
-            ScrollDecorator { flickable: flickable; }
+            children: ScrollDecorator { }
 
             PinchArea {
                 anchors.fill: parent;
