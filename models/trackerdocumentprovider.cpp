@@ -163,7 +163,7 @@ void TrackerDocumentProvider::stopSearch()
 
 void TrackerDocumentProvider::searchFinished()
 {
-    Q_ASSERT(m_searchThread);
+    Q_ASSERT(d->searchThread);
     d->searchThread->deleteLater();
     d->searchThread = 0;
     emit countChanged();
