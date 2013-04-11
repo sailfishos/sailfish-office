@@ -11,6 +11,9 @@
 
 Q_DECL_EXPORT int main(int argc, char *argv[])
 {
+    // First of all, run kbuildsycoca to make sure the data is correct when we get to it.
+    QProcess::startDetached(QLatin1String("/usr/bin/kbuildsycoca4"));
+
     auto app = Sailfish::createApplication(argc, argv);
     auto view = Sailfish::createView("main.qml");
 
