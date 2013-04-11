@@ -18,18 +18,21 @@ Page {
         }
 
         delegate: BackgroundItem {
-            //highlighted: model.index == page.canvas.currentSheet;
+            highlighted: model.page == page.canvas.currentPageNumber;
 
             Label {
                 anchors {
                     left: parent.left;
                     leftMargin: theme.paddingLarge * model.level;
+                    right: pageNumberLbl.left;
+                    rightMargin: theme.paddingLarge;
                     verticalCenter: parent.verticalCenter;
                 }
-
+                elide: Text.ElideRight;
                 text: model.title;
             }
             Label {
+                id: pageNumberLbl
                 anchors {
                     right: parent.right;
                     rightMargin: theme.paddingLarge;
