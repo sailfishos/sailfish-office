@@ -17,8 +17,6 @@ SilicaFlickable {
     signal clicked();
     signal updateSize(real newWidth, real newHeight);
 
-    clip: true;
-
     function zoom(amount, center) {
 
         var oldWidth = thumb.width;
@@ -52,31 +50,16 @@ SilicaFlickable {
 
         width: base.width;
         height: width * 0.75;
-    }
 
-    PinchArea {
-        anchors.fill: parent;
-        onPinchUpdated: parent.zoom(pinch.scale, pinch.center);
-
-        MouseArea {
+        PinchArea {
             anchors.fill: parent;
-            onClicked: base.clicked();
-        }
-    }
+            onPinchUpdated: base.zoom(1.0 + (pinch.scale - pinch.previousScale), pinch.center);
+            onPinchFinished: base.returnToBounds();
 
-    /**
-     * The following is a workaround for missing currentItem in
-     * QML's PathView.
-     */
-    Component.onCompleted: {
-        if (PathView.isCurrentItem) {
-            PathView.view.currentItem = base;
-        }
-    }
-
-    PathView.onIsCurrentItemChanged: {
-        if (PathView.isCurrentItem) {
-            PathView.view.currentItem = base;
+            MouseArea {
+                anchors.fill: parent;
+                onClicked: base.clicked();
+            }
         }
     }
 
@@ -95,5 +78,21 @@ SilicaFlickable {
         interval: 500;
         repeat: false;
         onTriggered: base.updateSize(thumb.width, thumb.height);
+    }
+
+    /**
+     * The following is a workaround for missing currentItem in
+     * QML's PathView.
+     */
+    Component.onCompleted: {
+        if (PathView.isCurrentItem) {
+            PathView.view.currentItem = base;
+        }
+    }
+
+    PathView.onIsCurrentItemChanged: {
+        if (PathView.isCurrentItem) {
+            PathView.view.currentItem = base;
+        }
     }
 }
