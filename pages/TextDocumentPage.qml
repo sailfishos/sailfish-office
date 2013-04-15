@@ -25,7 +25,6 @@ SplitViewPage {
         Calligra.TextDocumentCanvas {
             id: document;
             anchors.fill: parent;
-            zoomMode: Calligra.TextDocumentCanvas.ZOOM_WIDTH;
         }
 
         SilicaFlickable {
@@ -43,7 +42,9 @@ SplitViewPage {
 
             PinchArea {
                 anchors.fill: parent;
-                onPinchUpdated: canvasController.zoom += pinch.scale - pinch.previousScale;
+                onPinchStarted: canvasController.beginZoomGesture();
+                onPinchUpdated: canvasController.zoomBy(pinch.scale - pinch.previousScale, pinch.center);
+                onPinchFinished: canvasController.endZoomGesture();
 
                 MouseArea { anchors.fill: parent; onClicked: page.toggleSplit(); }
             }
