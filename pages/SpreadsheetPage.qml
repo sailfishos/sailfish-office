@@ -44,7 +44,7 @@ SplitViewPage {
                 anchors.fill: parent;
                 onPinchStarted: canvasController.beginZoomGesture();
                 onPinchUpdated: canvasController.zoomBy(pinch.scale - pinch.previousScale, pinch.center);
-                onPinchFinished: canvasController.endZoomGesture();
+                onPinchFinished: { canvasController.endZoomGesture(); flickable.returnToBounds(); }
 
                 MouseArea { anchors.fill: parent; onClicked: page.toggleSplit(); }
             }
