@@ -6,6 +6,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 find_package(Qt4 REQUIRED QtDeclarative QtDBus)
 find_package(Booster REQUIRED)
+find_package(Poppler REQUIRED)
 find_package(QtSparql REQUIRED)
 find_package(JollaSignonUiService REQUIRED)
 
@@ -16,6 +17,8 @@ include_directories(
     ${CMAKE_BINARY_DIR}
     ${QT_INCLUDES}
     ${BOOSTER_INCLUDE_DIR}
+    ${POPPLER_INCLUDE_DIR}
+    ${POPPLER_QT4_INCLUDE_DIR}
     ${QTSPARQL_INCLUDE_DIR}
     ${JOLLASIGNONUISERVICE_INCLUDE_DIR}
 )
@@ -36,7 +39,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -fPIC -pie -rdynamic")
 
 qt4_automoc(${sailfishoffice_SRCS})
 add_executable(sailfish-office ${sailfishoffice_SRCS})
-target_link_libraries(sailfish-office stdc++ ${QT_LIBRARIES} ${BOOSTER_LIBRARY} ${QTSPARQL_LIBRARY} ${JOLLASIGNONUISERVICE_LIBRARY})
+target_link_libraries(sailfish-office stdc++ ${QT_LIBRARIES} ${POPPLER_LIBRARY} ${POPPLER_QT4_LIBRARY} ${BOOSTER_LIBRARY} ${QTSPARQL_LIBRARY} ${JOLLASIGNONUISERVICE_LIBRARY})
 
 install(TARGETS sailfish-office DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 install(FILES main.qml DESTINATION ${CMAKE_INSTALL_PREFIX}/share/sailfish-office)
