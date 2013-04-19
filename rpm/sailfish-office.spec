@@ -10,6 +10,8 @@ BuildRequires: pkgconfig(qdeclarative-boostable)
 BuildRequires: pkgconfig(QtSparql)
 BuildRequires: pkgconfig(QtWebKit)
 BuildRequires: pkgconfig(libjollasignonuiservice)
+BuildRequires: pkgconfig(poppler)
+BuildRequires: pkgconfig(poppler-qt)
 BuildRequires: mapplauncherd-qt-devel
 BuildRequires: cmake
 Requires: calligra-components
