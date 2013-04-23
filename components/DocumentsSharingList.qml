@@ -6,7 +6,9 @@ import com.jolla.components.accounts 1.0
 ShareMethodList {
     id: menuList
     objectName: "menuList"
+
     property Item visualParent;
+    property string title;
     property string path;
     property string mimeType;
 
@@ -25,7 +27,7 @@ ShareMethodList {
 
     listHeader: "Share"
 
-    header: PageHeader{ title: visualParent.title }
+    header: PageHeader{ title: menuList.title }
 
     // Add "add account" to the footer. User must be able to
     // create accounts in a case there are none.

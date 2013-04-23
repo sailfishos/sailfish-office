@@ -15,6 +15,7 @@ SplitViewPage {
 
     DocumentsSharingList {
         visualParent: page;
+        title: page.title;
         path: page.path;
         mimeType: page.mimeType;
     }
