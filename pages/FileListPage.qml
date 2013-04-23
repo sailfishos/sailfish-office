@@ -71,6 +71,8 @@ Page {
                             pageStack.push(spreadsheetPage, { title: model.fileName, path: model.filePath, mimeType: model.fileMimeType });
                         case DocumentListModel.PresentationDocument:
                             pageStack.push(presentationPage, { title: model.fileName, path: model.filePath, mimeType: model.fileMimeType });
+                        case DocumentListModel.PDFDocument:
+                            pageStack.push(pdfPage, { title: model.fileName, path: model.filePath, mimeType: model.fileMimeType });
                         default:
                             console.log("Unknown file format for file " + model.fileName + " with stated mimetype " + model.fileMimeType);
                     }
@@ -92,5 +94,10 @@ Page {
     Component {
         id: presentationPage;
         PresentationPage { }
+    }
+
+    Component {
+        id: pdfPage;
+        PDFDocumentPage { }
     }
 }

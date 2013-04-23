@@ -34,6 +34,11 @@ set(sailfishoffice_SRCS
     models/documentproviderlistmodel.cpp
     models/documentproviderplugin.cpp
     models/trackerdocumentprovider.cpp
+    pdf/pdfdocument.cpp
+    pdf/pdfpagemodel.cpp
+    pdf/pdfpage.cpp
+    pdf/pdfrenderthread.cpp
+    pdf/pdfjob.cpp
 )
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -fPIC -pie -rdynamic")
