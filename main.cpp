@@ -35,9 +35,12 @@ Q_DECL_EXPORT int main(int argc, char *argv[])
 
     view->rootContext()->setContextProperty("jolla_signon_ui_service", ssoui);
 
-    Sailfish::showView(view);
-
-    int retn = app->exec();
+    int retn = 1;
+    if( !view->errors().count() > 0 )
+    {
+        Sailfish::showView(view);
+        retn = app->exec();
+    }
 
     if (registeredService)
         sessionBus.unregisterService(QLatin1String("org.sailfish.documents"));
