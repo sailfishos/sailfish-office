@@ -205,5 +205,3 @@ QString TrackerDocumentProvider::title() const
 {
     return QString("This Device");
 }
-
-#include "trackerdocumentprovider.moc"

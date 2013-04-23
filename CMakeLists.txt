@@ -5,6 +5,7 @@ cmake_minimum_required(VERSION 2.8.6)
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 find_package(Qt4 REQUIRED QtDeclarative QtDBus)
+find_package(Automoc4 REQUIRED)
 find_package(Booster REQUIRED)
 find_package(Poppler REQUIRED)
 find_package(QtSparql REQUIRED)
@@ -37,8 +38,7 @@ set(sailfishoffice_SRCS
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -fPIC -pie -rdynamic")
 
-qt4_automoc(${sailfishoffice_SRCS})
-add_executable(sailfish-office ${sailfishoffice_SRCS})
+automoc4_add_executable(sailfish-office ${sailfishoffice_SRCS})
 target_link_libraries(sailfish-office stdc++ ${QT_LIBRARIES} ${POPPLER_LIBRARY} ${POPPLER_QT4_LIBRARY} ${BOOSTER_LIBRARY} ${QTSPARQL_LIBRARY} ${JOLLASIGNONUISERVICE_LIBRARY})
 
 install(TARGETS sailfish-office DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)

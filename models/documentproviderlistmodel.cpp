@@ -176,5 +176,3 @@ int DocumentProviderListModel::rowCount(const QModelIndex& parent) const
         return 0;
     return d->providers.count();
 }
-
-#include "documentproviderlistmodel.moc"

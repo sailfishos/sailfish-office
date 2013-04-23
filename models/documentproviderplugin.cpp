@@ -27,5 +27,3 @@ void DocumentProviderPlugin::setPage(const QUrl& url)
     d->page = url;
     emit pageChanged();
 }
-
-#include "documentproviderplugin.moc"

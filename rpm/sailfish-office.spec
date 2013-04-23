@@ -14,6 +14,7 @@ BuildRequires: pkgconfig(poppler)
 BuildRequires: pkgconfig(poppler-qt)
 BuildRequires: mapplauncherd-qt-devel
 BuildRequires: cmake
+BuildRequires: automoc4
 Requires: calligra-components
 Requires: sailfishsilica
 
