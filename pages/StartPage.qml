@@ -56,7 +56,7 @@ Page {
 
             onClicked: {
                     console.debug("Model name: " + providerModel.objectName);
-                    window.pageStack.push(model.page != "" ? Qt.resolvedUrl(model.page) : Qt.resolvedUrl("FileListPage.qml") , {
+                    window.pageStack.push(model.page != "" ? Qt.resolvedUrl(model.page) : fileListPage, {
                     title: model.title,
                     model: model.providerModel,
                     //thumbnailDelegate: thumbnail != "" ? thumbnail : Qt.resolvedUrl("GridImageThumbnail.qml")
@@ -76,5 +76,10 @@ Page {
             TrackerDocumentProvider {
             }
         }
+    }
+
+    Component {
+        id: fileListPage;
+        FileListPage { }
     }
 }

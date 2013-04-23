@@ -66,16 +66,31 @@ Page {
                 onClicked: {
                     switch(model.fileDocumentClass) {
                         case DocumentListModel.TextDocument:
-                            pageStack.push(Qt.resolvedUrl("TextDocumentPage.qml"), { title: model.fileName, path: model.filePath, mimeType: model.fileMimeType });
+                            pageStack.push(textDocumentPage, { title: model.fileName, path: model.filePath, mimeType: model.fileMimeType });
                         case DocumentListModel.SpreadSheetDocument:
-                            pageStack.push(Qt.resolvedUrl("SpreadsheetPage.qml"), { title: model.fileName, path: model.filePath, mimeType: model.fileMimeType });
+                            pageStack.push(spreadsheetPage, { title: model.fileName, path: model.filePath, mimeType: model.fileMimeType });
                         case DocumentListModel.PresentationDocument:
-                            pageStack.push(Qt.resolvedUrl("PresentationPage.qml"), { title: model.fileName, path: model.filePath, mimeType: model.fileMimeType });
+                            pageStack.push(presentationPage, { title: model.fileName, path: model.filePath, mimeType: model.fileMimeType });
                         default:
                             console.log("Unknown file format for file " + model.fileName + " with stated mimetype " + model.fileMimeType);
                     }
                 }
             }
         }
+    }
+
+    Component {
+        id: textDocumentPage;
+        TextDocumentPage { }
+    }
+
+    Component {
+        id: spreadsheetPage;
+        SpreadsheetPage { }
+    }
+
+    Component {
+        id: presentationPage;
+        PresentationPage { }
     }
 }
