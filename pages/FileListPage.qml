@@ -18,7 +18,7 @@ Page {
             }
         }*/
         
-        ScrollDecorator { flickable: parent; }
+        children: ScrollDecorator { }
         header: PageHeader { title: page.title; }
         //model: DocumentListModel { path: "/home/nemo/Documents"; }
         
@@ -65,11 +65,11 @@ Page {
                 anchors.fill: parent;
                 onClicked: {
                     switch(model.fileDocumentClass) {
-                        case "TextDocument":
+                        case DocumentListModel.TextDocument:
                             pageStack.push(Qt.resolvedUrl("TextDocumentPage.qml"), { title: model.fileName, path: model.filePath, mimeType: model.fileMimeType });
-                        case "SpreadSheetDocument":
+                        case DocumentListModel.SpreadSheetDocument:
                             pageStack.push(Qt.resolvedUrl("SpreadsheetPage.qml"), { title: model.fileName, path: model.filePath, mimeType: model.fileMimeType });
-                        case "PresentationDocument":
+                        case DocumentListModel.PresentationDocument:
                             pageStack.push(Qt.resolvedUrl("PresentationPage.qml"), { title: model.fileName, path: model.filePath, mimeType: model.fileMimeType });
                         default:
                             console.log("Unknown file format for file " + model.fileName + " with stated mimetype " + model.fileMimeType);

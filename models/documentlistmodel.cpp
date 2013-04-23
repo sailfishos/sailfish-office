@@ -6,13 +6,6 @@
 
 #include <QDir>
 
-enum DocumentClass {
-    UnknownDocument,
-    TextDocument,
-    SpreadSheetDocument,
-    PresentationDocument
-};
-
 struct DocumentListModelEntry
 {
     QString fileName;
@@ -21,7 +14,7 @@ struct DocumentListModelEntry
     int fileSize;
     QDateTime fileRead;
     QString mimeType;
-    DocumentClass documentClass;
+    DocumentListModel::DocumentClass documentClass;
 };
 
 class DocumentListModel::Private
@@ -68,17 +61,7 @@ QVariant DocumentListModel::data(const QModelIndex& index, int role) const
         case FileMimeTypeRole:
             return d->entries.at( index.row() ).mimeType;
         case FileDocumentClass:
-            switch( d->entries.at( index.row() ).documentClass )
-            {
-                case TextDocument:
-                    return QString("TextDocument");
-                case SpreadSheetDocument:
-                    return QString("SpreadSheetDocument");
-                case PresentationDocument:
-                    return QString("PresentationDocument");
-                default:
-                    return QString("Unknown");
-            }
+            return d->entries.at( index.row() ).documentClass;
         default:
             break;
     }
@@ -141,6 +124,11 @@ void DocumentListModel::addItem(QString name, QString path, QString type, int si
     {
         entry.documentClass = SpreadSheetDocument;
     }
+    else
+    if(entry.mimeType == QLatin1String("application/pdf"))
+    {
+        entry.documentClass = PDFDocument;
+    }
     else {
         entry.documentClass = UnknownDocument;
     }
@@ -172,5 +160,3 @@ void DocumentListModel::clear()
     d->entries.clear();
     endResetModel();
 }
-
-#include "documentlistmodel.moc"

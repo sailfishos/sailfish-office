@@ -14,6 +14,15 @@ class DocumentListModel : public QAbstractListModel
 {
     Q_OBJECT
 public:
+    enum DocumentClass {
+        UnknownDocument,
+        TextDocument,
+        SpreadSheetDocument,
+        PresentationDocument,
+        PDFDocument
+    };
+    Q_ENUMS(DocumentClass);
+
     enum Roles
     {
         FileNameRole = Qt::UserRole + 1,
