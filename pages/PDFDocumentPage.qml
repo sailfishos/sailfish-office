@@ -15,7 +15,8 @@ SplitViewPage {
     allowedOrientations: window.allowedOrientations
 
     DocumentsSharingList {
-        visualParent: page;
+        visualParent: base;
+        title: base.title;
         path: base.path;
         mimeType: base.mimeType;
     }
@@ -23,30 +24,64 @@ SplitViewPage {
     contentItem: Item {
         clip: true;
 
-        SilicaListView {
+        SilicaFlickable {
+            id: view;
+
             anchors.fill: parent;
 
-            spacing: theme.paddingLarge;
+            contentWidth: content.width;
+            contentHeight: content.height;
 
-            model: PDF.PageModel { pageWidth: base.width; }
+            Column {
+                id: content;
+                spacing: theme.paddingLarge;
 
-            delegate: Rectangle {
-                width: model.width;
-                height: model.height;
+                Repeater {
+                    id: repeater;
+                    model: PDF.PageModel { id: pdfModel; pageWidth: base.width; }
 
-                Label { anchors.centerIn: parent; text: "Loading"; color: "black" }
+                    delegate: Rectangle {
+                        width: model.width;
+                        height: model.height;
 
-                PDF.Page {
-                    id: pageImage;
-                    anchors.fill: parent;
-                    content: model.page;
-                    Component.onDestruction: parent.ListView.view.model.discard( model.index );
+                        PDF.Page {
+                            id: pageImage;
+                            anchors.fill: parent;
+                            content: model.page;
+                        }
+
+                        function updateVisibility() {
+                            var fPos = mapToItem( view, x, y );
+                            if( fPos.y + height < 0 || fPos.y > view.height )
+                            {
+                                pdfModel.discard( model.index );
+                            }
+                        }
+                    }
+
+                    function updateVisibility() { }
                 }
             }
 
             children: ScrollDecorator { }
 
-            MouseArea { anchors.fill: parent; onClicked: base.toggleSplit(); }
+            PinchArea {
+                anchors.fill: parent;
+
+                pinch.target: content;
+                onPinchFinished: {
+                    pdfModel.pageWidth = pdfModel.pageWidth * content.scale;
+                    content.scale = 1;
+                }
+
+                MouseArea { anchors.fill: parent; onClicked: base.toggleSplit(); }
+            }
+
+            onContentYChanged: {
+                for( var i = 0; i < content.children.length; ++i ) {
+                    content.children[i].updateVisibility();
+                }
+            }
         }
     }
 

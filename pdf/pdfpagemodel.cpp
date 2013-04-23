@@ -94,6 +94,7 @@ void PDFPageModel::setPageWidth( uint pageWidth )
 {
     if(pageWidth != d->pageWidth) {
         d->pageWidth = pageWidth;
+        emit dataChanged( index( 0, 0 ), index( d->pageCount - 1, 0 ) );
         emit pageWidthChanged();
     }
 }
@@ -106,10 +107,13 @@ void PDFPageModel::discard(int index)
 
 void PDFPageModel::documentLoaded()
 {
-    beginRemoveRows(QModelIndex(), 0, d->pageCount);
-    endRemoveRows();
-    d->images.clear();
+    if( d->pageCount > 0 )
+    {
+        beginRemoveRows(QModelIndex(), 0, d->pageCount);
+        endRemoveRows();
+    }
 
+    d->images.clear();
     d->pageCount = PDFRenderThread::instance()->pageCount();
     beginInsertRows(QModelIndex(), 0, d->pageCount);
     endInsertRows();
