@@ -31,8 +31,8 @@ QSharedPointer<QDeclarativeView> Sailfish::createView(const QString &file)
     qmlRegisterInterface< DocumentProviderPlugin >( "DocumentProviderPlugin" );
 
     QSharedPointer<QDeclarativeView> view(MDeclarativeCache::qDeclarativeView());
-    view->setSource(QUrl::fromLocalFile(QML_INSTALL_DIR + file));
     view->engine()->addImportPath(CALLIGRA_QML_PLUGIN_DIR);
+    view->setSource(QUrl::fromLocalFile(QML_INSTALL_DIR + file));
     return view;
 }
 
