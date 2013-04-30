@@ -11,7 +11,7 @@ BuildRequires: pkgconfig(QtSparql)
 BuildRequires: pkgconfig(QtWebKit)
 BuildRequires: pkgconfig(libjollasignonuiservice)
 BuildRequires: pkgconfig(poppler)
-BuildRequires: poppler-qt4-devel
+BuildRequires: pkgconfig(poppler-qt4)
 BuildRequires: mapplauncherd-qt-devel
 BuildRequires: cmake
 BuildRequires: automoc4
