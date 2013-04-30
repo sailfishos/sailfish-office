@@ -4,6 +4,7 @@
 
 #include "pdfdocument.h"
 #include "pdfrenderthread.h"
+#include "pdftocmodel.h"
 
 #include <QDebug>
 #include <QUrl>
@@ -13,9 +14,10 @@
 class PDFDocument::Private
 {
 public:
-    Private() : document( nullptr ), completed(false) { }
+    Private() : document( nullptr ), tocModel(0), completed(false) { }
 
     Poppler::Document* document;
+    PDFTocModel* tocModel;
     QString source;
     bool completed;
 };
@@ -42,6 +44,11 @@ int PDFDocument::pageCount() const
     return PDFRenderThread::instance()->pageCount();
 }
 
+QObject* PDFDocument::tocModel() const
+{
+    return d->tocModel;
+}
+
 void PDFDocument::classBegin()
 {
 
@@ -52,6 +59,10 @@ void PDFDocument::componentComplete()
     if(!d->source.isEmpty())
     {
         PDFRenderThread::instance()->load( QUrl{ d->source }.toLocalFile() );
+        if(d->tocModel)
+            d->tocModel->deleteLater();
+        d->tocModel = new PDFTocModel(d->document, this);
+        emit tocModelChanged();
         emit pageCountChanged();
     }
 
@@ -63,11 +74,15 @@ void PDFDocument::setSource(const QString& source)
     if (d->source != source)
     {
         d->source = source;
+        if(d->tocModel)
+            d->tocModel->deleteLater();
 
         if(d->completed) {
             PDFRenderThread::instance()->load( QUrl{ d->source }.toLocalFile() );
+            d->tocModel = new PDFTocModel(d->document, this);
         }
 
+        emit tocModelChanged();
         emit sourceChanged();
         emit pageCountChanged();
     }
