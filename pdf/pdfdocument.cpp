@@ -14,10 +14,10 @@
 class PDFDocument::Private
 {
 public:
-    Private() : document( nullptr ), tocModel(0), completed(false) { }
+    Private() : document( nullptr ), completed(false) { }
 
     Poppler::Document* document;
-    PDFTocModel* tocModel;
+    //PDFTocModel* tocModel;
     QString source;
     bool completed;
 };
@@ -46,7 +46,7 @@ int PDFDocument::pageCount() const
 
 QObject* PDFDocument::tocModel() const
 {
-    return d->tocModel;
+    return 0;//d->tocModel;
 }
 
 void PDFDocument::classBegin()
@@ -59,9 +59,9 @@ void PDFDocument::componentComplete()
     if(!d->source.isEmpty())
     {
         PDFRenderThread::instance()->load( QUrl{ d->source }.toLocalFile() );
-        if(d->tocModel)
-            d->tocModel->deleteLater();
-        d->tocModel = new PDFTocModel(d->document, this);
+        //if(d->tocModel)
+            //d->tocModel->deleteLater();
+        //d->tocModel = new PDFTocModel(d->document, this);
         emit tocModelChanged();
         emit pageCountChanged();
     }
@@ -74,12 +74,12 @@ void PDFDocument::setSource(const QString& source)
     if (d->source != source)
     {
         d->source = source;
-        if(d->tocModel)
-            d->tocModel->deleteLater();
+        //if(d->tocModel)
+            //d->tocModel->deleteLater();
 
         if(d->completed) {
             PDFRenderThread::instance()->load( QUrl{ d->source }.toLocalFile() );
-            d->tocModel = new PDFTocModel(d->document, this);
+            //d->tocModel = new PDFTocModel(d->document, this);
         }
 
         emit tocModelChanged();
