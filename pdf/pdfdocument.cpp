@@ -4,7 +4,7 @@
 
 #include "pdfdocument.h"
 #include "pdfrenderthread.h"
-#include "pdftocmodel.h"
+//#include "pdftocmodel.h"
 
 #include <QDebug>
 #include <QUrl>
