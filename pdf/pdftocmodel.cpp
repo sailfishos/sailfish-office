@@ -30,6 +30,9 @@ public:
 
     void addSynopsisChildren( QDomNode * parent, int level )
     {
+        if(!parent || parent->isNull())
+            return;
+
         // keep track of the current listViewItem
         QDomNode n = parent->firstChild();
         while( !n.isNull() )
