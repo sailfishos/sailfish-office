@@ -13,7 +13,7 @@ const QString SearchThread::presentationType = QString("http://www.semanticdeskt
 const QString SearchThread::spreadsheetType = QString("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#SpreadsheetDocument");
 
 SearchThread::SearchThread(DocumentListModel* model, const QHash<QString, TrackerDocumentProvider::DocumentType> &docTypes, QObject *parent) 
-    : QObject(parent), m_abort(false), m_docTypes(docTypes), m_model(model)
+    : QObject(parent), m_model(model), m_abort(false), m_docTypes(docTypes)
 {
 }
 

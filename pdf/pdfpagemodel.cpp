@@ -58,7 +58,7 @@ QVariant PDFPageModel::data(const QModelIndex& index, int role) const
     {
         case PageRole: {
             QImage img = d->bestMatchingImage( index.row() );
-            if( img.width() != d->pageWidth )
+            if( (unsigned)img.width() != d->pageWidth )
                 PDFRenderThread::instance()->requestPage( index.row(), d->pageWidth );
 
             return img;
