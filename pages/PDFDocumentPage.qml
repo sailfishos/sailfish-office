@@ -68,7 +68,8 @@ SplitViewPage {
             PinchArea {
                 anchors.fill: parent;
 
-                pinch.target: content;
+                onPinchUpdated: content.scale = pinch.scale;
+
                 onPinchFinished: {
                     pdfModel.pageWidth = pdfModel.pageWidth * content.scale;
                     content.scale = 1;
