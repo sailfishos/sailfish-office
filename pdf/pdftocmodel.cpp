@@ -23,6 +23,7 @@ class PDFTocModel::Private
 public:
     Private()
     {}
+    ~Private() { qDeleteAll(entries); }
 
     QList<PDFTocEntry*> entries;
     Poppler::Document* document;
@@ -43,7 +44,8 @@ public:
             // Not doing this for now, but leave it in here as a note to self
             // if (!e.attribute("ExternalFileName").isNull()) item.setAttribute("ExternalFileName", e.attribute("ExternalFileName"));
             if (!e.attribute("DestinationName").isNull()) {
-                tocEntry->pageNumber = document->linkDestination(e.attribute("DestinationName"))->pageNumber();
+                Poppler::LinkDestination *dest = document->linkDestination(e.attribute("DestinationName"));
+                if(dest) tocEntry->pageNumber = dest->pageNumber();
                 //item.setAttribute("ViewportName", e.attribute("DestinationName"));
             }
             if (!e.attribute("Destination").isNull())
@@ -94,7 +96,7 @@ QVariant PDFTocModel::data(const QModelIndex& index, int role) const
     if(index.isValid())
     {
         int row = index.row();
-        if(row > 0 && row < d->entries.count())
+        if(row > -1 && row < d->entries.count())
         {
             const PDFTocEntry* entry = d->entries.at(row);
             switch(role)
