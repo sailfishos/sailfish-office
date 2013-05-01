@@ -9,6 +9,7 @@
 #include <QQueue>
 #include <QMutex>
 #include <QDebug>
+#include <QCoreApplication>
 
 #include <poppler-qt4.h>
 
@@ -123,7 +124,7 @@ void PDFRenderThread::processQueue()
                 d->tocModel->deleteLater();
                 d->tocModel = 0;
             }
-            d->tocModel = new PDFTocModel(d->document, this);
+            d->tocModel = new PDFTocModel(d->document);
             emit loadFinished();
             break;
         }
