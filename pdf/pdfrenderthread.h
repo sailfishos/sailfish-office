@@ -18,6 +18,7 @@ public:
     ~PDFRenderThread();
 
     int pageCount() const;
+    QObject* tocModel() const;
     bool isLoaded() const;
 
     void load( const QString& file );

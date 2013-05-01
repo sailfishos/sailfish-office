@@ -13,13 +13,14 @@
 #include <poppler-qt4.h>
 
 #include "pdfjob.h"
+#include "pdftocmodel.h"
 
 QScopedPointer< PDFRenderThread > PDFRenderThread::sm_instance;
 
 class PDFRenderThread::Private
 {
 public:
-    Private() : document{ nullptr } { }
+    Private() : document{ nullptr }, tocModel(0) { }
 
     QThread* thread;
     QTimer* updateTimer;
@@ -28,6 +29,7 @@ public:
     QMutex mutex;
 
     Poppler::Document* document;
+    PDFTocModel* tocModel;
 };
 
 PDFRenderThread::PDFRenderThread(QObject* parent)
@@ -61,6 +63,11 @@ int PDFRenderThread::pageCount() const
 {
     QMutexLocker locker{ &d->mutex };
     return d->document->numPages();
+}
+
+QObject* PDFRenderThread::tocModel() const
+{
+    return d->tocModel;
 }
 
 bool PDFRenderThread::isLoaded() const
@@ -110,8 +117,13 @@ void PDFRenderThread::processQueue()
             LoadDocumentJob* dj = static_cast< LoadDocumentJob* >( job );
             if( d->document )
                 delete d->document;
-            
+
             d->document = dj->m_document;
+            if(d->tocModel) {
+                d->tocModel->deleteLater();
+                d->tocModel = 0;
+            }
+            d->tocModel = new PDFTocModel(d->document, this);
             emit loadFinished();
             break;
         }
