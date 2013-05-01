@@ -3,6 +3,7 @@ import Sailfish.Silica 1.0
 
 Page {
     id: page;
+    signal pageSelected(int pageNumber);
 
     property string title;
     property alias tocModel: tocListView.model;
@@ -26,7 +27,7 @@ Page {
                     verticalCenter: parent.verticalCenter;
                 }
                 elide: Text.ElideRight;
-                text: model.title;
+                text: (model.title === undefined) ? "" : model.title;
             }
             Label {
                 id: pageNumberLbl
@@ -35,11 +36,11 @@ Page {
                     rightMargin: theme.paddingLarge;
                     verticalCenter: parent.verticalCenter;
                 }
-                text: model.pageNumber;
+                text: (model.pageNumber === undefined) ? "" : model.pageNumber;
             }
 
             onClicked: {
-                page.canvas.currentPageNumber = model.pageNumber;
+                page.pageSelected(model.pageNumber);
                 pageStack.navigateBack(PageStackAction.Animated);
             }
         }
