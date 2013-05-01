@@ -88,17 +88,22 @@ SplitViewPage {
     PDF.Document {
         id: pdfDocument;
         source: base.path;
-        onTocModelChanged: console.debug(tocModel);
     }
 
     onStatusChanged: {
         //Delay loading the document until the page has been activated.
         if(status == PageStatus.Active) {
-            pageStack.pushAttached( tocPage );
+            if(pageStack.nextPage(base) === null) {
+                pageStack.pushAttached( tocPage );
+            }
         }
     }
     Component {
         id: tocPage;
-        PDFDocumentToCPage { title: page.title; tocModel: pdfDocument.tocModel }
+        PDFDocumentToCPage {
+            title: base.title;
+            tocModel: pdfDocument.tocModel
+            onPageSelected: view.contentY = repeater.itemAt(pageNumber - 1).y;
+        }
     }
 }
