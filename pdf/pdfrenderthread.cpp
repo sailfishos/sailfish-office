@@ -56,6 +56,8 @@ PDFRenderThread::~PDFRenderThread()
 
     delete d->updateTimer;
     delete d->document;
+    if(d->tocModel)
+        d->tocModel->deleteLater();
 
     delete d;
 }
