@@ -32,6 +32,8 @@ SplitViewPage {
             contentWidth: content.width;
             contentHeight: content.height;
 
+            transform: Scale { id: viewScale; }
+
             Column {
                 id: content;
                 spacing: theme.paddingLarge;
@@ -68,11 +70,20 @@ SplitViewPage {
             PinchArea {
                 anchors.fill: parent;
 
-                onPinchUpdated: content.scale = pinch.scale;
+                onPinchUpdated: {
+                    var viewCenter = mapToItem( view, pinch.center.x, pinch.center.y );
+                    viewScale.origin.x = viewCenter.x;
+                    viewScale.origin.y = viewCenter.y;
+                    viewScale.xScale = pinch.scale;
+                    viewScale.yScale = pinch.scale;
+                }
 
                 onPinchFinished: {
-                    pdfModel.pageWidth = pdfModel.pageWidth * content.scale;
-                    content.scale = 1;
+                    pdfModel.pageWidth = pdfModel.pageWidth * viewScale.xScale;
+                    viewScale.xScale = 1;
+                    viewScale.yScale = 1;
+                    viewScale.origin.x = 0;
+                    viewScale.origin.y = 0;
                 }
 
                 MouseArea { anchors.fill: parent; onClicked: base.toggleSplit(); }
