@@ -68,7 +68,7 @@ QVariant PDFPageModel::data(const QModelIndex& index, int role) const
         case HeightRole: {
             QImage img = d->bestMatchingImage( index.row() );
             if( !img.isNull() )
-                return img.height();
+                return img.height() * ( d->pageWidth / img.width() );
 
             img = d->bestMatchingImage( d->images.begin().key() );
             return img.height();
