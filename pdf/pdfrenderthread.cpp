@@ -16,12 +16,12 @@
 #include "pdfjob.h"
 #include "pdftocmodel.h"
 
-QScopedPointer< PDFRenderThread > PDFRenderThread::sm_instance;
+PDFRenderThread* PDFRenderThread::sm_instance = 0;
 
 class PDFRenderThread::Private
 {
 public:
-    Private() : document{ nullptr }, tocModel(0) { }
+    Private() : document{ nullptr }, tocModel{ nullptr } { }
 
     QThread* thread;
     QTimer* updateTimer;
@@ -44,7 +44,7 @@ PDFRenderThread::PDFRenderThread(QObject* parent)
     connect(d->updateTimer, SIGNAL(timeout()), this, SLOT(processQueue()), Qt::DirectConnection);
     d->updateTimer->moveToThread(d->thread);
 
-    d->thread->start();
+    d->thread->start(QThread::LowPriority);
 }
 
 PDFRenderThread::~PDFRenderThread()
@@ -96,10 +96,10 @@ void PDFRenderThread::requestPage(int index, uint width )
 
 PDFRenderThread* PDFRenderThread::instance()
 {
-    if( sm_instance.isNull() )
-        sm_instance.reset( new PDFRenderThread );
+    if( !sm_instance )
+        sm_instance = new PDFRenderThread( QCoreApplication::instance() );
 
-    return sm_instance.data();
+    return sm_instance;
 }
 
 void PDFRenderThread::processQueue()
@@ -122,9 +122,9 @@ void PDFRenderThread::processQueue()
             d->document = dj->m_document;
             if(d->tocModel) {
                 d->tocModel->deleteLater();
-                d->tocModel = 0;
+                d->tocModel = nullptr;
             }
-            d->tocModel = new PDFTocModel(d->document);
+            d->tocModel = new PDFTocModel{ d->document };
             emit loadFinished();
             break;
         }

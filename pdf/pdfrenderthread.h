@@ -37,7 +37,7 @@ private:
     class Private;
     Private * const d;
 
-    static QScopedPointer< PDFRenderThread > sm_instance;
+    static PDFRenderThread* sm_instance;
 };
 
 #endif // PDFRENDERTHREAD_H
