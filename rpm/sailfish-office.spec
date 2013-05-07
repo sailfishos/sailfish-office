@@ -16,6 +16,7 @@ BuildRequires: cmake
 BuildRequires: automoc4
 Requires: calligra-components
 Requires: sailfishsilica
+Requires: sailfish-accounts
 
 
 %description
