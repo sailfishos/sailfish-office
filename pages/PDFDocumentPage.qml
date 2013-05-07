@@ -29,40 +29,14 @@ SplitViewPage {
 
             anchors.fill: parent;
 
-            contentWidth: content.width;
-            contentHeight: content.height;
+            contentWidth: pdfCanvas.width;
+            contentHeight: pdfCanvas.height;
 
             transform: Scale { id: viewScale; }
 
-            Column {
-                id: content;
-                spacing: theme.paddingLarge;
-
-                Repeater {
-                    id: repeater;
-                    model: PDF.PageModel { id: pdfModel; pageWidth: base.width; }
-
-                    delegate: Rectangle {
-                        width: model.width;
-                        height: model.height;
-
-                        PDF.Page {
-                            id: pageImage;
-                            anchors.fill: parent;
-                            content: model.page;
-                        }
-
-                        function updateVisibility() {
-                            var fPos = mapToItem( view, x, y );
-                            if( fPos.y + height < 0 || fPos.y > view.height )
-                            {
-                                pdfModel.discard( model.index );
-                            }
-                        }
-                    }
-
-                    function updateVisibility() { }
-                }
+            PDF.Canvas {
+                id: pdfCanvas;
+                width: base.width;
             }
 
             children: ScrollDecorator { }
@@ -79,7 +53,13 @@ SplitViewPage {
                 }
 
                 onPinchFinished: {
-                    pdfModel.pageWidth = pdfModel.pageWidth * viewScale.xScale;
+                    var oldWidth = pdfCanvas.width;
+                    var oldHeight = pdfCanvas.height;
+                    pdfCanvas.width *= viewScale.xScale;
+
+                    view.contentX += (viewScale.origin.x * pdfCanvas.width / oldWidth) - viewScale.origin.x;
+                    view.contentY += (viewScale.origin.y * (oldHeight * viewScale.yScale) / oldHeight) - viewScale.origin.y;
+
                     viewScale.xScale = 1;
                     viewScale.yScale = 1;
                     viewScale.origin.x = 0;
@@ -87,12 +67,6 @@ SplitViewPage {
                 }
 
                 MouseArea { anchors.fill: parent; onClicked: base.toggleSplit(); }
-            }
-
-            onContentYChanged: {
-                for( var i = 0; i < content.children.length; ++i ) {
-                    content.children[i].updateVisibility();
-                }
             }
         }
     }
@@ -103,7 +77,6 @@ SplitViewPage {
     }
 
     onStatusChanged: {
-        //Delay loading the document until the page has been activated.
         if(status == PageStatus.Active) {
             if(pageStack.nextPage(base) === null) {
                 pageStack.pushAttached( tocPage );
@@ -115,7 +88,7 @@ SplitViewPage {
         PDFDocumentToCPage {
             title: base.title;
             tocModel: pdfDocument.tocModel
-            onPageSelected: view.contentY = repeater.itemAt(pageNumber - 1).y;
+            onPageSelected: view.contentY = pdfCanvas.pagePosition( pageNumber );
         }
     }
 }
