@@ -40,6 +40,7 @@ set(sailfishoffice_SRCS
     pdf/pdfrenderthread.cpp
     pdf/pdfjob.cpp
     pdf/pdftocmodel.cpp
+    pdf/pdfcanvas.cpp
 )
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -fPIC -pie -rdynamic")

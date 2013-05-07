@@ -21,6 +21,7 @@
 #include "pdf/pdfdocument.h"
 #include "pdf/pdfpagemodel.h"
 #include "pdf/pdfpage.h"
+#include <pdf/pdfcanvas.h>
 
 QSharedPointer<QApplication> Sailfish::createApplication(int &argc, char **argv)
 {
@@ -37,6 +38,7 @@ QSharedPointer<QDeclarativeView> Sailfish::createView(const QString &file)
     qmlRegisterType< PDFDocument >( "Sailfish.Office.PDF", 1, 0, "Document" );
     qmlRegisterType< PDFPageModel >( "Sailfish.Office.PDF", 1, 0, "PageModel" );
     qmlRegisterType< PDFPage >( "Sailfish.Office.PDF", 1, 0, "Page" );
+    qmlRegisterType< PDFCanvas >( "Sailfish.Office.PDF", 1, 0, "Canvas" );
 
     QSharedPointer<QDeclarativeView> view(MDeclarativeCache::qDeclarativeView());
     view->engine()->addImportPath(CALLIGRA_QML_PLUGIN_DIR);
