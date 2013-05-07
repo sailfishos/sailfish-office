@@ -7,7 +7,6 @@ set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 find_package(Qt4 REQUIRED QtDeclarative QtDBus)
 find_package(Automoc4 REQUIRED)
 find_package(Booster REQUIRED)
-find_package(Poppler REQUIRED)
 find_package(QtSparql REQUIRED)
 find_package(JollaSignonUiService REQUIRED)
 
@@ -18,14 +17,16 @@ include_directories(
     ${CMAKE_BINARY_DIR}
     ${QT_INCLUDES}
     ${BOOSTER_INCLUDE_DIR}
-    ${POPPLER_INCLUDE_DIR}
-    ${POPPLER_QT4_INCLUDE_DIR}
     ${QTSPARQL_INCLUDE_DIR}
     ${JOLLASIGNONUISERVICE_INCLUDE_DIR}
 )
 
 set(CALLIGRA_QML_PLUGIN_DIR ${CMAKE_INSTALL_PREFIX}/lib/calligra/imports CACHE PATH "The location of the Calligra QtQuick Components")
 configure_file(config.h.in config.h)
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -fPIC -pie -rdynamic -Wall")
+
+add_subdirectory(pdf)
 
 set(sailfishoffice_SRCS
     main.cpp
@@ -34,19 +35,10 @@ set(sailfishoffice_SRCS
     models/documentproviderlistmodel.cpp
     models/documentproviderplugin.cpp
     models/trackerdocumentprovider.cpp
-    pdf/pdfdocument.cpp
-    pdf/pdfpagemodel.cpp
-    pdf/pdfpage.cpp
-    pdf/pdfrenderthread.cpp
-    pdf/pdfjob.cpp
-    pdf/pdftocmodel.cpp
-    pdf/pdfcanvas.cpp
 )
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -fPIC -pie -rdynamic")
-
 automoc4_add_executable(sailfish-office ${sailfishoffice_SRCS})
-target_link_libraries(sailfish-office stdc++ ${QT_LIBRARIES} ${POPPLER_LIBRARY} ${POPPLER_QT4_LIBRARY} ${BOOSTER_LIBRARY} ${QTSPARQL_LIBRARY} ${JOLLASIGNONUISERVICE_LIBRARY})
+target_link_libraries(sailfish-office stdc++ ${QT_LIBRARIES} ${BOOSTER_LIBRARY} ${QTSPARQL_LIBRARY} ${JOLLASIGNONUISERVICE_LIBRARY})
 
 install(TARGETS sailfish-office DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 install(FILES main.qml DESTINATION ${CMAKE_INSTALL_PREFIX}/share/sailfish-office)

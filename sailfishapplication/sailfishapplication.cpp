@@ -35,11 +35,6 @@ QSharedPointer<QDeclarativeView> Sailfish::createView(const QString &file)
     qmlRegisterType< TrackerDocumentProvider >( "Sailfish.Office", 1, 0, "TrackerDocumentProvider" );
     qmlRegisterInterface< DocumentProviderPlugin >( "DocumentProviderPlugin" );
 
-    qmlRegisterType< PDFDocument >( "Sailfish.Office.PDF", 1, 0, "Document" );
-    qmlRegisterType< PDFPageModel >( "Sailfish.Office.PDF", 1, 0, "PageModel" );
-    qmlRegisterType< PDFPage >( "Sailfish.Office.PDF", 1, 0, "Page" );
-    qmlRegisterType< PDFCanvas >( "Sailfish.Office.PDF", 1, 0, "Canvas" );
-
     QSharedPointer<QDeclarativeView> view(MDeclarativeCache::qDeclarativeView());
     view->engine()->addImportPath(CALLIGRA_QML_PLUGIN_DIR);
     view->setSource(QUrl::fromLocalFile(QML_INSTALL_DIR + file));
