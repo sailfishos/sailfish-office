@@ -6,9 +6,9 @@
 #define PDFRENDERTHREAD_H
 
 #include <QObject>
+#include <QImage>
 
 class QSize;
-class QImage;
 class PDFJob;
 class PDFRenderThread : public QObject
 {

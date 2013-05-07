@@ -128,5 +128,3 @@ int PDFTocModel::rowCount(const QModelIndex& parent) const
         return 0;
     return d->entries.count();
 }
-
-#include "pdftocmodel.moc"
