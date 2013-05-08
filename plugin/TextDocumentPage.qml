@@ -2,7 +2,6 @@ import QtQuick 1.1
 import Sailfish.Silica 1.0
 import com.jolla.components.views 1.0
 import org.calligra.CalligraComponents 0.1 as Calligra
-import "../components"
 
 SplitViewPage {
     id: page
@@ -23,20 +22,20 @@ SplitViewPage {
     contentItem: Item {
         clip: true;
 
-        Calligra.SpreadsheetCanvas {
+        Calligra.TextDocumentCanvas {
             id: document;
             anchors.fill: parent;
         }
 
         SilicaFlickable {
-            id: flickable
+            id: aFlickable
 
             anchors.fill: parent;
 
             Calligra.CanvasControllerItem {
                 id: canvasController;
                 canvas: document;
-                flickable: flickable;
+                flickable: aFlickable;
             }
 
             children: ScrollDecorator { }
@@ -45,7 +44,7 @@ SplitViewPage {
                 anchors.fill: parent;
                 onPinchStarted: canvasController.beginZoomGesture();
                 onPinchUpdated: canvasController.zoomBy(pinch.scale - pinch.previousScale, pinch.center);
-                onPinchFinished: { canvasController.endZoomGesture(); flickable.returnToBounds(); }
+                onPinchFinished: { canvasController.endZoomGesture(); aFlickable.returnToBounds(); }
 
                 MouseArea { anchors.fill: parent; onClicked: page.toggleSplit(); }
             }
@@ -58,13 +57,8 @@ SplitViewPage {
             document.source = page.path;
 
             if(pageStack.nextPage(page) === null) {
-                pageStack.pushAttached(Qt.resolvedUrl("SpreadsheetListPage.qml"), { title: page.title, canvas: document } );
+                pageStack.pushAttached(Qt.resolvedUrl("TextDocumentToCPage.qml"), { title: page.title, canvas: document } );
             }
-        }
-
-        if(status == PageStatus.Activating) {
-            flickable.contentX = 0;
-            flickable.contentY = 0;
         }
     }
 }

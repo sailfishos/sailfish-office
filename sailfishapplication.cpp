@@ -3,13 +3,15 @@
 #include <QDir>
 #include <QGraphicsObject>
 
-
 #include <QDeclarativeComponent>
 #include <QDeclarativeEngine>
 #include <QDeclarativeContext>
 #include <QDeclarativeView>
+#include <QDBusConnection>
 
 #include <MDeclarativeCache>
+
+#include <signonuiservice.h>
 
 #include "sailfishapplication.h"
 #include "config.h"
@@ -18,11 +20,6 @@
 #include "models/documentproviderplugin.h"
 #include "models/documentproviderlistmodel.h"
 
-#include "pdf/pdfdocument.h"
-#include "pdf/pdfpagemodel.h"
-#include "pdf/pdfpage.h"
-#include <pdf/pdfcanvas.h>
-
 QSharedPointer<QApplication> Sailfish::createApplication(int &argc, char **argv)
 {
     return QSharedPointer<QApplication>(MDeclarativeCache::qApplication(argc, argv));
@@ -30,14 +27,29 @@ QSharedPointer<QApplication> Sailfish::createApplication(int &argc, char **argv)
     
 QSharedPointer<QDeclarativeView> Sailfish::createView(const QString &file)
 {
-    qmlRegisterType< DocumentListModel >( "Sailfish.Office", 1, 0, "DocumentListModel" );
-    qmlRegisterType< DocumentProviderListModel >( "Sailfish.Office", 1, 0, "DocumentProviderListModel" );
-    qmlRegisterType< TrackerDocumentProvider >( "Sailfish.Office", 1, 0, "TrackerDocumentProvider" );
+    qmlRegisterType< DocumentListModel >( "Sailfish.Office.Files", 1, 0, "DocumentListModel" );
+    qmlRegisterType< DocumentProviderListModel >( "Sailfish.Office.Files", 1, 0, "DocumentProviderListModel" );
+    qmlRegisterType< TrackerDocumentProvider >( "Sailfish.Office.Files", 1, 0, "TrackerDocumentProvider" );
     qmlRegisterInterface< DocumentProviderPlugin >( "DocumentProviderPlugin" );
 
     QSharedPointer<QDeclarativeView> view(MDeclarativeCache::qDeclarativeView());
     view->engine()->addImportPath(CALLIGRA_QML_PLUGIN_DIR);
     view->setSource(QUrl::fromLocalFile(QML_INSTALL_DIR + file));
+
+    // We want to have SignonUI in process, if user wants to create account from Documents
+    SignonUiService* ssoui = new SignonUiService( view.data(), true ); // in process
+    ssoui->setInProcessServiceName( DBUS_SERVICE );
+    ssoui->setInProcessObjectPath( SIGNON_DBUS_OBJECT );
+
+    QDBusConnection sessionBus = QDBusConnection::sessionBus();
+    bool registeredService = sessionBus.registerService( DBUS_SERVICE );
+    bool registeredObject = sessionBus.registerObject( SIGNON_DBUS_OBJECT, ssoui, QDBusConnection::ExportAllContents );
+
+    if( !registeredService || !registeredObject )
+        qWarning( "Warning: Unable to register signon dbus object for Sailfish Office. Is another instance running?" );
+
+    view->rootContext()->setContextProperty( "jolla_signon_ui_service", ssoui );
+
     return view;
 }
 

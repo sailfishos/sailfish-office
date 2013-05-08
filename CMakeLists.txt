@@ -26,11 +26,12 @@ configure_file(config.h.in config.h)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -fPIC -pie -rdynamic -Wall")
 
+add_subdirectory(plugin)
 add_subdirectory(pdf)
 
 set(sailfishoffice_SRCS
     main.cpp
-    sailfishapplication/sailfishapplication.cpp
+    sailfishapplication.cpp
     models/documentlistmodel.cpp
     models/documentproviderlistmodel.cpp
     models/documentproviderplugin.cpp
@@ -41,12 +42,12 @@ automoc4_add_executable(sailfish-office ${sailfishoffice_SRCS})
 target_link_libraries(sailfish-office stdc++ ${QT_LIBRARIES} ${BOOSTER_LIBRARY} ${QTSPARQL_LIBRARY} ${JOLLASIGNONUISERVICE_LIBRARY})
 
 install(TARGETS sailfish-office DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
-install(FILES main.qml DESTINATION ${CMAKE_INSTALL_PREFIX}/share/sailfish-office)
 install(FILES sailfish-office.desktop DESTINATION ${CMAKE_INSTALL_PREFIX}/share/applications)
 install(FILES org.sailfish.documents.service DESTINATION ${CMAKE_INSTALL_PREFIX}/share/dbus-1/services)
-install(DIRECTORY 
-    cover
-    components
-    pages
+install(FILES
+    qml/CoverPage.qml
+    qml/FileListPage.qml
+    qml/Main.qml
+    qml/StartPage.qml
     DESTINATION ${CMAKE_INSTALL_PREFIX}/share/sailfish-office
 )

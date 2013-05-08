@@ -2,7 +2,6 @@ import QtQuick 1.1
 import Sailfish.Silica 1.0
 import com.jolla.components.views 1.0
 import org.calligra.CalligraComponents 0.1 as Calligra
-import "../components"
 
 SplitViewPage {
     id: page;

@@ -1,7 +1,6 @@
 import QtQuick 1.1
 import Sailfish.Silica 1.0
 import com.jolla.components.views 1.0
-import "../components"
 import org.calligra.CalligraComponents 0.1 as Calligra
 import Sailfish.Office.PDF 1.0 as PDF
 
