@@ -9,6 +9,8 @@ Page {
     property Item canvas;
     property Item view;
 
+    allowedOrientations: Orientation.All;
+
     SilicaGridView {
         id: view;
 

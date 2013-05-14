@@ -9,6 +9,8 @@ Page {
     property alias tocModel: tocListView.model;
     property int currentPageNumber: 0;
 
+    allowedOrientations: Orientation.All;
+
     SilicaListView {
         id: tocListView
         anchors.fill: parent;

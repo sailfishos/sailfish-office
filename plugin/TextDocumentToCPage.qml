@@ -8,6 +8,8 @@ Page {
     property string title;
     property Item canvas;
 
+    allowedOrientations: Orientation.All;
+
     SilicaListView {
         anchors.fill: parent;
 

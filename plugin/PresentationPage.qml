@@ -10,7 +10,7 @@ SplitViewPage {
     property string path;
     property string mimeType;
 
-    allowedOrientations: window.allowedOrientations
+    allowedOrientations: Orientation.All;
 
     DocumentsSharingList {
         visualParent: page;
