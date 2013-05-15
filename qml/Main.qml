@@ -6,7 +6,7 @@ ApplicationWindow
 {
     id: window;
     initialPage: startPage;
-    cover: Qt.resolvedUrl("cover/CoverPage.qml")
+    //cover: Qt.resolvedUrl("CoverPage.qml")
 
     //TODO: Convert all component usage to Qt.resolvedUrl once most development is done.
     Component { id: startPage; StartPage { } }
