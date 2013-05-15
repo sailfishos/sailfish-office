@@ -3,6 +3,7 @@
  */
 
 #include "sailfishofficeplugin.h"
+#include "linkarea.h"
 
 #include <QtDeclarative/QtDeclarative>
 
@@ -17,6 +18,7 @@ SailfishOfficePlugin::SailfishOfficePlugin( QObject* parent )
 void SailfishOfficePlugin::registerTypes(const char* uri)
 {
     Q_ASSERT( uri == QLatin1String( "Sailfish.Office" ) );
+    qmlRegisterType<LinkArea>( uri, 1, 0, "LinkArea" );
 }
 
 void SailfishOfficePlugin::initializeEngine(QDeclarativeEngine* engine, const char* uri)

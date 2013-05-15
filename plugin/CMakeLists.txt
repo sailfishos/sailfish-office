@@ -1,4 +1,5 @@
 set(plugin_SRCS
+    linkarea.cpp
     sailfishofficeplugin.cpp
 )
 
