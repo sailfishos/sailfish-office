@@ -68,7 +68,10 @@ SplitViewPage {
                     viewScale.origin.y = 0;
                 }
 
-                MouseArea { anchors.fill: parent; onClicked: base.toggleSplit(); }
+                LinkArea {
+                    anchors.fill: parent;
+                    onClicked: base.toggleSplit();
+                }
             }
         }
     }

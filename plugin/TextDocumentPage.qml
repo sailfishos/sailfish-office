@@ -49,7 +49,12 @@ SplitViewPage {
                 onPinchUpdated: canvasController.zoomBy(pinch.scale - pinch.previousScale, pinch.center);
                 onPinchFinished: { canvasController.endZoomGesture(); aFlickable.returnToBounds(); }
 
-                MouseArea { anchors.fill: parent; onClicked: page.toggleSplit(); }
+                LinkArea {
+                    anchors.fill: parent;
+                    links: document.linkTargets;
+                    onClicked: page.toggleSplit();
+                    onLinkClicked: console.debug("Herpaderp " + linkTarget);
+                }
             }
         }
     }

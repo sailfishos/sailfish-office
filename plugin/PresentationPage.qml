@@ -27,7 +27,7 @@ SplitViewPage {
             anchors.fill: parent;
 
             property Item currentItem;
-            interactive: !currentItem.scaled;
+            interactive: (currentItem === undefined) ? false : !currentItem.scaled;
 
             model: Calligra.PresentationModel {
                 id: presentationModel;
@@ -42,7 +42,10 @@ SplitViewPage {
                 height: Math.min(itemHeight, view.height);
                 content: model.thumbnail;
 
-                onClicked: page.toggleSplit();
+                LinkArea {
+                    anchors.fill: parent;
+                    onClicked: page.toggleSplit();
+                }
             }
 
             Connections {
