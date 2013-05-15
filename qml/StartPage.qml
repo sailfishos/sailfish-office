@@ -5,7 +5,7 @@ import QtMobility.gallery 1.1
 
 Page {
 
-    allowedOrientations: window.allowedOrientations
+    allowedOrientations: Orientation.All;
 
     Component {
         id: delegate
