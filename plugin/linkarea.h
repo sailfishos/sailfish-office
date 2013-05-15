@@ -1,0 +1,38 @@
+/*
+ *
+ */
+
+#ifndef LINKLAYER_H
+#define LINKLAYER_H
+
+#include <QtDeclarative/qdeclarativeitem.h>
+
+class LinkArea : public QDeclarativeItem
+{
+    Q_OBJECT
+    Q_PROPERTY(QVariantList links READ links WRITE setLinks NOTIFY linksChanged)
+
+public:
+    explicit LinkArea(QDeclarativeItem* parent = 0);
+    virtual ~LinkArea();
+
+    QVariantList links() const;
+    void setLinks(const QVariantList& newLinks);
+
+Q_SIGNALS:
+    void linksChanged();
+    void clicked();
+    void doubleClicked();
+    void linkClicked(QUrl linkTarget);
+
+protected:
+    virtual void mousePressEvent(QGraphicsSceneMouseEvent* event);
+    virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent* event);
+    virtual void mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event);
+
+private:
+    class Private;
+    Private* d;
+};
+
+#endif // LINKLAYER_H
