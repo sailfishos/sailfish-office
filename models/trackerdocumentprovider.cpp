@@ -7,6 +7,8 @@
 #include <QtSparql/QSparqlResult>
 #include <QtSparql/QSparqlError>
 
+#include "config.h"
+
 
 const QString SearchThread::textDocumentType = QString("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#PaginatedTextDocument");
 const QString SearchThread::presentationType = QString("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#PresentationDocument");
@@ -182,7 +184,7 @@ QString TrackerDocumentProvider::description() const
 
 QUrl TrackerDocumentProvider::icon() const
 {
-    return QUrl::fromLocalFile("/some/icon.png");
+    return QUrl::fromLocalFile( IMAGES_INSTALL_DIR + QLatin1String("graphic-plugin-local.png") );
 }
 
 bool TrackerDocumentProvider::isReady() const
@@ -197,8 +199,7 @@ QObject* TrackerDocumentProvider::model() const
 
 QUrl TrackerDocumentProvider::thumbnail() const
 {
-    // TODO a cached icon of some of the contents, created by the model...
-    return QUrl::fromLocalFile("/some/icon.png");
+    return QUrl::fromLocalFile( IMAGES_INSTALL_DIR + QLatin1String("graphic-plugin-local.png") );
 }
 
 QString TrackerDocumentProvider::title() const

@@ -30,12 +30,12 @@ Page {
             }
 
             // Load icon from a plugin
-            Loader {
+            Image {
                 id: thumbnail
                 x: width - theme.paddingLarge
                 width: theme.itemSizeExtraLarge
                 height: width
-                source: model.icon != "" ? model.icon : "PhotoIcon.qml"
+                source: model.icon;
                 opacity: delegateItem.down ? 0.5 : 1
             }
 

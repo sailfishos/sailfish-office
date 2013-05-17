@@ -51,3 +51,8 @@ install(FILES
     qml/StartPage.qml
     DESTINATION ${CMAKE_INSTALL_PREFIX}/share/sailfish-office
 )
+install(FILES
+    images/graphic-plugin-local.png
+    images/graphic-plugin-network.png
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/share/sailfish-office/images/
+)
