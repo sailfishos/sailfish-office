@@ -38,7 +38,10 @@ SplitViewPage {
                 flickable: flickable;
             }
 
-            children: ScrollDecorator { }
+            children: [
+                HorizontalScrollDecorator { color: theme.highlightDimmerColor; },
+                VerticalScrollDecorator { color: theme.highlightDimmerColor; }
+            ]
 
             PinchArea {
                 anchors.fill: parent;

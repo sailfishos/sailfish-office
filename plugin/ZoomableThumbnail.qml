@@ -63,7 +63,10 @@ SilicaFlickable {
         }
     }
 
-    children: ScrollDecorator { }
+    children: [
+        HorizontalScrollDecorator { color: theme.highlightDimmerColor; },
+        VerticalScrollDecorator { color: theme.highlightDimmerColor; }
+    ]
 
     QtObject {
         id: d;
