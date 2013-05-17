@@ -6,7 +6,7 @@ import Sailfish.Office.Files 1.0
 Page {
     id: page
     property alias model: listView.model;
-    property string title: "Documents"
+    property string title: "";
 
     allowedOrientations: Orientation.All;
 
@@ -28,26 +28,43 @@ Page {
         spacing: theme.paddingLarge;
         
         delegate: BackgroundItem {
-            Label {
+            width: ListView.view.width;
+            height: theme.itemSizeLarge;
+
+            Image {
+                id: icon;
                 anchors {
                     left: parent.left;
-                    leftMargin: theme.paddingLarge;
+                    top: parent.top;
+                    topMargin: theme.paddingSmall;
+                }
+
+                source: "image://theme/icon-l-document"
+            }
+
+            Label {
+                anchors {
+                    left: icon.right;
+                    leftMargin: theme.paddingSmall;
+                    right: parent.right;
                     top: parent.top;
                     topMargin: theme.paddingSmall;
                 }
                 text: model.fileName;
+
+                elide: Text.ElideRight;
                 
                 font.pixelSize: theme.fontSizeLarge;
             }
             Label {
                 anchors {
-                    left: parent.left;
-                    leftMargin: theme.paddingLarge;
+                    left: icon.right;
+                    leftMargin: theme.paddingSmall;
                     bottom: parent.bottom;
                     bottomMargin: theme.paddingSmall;
                 }
-                text: model.fileType;
-                
+                text: model.fileSize;
+
                 font.pixelSize: theme.fontSizeSmall;
                 color: theme.secondaryColor;
             }
@@ -59,7 +76,7 @@ Page {
                     bottomMargin: theme.paddingSmall;
                 }
                 
-                text: model.fileSize;
+                text: Qt.formatDate(model.fileRead);
                 
                 font.pixelSize: theme.fontSizeSmall;
                 color: theme.secondaryColor;
