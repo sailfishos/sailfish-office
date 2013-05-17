@@ -52,7 +52,7 @@ set(sailfishoffice_TS_SRCS
     ${sailfishoffice_QML_SRCS}
 )
 
-create_translation(engen_qm_file ${sailfishoffice_TS_SRCS} ts/sailfish-office_eng_en.ts)
+create_translation(engen_qm_file ${sailfishoffice_TS_SRCS} ${CMAKE_BINARY_DIR}/sailfish-office_eng_en.ts)
 
 automoc4_add_executable(sailfish-office ${sailfishoffice_SRCS} ${engen_qm_file})
 target_link_libraries(sailfish-office stdc++ ${QT_LIBRARIES} ${BOOSTER_LIBRARY} ${QTSPARQL_LIBRARY} ${JOLLASIGNONUISERVICE_LIBRARY})
