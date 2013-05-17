@@ -1,0 +1,66 @@
+macro(ADD_TRANSLATION _qm_files)
+  foreach (_current_FILE ${ARGN})
+    get_filename_component(_abs_FILE ${_current_FILE} ABSOLUTE)
+    get_filename_component(qm ${_abs_FILE} NAME_WE)
+    get_source_file_property(output_location ${_abs_FILE} OUTPUT_LOCATION)
+    if(output_location)
+      file(MAKE_DIRECTORY "${output_location}")
+      set(qm "${output_location}/${qm}.qm")
+    else()
+      set(qm "${CMAKE_CURRENT_BINARY_DIR}/${qm}.qm")
+    endif()
+
+    add_custom_command(OUTPUT ${qm}
+       COMMAND ${QT_LRELEASE_EXECUTABLE}
+       ARGS -idbased ${_abs_FILE} -qm ${qm}
+       DEPENDS ${_abs_FILE} VERBATIM
+    )
+    set(${_qm_files} ${${_qm_files}} ${qm})
+  endforeach ()
+endmacro()
+
+
+macro(CREATE_TRANSLATION _qm_files)
+   QT4_EXTRACT_OPTIONS(_lupdate_files _lupdate_options ${ARGN})
+   set(_my_sources)
+   set(_my_dirs)
+   set(_my_tsfiles)
+   set(_ts_pro)
+   foreach (_file ${_lupdate_files})
+     get_filename_component(_ext ${_file} EXT)
+     get_filename_component(_abs_FILE ${_file} ABSOLUTE)
+     if(_ext MATCHES "ts")
+       list(APPEND _my_tsfiles ${_abs_FILE})
+     else()
+       if(NOT _ext)
+         list(APPEND _my_dirs ${_abs_FILE})
+       else()
+         list(APPEND _my_sources ${_abs_FILE})
+       endif()
+     endif()
+   endforeach()
+   foreach(_ts_file ${_my_tsfiles})
+     if(_my_sources)
+       # make a .pro file to call lupdate on, so we don't make our commands too
+       # long for some systems
+       get_filename_component(_ts_name ${_ts_file} NAME_WE)
+       set(_ts_pro ${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${_ts_name}_lupdate.pro)
+       set(_pro_srcs)
+       foreach(_pro_src ${_my_sources})
+         set(_pro_srcs "${_pro_srcs} \"${_pro_src}\"")
+       endforeach()
+       set(_pro_includes)
+       get_directory_property(_inc_DIRS INCLUDE_DIRECTORIES)
+       foreach(_pro_include ${_inc_DIRS})
+         get_filename_component(_abs_include "${_pro_include}" ABSOLUTE)
+         set(_pro_includes "${_pro_includes} \"${_abs_include}\"")
+       endforeach()
+       file(WRITE ${_ts_pro} "SOURCES = ${_pro_srcs}\nINCLUDEPATH = ${_pro_includes}\n")
+     endif()
+     add_custom_command(OUTPUT ${_ts_file}
+        COMMAND ${QT_LUPDATE_EXECUTABLE}
+        ARGS ${_lupdate_options} ${_ts_pro} ${_my_dirs} -ts ${_ts_file}
+        DEPENDS ${_my_sources} ${_ts_pro} VERBATIM)
+   endforeach()
+   ADD_TRANSLATION(${_qm_files} ${_my_tsfiles})
+endmacro()

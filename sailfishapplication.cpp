@@ -8,6 +8,8 @@
 #include <QDeclarativeContext>
 #include <QDeclarativeView>
 #include <QDBusConnection>
+#include <QTranslator>
+#include <QLocale>
 
 #include <MDeclarativeCache>
 
@@ -22,7 +24,19 @@
 
 QSharedPointer<QApplication> Sailfish::createApplication(int &argc, char **argv)
 {
-    return QSharedPointer<QApplication>(MDeclarativeCache::qApplication(argc, argv));
+    auto app = QSharedPointer<QApplication>(MDeclarativeCache::qApplication(argc, argv));
+
+    QTranslator* engineeringEnglish = new QTranslator( app.data() );
+    if( !engineeringEnglish->load("sailfish-office_eng_en", TRANSLATION_INSTALL_DIR) )
+        qWarning( "Could not load engineering english translation file!");
+    QCoreApplication::installTranslator( engineeringEnglish );
+
+    QTranslator* translator = new QTranslator( app.data() );
+    if( !translator->load( QLocale::system(), "sailfish-office", "-", TRANSLATION_INSTALL_DIR) )
+        qWarning( ("Could not load translations for " + QLocale::system().name()).toAscii() );
+    QCoreApplication::installTranslator( translator );
+
+    return app;
 }
     
 QSharedPointer<QDeclarativeView> Sailfish::createView(const QString &file)

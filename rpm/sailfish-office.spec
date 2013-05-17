@@ -29,6 +29,7 @@ Requires: sailfish-accounts
 %{_datadir}/applications/*.desktop
 %{_datadir}/%{name}/
 %{_datadir}/dbus-1/services/org.sailfish.documents.service
+%{_datadir}/translations/
 
 %prep
 %setup -q -n %{name}-%{version}

@@ -70,7 +70,11 @@ Page {
 
         anchors.fill: parent
         delegate: delegate
-        header: PageHeader { title: "Documents" }
+        header: PageHeader {
+            //: Application title
+            //% "Documents"
+            title: qsTrId("sailfish-office-he-apptitle");
+        }
         model: DocumentProviderListModel {
             id: documentSources
             TrackerDocumentProvider {

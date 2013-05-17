@@ -3,6 +3,8 @@
 #include <QDir>
 #include <QtCore/qthreadpool.h>
 
+#include <qglobal.h>
+
 #include <QtSparql/QSparqlConnection>
 #include <QtSparql/QSparqlResult>
 #include <QtSparql/QSparqlError>
@@ -179,7 +181,9 @@ int TrackerDocumentProvider::count() const
 
 QString TrackerDocumentProvider::description() const
 {
-    return QString("Docs stored in tracker or somesuch description");
+    //: Description for local device files plugin
+    //% "Files found on this device."
+    return qtTrId("sailfish-office-la-localfiles_description");
 }
 
 QUrl TrackerDocumentProvider::icon() const
@@ -204,5 +208,7 @@ QUrl TrackerDocumentProvider::thumbnail() const
 
 QString TrackerDocumentProvider::title() const
 {
-    return QString("This Device");
+    //: Title for local device files plugin
+    //% "This Device"
+    return qtTrId("sailfish-office-he-localfiles_title");
 }

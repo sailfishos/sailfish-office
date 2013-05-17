@@ -2,6 +2,8 @@ project(sailfish-office)
 
 cmake_minimum_required(VERSION 2.8.6)
 
+include(cmake/QtTranslationWithID.cmake)
+
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 find_package(Qt4 REQUIRED QtDeclarative QtDBus)
@@ -38,19 +40,30 @@ set(sailfishoffice_SRCS
     models/trackerdocumentprovider.cpp
 )
 
-automoc4_add_executable(sailfish-office ${sailfishoffice_SRCS})
+set(sailfishoffice_QML_SRCS
+    qml/CoverPage.qml
+    qml/FileListPage.qml
+    qml/Main.qml
+    qml/StartPage.qml
+)
+
+set(sailfishoffice_TS_SRCS
+    ${sailfishoffice_SRCS}
+    ${sailfishoffice_QML_SRCS}
+)
+
+create_translation(engen_qm_file ${sailfishoffice_TS_SRCS} ts/sailfish-office_eng_en.ts)
+
+automoc4_add_executable(sailfish-office ${sailfishoffice_SRCS} ${engen_qm_file})
 target_link_libraries(sailfish-office stdc++ ${QT_LIBRARIES} ${BOOSTER_LIBRARY} ${QTSPARQL_LIBRARY} ${JOLLASIGNONUISERVICE_LIBRARY})
 
 install(TARGETS sailfish-office DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 install(FILES sailfish-office.desktop DESTINATION ${CMAKE_INSTALL_PREFIX}/share/applications)
 install(FILES org.sailfish.documents.service DESTINATION ${CMAKE_INSTALL_PREFIX}/share/dbus-1/services)
-install(FILES
-    qml/CoverPage.qml
-    qml/FileListPage.qml
-    qml/Main.qml
-    qml/StartPage.qml
-    DESTINATION ${CMAKE_INSTALL_PREFIX}/share/sailfish-office
+install(FILES ${sailfishoffice_QML_SRCS} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/sailfish-office
 )
+install(FILES ${engen_qm_file} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/translations)
+
 install(FILES
     images/graphic-plugin-local.png
     images/graphic-plugin-network.png
