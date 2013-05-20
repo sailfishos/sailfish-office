@@ -6,6 +6,7 @@
 
 #include <QDebug>
 #include <QtGui/QGraphicsSceneMouseEvent>
+#include <QPainter>
 
 struct LinkLayerLink
 {
@@ -32,6 +33,7 @@ LinkArea::LinkArea(QDeclarativeItem* parent)
     : QDeclarativeItem(parent)
     , d(new Private)
 {
+    setFlag(QGraphicsItem::ItemHasNoContents, false);
     setAcceptedMouseButtons(Qt::LeftButton | Qt::RightButton | Qt::MidButton);
     setAcceptTouchEvents(true);
 }
@@ -39,6 +41,19 @@ LinkArea::LinkArea(QDeclarativeItem* parent)
 LinkArea::~LinkArea()
 {
     delete d;
+}
+
+void LinkArea::paint(QPainter* painter, const QStyleOptionGraphicsItem* , QWidget* )
+{
+    painter->save();
+//     QColor thing(Qt::black);
+//     thing.setAlpha(100);
+//     painter->setPen(thing);
+//     foreach(const LinkLayerLink& link, d->realLinks) {
+//         QRectF inverted(link.linkRect.y(), link.linkRect.x(), link.linkRect.height(), link.linkRect.width());
+//         painter->drawRect(inverted);
+//     }
+    painter->restore();
 }
 
 QVariantList LinkArea::links() const
@@ -80,8 +95,9 @@ void LinkArea::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
         return;
     }
     QUrl url;
+    QPointF inverted(event->pos().y(), event->pos().x());
     foreach(const LinkLayerLink& link, d->realLinks) {
-        if(link.linkRect.contains(event->pos())) {
+        if(link.linkRect.contains(inverted)) {
             url = link.linkTarget;
             break;
         }

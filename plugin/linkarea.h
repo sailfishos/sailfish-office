@@ -15,6 +15,7 @@ class LinkArea : public QDeclarativeItem
 public:
     explicit LinkArea(QDeclarativeItem* parent = 0);
     virtual ~LinkArea();
+    virtual void paint(QPainter* painter, const QStyleOptionGraphicsItem*, QWidget* );
 
     QVariantList links() const;
     void setLinks(const QVariantList& newLinks);
