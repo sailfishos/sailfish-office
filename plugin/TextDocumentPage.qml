@@ -53,7 +53,7 @@ SplitViewPage {
                     anchors.fill: parent;
                     links: document.linkTargets;
                     onClicked: page.toggleSplit();
-                    onLinkClicked: console.debug("Herpaderp " + linkTarget);
+                    onLinkClicked: Qt.openUrlExternally(linkTarget);
                 }
             }
         }
