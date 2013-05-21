@@ -54,8 +54,11 @@ void PDFCanvas::paint( QPainter* painter, const QStyleOptionGraphicsItem* option
     for( int i = 0; i < d->pageCount; ++i )
     {
         QImage img = d->bestMatchingImage( i );
-        if( img.width() != width() )
+        if( img.width() != int(width()) )
+        {
             PDFRenderThread::instance()->requestPage( i, width() );
+            pageFinished( i, QImage( width(), pageHeight, QImage::Format_ARGB32 ) );
+        }
 
         painter->drawImage( QRect( 0, totalHeight, width(), pageHeight ), img, img.rect() );
 
@@ -65,7 +68,7 @@ void PDFCanvas::paint( QPainter* painter, const QStyleOptionGraphicsItem* option
             totalHeight += pageHeight;
     }
 
-    if( height() != totalHeight )
+    if( int(height()) != totalHeight )
         setHeight( totalHeight );
 }
 
@@ -121,6 +124,5 @@ void PDFCanvas::documentLoaded()
     d->images.clear();
     d->pageCount = PDFRenderThread::instance()->pageCount();
 
-    for( int i = 0; i < d->pageCount; ++i )
-        PDFRenderThread::instance()->requestPage( i, width() );
+    PDFRenderThread::instance()->requestPage( 0, width() );
 }
