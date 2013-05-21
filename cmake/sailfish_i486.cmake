@@ -8,7 +8,7 @@ set(CMAKE_CXX_COMPILER $ENV{HOME}/SailfishOS/share/qtcreator/MerProject/mer-sdk-
 
 set(CMAKE_FIND_ROOT_PATH $ENV{HOME}/SailfishOS/mersdk/targets/SailfishOS-i486-x86/)
 
-set(QT_QMAKE_EXECUTABLE $ENV{HOME}/SailfishOS/mersdk/targets/SailfishOS-i486-x86/usr/bin/qmake)
+set(QT_QMAKE_EXECUTABLE $ENV{HOME}/SailfishOS/mersdk/targets/SailfishOS-i486-x86/usr/lib/qt4/bin/qmake)
 
 add_custom_target(deploy COMMENT "Deploying to emulator...")
 add_custom_command(TARGET deploy POST_BUILD COMMAND mkdir ARGS -p deploy)
