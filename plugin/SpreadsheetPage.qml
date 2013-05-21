@@ -36,6 +36,9 @@ SplitViewPage {
                 id: canvasController;
                 canvas: document;
                 flickable: flickable;
+
+                minimumZoom: 1.0;
+                maximumZoom: 2.5;
             }
 
             children: [

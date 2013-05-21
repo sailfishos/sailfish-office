@@ -57,15 +57,23 @@ SplitViewPage {
                 onPinchFinished: {
                     var oldWidth = pdfCanvas.width;
                     var oldHeight = pdfCanvas.height;
-                    pdfCanvas.width *= viewScale.xScale;
 
-                    view.contentX += (viewScale.origin.x * pdfCanvas.width / oldWidth) - viewScale.origin.x;
-                    view.contentY += (viewScale.origin.y * (oldHeight * viewScale.yScale) / oldHeight) - viewScale.origin.y;
+                    var newWidth = pdfCanvas.width * viewScale.xScale;
+
+                    if(newWidth >= view.width && newWidth <= view.width * 2.5)
+                    {
+                        pdfCanvas.width = newWidth;
+
+                        view.contentX += (viewScale.origin.x * newWidth / oldWidth) - viewScale.origin.x;
+                        view.contentY += (viewScale.origin.y * (oldHeight * viewScale.yScale) / oldHeight) - viewScale.origin.y;
+                    }
 
                     viewScale.xScale = 1;
                     viewScale.yScale = 1;
                     viewScale.origin.x = 0;
                     viewScale.origin.y = 0;
+
+                    view.returnToBounds();
                 }
 
                 LinkArea {

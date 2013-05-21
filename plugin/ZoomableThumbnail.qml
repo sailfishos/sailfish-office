@@ -72,7 +72,7 @@ SilicaFlickable {
         id: d;
 
         property real minWidth: base.width;
-        property real maxWidth: base.width * 3;
+        property real maxWidth: base.width * 2.5;
     }
 
     Timer {
