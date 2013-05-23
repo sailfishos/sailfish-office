@@ -21,6 +21,7 @@ public:
 private Q_SLOTS:
     void pageFinished( int id, const QImage& image );
     void documentLoaded();
+    void setRenderThreadWidth();
     
 private:
     class Private;

@@ -19,6 +19,7 @@ class PDFDocument : public QObject, public QDeclarativeParserStatus
     Q_PROPERTY(QString source READ source WRITE setSource NOTIFY sourceChanged)
     Q_PROPERTY(int pageCount READ pageCount NOTIFY pageCountChanged)
     Q_PROPERTY(QObject* tocModel READ tocModel NOTIFY tocModelChanged)
+    Q_PROPERTY(QObjectList linkTargets READ linkTargets NOTIFY linkTargetsChanged)
 
     Q_INTERFACES(QDeclarativeParserStatus)
 
@@ -30,6 +31,7 @@ public:
     QString source() const;
     int pageCount() const;
     QObject* tocModel() const;
+    QObjectList linkTargets() const;
 
     virtual void classBegin();
     virtual void componentComplete();
@@ -41,6 +43,7 @@ Q_SIGNALS:
     void sourceChanged();
     void pageCountChanged();
     void tocModelChanged();
+    void linkTargetsChanged();
 
 private:
     class Private;

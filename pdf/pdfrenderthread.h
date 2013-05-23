@@ -20,9 +20,12 @@ public:
     int pageCount() const;
     QObject* tocModel() const;
     bool isLoaded() const;
+    QObjectList linkTargets() const;
 
     void load( const QString& file );
     void requestPage( int index, uint width );
+
+    void setCanvasWidth( uint width );
 
     static PDFRenderThread* instance();
 

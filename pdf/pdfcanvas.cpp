@@ -32,6 +32,7 @@ PDFCanvas::PDFCanvas(QDeclarativeItem* parent)
         documentLoaded();
 
     connect(PDFRenderThread::instance(), SIGNAL(pageFinished(int,QImage)), SLOT(pageFinished(int,QImage)));
+    connect(this, SIGNAL(widthChanged()), SLOT(setRenderThreadWidth()));
 }
 
 PDFCanvas::~PDFCanvas()
@@ -125,4 +126,9 @@ void PDFCanvas::documentLoaded()
     d->pageCount = PDFRenderThread::instance()->pageCount();
 
     PDFRenderThread::instance()->requestPage( 0, width() );
+}
+
+void PDFCanvas::setRenderThreadWidth()
+{
+    PDFRenderThread::instance()->setCanvasWidth(width());
 }

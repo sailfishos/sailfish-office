@@ -24,6 +24,7 @@ PDFDocument::PDFDocument(QObject* parent)
     : QObject(parent), d(new Private())
 {
     connect(PDFRenderThread::instance(), SIGNAL(loadFinished()), SIGNAL(tocModelChanged()));
+    connect(PDFRenderThread::instance(), SIGNAL(loadFinished()), SIGNAL(linkTargetsChanged()));
 }
 
 PDFDocument::~PDFDocument()
@@ -45,6 +46,11 @@ int PDFDocument::pageCount() const
 QObject* PDFDocument::tocModel() const
 {
     return PDFRenderThread::instance()->tocModel();
+}
+
+QObjectList PDFDocument::linkTargets() const
+{
+    return PDFRenderThread::instance()->linkTargets();
 }
 
 void PDFDocument::classBegin()
