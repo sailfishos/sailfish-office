@@ -35,6 +35,7 @@ SplitViewPage {
 
             PDF.Canvas {
                 id: pdfCanvas;
+                document: pdfDocument;
                 width: base.width;
             }
 

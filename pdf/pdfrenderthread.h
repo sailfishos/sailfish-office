@@ -27,8 +27,6 @@ public:
 
     void setCanvasWidth( uint width );
 
-    static PDFRenderThread* instance();
-
 Q_SIGNALS:
     void loadFinished();
     void pageFinished(int index, QImage image);
@@ -39,8 +37,6 @@ private Q_SLOTS:
 private:
     class Private;
     Private * const d;
-
-    static PDFRenderThread* sm_instance;
 };
 
 #endif // PDFRENDERTHREAD_H

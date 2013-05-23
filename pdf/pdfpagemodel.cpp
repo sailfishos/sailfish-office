@@ -18,7 +18,7 @@
 class PDFPageModel::Private
 {
 public:
-    Private() : pageWidth{ 64 }, pageCount{ 0 } { }
+    Private() : pageWidth{ 64 }, pageCount{ 0 }, document{ nullptr } { }
 
     QImage bestMatchingImage( int index );
 
@@ -26,6 +26,8 @@ public:
 
     uint pageWidth;
     int pageCount;
+
+    PDFDocument* document;
 };
 
 PDFPageModel::PDFPageModel(QObject* parent)
@@ -36,12 +38,6 @@ PDFPageModel::PDFPageModel(QObject* parent)
     roleNames.insert( WidthRole, "width" );
     roleNames.insert( HeightRole, "height" );
     setRoleNames(roleNames);
-
-    connect(PDFRenderThread::instance(), SIGNAL(loadFinished()), SLOT(documentLoaded()));
-    if(PDFRenderThread::instance()->isLoaded())
-        documentLoaded();
-
-    connect(PDFRenderThread::instance(), SIGNAL(pageFinished(int,QImage)), SLOT(pageFinished(int,QImage)));
 }
 
 PDFPageModel::~PDFPageModel()
@@ -59,7 +55,7 @@ QVariant PDFPageModel::data(const QModelIndex& index, int role) const
         case PageRole: {
             QImage img = d->bestMatchingImage( index.row() );
             if( (unsigned)img.width() != d->pageWidth )
-                PDFRenderThread::instance()->requestPage( index.row(), d->pageWidth );
+                d->document->requestPage( index.row(), d->pageWidth );
 
             return img;
         }
@@ -90,12 +86,37 @@ uint PDFPageModel::pageWidth() const
     return d->pageWidth;
 }
 
+PDFDocument* PDFPageModel::document() const
+{
+    return d->document;
+}
+
 void PDFPageModel::setPageWidth( uint pageWidth )
 {
     if(pageWidth != d->pageWidth) {
         d->pageWidth = pageWidth;
         emit dataChanged( index( 0, 0 ), index( d->pageCount - 1, 0 ) );
         emit pageWidthChanged();
+    }
+}
+
+void PDFPageModel::setDocument(PDFDocument* doc)
+{
+    if(doc != d->document) {
+        if( d->document )
+        {
+            disconnect(this, SLOT(documentLoaded()));
+            disconnect(this, SLOT(pageFinished(int,QImage)));
+        }
+
+        d->document = doc;
+
+        connect(d->document, SIGNAL(documentLoaded()), SLOT(documentLoaded()));
+        connect(d->document, SIGNAL(pageFinished(int,QImage)), SLOT(pageFinished(int,QImage)));
+        if( d->document->isLoaded() )
+            documentLoaded();
+
+        emit documentChanged();
     }
 }
 
@@ -114,7 +135,7 @@ void PDFPageModel::documentLoaded()
     }
 
     d->images.clear();
-    d->pageCount = PDFRenderThread::instance()->pageCount();
+    d->pageCount = d->document->pageCount();
     beginInsertRows(QModelIndex(), 0, d->pageCount);
     endInsertRows();
 }

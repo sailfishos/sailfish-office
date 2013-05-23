@@ -16,8 +16,6 @@
 #include "pdfjob.h"
 #include "pdftocmodel.h"
 
-PDFRenderThread* PDFRenderThread::sm_instance = 0;
-
 class PDFRenderThread::Private
 {
 public:
@@ -86,8 +84,7 @@ PDFRenderThread::~PDFRenderThread()
 
     delete d->updateTimer;
     delete d->document;
-    if(d->tocModel)
-        d->tocModel->deleteLater();
+    delete d->tocModel;
 
     delete d;
 }
@@ -134,14 +131,6 @@ void PDFRenderThread::requestPage(int index, uint width )
 void PDFRenderThread::setCanvasWidth(uint width)
 {
     d->canvasWidth = width;
-}
-
-PDFRenderThread* PDFRenderThread::instance()
-{
-    if( !sm_instance )
-        sm_instance = new PDFRenderThread( QCoreApplication::instance() );
-
-    return sm_instance;
 }
 
 void PDFRenderThread::processQueue()

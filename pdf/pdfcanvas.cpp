@@ -3,14 +3,17 @@
  */
 
 #include "pdfcanvas.h"
-#include "pdfrenderthread.h"
+
 #include <QPainter>
 #include <QStyleOptionGraphicsItem>
+
+#include "pdfrenderthread.h"
+#include "pdfdocument.h"
 
 class PDFCanvas::Private
 {
 public:
-    Private( PDFCanvas* qq ) : q{ qq }, pageCount{ 0 } { }
+    Private( PDFCanvas* qq ) : q{ qq }, pageCount{ 0 }, document{ nullptr } { }
 
     QImage bestMatchingImage( int index );
 
@@ -20,6 +23,7 @@ public:
 
     int pageCount;
 
+    PDFDocument* document;
 };
 
 PDFCanvas::PDFCanvas(QDeclarativeItem* parent)
@@ -28,11 +32,6 @@ PDFCanvas::PDFCanvas(QDeclarativeItem* parent)
     setFlag( QGraphicsItem::ItemHasNoContents, false );
     setFlag( QGraphicsItem::ItemSendsGeometryChanges, true );
 
-    connect(PDFRenderThread::instance(), SIGNAL(loadFinished()), SLOT(documentLoaded()));
-    if(PDFRenderThread::instance()->isLoaded())
-        documentLoaded();
-
-    connect(PDFRenderThread::instance(), SIGNAL(pageFinished(int,QImage)), SLOT(pageFinished(int,QImage)));
     connect(this, SIGNAL(widthChanged()), SLOT(setRenderThreadWidth()));
 }
 
@@ -58,7 +57,7 @@ void PDFCanvas::paint( QPainter* painter, const QStyleOptionGraphicsItem* option
         QImage img = d->bestMatchingImage( i );
         if( img.width() != int(width()) )
         {
-            PDFRenderThread::instance()->requestPage( i, width() );
+            d->document->requestPage( i, width() );
             if( img.isNull() )
                 pageFinished( i, QImage( width(), pageHeight, QImage::Format_ARGB32 ) );
             else
@@ -79,6 +78,31 @@ void PDFCanvas::paint( QPainter* painter, const QStyleOptionGraphicsItem* option
 
     if( int(height()) != totalHeight )
         setHeight( totalHeight );
+}
+
+PDFDocument* PDFCanvas::document() const
+{
+    return d->document;
+}
+
+void PDFCanvas::setDocument(PDFDocument* doc)
+{
+    if(doc != d->document) {
+        if( d->document )
+        {
+            disconnect(this, SLOT(documentLoaded()));
+            disconnect(this, SLOT(pageFinished(int,QImage)));
+        }
+
+        d->document = doc;
+
+        connect(d->document, SIGNAL(documentLoaded()), SLOT(documentLoaded()));
+        connect(d->document, SIGNAL(pageFinished(int,QImage)), SLOT(pageFinished(int,QImage)));
+        if( d->document->isLoaded() )
+            documentLoaded();
+
+        emit documentChanged();
+    }
 }
 
 qreal PDFCanvas::pagePosition(int index) const
@@ -131,12 +155,12 @@ QImage PDFCanvas::Private::bestMatchingImage(int index)
 void PDFCanvas::documentLoaded()
 {
     d->images.clear();
-    d->pageCount = PDFRenderThread::instance()->pageCount();
+    d->pageCount = d->document->pageCount();
 
-    PDFRenderThread::instance()->requestPage( 0, width() );
+    d->document->requestPage( 0, width() );
 }
 
 void PDFCanvas::setRenderThreadWidth()
 {
-    PDFRenderThread::instance()->setCanvasWidth(width());
+    d->document->setCanvasWidth(width());
 }

@@ -8,10 +8,12 @@
 #include <QAbstractListModel>
 #include <QImage>
 
+class PDFDocument;
 class PDFPageModel : public QAbstractListModel
 {
     Q_OBJECT
     Q_PROPERTY(uint pageWidth READ pageWidth WRITE setPageWidth NOTIFY pageWidthChanged)
+    Q_PROPERTY(PDFDocument* document READ document WRITE setDocument NOTIFY documentChanged)
 
 public:
     enum Roles {
@@ -28,12 +30,16 @@ public:
 
     uint pageWidth() const;
 
+    PDFDocument* document() const;
+
 public Q_SLOTS:
     void setPageWidth(uint pageWidth);
     void discard( int index );
+    void setDocument( PDFDocument* document );
 
 Q_SIGNALS:
     void pageWidthChanged();
+    void documentChanged();
 
 private:
     class Private;

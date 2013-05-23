@@ -15,6 +15,8 @@ class PDFDocument::Private
 public:
     Private() : document( nullptr ), completed(false) { }
 
+    PDFRenderThread* thread;
+
     Poppler::Document* document;
     QString source;
     bool completed;
@@ -23,14 +25,15 @@ public:
 PDFDocument::PDFDocument(QObject* parent)
     : QObject(parent), d(new Private())
 {
-    connect(PDFRenderThread::instance(), SIGNAL(loadFinished()), SIGNAL(tocModelChanged()));
-    connect(PDFRenderThread::instance(), SIGNAL(loadFinished()), SIGNAL(linkTargetsChanged()));
+    d->thread = new PDFRenderThread{ this };
+    connect( d->thread, SIGNAL(loadFinished()), SIGNAL(documentLoaded()) );
+    connect( d->thread, SIGNAL(loadFinished()), SIGNAL(pageCountChanged()) );
+    connect( d->thread, SIGNAL(loadFinished()), SIGNAL(linkTargetsChanged()) );
+    connect( d->thread, SIGNAL(pageFinished(int,QImage)), SIGNAL(pageFinished(int,QImage)));
 }
 
 PDFDocument::~PDFDocument()
 {
-    delete d->document;
-    delete d;
 }
 
 QString PDFDocument::source() const
@@ -40,17 +43,22 @@ QString PDFDocument::source() const
 
 int PDFDocument::pageCount() const
 {
-    return PDFRenderThread::instance()->pageCount();
+    return d->thread->pageCount();
 }
 
 QObject* PDFDocument::tocModel() const
 {
-    return PDFRenderThread::instance()->tocModel();
+    return d->thread->tocModel();
+}
+
+bool PDFDocument::isLoaded() const
+{
+    return d->thread->isLoaded();
 }
 
 QObjectList PDFDocument::linkTargets() const
 {
-    return PDFRenderThread::instance()->linkTargets();
+    return d->thread->linkTargets();
 }
 
 void PDFDocument::classBegin()
@@ -62,8 +70,7 @@ void PDFDocument::componentComplete()
 {
     if(!d->source.isEmpty())
     {
-        PDFRenderThread::instance()->load( QUrl{ d->source }.toLocalFile() );
-        emit pageCountChanged();
+        d->thread->load( QUrl{ d->source }.toLocalFile() );
     }
 
     d->completed = true;
@@ -76,10 +83,19 @@ void PDFDocument::setSource(const QString& source)
         d->source = source;
 
         if(d->completed) {
-            PDFRenderThread::instance()->load( QUrl{ d->source }.toLocalFile() );
+            d->thread->load( QUrl{ d->source }.toLocalFile() );
         }
 
         emit sourceChanged();
-        emit pageCountChanged();
     }
+}
+
+void PDFDocument::setCanvasWidth(uint width)
+{
+    d->thread->setCanvasWidth( width );
+}
+
+void PDFDocument::requestPage(int index, int size)
+{
+    d->thread->requestPage( index, size );
 }
