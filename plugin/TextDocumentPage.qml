@@ -52,7 +52,7 @@ SplitViewPage {
                 onPinchUpdated: canvasController.zoomBy(pinch.scale - pinch.previousScale, pinch.center);
                 onPinchFinished: { canvasController.endZoomGesture(); aFlickable.returnToBounds(); }
 
-                LinkArea {
+                Calligra.LinkArea {
                     anchors.fill: parent;
                     links: document.linkTargets;
                     onClicked: page.toggleSplit();

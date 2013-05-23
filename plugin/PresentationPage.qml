@@ -42,7 +42,7 @@ SplitViewPage {
                 height: Math.min(itemHeight, view.height);
                 content: model.thumbnail;
 
-                LinkArea {
+                Calligra.LinkArea {
                     anchors.fill: parent;
                     onClicked: page.toggleSplit();
                 }

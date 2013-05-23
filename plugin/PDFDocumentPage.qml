@@ -76,9 +76,10 @@ SplitViewPage {
                     view.returnToBounds();
                 }
 
-                LinkArea {
+                Calligra.LinkArea {
                     anchors.fill: parent;
                     onClicked: base.toggleSplit();
+                    links: pdfDocument.linkTargets;
                 }
             }
         }
