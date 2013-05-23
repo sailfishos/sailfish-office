@@ -5,6 +5,7 @@
 #include "pdfcanvas.h"
 #include "pdfrenderthread.h"
 #include <QPainter>
+#include <QStyleOptionGraphicsItem>
 
 class PDFCanvas::Private
 {
@@ -58,10 +59,17 @@ void PDFCanvas::paint( QPainter* painter, const QStyleOptionGraphicsItem* option
         if( img.width() != int(width()) )
         {
             PDFRenderThread::instance()->requestPage( i, width() );
-            pageFinished( i, QImage( width(), pageHeight, QImage::Format_ARGB32 ) );
+            if( img.isNull() )
+                pageFinished( i, QImage( width(), pageHeight, QImage::Format_ARGB32 ) );
+            else
+                pageFinished( i, img.scaled( width(), pageHeight ) );
         }
 
-        painter->drawImage( QRect( 0, totalHeight, width(), pageHeight ), img, img.rect() );
+        QRect targetRect = QRect( 0, totalHeight, width(), pageHeight );
+        if( targetRect.intersects( painter->clipBoundingRect().toAlignedRect() ) )
+        {
+            painter->drawImage( targetRect, img, img.rect() );
+        }
 
         if( i < d->pageCount - 1)
             totalHeight += pageHeight + pageHeight * 0.025;
