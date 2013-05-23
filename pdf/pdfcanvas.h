@@ -27,6 +27,9 @@ public:
 Q_SIGNALS:
     void documentChanged();
 
+protected:
+    virtual void geometryChanged(const QRectF& newGeometry, const QRectF& oldGeometry);
+
 private Q_SLOTS:
     void pageFinished( int id, const QImage& image );
     void documentLoaded();

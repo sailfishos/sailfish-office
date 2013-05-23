@@ -31,8 +31,6 @@ PDFCanvas::PDFCanvas(QDeclarativeItem* parent)
 {
     setFlag( QGraphicsItem::ItemHasNoContents, false );
     setFlag( QGraphicsItem::ItemSendsGeometryChanges, true );
-
-    connect(this, SIGNAL(widthChanged()), SLOT(setRenderThreadWidth()));
 }
 
 PDFCanvas::~PDFCanvas()
@@ -133,6 +131,14 @@ void PDFCanvas::pageFinished( int id, const QImage& image )
     update();
 }
 
+void PDFCanvas::geometryChanged(const QRectF& newGeometry, const QRectF& oldGeometry)
+{
+    if( d->document )
+        d->document->setCanvasWidth( newGeometry.width() );
+
+    QDeclarativeItem::geometryChanged(newGeometry, oldGeometry);
+}
+
 QImage PDFCanvas::Private::bestMatchingImage(int index)
 {
     auto sizes = images.value( index );
@@ -157,10 +163,6 @@ void PDFCanvas::documentLoaded()
     d->images.clear();
     d->pageCount = d->document->pageCount();
 
+    d->document->setCanvasWidth( width() );
     d->document->requestPage( 0, width() );
-}
-
-void PDFCanvas::setRenderThreadWidth()
-{
-    d->document->setCanvasWidth(width());
 }
