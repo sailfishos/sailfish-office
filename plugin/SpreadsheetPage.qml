@@ -55,7 +55,10 @@ Page {
             PinchArea {
                 anchors.fill: parent;
                 onPinchStarted: canvasController.beginZoomGesture();
-                onPinchUpdated: canvasController.zoomBy(pinch.scale - pinch.previousScale, pinch.center);
+                onPinchUpdated: {
+                    var newCenter = mapToItem( flickable, pinch.center.x, pinch.center.y );
+                    canvasController.zoomBy(pinch.scale - pinch.previousScale, Qt.point( newCenter.x, newCenter.y ) );
+                }
                 onPinchFinished: { canvasController.endZoomGesture(); flickable.returnToBounds(); }
 
                 Calligra.LinkArea {
