@@ -5,14 +5,13 @@ import org.calligra.CalligraComponents 0.1 as Calligra
 Page {
     id: page;
 
-    property string title;
     property Item canvas;
     property Item view;
 
     allowedOrientations: Orientation.All;
 
     SilicaGridView {
-        id: view;
+        id: grid;
 
         anchors.fill: parent;
 
@@ -27,8 +26,8 @@ Page {
 
         model: Calligra.PresentationModel {
             canvas: page.canvas;
-            thumbnailSize.width: view.cellWidth;
-            thumbnailSize.height: view.cellHeight;
+            thumbnailSize.width: grid.cellWidth;
+            thumbnailSize.height: grid.cellHeight;
         }
 
         delegate: Item {

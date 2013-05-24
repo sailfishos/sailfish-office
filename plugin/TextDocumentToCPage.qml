@@ -5,7 +5,6 @@ import org.calligra.CalligraComponents 0.1 as Calligra
 Page {
     id: page;
 
-    property string title;
     property Item canvas;
 
     allowedOrientations: Orientation.All;

@@ -9,6 +9,7 @@ install(TARGETS sailfishofficeplugin DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/qt4
 
 install(FILES
     qmldir
+    DocumentPage.qml
     DocumentsSharingList.qml
     PDFDocumentPage.qml
     PDFDocumentToCPage.qml
