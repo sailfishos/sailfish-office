@@ -47,9 +47,12 @@ set(sailfishoffice_QML_SRCS
     qml/StartPage.qml
 )
 
+file(GLOB plugin_QML_SRCS plugin/*.qml)
+
 set(sailfishoffice_TS_SRCS
     ${sailfishoffice_SRCS}
     ${sailfishoffice_QML_SRCS}
+    ${plugin_QML_SRCS}
 )
 
 create_translation(engen_qm_file ${sailfishoffice_TS_SRCS} ${CMAKE_BINARY_DIR}/sailfish-office_eng_en.ts)

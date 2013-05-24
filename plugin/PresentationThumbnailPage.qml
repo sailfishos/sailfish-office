@@ -21,7 +21,9 @@ Page {
 
         currentIndex: page.view.currentIndex;
 
-        header: PageHeader { title: page.title; }
+        //: Page with slide overview
+        //% "Slides"
+        header: PageHeader { title: qsTrId( "sailfish-office-he-slide_index" ) }
 
         model: Calligra.PresentationModel {
             canvas: page.canvas;

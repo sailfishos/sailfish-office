@@ -18,7 +18,9 @@ ShareMethodList {
     }
     source: menuList.path;
 
-    listHeader: "Share"
+    //: Share documents
+    //% "Share"
+    listHeader: qsTrId( "sailfish-office-la-share" );
 
     header: PageHeader{ title: menuList.title }
 
@@ -26,8 +28,9 @@ ShareMethodList {
     // create accounts in a case there are none.
     footer: BackgroundItem {
         Label {
+            //: Add a share account
             //% "Add account"
-            text: "Add account"
+            text: qsTrId( "sailfish-office-me-add_account" );
             x: theme.paddingLarge
             anchors.verticalCenter: parent.verticalCenter
             color: parent.down ? theme.highlightColor : theme.primaryColor

@@ -5,7 +5,6 @@ Page {
     id: page;
     signal pageSelected(int pageNumber);
 
-    property string title;
     property alias tocModel: tocListView.model;
     property int currentPageNumber: 0;
 
@@ -15,7 +14,9 @@ Page {
         id: tocListView
         anchors.fill: parent;
 
-        header: PageHeader { title: page.title; }
+        //: Page with PDF index
+        //% "Index"
+        header: PageHeader { title: qsTrId( "sailfish-office-he-pdf_index" ); }
 
         delegate: BackgroundItem {
             //highlighted: model.page == page.canvas.currentPageNumber;

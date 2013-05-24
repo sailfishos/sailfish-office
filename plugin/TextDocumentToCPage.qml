@@ -13,7 +13,9 @@ Page {
     SilicaListView {
         anchors.fill: parent;
 
-        header: PageHeader { title: page.title; }
+        //: Page with Text document index
+        //% "Index"
+        header: PageHeader { title: qsTrId( "sailfish-office-he-index") }
 
         model: Calligra.TextToCModel {
             canvas: page.canvas;

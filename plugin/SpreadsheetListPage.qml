@@ -13,7 +13,9 @@ Page {
     SilicaListView {
         anchors.fill: parent;
 
-        header: PageHeader { title: page.title; }
+        //: Page with sheet selector
+        //% "Sheets"
+        header: PageHeader { title: qsTrId( "sailfish-office-he-sheet_index" ) }
 
         model: Calligra.SpreadsheetListModel {
             canvas: page.canvas;
