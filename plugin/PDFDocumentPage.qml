@@ -38,6 +38,8 @@ Page {
 
             transform: Scale { id: viewScale; }
 
+            clip: true;
+
             PDF.Canvas {
                 id: pdfCanvas;
                 document: pdfDocument;
