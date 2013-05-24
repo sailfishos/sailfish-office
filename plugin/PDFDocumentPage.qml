@@ -1,10 +1,9 @@
 import QtQuick 1.1
 import Sailfish.Silica 1.0
-import com.jolla.components.views 1.0
 import org.calligra.CalligraComponents 0.1 as Calligra
 import Sailfish.Office.PDF 1.0 as PDF
 
-SplitViewPage {
+Page {
     id: base;
 
     property string title;
@@ -13,15 +12,21 @@ SplitViewPage {
 
     allowedOrientations: Orientation.All;
 
-    DocumentsSharingList {
-        visualParent: base;
-        title: base.title;
-        path: base.path;
-        mimeType: base.mimeType;
-    }
+    Drawer {
+        id: drawer;
 
-    contentItem: Item {
-        clip: true;
+        anchors.fill: parent
+        dock: base.orientation == Orientation.Portrait || base.orientation == Orientation.InvertedPortrait
+                ? Dock.Top
+                : Dock.Left
+
+        background: DocumentsSharingList {
+            visualParent: base;
+            title: base.title;
+            path: base.path;
+            mimeType: base.mimeType;
+            anchors.fill: parent;
+        }
 
         SilicaFlickable {
             id: view;
@@ -79,7 +84,7 @@ SplitViewPage {
 
                 Calligra.LinkArea {
                     anchors.fill: parent;
-                    onClicked: base.toggleSplit();
+                    onClicked: drawer.open = !drawer.open;
                     links: pdfDocument.linkTargets;
                 }
             }

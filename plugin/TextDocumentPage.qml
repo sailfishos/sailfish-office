@@ -1,9 +1,8 @@
 import QtQuick 1.1
 import Sailfish.Silica 1.0
-import com.jolla.components.views 1.0
 import org.calligra.CalligraComponents 0.1 as Calligra
 
-SplitViewPage {
+Page {
     id: page
 
     property string title;
@@ -12,15 +11,21 @@ SplitViewPage {
 
     allowedOrientations: Orientation.All;
 
-    DocumentsSharingList {
-        visualParent: page;
-        title: page.title;
-        path: page.path;
-        mimeType: page.mimeType;
-    }
+    Drawer {
+        id: drawer
 
-    contentItem: Item {
-        clip: true;
+        anchors.fill: parent
+        dock: page.orientation == Orientation.Portrait || page.orientation == Orientation.InvertedPortrait
+                ? Dock.Top
+                : Dock.Left
+
+        background: DocumentsSharingList {
+            visualParent: page;
+            title: page.title;
+            path: page.path;
+            mimeType: page.mimeType;
+            anchors.fill: parent
+        }
 
         Calligra.TextDocumentCanvas {
             id: document;
@@ -55,7 +60,7 @@ SplitViewPage {
                 Calligra.LinkArea {
                     anchors.fill: parent;
                     links: document.linkTargets;
-                    onClicked: page.toggleSplit();
+                    onClicked: drawer.open = !drawer.open;
                     onLinkClicked: Qt.openUrlExternally(linkTarget);
                 }
             }
