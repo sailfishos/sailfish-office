@@ -18,13 +18,6 @@ ShareMethodList {
     }
     source: menuList.path;
 
-    anchors {
-        left: parent.left
-        top: parent.top
-        right: isPortrait ? parent.right : parent.horizontalCenter
-        bottom: isPortrait ? parent.verticalCenter : parent.bottom
-    }
-
     listHeader: "Share"
 
     header: PageHeader{ title: menuList.title }
