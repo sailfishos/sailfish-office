@@ -54,20 +54,20 @@ DocumentPage {
             }
 
             onPinchFinished: {
-                var oldWidth = pdfCanvas.width;
-                var oldHeight = pdfCanvas.height;
-
+                var oldScale = odfCanvas.width / view.width;
                 pdfCanvas.width *= viewScale.xScale;
+                var newScale = pdfCanvas.width / view.width;
 
-                view.contentX += (viewScale.origin.x * pdfCanvas.width / oldWidth) - viewScale.origin.x;
-                view.contentY += (viewScale.origin.y * (oldHeight * viewScale.yScale) / oldHeight) - viewScale.origin.y;
+                var xoff = (view.width / 2 + view.contentX) * newScale / oldScale;
+                view.contentX = xoff - view.width / 2;
+
+                var yoff = (view.height / 2 + view.contentY) * newScale / oldScale;
+                view.contentY = yoff - view.height /2;
 
                 viewScale.xScale = 1;
                 viewScale.yScale = 1;
                 viewScale.origin.x = 0;
                 viewScale.origin.y = 0;
-
-                view.returnToBounds();
             }
 
             Calligra.LinkArea {
@@ -83,3 +83,4 @@ DocumentPage {
         source: base.path;
     }
 }
+
