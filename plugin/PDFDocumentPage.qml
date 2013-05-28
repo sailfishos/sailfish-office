@@ -54,7 +54,7 @@ DocumentPage {
             }
 
             onPinchFinished: {
-                var oldScale = odfCanvas.width / view.width;
+                var oldScale = pdfCanvas.width / view.width;
                 pdfCanvas.width *= viewScale.xScale;
                 var newScale = pdfCanvas.width / view.width;
 
