@@ -21,6 +21,8 @@ DocumentPage {
 
         anchors.fill: parent;
 
+        onWidthChanged: if( canvasController.documentSize.width < width ) canvasController.fitToWidth( width );
+
         Calligra.CanvasControllerItem {
             id: canvasController;
             canvas: document;

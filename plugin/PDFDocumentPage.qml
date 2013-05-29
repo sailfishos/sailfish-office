@@ -25,6 +25,8 @@ DocumentPage {
 
         clip: true;
 
+        onWidthChanged: if( pdfCanvas.width < width ) pdfCanvas.width = width;
+
         PDF.Canvas {
             id: pdfCanvas;
             document: pdfDocument;
@@ -46,7 +48,7 @@ DocumentPage {
 
                 var newWidth = pdfCanvas.width * pinch.scale;
 
-                if(newWidth >= view.width && newWidth <= view.width * 2.5)
+                if(newWidth >= view.width && newWidth <= Math.min(view.width, view.height) * 2.5)
                 {
                     viewScale.xScale = pinch.scale;
                     viewScale.yScale = pinch.scale;
