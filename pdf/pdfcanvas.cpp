@@ -112,7 +112,7 @@ qreal PDFCanvas::pagePosition(int index) const
     int pageHeight = firstImage.height() * ( width() / firstImage.width() );
     int spacing = pageHeight * 0.025;
 
-    return pageHeight * index + ( qMax( index - 1, 0 ) * spacing );
+    return pageHeight * ( index - 1 ) + ( qMax( index - 2, 0 ) * spacing );
 }
 
 void PDFCanvas::pageFinished( int id, const QImage& image )
