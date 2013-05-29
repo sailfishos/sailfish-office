@@ -7,6 +7,8 @@ Page {
 
     property Item canvas;
 
+    signal clicked(int page);
+
     allowedOrientations: Orientation.All;
 
     SilicaListView {
@@ -45,7 +47,7 @@ Page {
             }
 
             onClicked: {
-                page.canvas.currentPageNumber = model.pageNumber;
+                page.clicked(model.pageNumber);
                 pageStack.navigateBack(PageStackAction.Animated);
             }
         }

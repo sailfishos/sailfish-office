@@ -8,6 +8,7 @@ DocumentPage {
     attachedPage: Component {
         TextDocumentToCPage {
             canvas: document;
+            onClicked: aFlickable.contentY = document.pagePosition( page );
         }
     }
 
