@@ -60,11 +60,13 @@ DocumentPage {
                 pdfCanvas.width *= viewScale.xScale;
                 var newScale = pdfCanvas.width / view.width;
 
-                var xoff = (view.width / 2 + view.contentX) * newScale / oldScale;
-                view.contentX = xoff - view.width / 2;
+                var viewCenter = mapToItem( view, pinch.center.x, pinch.center.y );
 
-                var yoff = (view.height / 2 + view.contentY) * newScale / oldScale;
-                view.contentY = yoff - view.height /2;
+                var xoff = (viewCenter.x + view.contentX) * newScale / oldScale;
+                view.contentX = xoff - viewCenter.x;
+
+                var yoff = (viewCenter.y + view.contentY) * newScale / oldScale;
+                view.contentY = yoff - viewCenter.y;
 
                 viewScale.xScale = 1;
                 viewScale.yScale = 1;
