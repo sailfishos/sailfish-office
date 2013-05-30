@@ -16,6 +16,7 @@ Page {
 
     allowedOrientations: Orientation.All;
     backNavigation: drawer.opened;
+    forwardNavigation: drawer.opened;
 
     Drawer {
         id: drawer;
@@ -28,19 +29,8 @@ Page {
         hideOnMinimize: true;
 
         onOpenChanged: {
-            // Nasty workaround for pageStack assuming navigation should always
-            // be visible with attached pages.
-            if( open )
-            {
-                if( pageStack.nextPage( base ) === null )
-                    pageStack.pushAttached( base.attachedPage );
-
-                pageStack._attachedDepth = 1;
-            }
-            else
-            {
-                pageStack._attachedDepth = 0;
-            }
+            if( open && pageStack.nextPage( base ) === null )
+                pageStack.pushAttached( base.attachedPage );
         }
 
         background: DocumentsSharingList {
