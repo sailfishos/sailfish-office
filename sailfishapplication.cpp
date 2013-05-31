@@ -21,6 +21,7 @@
 #include "models/trackerdocumentprovider.h"
 #include "models/documentproviderplugin.h"
 #include "models/documentproviderlistmodel.h"
+#include "models/dropboxdocumentprovider.h"
 
 QSharedPointer<QApplication> Sailfish::createApplication(int &argc, char **argv)
 {
@@ -38,12 +39,13 @@ QSharedPointer<QApplication> Sailfish::createApplication(int &argc, char **argv)
 
     return app;
 }
-    
+
 QSharedPointer<QDeclarativeView> Sailfish::createView(const QString &file)
 {
     qmlRegisterType< DocumentListModel >( "Sailfish.Office.Files", 1, 0, "DocumentListModel" );
     qmlRegisterType< DocumentProviderListModel >( "Sailfish.Office.Files", 1, 0, "DocumentProviderListModel" );
     qmlRegisterType< TrackerDocumentProvider >( "Sailfish.Office.Files", 1, 0, "TrackerDocumentProvider" );
+    qmlRegisterType< DropboxDocumentProvider >( "Sailfish.Office.Files", 1, 0, "DropboxDocumentProvider" );
     qmlRegisterInterface< DocumentProviderPlugin >( "DocumentProviderPlugin" );
 
     QSharedPointer<QDeclarativeView> view(MDeclarativeCache::qDeclarativeView());
