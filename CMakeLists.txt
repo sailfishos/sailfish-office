@@ -6,7 +6,7 @@ include(cmake/QtTranslationWithID.cmake)
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
-find_package(Qt4 REQUIRED QtDeclarative QtDBus)
+find_package(Qt4 REQUIRED COMPONENTS QtDeclarative QtDBus)
 find_package(Automoc4 REQUIRED)
 find_package(Booster REQUIRED)
 find_package(QtSparql REQUIRED)
@@ -30,6 +30,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -fPIC -pie -rdynamic -Wall")
 
 add_subdirectory(plugin)
 add_subdirectory(pdf)
+add_subdirectory(dropbox)
 
 set(sailfishoffice_SRCS
     main.cpp
@@ -38,6 +39,7 @@ set(sailfishoffice_SRCS
     models/documentproviderlistmodel.cpp
     models/documentproviderplugin.cpp
     models/trackerdocumentprovider.cpp
+    models/dropboxdocumentprovider.cpp
 )
 
 set(sailfishoffice_QML_SRCS
