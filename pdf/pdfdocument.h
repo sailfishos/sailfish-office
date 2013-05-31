@@ -7,13 +7,13 @@
 
 #include <QObject>
 #include <QDeclarativeParserStatus>
+#include <QImage>
 
 namespace Poppler {
     class Document;
     class Page;
 }
 
-class QImage;
 class PDFDocument : public QObject, public QDeclarativeParserStatus
 {
     Q_OBJECT
