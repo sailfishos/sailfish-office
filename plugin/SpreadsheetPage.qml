@@ -46,6 +46,7 @@ DocumentPage {
 
             Calligra.LinkArea {
                 anchors.fill: parent;
+                linkColor: theme.highlightColor;
                 onClicked: page.open = !page.open;
             }
         }

@@ -15,6 +15,11 @@ DocumentPage {
     Calligra.TextDocumentCanvas {
         id: document;
         anchors.fill: parent;
+
+        onLinkTargetsChanged: {
+            linkArea.links = linkTargets;
+            linkArea.sourceSize = canvasController.documentSize;
+        }
     }
 
     SilicaFlickable {
@@ -48,8 +53,10 @@ DocumentPage {
             onPinchFinished: { canvasController.endZoomGesture(); aFlickable.returnToBounds(); }
 
             Calligra.LinkArea {
+                id: linkArea;
                 anchors.fill: parent;
-                links: document.linkTargets;
+                linkColor: theme.highlightColor;
+
                 onClicked: page.open = !page.open;
                 onLinkClicked: Qt.openUrlExternally(linkTarget);
             }

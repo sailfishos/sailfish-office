@@ -75,9 +75,10 @@ DocumentPage {
             }
 
             Calligra.LinkArea {
+                id: linkArea;
                 anchors.fill: parent;
+                linkColor: theme.highlightColor;
                 onClicked: base.open = !base.open;
-                links: pdfDocument.linkTargets;
             }
         }
     }
@@ -85,6 +86,16 @@ DocumentPage {
     PDF.Document {
         id: pdfDocument;
         source: base.path;
+
+        onLinkTargetsChanged: {
+            linkArea.links = linkTargets;
+            updateSourceSizeTimer.restart();
+        }
+    }
+
+    Timer {
+        id: updateSourceSizeTimer;
+        interval: 5000;
+        onTriggered: linkArea.sourceSize = Qt.size( base.width, pdfCanvas.height );
     }
 }
-

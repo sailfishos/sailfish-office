@@ -93,6 +93,7 @@ void PDFCanvas::setDocument(PDFDocument* doc)
         }
 
         d->document = doc;
+        d->document->setCanvasWidth( width() );
 
         connect(d->document, SIGNAL(documentLoaded()), SLOT(documentLoaded()));
         connect(d->document, SIGNAL(pageFinished(int,QImage)), SLOT(pageFinished(int,QImage)));

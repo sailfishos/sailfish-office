@@ -14,6 +14,8 @@ Page {
 
     property alias open: drawer.open;
 
+    property alias menu: shareList.children;
+
     allowedOrientations: Orientation.All;
     backNavigation: drawer.opened;
     forwardNavigation: drawer.opened;
