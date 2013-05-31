@@ -79,6 +79,7 @@ DocumentPage {
                 anchors.fill: parent;
                 linkColor: theme.highlightColor;
                 onClicked: base.open = !base.open;
+                onLinkClicked: Qt.openUrlExternally(linkTarget);
             }
         }
     }
