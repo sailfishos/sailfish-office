@@ -13,6 +13,9 @@ Q_DECL_EXPORT int main(int argc, char *argv[])
     auto app = Sailfish::createApplication(argc, argv);
     auto view = Sailfish::createView("Main.qml");
 
+    app->setOrganizationName("Sailfish");
+    app->setApplicationName("Sailfish Office");
+
     int retn = 1;
     if( !view->errors().count() > 0 )
     {
