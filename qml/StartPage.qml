@@ -1,6 +1,7 @@
 import QtQuick 1.1
 import Sailfish.Silica 1.0
 import Sailfish.Office.Files 1.0
+import Sailfish.Office.Dropbox 1.0
 import QtMobility.gallery 1.1
 
 Page {
@@ -79,6 +80,12 @@ Page {
             id: documentSources
             TrackerDocumentProvider {
             }
+            DropboxDocumentProvider {
+                id: dropboxProvider
+            }
+        }
+        PullDownMenu {
+            MenuItem { text: "Set up DropBox..."; onClicked: pageStack.push(dropboxProvider.setupPageUrl); }
         }
     }
 
