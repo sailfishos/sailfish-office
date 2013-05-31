@@ -14,7 +14,7 @@ Page {
             id: delegateItem
             width: view.width
             height: thumbnail.height
-            enabled: model.count > 0
+            enabled: model.count > 0 || model.count === -1
             opacity: enabled ? 1.0 : 0.5
 
             Label {
@@ -25,7 +25,7 @@ Page {
                     rightMargin: theme.paddingLarge
                     verticalCenter: parent.verticalCenter
                 }
-                text: model.count
+                text: model.count > -1 ? model.count : ""
                 color: delegateItem.down ? theme.highlightColor : theme.primaryColor
                 font.pixelSize: theme.fontSizeLarge
             }
@@ -56,7 +56,7 @@ Page {
             }
 
             onClicked: {
-                    console.debug("Model name: " + providerModel.objectName);
+                    //console.debug("Model name: " + providerModel.objectName);
                     window.pageStack.push(model.page != "" ? Qt.resolvedUrl(model.page) : fileListPage, {
                     title: model.title,
                     model: model.providerModel,
@@ -82,6 +82,8 @@ Page {
             }
             DropboxDocumentProvider {
                 id: dropboxProvider
+                needAuthenticate: controllerMIT.needAuthenticate
+                fileListModel: folderListModel;
             }
         }
         PullDownMenu {
