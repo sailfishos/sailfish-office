@@ -12,6 +12,8 @@ class DropboxDocumentProvider::Private
 public:
     Private()
         : model(new DocumentListModel)
+        , needAuthenticate(true)
+        , fileListModel(0)
     {
         docTypes["odt"] = TextDocumentType;
         docTypes["doc"] = TextDocumentType;
@@ -28,6 +30,8 @@ public:
     ~Private() { model->deleteLater(); }
     DocumentListModel* model;
     QHash<QString, DocumentType> docTypes;
+    bool needAuthenticate;
+    QAbstractListModel* fileListModel;
 };
 
 DropboxDocumentProvider::DropboxDocumentProvider(QObject* parent)
@@ -78,8 +82,10 @@ QUrl DropboxDocumentProvider::icon() const
 
 int DropboxDocumentProvider::count() const
 {
-    //return d->model->rowCount(QModelIndex());
-    return 1;
+//     if(d->needAuthenticate || d->fileListModel == 0)
+//         return 0;
+//     return d->fileListModel->rowCount(QModelIndex());
+    return -1;
 }
 
 QString DropboxDocumentProvider::setupPageUrl() const
@@ -95,4 +101,30 @@ void DropboxDocumentProvider::classBegin()
 void DropboxDocumentProvider::componentComplete()
 {
 
+}
+
+QObject* DropboxDocumentProvider::fileListModel() const
+{
+    return d->fileListModel;
+}
+
+void DropboxDocumentProvider::setFileListModel(QObject* fileListModel)
+{
+    if(qobject_cast<QAbstractListModel*>(fileListModel))
+    {
+        d->fileListModel = qobject_cast<QAbstractListModel*>(fileListModel);
+        emit fileListModelChanged();
+    }
+}
+
+bool DropboxDocumentProvider::needAuthenticate() const
+{
+    return d->needAuthenticate;
+}
+
+void DropboxDocumentProvider::setNeedAuthenticate(bool newValue)
+{
+    d->needAuthenticate = newValue;
+    emit needAuthenticateChanged();
+    emit countChanged();
 }

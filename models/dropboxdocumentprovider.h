@@ -13,6 +13,8 @@ class DropboxDocumentProvider : public DocumentProviderPlugin, public QDeclarati
 {
     Q_OBJECT
     Q_INTERFACES(DocumentProviderPlugin QDeclarativeParserStatus)
+    Q_PROPERTY(bool needAuthenticate READ needAuthenticate WRITE setNeedAuthenticate NOTIFY needAuthenticateChanged)
+    Q_PROPERTY(QObject* fileListModel READ fileListModel WRITE setFileListModel NOTIFY fileListModelChanged)
 
 public:
     enum DocumentType {
@@ -34,7 +36,15 @@ public:
     virtual void classBegin();
     virtual void componentComplete();
 
+    QObject* fileListModel() const;
     void setFileListModel(QObject* fileListModel);
+
+    bool needAuthenticate() const;
+    void setNeedAuthenticate(bool newValue);
+
+Q_SIGNALS:
+    void fileListModelChanged();
+    void needAuthenticateChanged();
 
 private:
     class Private;
