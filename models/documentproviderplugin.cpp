@@ -17,6 +17,11 @@ DocumentProviderPlugin::~DocumentProviderPlugin()
     delete d;
 }
 
+QString DocumentProviderPlugin::setupPageUrl() const
+{
+    return QString();
+}
+
 QUrl DocumentProviderPlugin::page() const
 {
     return d->page;
