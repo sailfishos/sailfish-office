@@ -20,6 +20,8 @@ Page {
         BackgroundItem {
             width: ListView.view.width;
             height: theme.itemSizeLarge;
+            enabled: model.is_dir ? true : page.model.mimeTypeToDocumentClass(model.mime_type) !== DocumentListModel.UnknownDocument;
+            opacity: enabled ? 1 : 0.3
 
             Image {
                 id: icon;
@@ -80,24 +82,21 @@ Page {
                 font.pixelSize: theme.fontSizeSmall;
                 color: theme.secondaryColor;
             }
-            MouseArea {
-                anchors.fill: parent;
-                onClicked: {
-                    if(model.is_dir)
-                    {
-                        controllerMIT.setFolderRoot(model.path)
-                        controllerMIT.getlistoffolder()
-                    }
-                    else
-                    {
-                        controllerMIT.setCheck(index, true);
-                        controllerMIT.downloadSelectedFiles();
-                        var nameof = model.path.split("/");
-                        page.fileName = nameof[nameof.length - 1];
-                        page.fileMimetype = model.mime_type;
-                        pageStack.push(downloadStatus);
-                        controllerMIT.start_transfer_process();
-                    }
+            onClicked: {
+                if(model.is_dir)
+                {
+                    controllerMIT.setFolderRoot(model.path)
+                    controllerMIT.getlistoffolder()
+                }
+                else
+                {
+                    controllerMIT.setCheck(index, true);
+                    controllerMIT.downloadSelectedFiles();
+                    var nameof = model.path.split("/");
+                    page.fileName = nameof[nameof.length - 1];
+                    page.fileMimetype = model.mime_type;
+                    pageStack.push(downloadStatus);
+                    controllerMIT.start_transfer_process();
                 }
             }
         }
