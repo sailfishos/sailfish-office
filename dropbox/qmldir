@@ -1,0 +1,6 @@
+FileNavigator 1.0 FileNavigator.qml
+InfoBanner 1.0 InfoBanner.qml
+LoginPage 1.0 LoginPage.qml
+SailWebView 1.0 SailWebView.qml
+SetupPage 1.0 SetupPage.qml
+plugin sailfishofficedropboxplugin
