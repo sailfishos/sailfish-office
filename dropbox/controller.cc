@@ -14,6 +14,7 @@
 #include <QDebug>
 #include <QThread>
 #include <QDateTime>
+#include <QTimer>
 
 //#include <MNotification>
 
@@ -71,6 +72,7 @@ void Controller::authenticate(QString email, QString password){
 void Controller::authenticate_ok(){
     emit authenticate_finished(m_networkcontroller->m_user_email,
                                m_networkcontroller->m_user_password);
+    QTimer::singleShot(250, this, SIGNAL(needAuthenticateChanged()));
 }
 
 void Controller::getlistoffolder(QString folder_name){
@@ -310,6 +312,7 @@ void Controller::logout(){
     folder_model->clear();
     transfer_clear_log();
     m_cache.clear();
+    QTimer::singleShot(250, this, SIGNAL(needAuthenticateChanged()));
 }
 
 void Controller::refresh_current_folder(){

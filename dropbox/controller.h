@@ -32,7 +32,7 @@
 class Controller : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(bool needAuthenticate READ need_authenticate NOTIFY authenticate_finished)
+    Q_PROPERTY(bool needAuthenticate READ need_authenticate NOTIFY needAuthenticateChanged)
 public:
     explicit Controller(QObject *parent = 0);
     ~Controller();
@@ -63,6 +63,7 @@ private:
     void start_move_items();
 
 signals:
+    void needAuthenticateChanged();
     void authenticate_finished(QString email, QString password);
     void network_error(QString error);
     void folderfinished();
