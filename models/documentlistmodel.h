@@ -47,6 +47,7 @@ public:
     void removeAt(int index);
     void clear();
 
+    Q_INVOKABLE int mimeTypeToDocumentClass(QString mimeType) const;
 private:
     class Private;
     const QScopedPointer< Private > d;
