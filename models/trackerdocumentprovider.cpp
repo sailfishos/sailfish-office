@@ -50,7 +50,7 @@ void SearchThread::run()
     if(!result->hasError())
     {
         while (result->next() && !m_abort) {
-            qDebug() << result->binding(0).value().toString() << result->binding(4).value().toString();
+            //qDebug() << result->binding(0).value().toString() << result->binding(4).value().toString();
             
             //CMDocumentListModel::DocumentInfo info;
             m_model->addItem(
