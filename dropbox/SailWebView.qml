@@ -16,21 +16,23 @@ Flickable {
         preferredHeight: flickable.height
         visible: !tryingText.visible;
         onLoadFinished: {
-            if(url.toString().match(/signup_tag/g)) {
-                flickable.contentX=500
-            } else {
-                flickable.contentX=195
-                flickable.contentY=50
-                contentsScale=0.9
-            }
-            if(url.toString().length === 41) {
+            if(url.toString().length === 85) {
                 vkb.forceActiveFocus();
                 vkb.visible = true;
-                vkb.closeSoftwareInputPanel()
-                controllerMIT.oauth_v1_access_token()
+                vkb.closeSoftwareInputPanel();
+                authTry.start();
             }
             tryingText.visible = false;
         }
+    }
+
+    Timer {
+        id: authTry;
+        running: false;
+        repeat: false;
+        // 3 seconds being the psychological human "moment"
+        interval: 3000;
+        onTriggered: controllerMIT.oauth_v1_access_token();
     }
 
     Label {

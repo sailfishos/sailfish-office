@@ -5,7 +5,7 @@ import Sailfish.Silica 1.0
 Page {
     anchors.fill: parent
 
-    property string urlString : "https://www.dropbox.com/1/oauth/authorize?oauth_token="+ controllerMIT.oauth_token
+    property string urlString : "https://www.dropbox.com/1/oauth/authorize?display=mobile&oauth_token="+ controllerMIT.oauth_token
 
     Component.onCompleted: controllerMIT.oauth_v1_request_token()
 
@@ -23,7 +23,7 @@ Page {
             pageStack.pop();
         }
         onOpen_oauth_authorize_page : {
-            webView.url = "https://www.dropbox.com/1/oauth/authorize?oauth_token="+oauth_token
+            webView.url = "https://www.dropbox.com/1/oauth/authorize?display=mobile&oauth_token="+oauth_token
         }
     }
 }
