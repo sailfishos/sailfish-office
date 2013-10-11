@@ -1,12 +1,11 @@
 find_path(QTSPARQL_INCLUDE_DIR
     QtSparql
     PATH_SUFFIXES
-    QtSparql
-    qt4/QtSparql
+    Qt5Sparql
 )
 
 find_library(QTSPARQL_LIBRARY
-    QtSparql
+    Qt5Sparql
 )
 
 include(FindPackageHandleStandardArgs)

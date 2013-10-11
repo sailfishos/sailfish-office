@@ -2,11 +2,11 @@ find_path(BOOSTER_INCLUDE_DIR
     MDeclarativeCache
     PATH_SUFFIXES
     applauncherd
-    mdeclarativecache
+    mdeclarativecache5
 )
 
 find_library(BOOSTER_LIBRARY
-    NAMES mdeclarativecache
+    NAMES mdeclarativecache5
 )
 
 include(FindPackageHandleStandardArgs)

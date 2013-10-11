@@ -1,11 +1,11 @@
 find_path(JOLLASIGNONUISERVICE_INCLUDE_DIR
     signonuiservice.h
     PATH_SUFFIXES
-    libjollasignonuiservice
+    libjollasignonuiservice-qt5
 )
 
 find_library(JOLLASIGNONUISERVICE_LIBRARY
-    libjollasignonuiservice.so
+    libjollasignonuiservice-qt5.so
 )
 
 include(FindPackageHandleStandardArgs)
