@@ -5,15 +5,12 @@ Summary: Sailfish office viewer
 Group: System/Base
 License: GPLv2
 Source0: %{name}-%{version}.tar.gz
-BuildRequires: pkgconfig(QtDeclarative)
-BuildRequires: pkgconfig(qdeclarative-boostable)
-BuildRequires: pkgconfig(QtSparql)
-BuildRequires: pkgconfig(QtWebKit)
-BuildRequires: pkgconfig(libjollasignonuiservice)
-BuildRequires: poppler-qt4-devel poppler-qt4 poppler-devel poppler
-BuildRequires: mapplauncherd-qt-devel
+BuildRequires: pkgconfig(Qt5Declarative)
+BuildRequires: pkgconfig(Qt5WebKit)
+BuildRequires: pkgconfig(libjollasignonuiservice-qt5)
+#BuildRequires: poppler-qt5-devel poppler-qt5 poppler-devel poppler
+BuildRequires: mapplauncherd-qt5-devel
 BuildRequires: cmake
-BuildRequires: automoc4
 Requires: calligra-components
 Requires: sailfishsilica
 Requires: sailfish-accounts
@@ -29,7 +26,7 @@ Requires: sailfish-accounts
 %{_datadir}/applications/*.desktop
 %{_datadir}/%{name}/
 %{_datadir}/dbus-1/services/org.sailfish.documents.service
-%{_datadir}/translations/
+#%{_datadir}/translations/
 
 %prep
 %setup -q -n %{name}-%{version}
