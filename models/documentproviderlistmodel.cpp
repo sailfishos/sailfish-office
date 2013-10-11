@@ -12,8 +12,18 @@ public:
         : q(qq)
         , completed(false)
         , albumDelegate(0)
-    {}
+    {
+        roles[Title] = "title";
+        roles[Description] = "description";
+        roles[Icon] = "icon";
+        roles[Count] = "count";
+        roles[Thumbnail] = "thumbnail";
+        roles[Page] = "page";
+        roles[Ready] = "ready";
+        roles[ProviderModel] = "providerModel";
+    }
     DocumentProviderListModel* q;
+    QHash<int, QByteArray> roles;
     bool completed;
     QList<DocumentProviderPlugin*> providers;
     QDeclarativeComponent* albumDelegate;
@@ -52,16 +62,6 @@ DocumentProviderListModel::DocumentProviderListModel(QObject* parent)
     : QAbstractListModel(parent)
     , d(new Private(this))
 {
-    QHash<int, QByteArray> roles;
-    roles[Title] = "title";
-    roles[Description] = "description";
-    roles[Icon] = "icon";
-    roles[Count] = "count";
-    roles[Thumbnail] = "thumbnail";
-    roles[Page] = "page";
-    roles[Ready] = "ready";
-    roles[ProviderModel] = "providerModel";
-    setRoleNames(roles);
 }
 
 DocumentProviderListModel::~DocumentProviderListModel()
@@ -175,4 +175,9 @@ int DocumentProviderListModel::rowCount(const QModelIndex& parent) const
     if(parent.isValid())
         return 0;
     return d->providers.count();
+}
+
+QHash< int, QByteArray > DocumentProviderListModel::roleNames() const
+{
+    return d->roles;
 }

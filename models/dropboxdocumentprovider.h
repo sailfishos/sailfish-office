@@ -6,13 +6,13 @@
 #define DROPBOXDOCUMENTPROVIDER_H
 
 #include "documentproviderplugin.h"
-#include <QDeclarativeParserStatus>
+#include </usr/include/qt5/QtQml/QQmlParserStatus>
 
 class DocumentListModel;
-class DropboxDocumentProvider : public DocumentProviderPlugin, public QDeclarativeParserStatus
+class DropboxDocumentProvider : public DocumentProviderPlugin, public QQmlParserStatus
 {
     Q_OBJECT
-    Q_INTERFACES(DocumentProviderPlugin QDeclarativeParserStatus)
+    Q_INTERFACES(DocumentProviderPlugin QQmlParserStatus)
     Q_PROPERTY(bool needAuthenticate READ needAuthenticate WRITE setNeedAuthenticate NOTIFY needAuthenticateChanged)
     Q_PROPERTY(QObject* fileListModel READ fileListModel WRITE setFileListModel NOTIFY fileListModelChanged)
 

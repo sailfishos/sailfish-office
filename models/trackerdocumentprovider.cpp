@@ -5,9 +5,9 @@
 
 #include <qglobal.h>
 
-#include <QtSparql/QSparqlConnection>
-#include <QtSparql/QSparqlResult>
-#include <QtSparql/QSparqlError>
+#include <QSparqlConnection>
+#include <QSparqlResult>
+#include <QSparqlError>
 
 #include "config.h"
 

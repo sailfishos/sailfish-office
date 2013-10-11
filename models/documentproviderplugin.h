@@ -3,7 +3,7 @@
 
 #include <QObject>
 #include <QUrl>
-#include <QImage>
+#include <QtGui/QImage>
 
 class DocumentProviderPlugin : public QObject
 {

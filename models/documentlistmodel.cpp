@@ -20,21 +20,23 @@ struct DocumentListModelEntry
 class DocumentListModel::Private
 {
 public:
+    Private()
+    {
+        roles.insert( FileNameRole, "fileName" );
+        roles.insert( FilePathRole, "filePath" );
+        roles.insert( FileTypeRole, "fileType" );
+        roles.insert( FileSizeRole, "fileSize" );
+        roles.insert( FileReadRole, "fileRead" );
+        roles.insert( FileMimeTypeRole, "fileMimeType" );
+        roles.insert( FileDocumentClass, "fileDocumentClass" );
+    }
     QList<DocumentListModelEntry> entries;
+    QHash< int, QByteArray > roles;
 };
 
 DocumentListModel::DocumentListModel(QObject* parent)
     : QAbstractListModel(parent), d(new Private)
 {
-    QHash< int, QByteArray > roles;
-    roles.insert( FileNameRole, "fileName" );
-    roles.insert( FilePathRole, "filePath" );
-    roles.insert( FileTypeRole, "fileType" );
-    roles.insert( FileSizeRole, "fileSize" );
-    roles.insert( FileReadRole, "fileRead" );
-    roles.insert( FileMimeTypeRole, "fileMimeType" );
-    roles.insert( FileDocumentClass, "fileDocumentClass" );
-    setRoleNames( roles );
 }
 
 DocumentListModel::~DocumentListModel()
@@ -74,6 +76,11 @@ int DocumentListModel::rowCount(const QModelIndex& parent) const
     if(parent.isValid())
         return 0;
     return d->entries.count();
+}
+
+QHash< int, QByteArray > DocumentListModel::roleNames() const
+{
+    return d->roles;
 }
 
 void DocumentListModel::addItem(QString name, QString path, QString type, int size, QDateTime lastRead, QString mimeType)

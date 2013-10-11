@@ -3,20 +3,20 @@
 
 #include <QAbstractListModel>
 #include <QDeclarativeListProperty>
-#include <QDeclarativeParserStatus>
+#include </usr/include/qt5/QtQml/QQmlParserStatus>
 
 QT_BEGIN_NAMESPACE
 class QDeclarativeComponent;
 QT_END_NAMESPACE
 
 class DocumentProviderPlugin;
-class DocumentProviderListModel : public QAbstractListModel, public QDeclarativeParserStatus
+class DocumentProviderListModel : public QAbstractListModel, public QQmlParserStatus
 {
     Q_OBJECT
     Q_PROPERTY(QDeclarativeListProperty<DocumentProviderPlugin> sources READ sources)
     Q_PROPERTY(int count READ rowCount NOTIFY sourcesChanged)
     Q_PROPERTY(QDeclarativeComponent *albumDelegate READ albumDelegate WRITE setAlbumDelegate NOTIFY albumDelegateChanged)
-    Q_INTERFACES(QDeclarativeParserStatus)
+    Q_INTERFACES(QQmlParserStatus)
     Q_CLASSINFO("DefaultProperty", "sources")
 public:
     enum ProviderRoles {
@@ -44,6 +44,7 @@ public:
     QModelIndex index(int row, int column, const QModelIndex &parent) const;
     virtual QVariant data(const QModelIndex& index, int role) const;
     virtual int rowCount(const QModelIndex& parent = QModelIndex()) const;
+    virtual QHash< int, QByteArray > roleNames() const;
 
 Q_SIGNALS:
     void sourcesChanged();

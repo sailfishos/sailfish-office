@@ -8,13 +8,14 @@
 #include "documentproviderplugin.h"
 #include <QtCore/QFileInfo>
 #include <QtCore/QRunnable>
-#include <QDeclarativeParserStatus>
+#include <QtCore/QHash>
+#include </usr/include/qt5/QtQml/QQmlParserStatus>
 
 class DocumentListModel;
-class TrackerDocumentProvider : public DocumentProviderPlugin, public QDeclarativeParserStatus
+class TrackerDocumentProvider : public DocumentProviderPlugin, public QQmlParserStatus
 {
     Q_OBJECT
-    Q_INTERFACES(DocumentProviderPlugin QDeclarativeParserStatus)
+    Q_INTERFACES(DocumentProviderPlugin QQmlParserStatus)
 
 public:
     enum DocumentType {
