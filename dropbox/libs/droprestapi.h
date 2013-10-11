@@ -14,6 +14,7 @@
 #include <QtNetwork/QNetworkRequest>
 #include <QtNetwork/QNetworkReply>
 #include <QByteArray>
+#include <QUrlQuery>
 
 #define REQUEST_TOKEN_URL "https://api.dropbox.com/1/oauth/request_token"
 #define REQUEST_ACCESS_TOKEN "https://api.dropbox.com/1/oauth/access_token"

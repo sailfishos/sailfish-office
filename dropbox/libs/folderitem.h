@@ -27,10 +27,19 @@
 class FolderItem : public ListItem
 {
     Q_OBJECT
-    Q_PROPERTY(bool checked
-                 READ checked
-                 WRITE setChecked
-                 )
+    Q_PROPERTY(bool checked READ checked WRITE setChecked NOTIFY checkedChanged)
+    Q_PROPERTY(qreal revision READ revision WRITE setRevision NOTIFY revisionChanged)
+    Q_PROPERTY(bool thumb_exists READ thumb_exists WRITE setThumb_exists NOTIFY thumb_existsChanged)
+    Q_PROPERTY(qreal bytes READ bytes WRITE setBytes NOTIFY bytesChanged)
+    Q_PROPERTY(QString modified READ modified WRITE setModified NOTIFY modifiedChanged)
+    Q_PROPERTY(QString path READ path WRITE setPath NOTIFY pathChanged)
+    Q_PROPERTY(bool is_dir READ is_dir WRITE setIs_dir NOTIFY is_dirChanged)
+    Q_PROPERTY(QString icon READ icon WRITE setIcon NOTIFY iconChanged)
+    Q_PROPERTY(QString mime_type READ mime_type WRITE setMime_type NOTIFY mime_typeChanged)
+    Q_PROPERTY(QString size READ size WRITE setSize NOTIFY sizeChanged)
+    Q_PROPERTY(QString name READ name)
+    Q_PROPERTY(QString section READ section)
+
 public:
     enum Roles {
       RevisionRole = Qt::UserRole+1,
@@ -87,11 +96,32 @@ public:
     inline QString mime_type() const { return m_mime_type;}
     inline QString size() const { return m_size;}
     inline bool checked() const { return m_checked;}
-    inline QString name() const;
-    inline QString section() const;
+    QString name() const;
+    QString section() const;
     QString xsection();
 
-    Q_INVOKABLE void setChecked(const bool &v) { m_checked=v;emit dataChanged();}
+    Q_INVOKABLE void setChecked(const bool &v);
+    Q_INVOKABLE void setRevision(const qreal &v);
+    Q_INVOKABLE void setThumb_exists(const bool &v);
+    Q_INVOKABLE void setBytes(const qreal &v);
+    Q_INVOKABLE void setModified(const QString &v);
+    Q_INVOKABLE void setPath(const QString &v);
+    Q_INVOKABLE void setIs_dir(const bool &v);
+    Q_INVOKABLE void setIcon(const QString &v);
+    Q_INVOKABLE void setMime_type(const QString &v);
+    Q_INVOKABLE void setSize(const QString &v);
+
+signals:
+    void checkedChanged();
+    void revisionChanged();
+    void thumb_existsChanged();
+    void bytesChanged();
+    void modifiedChanged();
+    void pathChanged();
+    void is_dirChanged();
+    void iconChanged();
+    void mime_typeChanged();
+    void sizeChanged();
 
 private:
     qreal m_revision;

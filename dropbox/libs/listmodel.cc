@@ -14,7 +14,12 @@
 ListModel::ListModel(ListItem* prototype, QObject *parent) :
     QAbstractListModel(parent), m_prototype(prototype)
 {
-  setRoleNames(m_prototype->roleNames());
+  //TODO FIX THIS reImplement roleNames
+  //setRoleNames(m_prototype->roleNames());
+}
+
+QHash<int, QByteArray> ListModel::roleNames() const {
+    return m_prototype->roleNames();
 }
 
 int ListModel::rowCount(const QModelIndex &parent) const
@@ -85,9 +90,11 @@ QModelIndex ListModel::indexFromItem(const ListItem *item) const
 
 void ListModel::clear()
 {
+  beginResetModel();
   qDeleteAll(m_list);
   m_list.clear();
-  reset();
+  //reset();
+  endResetModel();
 }
 
 bool ListModel::removeRow(int row, const QModelIndex &parent)
@@ -97,7 +104,7 @@ bool ListModel::removeRow(int row, const QModelIndex &parent)
   beginRemoveRows(QModelIndex(), row, row);
   delete m_list.takeAt(row);
   endRemoveRows();
-  reset();
+  //reset();
   return true;
 }
 

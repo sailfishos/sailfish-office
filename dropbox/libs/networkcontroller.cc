@@ -9,12 +9,11 @@
 #include "networkcontroller.h"
 #include "json.h"
 
-#include "../controller.h"
+#include "controller.h"
 
 #include <QSettings>
 #include <QDebug>
 #include <QDir>
-#include <qmetaobject.h>
 
 NetworkController::NetworkController(QObject *parent) :
     QObject(parent),
@@ -73,15 +72,13 @@ void NetworkController::finished(QNetworkReply *networkreply){
     if (networkreply->error() > 0){
 
         qDebug() << "reply url :" <<networkreply->url();
-        qDebug() << "error() code = " << networkreply->error() << networkreply->staticMetaObject.enumerator(networkreply->staticMetaObject.indexOfEnumerator("QNetworkReply::NetworkReply")).value(networkreply->error());
-        QString allReply = networkreply->readAll();
-        qDebug() << "readAll() body = " << allReply;
+        qDebug() << "error() code = " << networkreply->error();
+        qDebug() << "readAll() body = " << networkreply->readAll();
+
 
         QString errorstr("Unknow error!");
 
-        if(allReply.contains("<title>Dropbox - 5xx</title>")) {
-            emit network_error("DropBox says something went wrong. There is nothing we can do about this. Please try again later.");
-        }else if (m_state == NetworkController::FILES_FOLDERS ||  m_state == NetworkController::REQUEST_TOKEN){
+        if (m_state == NetworkController::FILES_FOLDERS ||  m_state == NetworkController::REQUEST_TOKEN){
             if (networkreply->error() == QNetworkReply::AuthenticationRequiredError)
                 errorstr = "The provided user information is not valid";
             else if (networkreply->error() == QNetworkReply::ContentOperationNotPermittedError)
@@ -246,14 +243,14 @@ void NetworkController::upload(FileTransferItem *fti){
                     "---------------------------109074266748897678777839994"
                     );
     QString boundary="--"+boundaryStr+crlf;
-    m_multipartform->append(boundary.toAscii());
+    m_multipartform->append(boundary.toLatin1());
     m_multipartform->append(
                     QString("Content-Disposition: form-data; name=\"file\"; "
                         "filename=\"" + filename.toUtf8() + "\"" + crlf
-                        ).toAscii()
+                        ).toLatin1()
                     );
     m_multipartform->append(
-                    QString("Content-Type: text/plain" + crlf + crlf).toAscii()
+                    QString("Content-Type: text/plain" + crlf + crlf).toLatin1()
                     );
 
     m_file.setFileName(filepath);
@@ -268,7 +265,7 @@ void NetworkController::upload(FileTransferItem *fti){
     m_file.close();
 
     m_multipartform->append(
-        QString(crlf + "--" + boundaryStr + "--" + crlf).toAscii()
+        QString(crlf + "--" + boundaryStr + "--" + crlf).toLatin1()
         );
 
     m_networkreply = m_file_transfer->post(m_droprestapi->file_transfer(filename, m_currentDir, boundaryStr),*m_multipartform);

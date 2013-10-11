@@ -60,3 +60,87 @@ QString FolderItem::section() const {
 QString FolderItem::xsection() {
     return section();
 }
+
+void FolderItem::setChecked(const bool &v) {
+    if( m_checked != v) {
+        m_checked=v;
+        emit dataChanged(); // TODO is this needed?
+        emit checkedChanged();
+    }
+}
+
+void FolderItem::setRevision(const qreal &v) {
+    if( m_revision != v) {
+        m_revision=v;
+        emit revisionChanged();
+    }
+}
+
+void FolderItem::setThumb_exists(const bool &v) {
+    if( m_thumb_exists != v) {
+        m_thumb_exists=v;
+        emit thumb_existsChanged();
+    }
+}
+
+void FolderItem::setBytes(const qreal &v) {
+    if( m_bytes != v) {
+        m_bytes=v;
+        emit bytesChanged();
+    }
+}
+
+void FolderItem::setModified(const QString &v) {
+    if( m_modified != v) {
+        m_modified=v;
+        emit modifiedChanged();
+    }
+}
+
+void FolderItem::setPath(const QString &v) {
+    if( m_path != v) {
+        m_path=v;
+        emit pathChanged();
+    }
+}
+
+void FolderItem::setIs_dir(const bool &v) {
+    if( m_is_dir != v) {
+        m_is_dir=v;
+        emit is_dirChanged();
+    }
+}
+
+void FolderItem::setIcon(const QString &v) {
+    if( m_icon != v) {
+        m_icon=v;
+        emit iconChanged();
+    }
+}
+
+void FolderItem::setMime_type(const QString &v) {
+    if( m_mime_type != v) {
+        m_mime_type=v;
+        emit mime_typeChanged();
+    }
+}
+
+void FolderItem::setSize(const QString &v) {
+    if( m_size != v) {
+        m_size=v;
+        emit sizeChanged();
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+

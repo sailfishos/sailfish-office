@@ -48,6 +48,8 @@ public:
   QModelIndex indexFromItem( const ListItem* item) const;
   void clear();
 
+  QHash<int, QByteArray> roleNames() const;
+
   int count() const;
   int getCount() { return this->rowCount();}
   Q_INVOKABLE QVariantMap get(int row) const;

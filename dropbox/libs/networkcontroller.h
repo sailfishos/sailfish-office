@@ -18,8 +18,8 @@
 
 #include "droprestapi.h"
 
-#include "folderitem.h"
-#include "filetransferitem.h"
+#include "libs/folderitem.h"
+#include "libs/filetransferitem.h"
 
 #define DROPBOX_FOLDER "/home/nemo/dropbox"
 
