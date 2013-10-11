@@ -6,14 +6,13 @@
 
 #include "controller.h"
 
-#include <QtDeclarative/QDeclarativeEngine>
-#include <QtDeclarative/QDeclarativeContext>
-#include <QtGui/QApplication>
+#include <QQmlContext>
+#include <QtGui/QGuiApplication>
 
 #include "config.h"
 
 DropboxPlugin::DropboxPlugin(QObject* parent)
-    : QDeclarativeExtensionPlugin(parent)
+    : QQmlExtensionPlugin(parent)
 {
 }
 
@@ -22,7 +21,7 @@ void DropboxPlugin::registerTypes(const char* uri)
     Q_ASSERT( uri == QLatin1String( "Sailfish.Office.Dropbox" ) );
 }
 
-void DropboxPlugin::initializeEngine(QDeclarativeEngine* engine, const char* uri)
+void DropboxPlugin::initializeEngine(QQmlEngine* engine, const char* uri)
 {
     Q_ASSERT( uri == QLatin1String( "Sailfish.Office.Dropbox" ) );
 
@@ -30,13 +29,11 @@ void DropboxPlugin::initializeEngine(QDeclarativeEngine* engine, const char* uri
 
     Controller* controller = new Controller(qApp);
 
-    QDeclarativeContext *context = engine->rootContext();
+    QQmlContext *context = engine->rootContext();
     context->setContextProperty("controllerMIT", controller);
     context->setContextProperty("Options", &controller->m_options);
     context->setContextProperty("folderListModel", controller->folder_model);
     context->setContextProperty("filesTransferModel", controller->filestransfer_model);
 
-    QDeclarativeExtensionPlugin::initializeEngine(engine, uri);
+    QQmlExtensionPlugin::initializeEngine(engine, uri);
 }
-
-Q_EXPORT_PLUGIN2(dropboxplugin, DropboxPlugin)
