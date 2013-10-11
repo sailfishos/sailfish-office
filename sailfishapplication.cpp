@@ -3,10 +3,10 @@
 #include <QDir>
 #include <QGraphicsObject>
 
-#include <QDeclarativeComponent>
-#include <QDeclarativeEngine>
-#include <QDeclarativeContext>
-#include <QDeclarativeView>
+#include <QQmlComponent>
+#include <QQmlEngine>
+#include <QQmlContext>
+#include <QQuickView>
 #include <QDBusConnection>
 #include <QTranslator>
 #include <QLocale>
@@ -23,9 +23,9 @@
 #include "models/documentproviderlistmodel.h"
 #include "models/dropboxdocumentprovider.h"
 
-QSharedPointer<QApplication> Sailfish::createApplication(int &argc, char **argv)
+QSharedPointer<QGuiApplication> Sailfish::createApplication(int &argc, char **argv)
 {
-    auto app = QSharedPointer<QApplication>(MDeclarativeCache::qApplication(argc, argv));
+    auto app = QSharedPointer<QGuiApplication>(MDeclarativeCache::qApplication(argc, argv));
 
     QTranslator* engineeringEnglish = new QTranslator( app.data() );
     if( !engineeringEnglish->load("sailfish-office_eng_en", TRANSLATION_INSTALL_DIR) )
@@ -34,13 +34,13 @@ QSharedPointer<QApplication> Sailfish::createApplication(int &argc, char **argv)
 
     QTranslator* translator = new QTranslator( app.data() );
     if( !translator->load( QLocale::system(), "sailfish-office", "-", TRANSLATION_INSTALL_DIR) )
-        qWarning( ("Could not load translations for " + QLocale::system().name()).toAscii() );
+        qWarning( ("Could not load translations for " + QLocale::system().name()).toLatin1() );
     QCoreApplication::installTranslator( translator );
 
     return app;
 }
 
-QSharedPointer<QDeclarativeView> Sailfish::createView(const QString &file)
+QSharedPointer<QQuickView> Sailfish::createView(const QString &file)
 {
     qmlRegisterType< DocumentListModel >( "Sailfish.Office.Files", 1, 0, "DocumentListModel" );
     qmlRegisterType< DocumentProviderListModel >( "Sailfish.Office.Files", 1, 0, "DocumentProviderListModel" );
@@ -48,8 +48,9 @@ QSharedPointer<QDeclarativeView> Sailfish::createView(const QString &file)
     qmlRegisterType< DropboxDocumentProvider >( "Sailfish.Office.Files", 1, 0, "DropboxDocumentProvider" );
     qmlRegisterInterface< DocumentProviderPlugin >( "DocumentProviderPlugin" );
 
-    QSharedPointer<QDeclarativeView> view(MDeclarativeCache::qDeclarativeView());
+    QSharedPointer<QQuickView> view(MDeclarativeCache::qQuickView());
     view->engine()->addImportPath(CALLIGRA_QML_PLUGIN_DIR);
+    view->engine()->addImportPath("/opt/sdk/lib/qt4/imports");
     view->setSource(QUrl::fromLocalFile(QML_INSTALL_DIR + file));
 
     // We want to have SignonUI in process, if user wants to create account from Documents
@@ -69,13 +70,13 @@ QSharedPointer<QDeclarativeView> Sailfish::createView(const QString &file)
     return view;
 }
 
-void Sailfish::showView(const QSharedPointer<QDeclarativeView> &view) 
+void Sailfish::showView(const QSharedPointer<QQuickView> &view) 
 {
-    view->setResizeMode(QDeclarativeView::SizeRootObjectToView);
-    view->setAttribute(Qt::WA_OpaquePaintEvent);
-    view->setAttribute(Qt::WA_NoSystemBackground);
-    view->viewport()->setAttribute(Qt::WA_OpaquePaintEvent);
-    view->viewport()->setAttribute(Qt::WA_NoSystemBackground);
+    view->setResizeMode(QQuickView::SizeRootObjectToView);
+//    view->setAttribute(Qt::WA_OpaquePaintEvent);
+//    view->setAttribute(Qt::WA_NoSystemBackground);
+//    view->viewport()->setAttribute(Qt::WA_OpaquePaintEvent);
+//    view->viewport()->setAttribute(Qt::WA_NoSystemBackground);
     view->showFullScreen();
 }
 

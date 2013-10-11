@@ -6,13 +6,13 @@
 
 class QString;
 class QApplication;
-class QDeclarativeView;
+class QQuickView;
 
 namespace Sailfish 
 {
-    QSharedPointer<QApplication> createApplication(int& argc, char** argv);
-    QSharedPointer<QDeclarativeView> createView(const QString& file);
-    void showView(const QSharedPointer<QDeclarativeView> &view);
+    QSharedPointer<QGuiApplication> createApplication(int& argc, char** argv);
+    QSharedPointer< QQuickView > createView(const QString& file);
+    void showView(const QSharedPointer<QQuickView> &view);
 }
 
 #endif // SAILFISHAPPLICATION_H

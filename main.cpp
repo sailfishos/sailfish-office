@@ -1,7 +1,8 @@
  
 #include <QApplication>
 #include <QtDeclarative/QtDeclarative>
-#include <QDeclarativeView>
+#include <QQuickView>
+#include <QQmlError>
 
 #include "sailfishapplication.h"
 
