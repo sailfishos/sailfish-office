@@ -27,7 +27,7 @@ public:
 };
 
 SailfishOfficePlugin::SailfishOfficePlugin( QObject* parent )
-    : QDeclarativeExtensionPlugin( parent )
+    : QQmlExtensionPlugin( parent )
 {
 
 }
@@ -37,7 +37,7 @@ void SailfishOfficePlugin::registerTypes(const char* uri)
     Q_ASSERT( uri == QLatin1String( "Sailfish.Office" ) );
 }
 
-void SailfishOfficePlugin::initializeEngine(QDeclarativeEngine* engine, const char* uri)
+void SailfishOfficePlugin::initializeEngine(QQmlEngine* engine, const char* uri)
 {
     Q_ASSERT( uri == QLatin1String( "Sailfish.Office" ) );
 
@@ -49,7 +49,6 @@ void SailfishOfficePlugin::initializeEngine(QDeclarativeEngine* engine, const ch
     Translator *translator = new Translator(engine);
     translator->load(QLocale(), "sailfish-office", "-", TRANSLATION_INSTALL_DIR);
 
-    QDeclarativeExtensionPlugin::initializeEngine(engine, uri);
+    QQmlExtensionPlugin::initializeEngine(engine, uri);
 }
 
-Q_EXPORT_PLUGIN2(sailfishofficeplugin, SailfishOfficePlugin)
