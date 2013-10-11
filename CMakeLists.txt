@@ -2,17 +2,19 @@ project(sailfish-office)
 
 cmake_minimum_required(VERSION 2.8.6)
 
-include(cmake/QtTranslationWithID.cmake)
+#include(cmake/QtTranslationWithID.cmake)
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
+set(CMAKE_AUTOMOC TRUE)
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-find_package(Qt4 REQUIRED COMPONENTS QtDeclarative QtDBus)
-find_package(Automoc4 REQUIRED)
-find_package(Booster REQUIRED)
+find_package(Qt5Core REQUIRED)
+find_package(Qt5Declarative REQUIRED)
+find_package(Qt5Gui REQUIRED)
+find_package(Qt5DBus REQUIRED)
 find_package(QtSparql REQUIRED)
+find_package(Booster REQUIRED)
 find_package(JollaSignonUiService REQUIRED)
-
-include(${QT_USE_FILE})
 
 include_directories(
     ${CMAKE_SOURCE_DIR}
@@ -29,7 +31,7 @@ configure_file(config.h.in config.h)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -fPIC -pie -rdynamic -Wall")
 
 add_subdirectory(plugin)
-add_subdirectory(pdf)
+#add_subdirectory(pdf)
 add_subdirectory(dropbox)
 
 set(sailfishoffice_SRCS
@@ -57,9 +59,10 @@ set(sailfishoffice_TS_SRCS
     ${plugin_QML_SRCS}
 )
 
-create_translation(engen_qm_file ${sailfishoffice_TS_SRCS} ${CMAKE_BINARY_DIR}/sailfish-office_eng_en.ts)
+#create_translation(engen_qm_file ${sailfishoffice_TS_SRCS} ${CMAKE_BINARY_DIR}/sailfish-office_eng_en.ts)
 
-automoc4_add_executable(sailfish-office ${sailfishoffice_SRCS} ${engen_qm_file})
+add_executable(sailfish-office ${sailfishoffice_SRCS} ${engen_qm_file})
+qt5_use_modules(sailfish-office Quick Declarative DBus)
 target_link_libraries(sailfish-office stdc++ ${QT_LIBRARIES} ${BOOSTER_LIBRARY} ${QTSPARQL_LIBRARY} ${JOLLASIGNONUISERVICE_LIBRARY})
 
 install(TARGETS sailfish-office DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)

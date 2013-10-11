@@ -18,7 +18,8 @@ set(dropbox_plugin_SRCS
     controller.cc
     dropboxplugin.cpp)
 
-automoc4_add_library(sailfishofficedropboxplugin MODULE ${dropbox_plugin_SRCS} ${dropbox_lib_SRCS})
+add_library(sailfishofficedropboxplugin MODULE ${dropbox_plugin_SRCS} ${dropbox_lib_SRCS})
+qt5_use_modules(sailfishofficedropboxplugin Quick)
 target_link_libraries(sailfishofficedropboxplugin stdc++ ${QT_LIBRARIES})# sailfishofficedropboxlib)
 
 install(TARGETS sailfishofficedropboxplugin DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/qt4/imports/Sailfish/Office/Dropbox)

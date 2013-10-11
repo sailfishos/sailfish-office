@@ -2,7 +2,8 @@ set(plugin_SRCS
     sailfishofficeplugin.cpp
 )
 
-automoc4_add_library(sailfishofficeplugin MODULE ${plugin_SRCS})
+add_library(sailfishofficeplugin MODULE ${plugin_SRCS})
+qt5_use_modules(sailfishofficeplugin Quick Declarative)
 target_link_libraries(sailfishofficeplugin stdc++ ${QT_LIBRARIES})
 
 install(TARGETS sailfishofficeplugin DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/qt4/imports/Sailfish/Office)
