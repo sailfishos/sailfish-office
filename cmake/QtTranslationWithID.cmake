@@ -21,7 +21,7 @@ endmacro()
 
 
 macro(CREATE_TRANSLATION _qm_files)
-   QT4_EXTRACT_OPTIONS(_lupdate_files _lupdate_options ${ARGN})
+   QT5_EXTRACT_OPTIONS(_lupdate_files _lupdate_options ${ARGN})
    set(_my_sources)
    set(_my_dirs)
    set(_my_tsfiles)
