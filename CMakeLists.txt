@@ -9,7 +9,7 @@ set(CMAKE_AUTOMOC TRUE)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 find_package(Qt5Core REQUIRED)
-find_package(Qt5Declarative REQUIRED)
+find_package(Qt5Quick REQUIRED)
 find_package(Qt5Gui REQUIRED)
 find_package(Qt5DBus REQUIRED)
 find_package(QtSparql REQUIRED)
@@ -25,7 +25,7 @@ include_directories(
     ${JOLLASIGNONUISERVICE_INCLUDE_DIR}
 )
 
-set(CALLIGRA_QML_PLUGIN_DIR ${CMAKE_INSTALL_PREFIX}/lib/calligra/imports CACHE PATH "The location of the Calligra QtQuick Components")
+set(CALLIGRA_QML_PLUGIN_DIR /usr/lib/calligra CACHE PATH "The location of the Calligra QtQuick Components")
 configure_file(config.h.in config.h)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -fPIC -pie -rdynamic -Wall")
@@ -62,7 +62,7 @@ set(sailfishoffice_TS_SRCS
 #create_translation(engen_qm_file ${sailfishoffice_TS_SRCS} ${CMAKE_BINARY_DIR}/sailfish-office_eng_en.ts)
 
 add_executable(sailfish-office ${sailfishoffice_SRCS} ${engen_qm_file})
-qt5_use_modules(sailfish-office Quick Declarative DBus)
+qt5_use_modules(sailfish-office Widgets Quick DBus)
 target_link_libraries(sailfish-office stdc++ ${QT_LIBRARIES} ${BOOSTER_LIBRARY} ${QTSPARQL_LIBRARY} ${JOLLASIGNONUISERVICE_LIBRARY})
 
 install(TARGETS sailfish-office DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
