@@ -1,6 +1,6 @@
-import QtQuick 1.1
+import QtQuick 2.0
 import Sailfish.Silica 1.0
-import org.calligra.CalligraComponents 0.1 as Calligra
+import org.kde.calligra 1.0 as Calligra
 
 Page {
     id: page;
@@ -15,7 +15,7 @@ Page {
         //: Page with sheet selector
         //% "Sheets"
         header: PageHeader { title: qsTrId( "sailfish-office-he-sheet_index" ) }
-
+/*
         model: Calligra.SpreadsheetListModel {
             canvas: page.canvas;
             thumbnailSize.width: theme.itemSizeLarge;
@@ -54,5 +54,6 @@ Page {
                 pageStack.navigateBack(PageStackAction.Animated);
             }
         }
+        */
     }
 }

@@ -1,6 +1,6 @@
-import QtQuick 1.1
+import QtQuick 2.0
 import Sailfish.Silica 1.0
-import org.calligra.CalligraComponents 0.1 as Calligra
+import org.kde.calligra 1.0 as Calligra
 
 Page {
     id: page;
@@ -24,11 +24,11 @@ Page {
         //% "Slides"
         header: PageHeader { title: qsTrId( "sailfish-office-he-slide_index" ) }
 
-        model: Calligra.PresentationModel {
+        /*model: Calligra.PresentationModel {
             canvas: page.canvas;
             thumbnailSize.width: grid.cellWidth;
             thumbnailSize.height: grid.cellHeight;
-        }
+        }*/
 
         delegate: Item {
             id: base;
@@ -39,10 +39,10 @@ Page {
                 anchors.fill: parent;
                 border.width: 1;
 
-                Calligra.Thumbnail {
-                    anchors.fill: parent;
-                    content: model.thumbnail;
-                }
+//                 Calligra.Thumbnail {
+//                     anchors.fill: parent;
+//                     content: model.thumbnail;
+//                 }
 
                 Rectangle {
                     anchors.centerIn: parent;

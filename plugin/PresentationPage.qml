@@ -1,6 +1,6 @@
-import QtQuick 1.1
+import QtQuick 2.0
 import Sailfish.Silica 1.0
-import org.calligra.CalligraComponents 0.1 as Calligra
+import org.kde.calligra 1.0 as Calligra
 
 DocumentPage {
     id: page;
@@ -8,49 +8,28 @@ DocumentPage {
     attachedPage: Component {
         PresentationThumbnailPage {
             canvas: document;
-            view: slideView;
+            view: v;
         }
     }
 
-    SlideshowView {
-        id: slideView;
-        anchors.fill: parent;
-
-        property Item currentItem;
-        interactive: (currentItem === undefined) ? false : !currentItem.scaled;
-
-        model: Calligra.PresentationModel {
-            id: presentationModel;
-
-            canvas: document;
-            thumbnailSize.width: slideView.width;
-            thumbnailSize.height: slideView.width * 0.75;
-        }
-
-        delegate: ZoomableThumbnail {
-            width: slideView.width;
-            height: Math.min(itemHeight, slideView.height);
-            content: model.thumbnail;
-
-            Calligra.LinkArea {
-                anchors.fill: parent;
-                linkColor: theme.highlightColor;
-                onClicked: page.open = !page.open;
-            }
-        }
-
-        Connections {
-            target: view.currentItem;
-            onUpdateSize: presentationModel.thumbnailSize = Qt.size(newWidth, newHeight);
-        }
-
-        onCurrentIndexChanged: presentationModel.thumbnailSize = Qt.size(slideView.width, slideView.width * 0.75);
-    }
-
-    Calligra.PresentationCanvas {
+    Calligra.Document {
         id: document;
+    }
+
+    Calligra.View {
+        id: v;
         anchors.fill: parent;
-        visible: false;
+        document: page.document;
+    }
+
+    Flickable {
+        id: f;
+        anchors.fill: parent;
+
+        Calligra.ViewController {
+            view: v;
+            flickable: f;
+        }
     }
 
     onStatusChanged: {
