@@ -1,3 +1,4 @@
+module Sailfish.Office
 PDFDocumentPage 1.0 PDFDocumentPage.qml
 PresentationPage 1.0 PresentationPage.qml
 SpreadsheetPage 1.0 SpreadsheetPage.qml

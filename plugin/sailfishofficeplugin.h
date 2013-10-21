@@ -11,7 +11,7 @@
 class SailfishOfficePlugin : public QQmlExtensionPlugin
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(SailfishOfficePlugin)
+    Q_PLUGIN_METADATA(IID "Sailfish.Office")
 public:
     explicit SailfishOfficePlugin(QObject* parent = 0);
 
