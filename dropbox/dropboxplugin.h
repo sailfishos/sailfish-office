@@ -11,7 +11,7 @@
 class DropboxPlugin : public QQmlExtensionPlugin
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(DropboxPlugin)
+    Q_PLUGIN_METADATA(IID "Sailfish.Office.DropboxPlugin")
 public:
     explicit DropboxPlugin(QObject* parent = 0);
 

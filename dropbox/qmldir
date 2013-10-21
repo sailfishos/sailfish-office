@@ -1,3 +1,4 @@
+module Sailfish.Office.Dropbox
 FileNavigator 1.0 FileNavigator.qml
 InfoBanner 1.0 InfoBanner.qml
 LoginPage 1.0 LoginPage.qml
