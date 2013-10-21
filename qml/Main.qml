@@ -1,6 +1,6 @@
-import QtQuick 1.1
+import QtQuick 2.0
 import Sailfish.Silica 1.0
-import org.calligra.CalligraComponents 0.1
+import org.kde.calligra 1.0 as Calligra
 
 ApplicationWindow
 {

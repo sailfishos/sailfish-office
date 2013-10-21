@@ -1,12 +1,20 @@
-import QtQuick 1.1
+import QtQuick 2.0
 import Sailfish.Silica 1.0
 import Sailfish.Office.Files 1.0
 import Sailfish.Office.Dropbox 1.0
-import QtMobility.gallery 1.1
+//import QtMobility.gallery 1.1
 
 Page {
 
     allowedOrientations: Orientation.All;
+
+    QtObject {
+        id: theme;
+        property int paddingLarge: 8;
+        property int fontSizeLarge: 26;
+        property color primaryColor: "black";
+        property color highlightColor: "white";
+    }
 
     Component {
         id: delegate

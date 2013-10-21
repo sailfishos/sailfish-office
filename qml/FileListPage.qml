@@ -1,4 +1,4 @@
-import QtQuick 1.1
+import QtQuick 2.0
 import Sailfish.Silica 1.0
 import Sailfish.Office 1.0
 import Sailfish.Office.Files 1.0
@@ -9,6 +9,14 @@ Page {
     property string title: "";
 
     allowedOrientations: Orientation.All;
+
+    QtObject {
+        id: theme;
+        property int paddingLarge: 8;
+        property int fontSizeLarge: 26;
+        property color primaryColor: "black";
+        property color highlightColor: "white";
+    }
 
     SilicaListView {
         id: listView;
@@ -87,14 +95,19 @@ Page {
                     switch(model.fileDocumentClass) {
                         case DocumentListModel.TextDocument:
                             pageStack.push(textDocumentPage, { title: model.fileName, path: model.filePath, mimeType: model.fileMimeType });
+                            break;
                         case DocumentListModel.SpreadSheetDocument:
                             pageStack.push(spreadsheetPage, { title: model.fileName, path: model.filePath, mimeType: model.fileMimeType });
+                            break;
                         case DocumentListModel.PresentationDocument:
                             pageStack.push(presentationPage, { title: model.fileName, path: model.filePath, mimeType: model.fileMimeType });
+                            break;
                         case DocumentListModel.PDFDocument:
-                            pageStack.push(pdfPage, { title: model.fileName, path: model.filePath, mimeType: model.fileMimeType });
+                           pageStack.push(pdfPage, { title: model.fileName, path: model.filePath, mimeType: model.fileMimeType });
+                           break;
                         default:
                             console.log("Unknown file format for file " + model.fileName + " with stated mimetype " + model.fileMimeType);
+                            break;
                     }
                 }
             }
@@ -116,8 +129,8 @@ Page {
         PresentationPage { }
     }
 
-    Component {
-        id: pdfPage;
-        PDFDocumentPage { }
-    }
+//    Component {
+//        id: pdfPage;
+//        PDFDocumentPage { }
+//    }
 }
