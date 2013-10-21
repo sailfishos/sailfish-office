@@ -2,20 +2,20 @@
 #define DOCUMENTPROVIDERLISTMODEL_H
 
 #include <QAbstractListModel>
-#include <QDeclarativeListProperty>
+#include <QQmlListProperty>
 #include </usr/include/qt5/QtQml/QQmlParserStatus>
 
 QT_BEGIN_NAMESPACE
-class QDeclarativeComponent;
+class QQmlComponent;
 QT_END_NAMESPACE
 
 class DocumentProviderPlugin;
 class DocumentProviderListModel : public QAbstractListModel, public QQmlParserStatus
 {
     Q_OBJECT
-    Q_PROPERTY(QDeclarativeListProperty<DocumentProviderPlugin> sources READ sources)
+    Q_PROPERTY(QQmlListProperty<DocumentProviderPlugin> sources READ sources)
     Q_PROPERTY(int count READ rowCount NOTIFY sourcesChanged)
-    Q_PROPERTY(QDeclarativeComponent *albumDelegate READ albumDelegate WRITE setAlbumDelegate NOTIFY albumDelegateChanged)
+    Q_PROPERTY(QQmlComponent *albumDelegate READ albumDelegate WRITE setAlbumDelegate NOTIFY albumDelegateChanged)
     Q_INTERFACES(QQmlParserStatus)
     Q_CLASSINFO("DefaultProperty", "sources")
 public:
@@ -36,10 +36,10 @@ public:
     virtual void classBegin();
     virtual void componentComplete();
 
-    QDeclarativeListProperty<DocumentProviderPlugin> sources();
+    QQmlListProperty<DocumentProviderPlugin> sources();
 
-    QDeclarativeComponent *albumDelegate() const;
-    void setAlbumDelegate(QDeclarativeComponent *albumDelegate);
+    QQmlComponent *albumDelegate() const;
+    void setAlbumDelegate(QQmlComponent *albumDelegate);
 
     QModelIndex index(int row, int column, const QModelIndex &parent) const;
     virtual QVariant data(const QModelIndex& index, int role) const;

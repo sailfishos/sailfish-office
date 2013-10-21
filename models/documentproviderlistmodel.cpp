@@ -2,7 +2,7 @@
 #include "documentproviderplugin.h"
 #include "documentlistmodel.h"
 
-#include <QDeclarativeComponent>
+#include <QQmlComponent>
 #include <QDebug>
 
 class DocumentProviderListModel::Private
@@ -26,9 +26,9 @@ public:
     QHash<int, QByteArray> roles;
     bool completed;
     QList<DocumentProviderPlugin*> providers;
-    QDeclarativeComponent* albumDelegate;
+    QQmlComponent* albumDelegate;
 
-    static void source_append(QDeclarativeListProperty<DocumentProviderPlugin> *property, DocumentProviderPlugin *source)
+    static void source_append(QQmlListProperty<DocumentProviderPlugin> *property, DocumentProviderPlugin *source)
     {
         Private *d = static_cast<Private *>(property->data);
         DocumentProviderListModel *q = static_cast<DocumentProviderListModel *>(property->object);
@@ -45,16 +45,22 @@ public:
             q->updateActiveSources();
     }
 
-    static int source_count(QDeclarativeListProperty<DocumentProviderPlugin> *property)
+    static int source_count(QQmlListProperty<DocumentProviderPlugin> *property)
     {
         Private *d = static_cast<Private *>(property->data);
         return d->providers.count();
     }
 
-    static DocumentProviderPlugin *source_at(QDeclarativeListProperty<DocumentProviderPlugin> *property, int index)
+    static DocumentProviderPlugin *source_at(QQmlListProperty<DocumentProviderPlugin> *property, int index)
     {
         Private *d = static_cast<Private *>(property->data);
         return d->providers.at(index);
+    }
+
+    static void source_clear(QQmlListProperty<DocumentProviderPlugin> *property)
+    {
+        Private *d = static_cast<Private *>(property->data);
+        d->providers.clear();
     }
 };
 
@@ -83,14 +89,15 @@ void DocumentProviderListModel::componentComplete()
     // create instance and store in d->providers
 }
 
-QDeclarativeListProperty< DocumentProviderPlugin > DocumentProviderListModel::sources()
+QQmlListProperty< DocumentProviderPlugin > DocumentProviderListModel::sources()
 {
-    return QDeclarativeListProperty<DocumentProviderPlugin>(
+    return QQmlListProperty<DocumentProviderPlugin>(
                 this,
                 d,
                 DocumentProviderListModel::Private::source_append,
                 DocumentProviderListModel::Private::source_count,
-                DocumentProviderListModel::Private::source_at);
+                DocumentProviderListModel::Private::source_at,
+                DocumentProviderListModel::Private::source_clear);
 }
 
 void DocumentProviderListModel::updateActiveSources()
@@ -108,12 +115,12 @@ void DocumentProviderListModel::sourceInfoChanged()
     }
 }
 
-QDeclarativeComponent* DocumentProviderListModel::albumDelegate() const
+QQmlComponent* DocumentProviderListModel::albumDelegate() const
 {
     return d->albumDelegate;
 }
 
-void DocumentProviderListModel::setAlbumDelegate(QDeclarativeComponent* albumDelegate)
+void DocumentProviderListModel::setAlbumDelegate(QQmlComponent* albumDelegate)
 {
     if (d->albumDelegate != albumDelegate) {
         d->albumDelegate = albumDelegate;
