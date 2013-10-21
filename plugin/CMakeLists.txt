@@ -3,7 +3,7 @@ set(plugin_SRCS
 )
 
 add_library(sailfishofficeplugin MODULE ${plugin_SRCS})
-qt5_use_modules(sailfishofficeplugin Quick Declarative)
+qt5_use_modules(sailfishofficeplugin Widgets Quick)
 target_link_libraries(sailfishofficeplugin stdc++ ${QT_LIBRARIES})
 
 install(TARGETS sailfishofficeplugin DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/qt4/imports/Sailfish/Office)
