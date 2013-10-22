@@ -17,8 +17,8 @@
 #include <QDebug>
 
 OAuth::OAuth():
-    m_consumer_key("tudaw2dybutcv1m"),
-    m_consumer_secret("hjj3oe4dgxv177l")
+    m_consumer_key("2mcm6i2j2n14xat"),
+    m_consumer_secret("tf3jffs2w4yi1kg")
 // old dropN9 keys below
 //    m_consumer_key("8xf1b5hrsgmempk"),
 //    m_consumer_secret("6se47g35sdqsouw")
