@@ -38,7 +38,7 @@ DropboxDocumentProvider::DropboxDocumentProvider(QObject* parent)
     : DocumentProviderPlugin(parent)
     , d(new Private)
 {
-    setPage(QUrl::fromLocalFile(QString(DROPBOX_QML_PLUGIN_DIR).append("FileNavigator.qml")));
+    setPage(QUrl::fromLocalFile(QString(DROPBOX_QML_PLUGIN_DIR).append("Sailfish/Office/Dropbox/FileNavigator.qml")));
 }
 
 DropboxDocumentProvider::~DropboxDocumentProvider()
