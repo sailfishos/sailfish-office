@@ -50,7 +50,7 @@ QSharedPointer<QQuickView> Sailfish::createView(const QString &file)
 
     QSharedPointer<QQuickView> view(MDeclarativeCache::qQuickView());
     view->engine()->addImportPath(CALLIGRA_QML_PLUGIN_DIR);
-    view->engine()->addImportPath("/opt/sdk/lib/qt4/imports");
+    view->engine()->addImportPath(DROPBOX_QML_PLUGIN_DIR);
     view->setSource(QUrl::fromLocalFile(QML_INSTALL_DIR + file));
 
     // We want to have SignonUI in process, if user wants to create account from Documents
@@ -77,6 +77,7 @@ void Sailfish::showView(const QSharedPointer<QQuickView> &view)
 //    view->setAttribute(Qt::WA_NoSystemBackground);
 //    view->viewport()->setAttribute(Qt::WA_OpaquePaintEvent);
 //    view->viewport()->setAttribute(Qt::WA_NoSystemBackground);
+    view->setDefaultAlphaBuffer(true);
     view->showFullScreen();
 }
 
