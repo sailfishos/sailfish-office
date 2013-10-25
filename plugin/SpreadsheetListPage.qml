@@ -5,7 +5,7 @@ import org.kde.calligra 1.0 as Calligra
 Page {
     id: page;
 
-    property Item canvas;
+    property QtObject document;
 
     allowedOrientations: Orientation.All;
 
@@ -15,17 +15,17 @@ Page {
         //: Page with sheet selector
         //% "Sheets"
         header: PageHeader { title: qsTrId( "sailfish-office-he-sheet_index" ) }
-/*
-        model: Calligra.SpreadsheetListModel {
-            canvas: page.canvas;
+
+        model: Calligra.ContentsModel {
+            document: page.document;
             thumbnailSize.width: theme.itemSizeLarge;
             thumbnailSize.height: theme.itemSizeLarge;
         }
 
         delegate: BackgroundItem {
-            highlighted: model.index == page.canvas.currentSheet;
+            highlighted: model.contentIndex == page.document.currentIndex;
 
-            Calligra.Thumbnail {
+            Calligra.ImageDataItem {
                 id: thumbnail;
 
                 anchors {
@@ -36,7 +36,7 @@ Page {
                 width: parent.height;
                 height: parent.height;
 
-                content: model.thumbnail;
+                data: model.thumbnail;
             }
 
             Label {
@@ -46,14 +46,13 @@ Page {
                     verticalCenter: parent.verticalCenter;
                 }
 
-                text: model.sheetName;
+                text: model.title;
             }
 
             onClicked: {
-                page.canvas.currentSheet = model.index;
+                page.document.currentIndex = model.contentIndex;
                 pageStack.navigateBack(PageStackAction.Animated);
             }
         }
-        */
     }
 }

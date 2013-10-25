@@ -7,35 +7,39 @@ DocumentPage {
 
     attachedPage: Component {
         SpreadsheetListPage {
-            canvas: document;
+            document: doc;
         }
     }
 
     Calligra.Document {
-        id: document;
-        source: "Frequencies.ods";
+        id: doc;
     }
 
     Calligra.View {
         id: v;
         anchors.fill: parent;
-        document: page.document;
+        document: doc;
     }
 
     SilicaFlickable {
-        id: flickable
+        id: f;
 
         anchors.fill: parent;
 
         Calligra.ViewController {
             view: v;
-            flickable: page.flickable;
+            flickable: f;
         }
 
+        MouseArea {
+            anchors.fill: parent;
+            onClicked: page.open = !page.open;
+        }
+/*
         children: [
             HorizontalScrollDecorator { color: theme.highlightDimmerColor; },
             VerticalScrollDecorator { color: theme.highlightDimmerColor; }
-        ]
+        ]*/
 
 //         PinchArea {
 //             anchors.fill: parent;
@@ -57,13 +61,13 @@ DocumentPage {
     onStatusChanged: {
         //Delay loading the document until the page has been activated.
         if(status == PageStatus.Active) {
-            document.source = page.path;
+            doc.source = page.path;
         }
 
         //Reset the position when we change sheets
         if(status == PageStatus.Activating) {
-            flickable.contentX = 0;
-            flickable.contentY = 0;
+            f.contentX = 0;
+            f.contentY = 0;
         }
     }
 }
