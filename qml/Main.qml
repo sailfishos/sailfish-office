@@ -11,7 +11,8 @@ ApplicationWindow
     //TODO: Convert all component usage to Qt.resolvedUrl once most development is done.
     Component { id: startPage; StartPage { } }
 
+
     //Preload Calligra plugins so we do not need to do that
     //when opening a document so opening becomes more responsive.
-    Component.onCompleted: Calligra.loadPlugins();
+    Component.onCompleted: Calligra.Global.loadPlugins();
 }
