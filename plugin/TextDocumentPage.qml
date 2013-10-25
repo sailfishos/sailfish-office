@@ -5,47 +5,40 @@ import org.kde.calligra 1.0 as Calligra
 DocumentPage {
     id: page
 
-//     attachedPage: Component {
-//         TextDocumentToCPage {
-//             canvas: theDoc;
-//             onClicked: aFlickable.contentY = theDoc.pagePosition( page );
-//         }
-//     }
+    attachedPage: Component {
+        TextDocumentToCPage {
+            document: doc;
+        }
+    }
 
     Calligra.Document {
-        id: theDoc;
-        //source: doc
+        id: doc;
     }
+
     Calligra.View {
         id: v;
         anchors.fill: parent;
-        document: theDoc;
+        document: doc;
     }
-//     Calligra.TextDocumentCanvas {
-//         id: document;
-//         anchors.fill: parent;
-// 
-//         onLinkTargetsChanged: {
-//             linkArea.links = linkTargets;
-//             linkArea.sourceSize = canvasController.documentSize;
-//         }
-//     }
 
     SilicaFlickable {
-        id: aFlickable
+        id: f
         anchors.fill: parent;
-
-        //onWidthChanged: if( canvasController.documentSize.width < width ) canvasController.fitToWidth( width );
 
         Calligra.ViewController {
             view: v;
-            flickable: aFlickable;
+            flickable: f;
         }
 
-        children: [
-            HorizontalScrollDecorator {/* color: theme.highlightDimmerColor; */},
-            VerticalScrollDecorator {/* color: theme.highlightDimmerColor; */}
-        ]
+        MouseArea {
+            anchors.fill: parent;
+            onClicked: page.open = !page.open;
+        }
+
+//         children: [
+//             HorizontalScrollDecorator {/* color: theme.highlightDimmerColor; */},
+//             VerticalScrollDecorator {/* color: theme.highlightDimmerColor; */}
+//         ]
 
 //         PinchArea {
 //             anchors.fill: parent;
@@ -70,7 +63,7 @@ DocumentPage {
     onStatusChanged: {
         //Delay loading the document until the page has been activated.
         if(status == PageStatus.Active) {
-            theDoc.source = page.path;
+            doc.source = page.path;
         }
     }
 }

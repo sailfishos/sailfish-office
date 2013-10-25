@@ -5,9 +5,7 @@ import org.kde.calligra 1.0 as Calligra
 Page {
     id: page;
 
-    property Item canvas;
-
-    signal clicked(int page);
+    property QtObject document;
 
     allowedOrientations: Orientation.All;
 
@@ -18,12 +16,12 @@ Page {
         //% "Index"
         header: PageHeader { title: qsTrId( "sailfish-office-he-index") }
 
-//         model: Calligra.TextToCModel {
-//             canvas: page.canvas;
-//         }
+        model: Calligra.ContentsModel {
+            document: page.document;
+        }
 
         delegate: BackgroundItem {
-            highlighted: model.page == page.canvas.currentPageNumber;
+            highlighted: model.contentIndex == page.document.currentIndex;
 
             Label {
                 anchors {
@@ -43,11 +41,11 @@ Page {
                     rightMargin: theme.paddingLarge;
                     verticalCenter: parent.verticalCenter;
                 }
-                text: model.pageNumber;
+                text: model.contentIndex;
             }
 
             onClicked: {
-                page.clicked(model.pageNumber);
+                page.document.currentIndex = model.contentIndex;
                 pageStack.navigateBack(PageStackAction.Animated);
             }
         }
