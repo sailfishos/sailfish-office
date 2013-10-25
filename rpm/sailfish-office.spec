@@ -22,7 +22,7 @@ Requires: sailfish-accounts
 %files
 %defattr(-,root,root,-)
 %{_bindir}/*
-%{_libdir}/qt4/imports/Sailfish/Office/
+%{_libdir}/qt5/qml/Sailfish/Office/
 %{_datadir}/applications/*.desktop
 %{_datadir}/%{name}/
 %{_datadir}/dbus-1/services/org.sailfish.documents.service
