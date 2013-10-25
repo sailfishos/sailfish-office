@@ -7,19 +7,18 @@ DocumentPage {
 
     attachedPage: Component {
         PresentationThumbnailPage {
-            canvas: document;
-            view: v;
+            document: doc;
         }
     }
 
     Calligra.Document {
-        id: document;
+        id: doc;
     }
 
     Calligra.View {
         id: v;
         anchors.fill: parent;
-        document: page.document;
+        document: doc;
     }
 
     Flickable {
@@ -35,7 +34,7 @@ DocumentPage {
     onStatusChanged: {
         //Delay loading the document until the page has been activated.
         if(status == PageStatus.Active) {
-            document.source = page.path;
+            doc.source = page.path;
         }
     }
 }

@@ -5,8 +5,7 @@ import org.kde.calligra 1.0 as Calligra
 Page {
     id: page;
 
-    property Item canvas;
-    property Item view;
+    property QtObject document;
 
     allowedOrientations: Orientation.All;
 
@@ -18,17 +17,17 @@ Page {
         cellWidth: page.width / 3;
         cellHeight: cellWidth * 0.75;
 
-        currentIndex: page.view.currentIndex;
+        currentIndex: page.document.currentIndex;
 
         //: Page with slide overview
         //% "Slides"
         header: PageHeader { title: qsTrId( "sailfish-office-he-slide_index" ) }
 
-        /*model: Calligra.PresentationModel {
-            canvas: page.canvas;
+        model: Calligra.ContentsModel {
+            document: page.document;
             thumbnailSize.width: grid.cellWidth;
             thumbnailSize.height: grid.cellHeight;
-        }*/
+        }
 
         delegate: Item {
             id: base;
@@ -39,10 +38,10 @@ Page {
                 anchors.fill: parent;
                 border.width: 1;
 
-//                 Calligra.Thumbnail {
-//                     anchors.fill: parent;
-//                     content: model.thumbnail;
-//                 }
+                Calligra.ImageDataItem {
+                    anchors.fill: parent;
+                    data: model.thumbnail;
+                }
 
                 Rectangle {
                     anchors.centerIn: parent;
@@ -55,14 +54,14 @@ Page {
                 Label {
                     id: label;
                     anchors.centerIn: parent;
-                    text: model.index + 1;
+                    text: model.contentIndex + 1;
                 }
             }
 
             MouseArea {
                 anchors.fill: parent;
                 onClicked: {
-                    page.view.currentIndex = model.index;
+                    page.document.currentIndex = model.contentIndex;
                     pageStack.navigateBack(PageStackAction.Animated);
                 }
             }
