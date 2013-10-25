@@ -10,7 +10,7 @@ class QQuickView;
 
 namespace Sailfish 
 {
-    QSharedPointer<QGuiApplication> createApplication(int& argc, char** argv);
+    QSharedPointer< QApplication > createApplication(int& argc, char** argv);
     QSharedPointer< QQuickView > createView(const QString& file);
     void showView(const QSharedPointer<QQuickView> &view);
 }

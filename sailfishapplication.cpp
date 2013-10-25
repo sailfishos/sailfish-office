@@ -23,9 +23,10 @@
 #include "models/documentproviderlistmodel.h"
 #include "models/dropboxdocumentprovider.h"
 
-QSharedPointer<QGuiApplication> Sailfish::createApplication(int &argc, char **argv)
+QSharedPointer<QApplication> Sailfish::createApplication(int &argc, char **argv)
 {
-    auto app = QSharedPointer<QGuiApplication>(MDeclarativeCache::qApplication(argc, argv));
+    auto app = QSharedPointer<QApplication>{new QApplication{argc, argv}};
+    //QSharedPointer<QGuiApplication>(MDeclarativeCache::qApplication(argc, argv));
 
     QTranslator* engineeringEnglish = new QTranslator( app.data() );
     if( !engineeringEnglish->load("sailfish-office_eng_en", TRANSLATION_INSTALL_DIR) )
