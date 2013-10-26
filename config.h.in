@@ -5,7 +5,7 @@
 #define IMAGES_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/share/sailfish-office/images/"
 #define TRANSLATION_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/share/translations/"
 #define CALLIGRA_QML_PLUGIN_DIR "${CALLIGRA_QML_PLUGIN_DIR}"
-#define DROPBOX_QML_PLUGIN_DIR "${CMAKE_INSTALL_PREFIX}/lib/qt4/imports/"
+#define DROPBOX_QML_PLUGIN_DIR "${CMAKE_INSTALL_PREFIX}/lib/qt5/qml/"
 
 #define DBUS_SERVICE "org.sailfish.documents"
 #define SIGNON_DBUS_OBJECT "/SailfishDocumentsSignonUi"
