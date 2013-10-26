@@ -20,7 +20,7 @@ ShareMethodList {
 
     //: Share documents
     //% "Share"
-    listHeader: qsTrId( "sailfish-office-la-share" );
+    //listHeader: qsTrId( "sailfish-office-la-share" );
 
     header: PageHeader{ title: menuList.title }
 
