@@ -10,7 +10,7 @@ BuildRequires: pkgconfig(Qt5Quick)
 BuildRequires: pkgconfig(Qt5Widgets)
 BuildRequires: pkgconfig(Qt5WebKit)
 BuildRequires: pkgconfig(libjollasignonuiservice-qt5)
-BuildRequires: pkgconfig(libqt5sparql)
+BuildRequires: libqt5sparql-devel
 #BuildRequires: poppler-qt5-devel poppler-qt5 poppler-devel poppler
 BuildRequires: mapplauncherd-qt5-devel
 BuildRequires: cmake
