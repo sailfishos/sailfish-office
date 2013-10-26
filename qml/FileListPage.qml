@@ -14,7 +14,9 @@ Page {
         id: theme;
         property int paddingLarge: 8;
         property int fontSizeLarge: 26;
+        property int fontSizeSmall: 16;
         property color primaryColor: "black";
+        property color secondaryColor: "silver";
         property color highlightColor: "white";
     }
 
