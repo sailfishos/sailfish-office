@@ -14,6 +14,7 @@ BuildRequires: cmake
 Requires: calligra-components
 Requires: sailfishsilica
 Requires: sailfish-accounts
+Requires: libqt5sparql-tracker
 
 
 %description
