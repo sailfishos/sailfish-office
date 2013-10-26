@@ -6,6 +6,8 @@ Group: System/Base
 License: GPLv2
 Source0: %{name}-%{version}.tar.gz
 BuildRequires: pkgconfig(Qt5Declarative)
+BuildRequires: pkgconfig(Qt5Quick)
+BuildRequires: pkgconfig(Qt5Widgets)
 BuildRequires: pkgconfig(Qt5WebKit)
 BuildRequires: pkgconfig(libjollasignonuiservice-qt5)
 #BuildRequires: poppler-qt5-devel poppler-qt5 poppler-devel poppler
