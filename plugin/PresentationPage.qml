@@ -21,13 +21,23 @@ DocumentPage {
         document: doc;
     }
 
-    Flickable {
+    SilicaFlickable {
         id: f;
         anchors.fill: parent;
+
+//         children: [
+//             HorizontalScrollDecorator { color: theme.highlightDimmerColor; },
+//             VerticalScrollDecorator { color: theme.highlightDimmerColor; }
+//         ]
 
         Calligra.ViewController {
             view: v;
             flickable: f;
+        }
+
+        MouseArea {
+            anchors.fill: parent;
+            onClicked: page.open = !page.open;
         }
     }
 

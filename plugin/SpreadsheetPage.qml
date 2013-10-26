@@ -35,11 +35,11 @@ DocumentPage {
             anchors.fill: parent;
             onClicked: page.open = !page.open;
         }
-/*
-        children: [
-            HorizontalScrollDecorator { color: theme.highlightDimmerColor; },
-            VerticalScrollDecorator { color: theme.highlightDimmerColor; }
-        ]*/
+
+//         children: [
+//             HorizontalScrollDecorator { color: theme.highlightDimmerColor; },
+//             VerticalScrollDecorator { color: theme.highlightDimmerColor; }
+//         ]
 
 //         PinchArea {
 //             anchors.fill: parent;

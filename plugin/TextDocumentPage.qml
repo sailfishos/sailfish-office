@@ -11,34 +11,30 @@ DocumentPage {
         }
     }
 
-    Calligra.Document {
-        id: doc;
-    }
-
     Calligra.View {
         id: v;
-        anchors.fill: parent;
+        width: parent.width;
+        height: parent.height;
         document: doc;
-    }
-
-    SilicaFlickable {
-        id: f
-        anchors.fill: parent;
-
-        Calligra.ViewController {
-            view: v;
-            flickable: f;
-        }
-
-        MouseArea {
+        SilicaFlickable {
+            id: f
             anchors.fill: parent;
-            onClicked: page.open = !page.open;
-        }
 
-//         children: [
-//             HorizontalScrollDecorator {/* color: theme.highlightDimmerColor; */},
-//             VerticalScrollDecorator {/* color: theme.highlightDimmerColor; */}
-//         ]
+//             children: [
+//                 HorizontalScrollDecorator {/* color: theme.highlightDimmerColor; */},
+//                 VerticalScrollDecorator {/* color: theme.highlightDimmerColor; */}
+//             ]
+
+            Calligra.ViewController {
+                view: v;
+                flickable: f;
+            }
+
+            MouseArea {
+                anchors.fill: parent;
+                onClicked: page.open = !page.open;
+            }
+        }
 
 //         PinchArea {
 //             anchors.fill: parent;
@@ -58,6 +54,10 @@ DocumentPage {
 //                 onLinkClicked: Qt.openUrlExternally(linkTarget);
 //             }
 //         }
+    }
+
+    Calligra.Document {
+        id: doc;
     }
 
     onStatusChanged: {
