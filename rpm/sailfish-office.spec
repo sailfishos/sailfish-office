@@ -15,7 +15,7 @@ BuildRequires: libqt5sparql-devel
 BuildRequires: mapplauncherd-qt5-devel
 BuildRequires: cmake
 Requires: calligra-components
-Requires: sailfishsilica
+Requires: sailfishsilica-qt5
 Requires: sailfish-components-accounts-qt5
 Requires: libqt5sparql-tracker
 
