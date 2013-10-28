@@ -27,35 +27,27 @@ DocumentPage {
         anchors.fill: parent;
 
         Calligra.ViewController {
+            id: controller;
             view: v;
             flickable: f;
         }
 
-        MouseArea {
+        ScrollDecorator { flickable: f; }
+
+        PinchArea {
             anchors.fill: parent;
-            onClicked: page.open = !page.open;
+
+            onPinchUpdated: {
+                var newCenter = mapToItem( f, pinch.center.x, pinch.center.y );
+                canvasController.zoom = pinch.scale;
+            }
+            onPinchFinished: { f.returnToBounds(); }
+
+            MouseArea {
+                anchors.fill: parent;
+                onClicked: page.open = !page.open;
+            }
         }
-
-//         children: [
-//             HorizontalScrollDecorator { color: theme.highlightDimmerColor; },
-//             VerticalScrollDecorator { color: theme.highlightDimmerColor; }
-//         ]
-
-//         PinchArea {
-//             anchors.fill: parent;
-//             onPinchStarted: canvasController.beginZoomGesture();
-//             onPinchUpdated: {
-//                 var newCenter = mapToItem( flickable, pinch.center.x, pinch.center.y );
-//                 canvasController.zoomBy(pinch.scale - pinch.previousScale, Qt.point( newCenter.x, newCenter.y ) );
-//             }
-//             onPinchFinished: { canvasController.endZoomGesture(); flickable.returnToBounds(); }
-// 
-//             Calligra.LinkArea {
-//                 anchors.fill: parent;
-//                 linkColor: theme.highlightColor;
-//                 onClicked: page.open = !page.open;
-//             }
-//         }
     }
 
     onStatusChanged: {

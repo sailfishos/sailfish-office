@@ -16,44 +16,34 @@ DocumentPage {
         width: parent.width;
         height: parent.height;
         document: doc;
+
         SilicaFlickable {
             id: f
             anchors.fill: parent;
 
-//             children: [
-//                 HorizontalScrollDecorator {/* color: theme.highlightDimmerColor; */},
-//                 VerticalScrollDecorator {/* color: theme.highlightDimmerColor; */}
-//             ]
-
             Calligra.ViewController {
+                id: controller;
                 view: v;
                 flickable: f;
             }
 
-            MouseArea {
+            ScrollDecorator { flickable: f; }
+
+            PinchArea {
                 anchors.fill: parent;
-                onClicked: page.open = !page.open;
+
+                onPinchUpdated: {
+                    var newCenter = mapToItem( f, pinch.center.x, pinch.center.y );
+                    canvasController.zoom = pinch.scale;
+                }
+                onPinchFinished: { f.returnToBounds(); }
+
+                MouseArea {
+                    anchors.fill: parent;
+                    onClicked: page.open = !page.open;
+                }
             }
         }
-
-//         PinchArea {
-//             anchors.fill: parent;
-//             onPinchStarted: canvasController.beginZoomGesture();
-//             onPinchUpdated: {
-//                 var newCenter = mapToItem( aFlickable, pinch.center.x, pinch.center.y );
-//                 canvasController.zoomBy(pinch.scale - pinch.previousScale, Qt.point( newCenter.x, newCenter.y ) );
-//             }
-//             onPinchFinished: { canvasController.endZoomGesture(); aFlickable.returnToBounds(); }
-// 
-//             Calligra.LinkArea {
-//                 id: linkArea;
-//                 anchors.fill: parent;
-//                 linkColor: theme.highlightColor;
-// 
-//                 onClicked: page.open = !page.open;
-//                 onLinkClicked: Qt.openUrlExternally(linkTarget);
-//             }
-//         }
     }
 
     Calligra.Document {
