@@ -1,0 +1,16 @@
+These files describe a set of acceptance tests for the sailfish-office application.
+
+Each file describes related scenarios with a number of steps to complete each scenario.
+
+The format is as follows:
+
+Goal: <A short description of the goal of the scenario>
+Initial Conditions: <A list of initial conditions that apply, with an optional reference
+    to a different test file in braces>
+Steps: <A list of steps to reach the goal of the scenario>
+    Step: <A single step on the way to reach the goal>
+        Action: <The action taken for this step>
+        Result: <The result of the step>
+
+Note that if any of the results of a step do not match the expectations, the step fails
+and thus the scenario fails.

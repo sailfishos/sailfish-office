@@ -1,0 +1,37 @@
+Goal: List the contents of a Text document.
+Initial Conditions:
+    A Text document - odt, doc, docx - loads and displays. (01-odf-loading, 03-msoffice-loading, 04-msooxml-loading)
+    The text document loaded has at least one header that normally would generate a Table of Contents.
+Steps:
+    Step:
+        Action: Tap the display.
+        Result: A drawer opens from the top listing some options and displaying the navigation control.
+    Step:
+        Action: Navigate to the attached page using a right-to-left swipe.
+        Result: The page changes to one listing the contents of the text document.
+
+----
+
+Goal: List all sheets of a Spreadsheet document.
+Initial Conditions:
+    A spreadsheet - ods, xls, xlsx - loads and displays. (01-odf-loading, 03-msoffice-loading, 04-msooxml-loading)
+Steps:
+    Step:
+        Action: Tap the display.
+        Result: A drawer opens from the top listing some options and displaying the navigation control.
+    Step:
+        Action: Navigate to the attached page using a right-to-left swipe.
+        Result: The page changes to one listing all the sheets in the document.
+
+----
+
+Goal: List all slides of a presentation.
+Initial Conditions:
+    A presentation - odp, ppt, pptx - loads and displays. (01-odf-loading, 03-msoffice-loading, 04-msooxml-loading)
+Steps:
+    Step:
+        Action: Tap the display.
+        Result: A drawer opens from the top listing some options and displaying the navigation control.
+    Step:
+        Action: Navigate to the attached page using a right-to-left swipe.
+        Result: The page changes to one listing all the slides in the presentation.

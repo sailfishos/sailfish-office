@@ -1,0 +1,48 @@
+Goal: Load a DOCX text document.
+Initial Conditions:
+    The application starts. (00-start-application)
+    There is at least one DOCX file in the Documents folder on the device.
+Steps:
+    Step:
+        Action: Tap the "This Device" item in the list.
+        Result: A page opens that lists the DOCX file along with other files on the device.
+    Step:
+        Action: Tap the DOCX file to load.
+        Result: A page opens and the file starts loading.
+    Step:
+        Action: Wait for the file to load.
+        Result: The document is displayed.
+
+----
+
+Goal: Load an XLSX spreadsheet.
+Initial Conditions:
+    The application starts. (00-start-application)
+    There is at least one XLSX file in the Documents folder on the device.
+Steps:
+    Step:
+        Action: Tap the "This Device" item in the list.
+        Result: A page opens that lists the XLSX along with other files on the device.
+    Step:
+        Action: Tap the XLSX file to load.
+        Result: A page opens and the file starts loading.
+    Step:
+        Action: Wait for the file to load.
+        Result: The document is displayed.
+
+----
+
+Goal: Load a PPTX presentation.
+Initial Conditions:
+    The application starts. (00-start-application)
+    There is at least one PPTX file in the Documents folder on the device.
+Steps:
+    Step:
+        Action: Tap the "This Device" item in the list.
+        Result: A page opens that lists the PPTX along with other files on the device.
+    Step:
+        Action: Tap the PPTX file to load.
+        Result: A page opens and the file starts loading.
+    Step:
+        Action: Wait for the file to load.
+        Result: The document is displayed.

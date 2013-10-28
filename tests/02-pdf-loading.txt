@@ -1,0 +1,14 @@
+Goal: Load a PDF file.
+Initial Conditions:
+    The application starts. (00-start-application)
+    There is at least one PDF file in the Documents folder on the device.
+Steps:
+    Step:
+        Action: Tap the "This Device" item in the list.
+        Result: A page opens that lists the PDF along with other files on the device.
+    Step:
+        Action: Tap the PDF file to load.
+        Result: A page opens and the file starts loading.
+    Step:
+        Action: Wait for the file to load.
+        Result: The document is displayed.

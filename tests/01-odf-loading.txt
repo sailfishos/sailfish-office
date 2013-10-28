@@ -1,0 +1,48 @@
+Goal: Load an ODT text document.
+Initial Conditions:
+    The application starts. (00-start-application)
+    There is at least one ODT file in the Documents folder on the device.
+Steps:
+    Step:
+        Action: Tap the "This Device" item in the list.
+        Result: A page opens that lists the ODT along with other files on the device.
+    Step:
+        Action: Tap the ODT file to load.
+        Result: A page opens and the file starts loading.
+    Step:
+        Action: Wait for the file to load.
+        Result: The document is displayed.
+
+----
+
+Goal: Load an ODS spreadsheet.
+Initial Conditions:
+    The application starts. (00-start-application)
+    There is at least one ODS file in the Documents folder on the device.
+Steps:
+    Step:
+        Action: Tap the "This Device" item in the list.
+        Result: A page opens that lists the ODS along with other files on the device.
+    Step:
+        Action: Tap the ODS file to load.
+        Result: A page opens and the file starts loading.
+    Step:
+        Action: Wait for the file to load.
+        Result: The document is displayed.
+
+----
+
+Goal: Load an ODP presentation.
+Initial Conditions:
+    The application starts. (00-start-application)
+    There is at least one ODP file in the Documents folder on the device.
+Steps:
+    Step:
+        Action: Tap the "This Device" item in the list.
+        Result: A page opens that lists the ODP along with other files on the device.
+    Step:
+        Action: Tap the ODP file to load.
+        Result: A page opens and the file starts loading.
+    Step:
+        Action: Wait for the file to load.
+        Result: The document is displayed.

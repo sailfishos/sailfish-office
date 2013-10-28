@@ -1,0 +1,48 @@
+Goal: Load a DOC text document.
+Initial Conditions:
+    The application starts. (00-start-application)
+    There is at least one DOC file in the Documents folder on the device.
+Steps:
+    Step:
+        Action: Tap the "This Device" item in the list.
+        Result: A page opens that lists the DOC file along with other files on the device.
+    Step:
+        Action: Tap the DOC file to load.
+        Result: A page opens and the file starts loading.
+    Step:
+        Action: Wait for the file to load.
+        Result: The document is displayed.
+
+----
+
+Goal: Load an XLS spreadsheet.
+Initial Conditions:
+    The application starts. (00-start-application)
+    There is at least one XLS file in the Documents folder on the device.
+Steps:
+    Step:
+        Action: Tap the "This Device" item in the list.
+        Result: A page opens that lists the XLS along with other files on the device.
+    Step:
+        Action: Tap the XLS file to load.
+        Result: A page opens and the file starts loading.
+    Step:
+        Action: Wait for the file to load.
+        Result: The document is displayed.
+
+----
+
+Goal: Load a PPT presentation.
+Initial Conditions:
+    The application starts. (00-start-application)
+    There is at least one PPT file in the Documents folder on the device.
+Steps:
+    Step:
+        Action: Tap the "This Device" item in the list.
+        Result: A page opens that lists the PPT along with other files on the device.
+    Step:
+        Action: Tap the PPT file to load.
+        Result: A page opens and the file starts loading.
+    Step:
+        Action: Wait for the file to load.
+        Result: The document is displayed.
