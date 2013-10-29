@@ -1,0 +1,7 @@
+Goal: The application runs.
+Initial Conditions: A working Sailfish device (either real or emulated).
+Steps:
+    Step:
+        Action: Launch the application.
+        Result: The application starts and displays a list with at least a "This device" item.
+
