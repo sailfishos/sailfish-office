@@ -20,9 +20,18 @@ Requires: sailfishsilica-qt5
 Requires: sailfish-components-accounts-qt5
 Requires: libqt5sparql-tracker
 
+%package ts-devel
+Summary: Translation source for %{name}
+License: GPLv2
+Group: System/Base
+
 
 %description
 %{summary}.
+
+%description ts-devel
+%{summary}.
+
 
 %files
 %defattr(-,root,root,-)
@@ -31,7 +40,11 @@ Requires: libqt5sparql-tracker
 %{_datadir}/applications/*.desktop
 %{_datadir}/%{name}/
 %{_datadir}/dbus-1/services/org.sailfish.documents.service
-#%{_datadir}/translations/
+%{_datadir}/translations/
+
+%files ts-devel
+%{_datadir}/translations/source/*.ts
+
 
 %prep
 %setup -q -n %{name}-%{version}
