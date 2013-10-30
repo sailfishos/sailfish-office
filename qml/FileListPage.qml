@@ -10,16 +10,6 @@ Page {
 
     allowedOrientations: Orientation.All;
 
-    QtObject {
-        id: theme;
-        property int paddingLarge: 8;
-        property int fontSizeLarge: 26;
-        property int fontSizeSmall: 16;
-        property color primaryColor: "black";
-        property color secondaryColor: "silver";
-        property color highlightColor: "white";
-    }
-
     SilicaListView {
         id: listView;
         anchors.fill: parent
@@ -35,18 +25,18 @@ Page {
         header: PageHeader { title: page.title; }
         //model: DocumentListModel { path: "/home/nemo/Documents"; }
         
-        spacing: theme.paddingLarge;
+        spacing: Theme.paddingLarge;
         
         delegate: BackgroundItem {
             width: ListView.view.width;
-            height: theme.itemSizeLarge;
+            height: Theme.itemSizeLarge;
 
             Image {
                 id: icon;
                 anchors {
                     left: parent.left;
                     top: parent.top;
-                    topMargin: theme.paddingSmall;
+                    topMargin: Theme.paddingSmall;
                 }
 
                 source: "image://theme/icon-l-document"
@@ -55,41 +45,41 @@ Page {
             Label {
                 anchors {
                     left: icon.right;
-                    leftMargin: theme.paddingSmall;
+                    leftMargin: Theme.paddingSmall;
                     right: parent.right;
                     top: parent.top;
-                    topMargin: theme.paddingSmall;
+                    topMargin: Theme.paddingSmall;
                 }
                 text: model.fileName;
 
                 elide: Text.ElideRight;
                 
-                font.pixelSize: theme.fontSizeLarge;
+                font.pixelSize: Theme.fontSizeLarge;
             }
             Label {
                 anchors {
                     left: icon.right;
-                    leftMargin: theme.paddingSmall;
+                    leftMargin: Theme.paddingSmall;
                     bottom: parent.bottom;
-                    bottomMargin: theme.paddingSmall;
+                    bottomMargin: Theme.paddingSmall;
                 }
                 text: model.fileSize;
 
-                font.pixelSize: theme.fontSizeSmall;
-                color: theme.secondaryColor;
+                font.pixelSize: Theme.fontSizeSmall;
+                color: Theme.secondaryColor;
             }
             Label {
                 anchors {
                     right: parent.right;
-                    rightMargin: theme.paddingLarge;
+                    rightMargin: Theme.paddingLarge;
                     bottom: parent.bottom;
-                    bottomMargin: theme.paddingSmall;
+                    bottomMargin: Theme.paddingSmall;
                 }
                 
                 text: Qt.formatDate(model.fileRead);
                 
-                font.pixelSize: theme.fontSizeSmall;
-                color: theme.secondaryColor;
+                font.pixelSize: Theme.fontSizeSmall;
+                color: Theme.secondaryColor;
             }
             MouseArea {
                 anchors.fill: parent;
