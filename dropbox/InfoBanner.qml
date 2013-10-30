@@ -1,4 +1,5 @@
 import QtQuick 2.0
+import Sailfish.Silica 1.0
 
 Rectangle {
     //
@@ -19,8 +20,8 @@ Rectangle {
             anchors.right: parent.right
             anchors.leftMargin: 10
             anchors.topMargin: 10
-            font.pixelSize: theme.fontSizeSmall
-            font.family: theme.fontFamily
+            font.pixelSize: Theme.fontSizeSmall
+            font.family: Theme.fontFamily
             wrapMode: Text.WordWrap
         }
     }
