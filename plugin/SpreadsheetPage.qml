@@ -32,7 +32,10 @@ DocumentPage {
             flickable: f;
         }
 
-        ScrollDecorator { flickable: f; }
+        children: [
+            HorizontalScrollDecorator { color: Theme.highlightDimmerColor; },
+            VerticalScrollDecorator { color: Theme.highlightDimmerColor; }
+        ]
 
         PinchArea {
             anchors.fill: parent;
