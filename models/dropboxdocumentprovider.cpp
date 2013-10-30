@@ -82,10 +82,9 @@ QUrl DropboxDocumentProvider::icon() const
 
 int DropboxDocumentProvider::count() const
 {
-//     if(d->needAuthenticate || d->fileListModel == 0)
-//         return 0;
-//     return d->fileListModel->rowCount(QModelIndex());
-    return -1;
+    if(d->needAuthenticate)
+        return -1;
+    return -2;//d->fileListModel->rowCount(QModelIndex());
 }
 
 QString DropboxDocumentProvider::setupPageUrl() const
