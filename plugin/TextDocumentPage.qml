@@ -34,7 +34,7 @@ DocumentPage {
 
                 onPinchUpdated: {
                     var newCenter = mapToItem( f, pinch.center.x, pinch.center.y );
-                    canvasController.zoom = pinch.scale;
+                    controller.zoom = pinch.scale;
                 }
                 onPinchFinished: { f.returnToBounds(); }
 
