@@ -14,7 +14,7 @@ Page {
             id: delegateItem
             width: view.width
             height: thumbnail.height
-            enabled: model.count > 0 || model.count === -1
+            enabled: model.count > 0 || model.count < 0;
             opacity: enabled ? 1.0 : 0.5
 
             Label {
@@ -56,12 +56,21 @@ Page {
             }
 
             onClicked: {
+                if(model.count === -1 && model.setupPageUrl !== "")
+                {
+                    console.debug(model.setupPageUrl);
+                    pageStack.push(Qt.resolvedUrl(model.setupPageUrl));
+                }
+                else
+                {
                     //console.debug("Model name: " + providerModel.objectName);
                     window.pageStack.push(model.page != "" ? Qt.resolvedUrl(model.page) : fileListPage, {
-                    title: model.title,
-                    model: model.providerModel,
-                    //thumbnailDelegate: thumbnail != "" ? thumbnail : Qt.resolvedUrl("GridImageThumbnail.qml")
-            } ) }
+                        title: model.title,
+                        model: model.providerModel,
+                        //thumbnailDelegate: thumbnail != "" ? thumbnail : Qt.resolvedUrl("GridImageThumbnail.qml")
+                        } )
+                }
+            }
         }
     }
 
