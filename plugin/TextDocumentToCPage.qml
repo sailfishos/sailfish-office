@@ -26,9 +26,9 @@ Page {
             Label {
                 anchors {
                     left: parent.left;
-                    leftMargin: theme.paddingLarge * model.level;
+                    leftMargin: Theme.paddingLarge * model.level;
                     right: pageNumberLbl.left;
-                    rightMargin: theme.paddingLarge;
+                    rightMargin: Theme.paddingLarge;
                     verticalCenter: parent.verticalCenter;
                 }
                 elide: Text.ElideRight;
@@ -38,7 +38,7 @@ Page {
                 id: pageNumberLbl
                 anchors {
                     right: parent.right;
-                    rightMargin: theme.paddingLarge;
+                    rightMargin: Theme.paddingLarge;
                     verticalCenter: parent.verticalCenter;
                 }
                 text: model.contentIndex;

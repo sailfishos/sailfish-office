@@ -51,10 +51,10 @@ Page {
 
                 Rectangle {
                     anchors.centerIn: parent;
-                    width: label.width + theme.paddingMedium;
+                    width: label.width + Theme.paddingMedium;
                     height: label.height;
-                    radius: theme.paddingSmall;
-                    color: base.GridView.isCurrentItem ? theme.highlightColor : theme.secondaryHighlightColor;
+                    radius: Theme.paddingSmall;
+                    color: base.GridView.isCurrentItem ? Theme.highlightColor : Theme.secondaryHighlightColor;
                 }
 
                 Label {
