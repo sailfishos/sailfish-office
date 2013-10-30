@@ -8,14 +8,6 @@ Page {
 
     allowedOrientations: Orientation.All;
 
-    QtObject {
-        id: theme;
-        property int paddingLarge: 8;
-        property int fontSizeLarge: 26;
-        property color primaryColor: "black";
-        property color highlightColor: "white";
-    }
-
     Component {
         id: delegate
         BackgroundItem {
@@ -30,19 +22,19 @@ Page {
                 objectName: "countLabel"
                 anchors {
                     right: thumbnail.left
-                    rightMargin: theme.paddingLarge
+                    rightMargin: Theme.paddingLarge
                     verticalCenter: parent.verticalCenter
                 }
                 text: model.count > -1 ? model.count : ""
-                color: delegateItem.down ? theme.highlightColor : theme.primaryColor
-                font.pixelSize: theme.fontSizeLarge
+                color: delegateItem.down ? Theme.highlightColor : Theme.primaryColor
+                font.pixelSize: Theme.fontSizeLarge
             }
 
             // Load icon from a plugin
             Image {
                 id: thumbnail
-                x: width - theme.paddingLarge
-                width: theme.itemSizeExtraLarge
+                x: width - Theme.paddingLarge
+                width: Theme.itemSizeExtraLarge
                 height: width
                 source: model.icon;
                 opacity: delegateItem.down ? 0.5 : 1
@@ -52,13 +44,13 @@ Page {
                 id: titleLabel
                 objectName: "titleLabel"
                 elide: Text.ElideRight
-                font.pixelSize: theme.fontSizeLarge
+                font.pixelSize: Theme.fontSizeLarge
                 text: model.title
-                color: delegateItem.down ? theme.highlightColor : theme.primaryColor
+                color: delegateItem.down ? Theme.highlightColor : Theme.primaryColor
                 anchors {
                     left: thumbnail.right
                     right: parent.right
-                    leftMargin: theme.paddingLarge
+                    leftMargin: Theme.paddingLarge
                     verticalCenter: parent.verticalCenter
                 }
             }

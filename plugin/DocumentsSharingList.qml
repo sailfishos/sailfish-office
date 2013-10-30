@@ -31,9 +31,9 @@ ShareMethodList {
             //: Add a share account
             //% "Add account"
             text: qsTrId( "sailfish-office-me-add_account" );
-            x: theme.paddingLarge
+            x: Theme.paddingLarge
             anchors.verticalCenter: parent.verticalCenter
-            color: parent.down ? theme.highlightColor : theme.primaryColor
+            color: parent.down ? Theme.highlightColor : Theme.primaryColor
             visible: true
         }
 

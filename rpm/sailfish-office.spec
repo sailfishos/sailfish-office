@@ -14,14 +14,24 @@ BuildRequires: libqt5sparql-devel
 #BuildRequires: poppler-qt5-devel poppler-qt5 poppler-devel poppler
 BuildRequires: mapplauncherd-qt5-devel
 BuildRequires: cmake
+BuildRequires: qt5-qttools-linguist
 Requires: calligra-components calligra-filters
 Requires: sailfishsilica-qt5
 Requires: sailfish-components-accounts-qt5
 Requires: libqt5sparql-tracker
 
+%package ts-devel
+Summary: Translation source for %{name}
+License: GPLv2
+Group: System/Base
+
 
 %description
 %{summary}.
+
+%description ts-devel
+%{summary}.
+
 
 %files
 %defattr(-,root,root,-)
@@ -30,7 +40,11 @@ Requires: libqt5sparql-tracker
 %{_datadir}/applications/*.desktop
 %{_datadir}/%{name}/
 %{_datadir}/dbus-1/services/org.sailfish.documents.service
-#%{_datadir}/translations/
+%{_datadir}/translations/
+
+%files ts-devel
+%{_datadir}/translations/source/*.ts
+
 
 %prep
 %setup -q -n %{name}-%{version}

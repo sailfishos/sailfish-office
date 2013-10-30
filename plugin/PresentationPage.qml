@@ -38,7 +38,7 @@ DocumentPage {
 
             onPinchUpdated: {
                 var newCenter = mapToItem( f, pinch.center.x, pinch.center.y );
-                canvasController.zoom = pinch.scale;
+                controller.zoom = pinch.scale;
             }
             onPinchFinished: { f.returnToBounds(); }
 
@@ -48,6 +48,8 @@ DocumentPage {
             }
         }
     }
+    
+    busy: doc.status != Calligra.DocumentStatus.Loaded;
 
     onStatusChanged: {
         //Delay loading the document until the page has been activated.

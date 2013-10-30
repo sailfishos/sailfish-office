@@ -23,8 +23,8 @@ Page {
 
         model: Calligra.ContentsModel {
             document: page.document;
-            thumbnailSize.width: theme.itemSizeLarge;
-            thumbnailSize.height: theme.itemSizeLarge;
+            thumbnailSize.width: Theme.itemSizeLarge;
+            thumbnailSize.height: Theme.itemSizeLarge;
         }
 
         delegate: BackgroundItem {
@@ -47,7 +47,7 @@ Page {
             Label {
                 anchors {
                     left: thumbnail.right;
-                    leftMargin: theme.paddingLarge;
+                    leftMargin: Theme.paddingLarge;
                     verticalCenter: parent.verticalCenter;
                 }
 
