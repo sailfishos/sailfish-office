@@ -11,56 +11,59 @@ macro(ADD_TRANSLATION _qm_files)
     endif()
 
     add_custom_command(OUTPUT ${qm}
-       COMMAND ${QT_LRELEASE_EXECUTABLE}
+       COMMAND ${Qt5_LRELEASE_EXECUTABLE}
        ARGS -idbased ${_abs_FILE} -qm ${qm}
        DEPENDS ${_abs_FILE} VERBATIM
     )
-    set(${_qm_files} ${${_qm_files}} ${qm})
+    list(APPEND ${_qm_files} ${qm})
   endforeach ()
+  set(${_qm_files} ${${_qm_files}} PARENT_SCOPE)
 endmacro()
 
+function(CREATE_TRANSLATION _qm_files)
+    set(options)
+    set(oneValueArgs)
+    set(multiValueArgs OPTIONS)
 
-macro(CREATE_TRANSLATION _qm_files)
-   QT5_EXTRACT_OPTIONS(_lupdate_files _lupdate_options ${ARGN})
-   set(_my_sources)
-   set(_my_dirs)
-   set(_my_tsfiles)
-   set(_ts_pro)
-   foreach (_file ${_lupdate_files})
-     get_filename_component(_ext ${_file} EXT)
-     get_filename_component(_abs_FILE ${_file} ABSOLUTE)
-     if(_ext MATCHES "ts")
-       list(APPEND _my_tsfiles ${_abs_FILE})
-     else()
-       if(NOT _ext)
-         list(APPEND _my_dirs ${_abs_FILE})
-       else()
-         list(APPEND _my_sources ${_abs_FILE})
-       endif()
-     endif()
-   endforeach()
-   foreach(_ts_file ${_my_tsfiles})
-     if(_my_sources)
-       # make a .pro file to call lupdate on, so we don't make our commands too
-       # long for some systems
-       get_filename_component(_ts_name ${_ts_file} NAME_WE)
-       set(_ts_pro ${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${_ts_name}_lupdate.pro)
-       set(_pro_srcs)
-       foreach(_pro_src ${_my_sources})
-         set(_pro_srcs "${_pro_srcs} \"${_pro_src}\"")
-       endforeach()
-       set(_pro_includes)
-       get_directory_property(_inc_DIRS INCLUDE_DIRECTORIES)
-       foreach(_pro_include ${_inc_DIRS})
-         get_filename_component(_abs_include "${_pro_include}" ABSOLUTE)
-         set(_pro_includes "${_pro_includes} \"${_abs_include}\"")
-       endforeach()
-       file(WRITE ${_ts_pro} "SOURCES = ${_pro_srcs}\nINCLUDEPATH = ${_pro_includes}\n")
-     endif()
-     add_custom_command(OUTPUT ${_ts_file}
-        COMMAND ${QT_LUPDATE_EXECUTABLE}
-        ARGS ${_lupdate_options} ${_ts_pro} ${_my_dirs} -ts ${_ts_file}
-        DEPENDS ${_my_sources} ${_ts_pro} VERBATIM)
-   endforeach()
-   ADD_TRANSLATION(${_qm_files} ${_my_tsfiles})
-endmacro()
+    cmake_parse_arguments(_LUPDATE "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+    set(_lupdate_files ${_LUPDATE_UNPARSED_ARGUMENTS})
+    set(_lupdate_options ${_LUPDATE_OPTIONS})
+
+    set(_my_sources)
+    set(_my_tsfiles)
+    foreach(_file ${_lupdate_files})
+        get_filename_component(_ext ${_file} EXT)
+        get_filename_component(_abs_FILE ${_file} ABSOLUTE)
+        if(_ext MATCHES "ts")
+            list(APPEND _my_tsfiles ${_abs_FILE})
+        else()
+            list(APPEND _my_sources ${_abs_FILE})
+        endif()
+    endforeach()
+    foreach(_ts_file ${_my_tsfiles})
+        if(_my_sources)
+          # make a list file to call lupdate on, so we don't make our commands too
+          # long for some systems
+          get_filename_component(_ts_name ${_ts_file} NAME_WE)
+          set(_ts_lst_file "${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${_ts_name}_lst_file")
+          set(_lst_file_srcs)
+          foreach(_lst_file_src ${_my_sources})
+              set(_lst_file_srcs "${_lst_file_src}\n${_lst_file_srcs}")
+          endforeach()
+
+          get_directory_property(_inc_DIRS INCLUDE_DIRECTORIES)
+          foreach(_pro_include ${_inc_DIRS})
+              get_filename_component(_abs_include "${_pro_include}" ABSOLUTE)
+              set(_lst_file_srcs "-I${_pro_include}\n${_lst_file_srcs}")
+          endforeach()
+
+          file(WRITE ${_ts_lst_file} "${_lst_file_srcs}")
+        endif()
+        add_custom_command(OUTPUT ${_ts_file}
+            COMMAND ${Qt5_LUPDATE_EXECUTABLE}
+            ARGS ${_lupdate_options} "@${_ts_lst_file}" -ts ${_ts_file}
+            DEPENDS ${_my_sources} ${_ts_lst_file} VERBATIM)
+    endforeach()
+    add_translation(${_qm_files} ${_my_tsfiles})
+    set(${_qm_files} ${${_qm_files}} PARENT_SCOPE)
+endfunction()

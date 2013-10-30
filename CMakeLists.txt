@@ -2,8 +2,6 @@ project(sailfish-office)
 
 cmake_minimum_required(VERSION 2.8.6)
 
-#include(cmake/QtTranslationWithID.cmake)
-
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 set(CMAKE_AUTOMOC TRUE)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -12,9 +10,12 @@ find_package(Qt5Core REQUIRED)
 find_package(Qt5Quick REQUIRED)
 find_package(Qt5Gui REQUIRED)
 find_package(Qt5DBus REQUIRED)
+find_package(Qt5LinguistTools REQUIRED)
 find_package(QtSparql REQUIRED)
 find_package(Booster REQUIRED)
 find_package(JollaSignonUiService REQUIRED)
+
+include(cmake/QtTranslationWithID.cmake)
 
 include_directories(
     ${CMAKE_SOURCE_DIR}
@@ -59,7 +60,7 @@ set(sailfishoffice_TS_SRCS
     ${plugin_QML_SRCS}
 )
 
-#create_translation(engen_qm_file ${sailfishoffice_TS_SRCS} ${CMAKE_BINARY_DIR}/sailfish-office_eng_en.ts)
+create_translation(engen_qm_file ${CMAKE_BINARY_DIR}/sailfish-office_eng_en.ts ${sailfishoffice_TS_SRCS})
 
 add_executable(sailfish-office ${sailfishoffice_SRCS} ${engen_qm_file})
 qt5_use_modules(sailfish-office Widgets Quick DBus)
