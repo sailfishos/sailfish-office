@@ -14,6 +14,7 @@ BuildRequires: libqt5sparql-devel
 #BuildRequires: poppler-qt5-devel poppler-qt5 poppler-devel poppler
 BuildRequires: mapplauncherd-qt5-devel
 BuildRequires: cmake
+BuildRequires: qt5-qttools-linguist
 Requires: calligra-components calligra-filters
 Requires: sailfishsilica-qt5
 Requires: sailfish-components-accounts-qt5
