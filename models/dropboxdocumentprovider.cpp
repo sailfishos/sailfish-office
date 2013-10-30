@@ -90,7 +90,7 @@ int DropboxDocumentProvider::count() const
 
 QString DropboxDocumentProvider::setupPageUrl() const
 {
-    return QString(DROPBOX_QML_PLUGIN_DIR).append("SetupPage.qml");
+    return QString(DROPBOX_QML_PLUGIN_DIR).append("Sailfish/Office/Dropbox/SetupPage.qml");
 }
 
 void DropboxDocumentProvider::classBegin()
