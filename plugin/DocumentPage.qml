@@ -13,12 +13,14 @@ Page {
     default property alias foreground: drawer.data;
 
     property alias open: drawer.open;
-
     property alias menu: shareList.children;
+    property alias busy: busyIndicator.running;
 
     allowedOrientations: Orientation.All;
     backNavigation: drawer.opened;
     forwardNavigation: drawer.opened;
+    
+    BusyIndicator { id: busyIndicator; anchors.centerIn: parent; size: BusyIndicatorSize.Large; }
 
     Drawer {
         id: drawer;
