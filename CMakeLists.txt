@@ -72,7 +72,7 @@ install(FILES org.sailfish.documents.service DESTINATION ${CMAKE_INSTALL_PREFIX}
 install(FILES ${sailfishoffice_QML_SRCS} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/sailfish-office
 )
 install(FILES ${engen_qm_file} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/translations)
-install(FILES ${CMAKE_BINARY_DIR}/sailfish-office_eng_en.ts ${CMAKE_INSTALL_PREFIX}/share/translations/source)
+install(FILES ${CMAKE_BINARY_DIR}/sailfish-office_eng_en.ts DESTINATION ${CMAKE_INSTALL_PREFIX}/share/translations/source)
 
 install(FILES
     images/graphic-plugin-local.png
