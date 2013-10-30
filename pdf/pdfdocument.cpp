@@ -8,7 +8,7 @@
 #include <QDebug>
 #include <QUrl>
 
-#include <poppler-qt4.h>
+#include <poppler-qt5.h>
 
 class PDFDocument::Private
 {

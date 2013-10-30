@@ -32,10 +32,10 @@ public:
     int contentHeight;
 };
 
-PDFPage::PDFPage(QDeclarativeItem* parent)
-    : QDeclarativeItem(parent), d(new Private)
+PDFPage::PDFPage(QQuickItem* parent)
+    : QQuickPaintedItem(parent), d(new Private)
 {
-    setFlag(QGraphicsItem::QGraphicsItem::ItemHasNoContents, false);
+    //FIXME still neeeded? setFlag(QGraphicsItem::QGraphicsItem::ItemHasNoContents, false);
 }
 
 PDFPage::~PDFPage()
@@ -43,7 +43,7 @@ PDFPage::~PDFPage()
     delete d;
 }
 
-void PDFPage::paint(QPainter* painter, const QStyleOptionGraphicsItem*, QWidget* )
+void PDFPage::paint(QPainter* painter)
 {
     if(!d->content.isNull()) {
         painter->drawImage(QRectF(0, 0, width(), height()), d->content);

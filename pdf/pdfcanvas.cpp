@@ -5,7 +5,6 @@
 #include "pdfcanvas.h"
 
 #include <QPainter>
-#include <QStyleOptionGraphicsItem>
 
 #include "pdfrenderthread.h"
 #include "pdfdocument.h"
@@ -13,7 +12,7 @@
 class PDFCanvas::Private
 {
 public:
-    Private( PDFCanvas* qq ) : q{ qq }, pageCount{ 0 }, document{ nullptr } { }
+    Private( PDFCanvas* qq ) : q{ qq }, pageCount{ 0 }, document{ nullptr }, flickable(0){ }
 
     QImage bestMatchingImage( int index );
 
@@ -24,13 +23,14 @@ public:
     int pageCount;
 
     PDFDocument* document;
+    QQuickItem *flickable;
 };
 
-PDFCanvas::PDFCanvas(QDeclarativeItem* parent)
-    : QDeclarativeItem(parent), d(new Private(this))
+PDFCanvas::PDFCanvas(QQuickItem* parent)
+    : QQuickPaintedItem(parent), d(new Private(this))
 {
-    setFlag( QGraphicsItem::ItemHasNoContents, false );
-    setFlag( QGraphicsItem::ItemSendsGeometryChanges, true );
+    // FIXME port needed ? setFlag( QGraphicsItem::ItemHasNoContents, false );
+    // FIXME port needed ? setFlag( QGraphicsItem::ItemSendsGeometryChanges, true );
 }
 
 PDFCanvas::~PDFCanvas()
@@ -38,7 +38,7 @@ PDFCanvas::~PDFCanvas()
     delete d;
 }
 
-void PDFCanvas::paint( QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* )
+void PDFCanvas::paint( QPainter* painter)
 {
     if( d->pageCount == 0 )
         return;
@@ -49,6 +49,9 @@ void PDFCanvas::paint( QPainter* painter, const QStyleOptionGraphicsItem* option
 
     int totalHeight = 0;
     int pageHeight = firstImage.height() * ( width() / firstImage.width() );
+
+
+    painter->setClipRect(QRectF(d->flickable->property("contentX").toDouble(), d->flickable->property("contentY").toDouble(), d->flickable->width(), d->flickable->height()));
 
     for( int i = 0; i < d->pageCount; ++i )
     {
@@ -73,9 +76,18 @@ void PDFCanvas::paint( QPainter* painter, const QStyleOptionGraphicsItem* option
         else
             totalHeight += pageHeight;
     }
-
     if( int(height()) != totalHeight )
         setHeight( totalHeight );
+}
+
+QQuickItem * PDFCanvas::flickable() const
+{
+    return d->flickable;
+}
+
+void PDFCanvas::setFlickable(QQuickItem *f)
+{
+    d->flickable = f;
 }
 
 PDFDocument* PDFCanvas::document() const
@@ -137,7 +149,7 @@ void PDFCanvas::geometryChanged(const QRectF& newGeometry, const QRectF& oldGeom
     if( d->document )
         d->document->setCanvasWidth( newGeometry.width() );
 
-    QDeclarativeItem::geometryChanged(newGeometry, oldGeometry);
+    QQuickPaintedItem::geometryChanged(newGeometry, oldGeometry);
 }
 
 QImage PDFCanvas::Private::bestMatchingImage(int index)

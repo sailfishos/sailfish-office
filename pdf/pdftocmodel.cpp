@@ -4,7 +4,7 @@
 
 #include "pdftocmodel.h"
 
-#include <poppler-qt4.h>
+#include <poppler-qt5.h>
 #include <QDebug>
 
 struct PDFTocEntry
@@ -77,12 +77,6 @@ PDFTocModel::PDFTocModel(Poppler::Document* document, QObject* parent)
     : QAbstractListModel(parent)
     , d(new Private)
 {
-    QHash<int, QByteArray> roleNames;
-    roleNames[Title] = "title";
-    roleNames[Level] = "level";
-    roleNames[PageNumber] = "pageNumber";
-    setRoleNames(roleNames);
-
     d->document = document;
     QDomDocument* toc = document->toc();
     d->addSynopsisChildren(toc, 0);
@@ -91,6 +85,15 @@ PDFTocModel::PDFTocModel(Poppler::Document* document, QObject* parent)
 PDFTocModel::~PDFTocModel()
 {
     delete d;
+}
+
+QHash< int, QByteArray > PDFTocModel::roleNames() const
+{
+    QHash< int, QByteArray > names;
+    names[Title] = "title";
+    names[Level] = "level";
+    names[PageNumber] = "pageNumber";
+    return names;
 }
 
 QVariant PDFTocModel::data(const QModelIndex& index, int role) const

@@ -1,6 +1,5 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
-import org.calligra.CalligraComponents 0.1 as Calligra
 import Sailfish.Office.PDF 1.0 as PDF
 
 DocumentPage {
@@ -27,15 +26,20 @@ DocumentPage {
 
         onWidthChanged: if( pdfCanvas.width < width ) pdfCanvas.width = width;
 
+        onContentXChanged: pdfCanvas.update();
+        onContentYChanged: pdfCanvas.update();
+
         PDF.Canvas {
             id: pdfCanvas;
             document: pdfDocument;
             width: base.width;
-        }
+            height: 10; // something non-zero to get things going
+            flickable: view;
+       }
 
         children: [
-            HorizontalScrollDecorator { color: theme.highlightDimmerColor; },
-            VerticalScrollDecorator { color: theme.highlightDimmerColor; }
+            HorizontalScrollDecorator { color: theme.highlightDimmerColor;},
+            VerticalScrollDecorator { color: theme.highlightDimmerColor;}
         ]
 
         PinchArea {
@@ -74,13 +78,13 @@ DocumentPage {
                 viewScale.origin.y = 0;
             }
 
-            Calligra.LinkArea {
-                id: linkArea;
-                anchors.fill: parent;
-                linkColor: theme.highlightColor;
-                onClicked: base.open = !base.open;
-                onLinkClicked: Qt.openUrlExternally(linkTarget);
-            }
+//            Calligra.LinkArea {
+//                id: linkArea;
+//                anchors.fill: parent;
+//                linkColor: theme.highlightColor;
+//                onClicked: base.open = !base.open;
+//                onLinkClicked: Qt.openUrlExternally(linkTarget);
+//            }
         }
     }
 
@@ -88,10 +92,10 @@ DocumentPage {
         id: pdfDocument;
         source: base.path;
 
-        onLinkTargetsChanged: {
-            linkArea.links = linkTargets;
-            updateSourceSizeTimer.restart();
-        }
+  //      onLinkTargetsChanged: {
+  //          linkArea.links = linkTargets;
+  //          updateSourceSizeTimer.restart();
+  //      }
     }
 
     Timer {

@@ -6,15 +6,16 @@
 #define PDFDOCUMENT_H
 
 #include <QObject>
-#include <QDeclarativeParserStatus>
 #include <QImage>
+#include <QQmlParserStatus>
 
 namespace Poppler {
     class Document;
     class Page;
 }
 
-class PDFDocument : public QObject, public QDeclarativeParserStatus
+class PDFDocument : public QObject, public QQmlParserStatus
+
 {
     Q_OBJECT
     Q_PROPERTY(QString source READ source WRITE setSource NOTIFY sourceChanged)
@@ -22,7 +23,7 @@ class PDFDocument : public QObject, public QDeclarativeParserStatus
     Q_PROPERTY(QObject* tocModel READ tocModel NOTIFY tocModelChanged)
     Q_PROPERTY(QObjectList linkTargets READ linkTargets NOTIFY linkTargetsChanged)
 
-    Q_INTERFACES(QDeclarativeParserStatus)
+    Q_INTERFACES(QQmlParserStatus)
 
 public:
     PDFDocument(QObject* parent = 0);
