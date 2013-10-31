@@ -41,9 +41,8 @@ DocumentPage {
 
             onPinchUpdated: {
                 var newCenter = mapToItem( f, pinch.center.x, pinch.center.y );
-                controller.zoom = pinch.scale;
+                controller.zoomAroundPoint(pinch.scale - pinch.previousScale, newCenter.x, newCenter.y);
             }
-            onPinchFinished: { f.returnToBounds(); }
 
             MouseArea {
                 anchors.fill: parent;
