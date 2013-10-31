@@ -26,6 +26,7 @@ public:
         Count,
         Thumbnail,
         Page,
+        SetupPageURL,
         Ready,
         ProviderModel
     };

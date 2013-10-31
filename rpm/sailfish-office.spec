@@ -19,6 +19,7 @@ Requires: calligra-components calligra-filters
 Requires: sailfishsilica-qt5
 Requires: sailfish-components-accounts-qt5
 Requires: libqt5sparql-tracker
+Requires: qt5-qtqml-import-webkitplugin
 
 %package ts-devel
 Summary: Translation source for %{name}

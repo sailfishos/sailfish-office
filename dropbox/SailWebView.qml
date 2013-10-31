@@ -1,38 +1,16 @@
 import QtQuick 2.0
-import QtWebKit 1.0
+import QtWebKit.experimental 1.0
 import Sailfish.Silica 1.0
 
-Flickable {
-    id: flickable
-    contentWidth: Math.max(parent.width,webView.width)
-    contentHeight: Math.max(parent.height,webView.height)
+WebView {
+    id: webView
     anchors.fill: parent
-    property alias url: webView.url
-    TextField { id: vkb; visible: false; focus: false; }
-    WebView {
-        id: webView
-        focus: true
-        preferredWidth: flickable.width
-        preferredHeight: flickable.height
-        visible: !tryingText.visible;
-        onLoadFinished: {
-            if(url.toString().length === 85) {
-                vkb.forceActiveFocus();
-                vkb.visible = true;
-                vkb.closeSoftwareInputPanel();
-                authTry.start();
-            }
-            tryingText.visible = false;
-        }
-    }
 
-    Timer {
-        id: authTry;
-        running: false;
-        repeat: false;
-        // 3 seconds being the psychological human "moment"
-        interval: 3000;
-        onTriggered: controllerMIT.oauth_v1_access_token();
+    experimental.userAgent: "Mozilla/5.0 (Linux; U; like Android 4.0.3; ko-kr; Jolla Build/Alpha) AppleWebkit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30"
+    experimental.onLoadVisuallyCommitted: {
+        tryingText.visible = false;
+        if(url.toString().length === 41) controllerMIT.oauth_v1_access_token()
+        if(url.toString().length === 140) experimental.test.touchTap(webView, 100, 150)
     }
 
     Label {
@@ -43,3 +21,5 @@ Flickable {
         z: 10
     }
 }
+
+
