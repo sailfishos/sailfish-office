@@ -2,6 +2,8 @@
 Type=Application
 Name=Documents
 Name[zh_CN]=文档
+X-MeeGo-Logical-Id=office-ap-name
+X-MeeGo-Translation-Catalog=sailfish-office
 Icon=icon-launcher-office
 Exec=env KDEHOME=/home/nemo/.cache/sailfish-office invoker --type=j -s /usr/bin/sailfish-office
 Comment=Document Viewer

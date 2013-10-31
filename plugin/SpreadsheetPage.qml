@@ -32,14 +32,17 @@ DocumentPage {
             flickable: f;
         }
 
-        ScrollDecorator { flickable: f; }
+        children: [
+            HorizontalScrollDecorator { color: Theme.highlightDimmerColor; },
+            VerticalScrollDecorator { color: Theme.highlightDimmerColor; }
+        ]
 
         PinchArea {
             anchors.fill: parent;
 
             onPinchUpdated: {
                 var newCenter = mapToItem( f, pinch.center.x, pinch.center.y );
-                canvasController.zoom = pinch.scale;
+                controller.zoom = pinch.scale;
             }
             onPinchFinished: { f.returnToBounds(); }
 

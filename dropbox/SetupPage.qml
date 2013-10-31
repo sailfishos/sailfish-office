@@ -13,21 +13,21 @@ Page {
             left: parent.left;
             right: parent.right;
             top: header.bottom;
-            margins: theme.paddingSmall;
+            margins: Theme.paddingSmall;
         }
-        height: theme.itemSizeLarge;
+        height: Theme.itemSizeLarge;
 
         Label {
             anchors {
                 left: parent.left;
-                leftMargin: theme.paddingSmall;
+                leftMargin: Theme.paddingSmall;
                 right: parent.right;
                 top: parent.top;
-                topMargin: theme.paddingSmall;
+                topMargin: Theme.paddingSmall;
             }
             text: controllerMIT.needAuthenticate ? "Log in to DropBox..." : "Log out of DropBox";
             elide: Text.ElideRight;
-            font.pixelSize: theme.fontSizeLarge;
+            font.pixelSize: Theme.fontSizeLarge;
         }
         MouseArea {
             anchors.fill: parent;
@@ -56,11 +56,11 @@ Page {
                     bottom: signoutButtonsRow.top;
                     left: parent.left;
                     right: parent.right;
-                    margins: theme.paddingLarge;
+                    margins: Theme.paddingLarge;
                 }
                 color: "white"
-                font.pixelSize: theme.fontSizeSmall
-                font.family: theme.fontFamily
+                font.pixelSize: Theme.fontSizeSmall
+                font.family: Theme.fontFamily
                 wrapMode: Text.Wrap
                 text: "Do you really want to log out of DropBox?"
             }

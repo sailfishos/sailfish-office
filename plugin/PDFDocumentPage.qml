@@ -38,8 +38,8 @@ DocumentPage {
        }
 
         children: [
-            HorizontalScrollDecorator { color: theme.highlightDimmerColor;},
-            VerticalScrollDecorator { color: theme.highlightDimmerColor;}
+            HorizontalScrollDecorator { color: Theme.highlightDimmerColor; },
+            VerticalScrollDecorator { color: Theme.highlightDimmerColor; }
         ]
 
         PinchArea {
@@ -81,7 +81,7 @@ DocumentPage {
 //            Calligra.LinkArea {
 //                id: linkArea;
 //                anchors.fill: parent;
-//                linkColor: theme.highlightColor;
+//                linkColor: Theme.highlightColor;
 //                onClicked: base.open = !base.open;
 //                onLinkClicked: Qt.openUrlExternally(linkTarget);
 //            }

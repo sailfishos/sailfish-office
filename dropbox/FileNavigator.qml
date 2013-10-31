@@ -19,7 +19,7 @@ Page {
         id: itemDelegate;
         BackgroundItem {
             width: ListView.view.width;
-            height: theme.itemSizeLarge;
+            height: Theme.itemSizeLarge;
             enabled: model.is_dir ? true : page.model.mimeTypeToDocumentClass(model.mime_type) !== DocumentListModel.UnknownDocument;
             opacity: enabled ? 1 : 0.3
 
@@ -28,7 +28,7 @@ Page {
                 anchors {
                     left: parent.left;
                     top: parent.top;
-                    topMargin: theme.paddingSmall;
+                    topMargin: Theme.paddingSmall;
                 }
 
                 source: model.is_dir ? "" : "image://theme/icon-l-document"
@@ -37,10 +37,10 @@ Page {
             Label {
                 anchors {
                     left: icon.right;
-                    leftMargin: theme.paddingSmall;
+                    leftMargin: Theme.paddingSmall;
                     right: parent.right;
                     top: parent.top;
-                    topMargin: theme.paddingSmall;
+                    topMargin: Theme.paddingSmall;
                 }
                 text:{
                     var nameof = model.path.split("/")
@@ -56,31 +56,31 @@ Page {
                         return nameof1
                 }
                 elide: Text.ElideRight;
-                font.pixelSize: theme.fontSizeLarge;
+                font.pixelSize: Theme.fontSizeLarge;
                 font.bold: model.is_dir
             }
             Label {
                 anchors {
                     left: icon.right;
-                    leftMargin: theme.paddingSmall;
+                    leftMargin: Theme.paddingSmall;
                     bottom: parent.bottom;
-                    bottomMargin: theme.paddingSmall;
+                    bottomMargin: Theme.paddingSmall;
                 }
                 visible: !model.is_dir;
                 text: model.size;
-                font.pixelSize: theme.fontSizeSmall;
-                color: theme.secondaryColor;
+                font.pixelSize: Theme.fontSizeSmall;
+                color: Theme.secondaryColor;
             }
             Label {
                 anchors {
                     right: parent.right;
-                    rightMargin: theme.paddingLarge;
+                    rightMargin: Theme.paddingLarge;
                     bottom: parent.bottom;
-                    bottomMargin: theme.paddingSmall;
+                    bottomMargin: Theme.paddingSmall;
                 }
                 text: Qt.formatDate(model.modified.split("+")[0]);
-                font.pixelSize: theme.fontSizeSmall;
-                color: theme.secondaryColor;
+                font.pixelSize: Theme.fontSizeSmall;
+                color: Theme.secondaryColor;
             }
             onClicked: {
                 if(model.is_dir)
@@ -171,7 +171,7 @@ Page {
 
                         }
                         font.pixelSize: 18
-                        color: completed ? "#8f5555" : theme.secondaryColor
+                        color: completed ? Theme.highlightColor : Theme.secondaryColor
                     }
 
                     ProgressBar {
@@ -243,7 +243,7 @@ Page {
                 id: backToRootButton;
                 anchors {
                     top: pageHead.bottom;
-                    margins: theme.paddingSmall
+                    margins: Theme.paddingSmall
                 }
                 width: page.width;
                 opacity: currentDir !== "/" ? 1 : 0;
@@ -253,7 +253,7 @@ Page {
                     anchors {
                         left: parent.left;
                         top: parent.top;
-                        topMargin: theme.paddingSmall;
+                        topMargin: Theme.paddingSmall;
                     }
 
                     source: "";
@@ -262,14 +262,14 @@ Page {
                 Label {
                     anchors {
                         left: icon.right;
-                        leftMargin: theme.paddingSmall;
+                        leftMargin: Theme.paddingSmall;
                         right: parent.right;
                         top: parent.top;
-                        topMargin: theme.paddingSmall;
+                        topMargin: Theme.paddingSmall;
                     }
                     text: ".. (up one level)"
                     elide: Text.ElideRight;
-                    font.pixelSize: theme.fontSizeLarge;
+                    font.pixelSize: Theme.fontSizeLarge;
                     font.bold: true
                 }
                 MouseArea {
@@ -298,7 +298,7 @@ Page {
         id:r_networkerror
         visible: false
         anchors.centerIn: parent
-        width: parent.width - theme.paddingLarge
+        width: parent.width - Theme.paddingLarge
         height: r_label_x.height + r_button_x.height;
         Label {
             id: r_label_x
@@ -306,7 +306,7 @@ Page {
                 bottom: r_button_x.top;
                 left: parent.left;
                 right: parent.right;
-                margins: theme.paddingLarge;
+                margins: Theme.paddingLarge;
             }
             height: paintedHeight;
             text: "There was a problem loading your Dropbox. It could be lost connection or a slow network. Check your connection or try again later. The reported error was: " + errorText;

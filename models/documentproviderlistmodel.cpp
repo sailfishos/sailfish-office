@@ -19,6 +19,7 @@ public:
         roles[Count] = "count";
         roles[Thumbnail] = "thumbnail";
         roles[Page] = "page";
+        roles[SetupPageURL] = "setupPageUrl";
         roles[Ready] = "ready";
         roles[ProviderModel] = "providerModel";
     }
@@ -160,6 +161,9 @@ QVariant DocumentProviderListModel::data(const QModelIndex& index, int role) con
                     break;
                 case Page:
                     result.setValue<QUrl>(provider->page());
+                    break;
+                case SetupPageURL:
+                    result.setValue<QUrl>(QUrl::fromLocalFile(provider->setupPageUrl()));
                     break;
                 case Ready:
                     result.setValue<bool>(provider->isReady());
