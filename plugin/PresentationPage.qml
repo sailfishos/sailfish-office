@@ -29,6 +29,7 @@ DocumentPage {
             id: controller;
             view: v;
             flickable: f;
+            minimumZoomFitsWidth: true;
         }
 
         children: [

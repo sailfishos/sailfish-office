@@ -16,34 +16,35 @@ DocumentPage {
         width: parent.width;
         height: parent.height;
         document: doc;
+    }
 
-        SilicaFlickable {
-            id: f
+    SilicaFlickable {
+        id: f
+        anchors.fill: parent;
+
+        Calligra.ViewController {
+            id: controller;
+            view: v;
+            flickable: f;
+            minimumZoomFitsWidth: true;
+        }
+
+        children: [
+            HorizontalScrollDecorator { color: Theme.highlightDimmerColor; },
+            VerticalScrollDecorator { color: Theme.highlightDimmerColor; }
+        ]
+
+        PinchArea {
             anchors.fill: parent;
 
-            Calligra.ViewController {
-                id: controller;
-                view: v;
-                flickable: f;
+            onPinchUpdated: {
+                var newCenter = mapToItem( f, pinch.center.x, pinch.center.y );
+                controller.zoomAroundPoint(pinch.scale - pinch.previousScale, newCenter.x, newCenter.y);
             }
 
-            children: [
-                HorizontalScrollDecorator { color: Theme.highlightDimmerColor; },
-                VerticalScrollDecorator { color: Theme.highlightDimmerColor; }
-            ]
-
-            PinchArea {
+            MouseArea {
                 anchors.fill: parent;
-
-                onPinchUpdated: {
-                    var newCenter = mapToItem( f, pinch.center.x, pinch.center.y );
-                    controller.zoomAroundPoint(pinch.scale - pinch.previousScale, newCenter.x, newCenter.y);
-                }
-
-                MouseArea {
-                    anchors.fill: parent;
-                    onClicked: page.open = !page.open;
-                }
+                onClicked: page.open = !page.open;
             }
         }
     }
