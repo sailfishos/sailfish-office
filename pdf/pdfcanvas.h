@@ -5,10 +5,10 @@
 #ifndef PDFCANVAS_H
 #define PDFCANVAS_H
 
-#include <QQuickPaintedItem>
+#include <QtQuick/QQuickItem>
 
 class PDFDocument;
-class PDFCanvas : public QQuickPaintedItem
+class PDFCanvas : public QQuickItem
 {
     Q_OBJECT
     Q_PROPERTY( PDFDocument* document READ document WRITE setDocument NOTIFY documentChanged )
@@ -18,7 +18,7 @@ public:
     PDFCanvas(QQuickItem* parent = 0);
     ~PDFCanvas();
 
-    virtual void paint(QPainter* painter);
+//     virtual void paint(QPainter* painter);
 
     Q_INVOKABLE qreal pagePosition( int index ) const;
 
@@ -34,6 +34,7 @@ Q_SIGNALS:
 
 protected:
     virtual void geometryChanged(const QRectF& newGeometry, const QRectF& oldGeometry);
+    virtual QSGNode* updatePaintNode(QSGNode* node, UpdatePaintNodeData* );
 
 private Q_SLOTS:
     void pageFinished( int id, const QImage& image );

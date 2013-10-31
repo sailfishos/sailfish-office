@@ -4,7 +4,10 @@
 
 #include "pdfcanvas.h"
 
-#include <QPainter>
+#include <QtGui/QPainter>
+#include <QtQuick/QSGTransformNode>
+#include <QtQuick/QSGSimpleTextureNode>
+#include <QtQuick/QQuickWindow>
 
 #include "pdfrenderthread.h"
 #include "pdfdocument.h"
@@ -27,10 +30,10 @@ public:
 };
 
 PDFCanvas::PDFCanvas(QQuickItem* parent)
-    : QQuickPaintedItem(parent), d(new Private(this))
+    : QQuickItem(parent), d(new Private(this))
 {
+    setFlag(ItemHasContents, true);
     // FIXME port needed ? setFlag( QGraphicsItem::ItemHasNoContents, false );
-    // FIXME port needed ? setFlag( QGraphicsItem::ItemSendsGeometryChanges, true );
 }
 
 PDFCanvas::~PDFCanvas()
@@ -38,7 +41,7 @@ PDFCanvas::~PDFCanvas()
     delete d;
 }
 
-void PDFCanvas::paint( QPainter* painter)
+/*void PDFCanvas::paint( QPainter* painter)
 {
     if( d->pageCount == 0 )
         return;
@@ -78,7 +81,7 @@ void PDFCanvas::paint( QPainter* painter)
     }
     if( int(height()) != totalHeight )
         setHeight( totalHeight );
-}
+}*/
 
 QQuickItem * PDFCanvas::flickable() const
 {
@@ -149,7 +152,83 @@ void PDFCanvas::geometryChanged(const QRectF& newGeometry, const QRectF& oldGeom
     if( d->document )
         d->document->setCanvasWidth( newGeometry.width() );
 
-    QQuickPaintedItem::geometryChanged(newGeometry, oldGeometry);
+    QQuickItem::geometryChanged(newGeometry, oldGeometry);
+}
+
+QSGNode* PDFCanvas::updatePaintNode(QSGNode* node, QQuickItem::UpdatePaintNodeData* )
+{
+    if( d->pageCount == 0 || !d->flickable )
+    {
+        if(node) {
+            delete node;
+        }
+        return nullptr;
+    }
+
+    QImage firstImage = d->bestMatchingImage( 0 );
+    if( firstImage.isNull() )
+        return nullptr;
+
+    int totalHeight = 0;
+    int pageHeight = firstImage.height() * ( width() / firstImage.width() );
+
+    QRectF frustum{ d->flickable->property("contentX").toFloat(), d->flickable->property("contentY").toFloat(), d->flickable->width(), d->flickable->height() };
+
+    QSGTransformNode* root = static_cast<QSGTransformNode*>(node);
+    if(!root) {
+        root = new QSGTransformNode{};
+    }
+
+    for( int i = 0; i < d->pageCount; ++i )
+    {
+        QImage img = d->bestMatchingImage( i );
+        if( img.width() != int(width()) )
+        {
+            d->document->requestPage( i, width() );
+            if( img.isNull() )
+                pageFinished( i, QImage( width(), pageHeight, QImage::Format_ARGB32 ) );
+            else
+                pageFinished( i, img.scaled( width(), pageHeight ) );
+        }
+
+        QSGTransformNode* t = static_cast<QSGTransformNode*>(root->childAtIndex(i));
+        if(!t) {
+            t = new QSGTransformNode{};
+            root->appendChildNode(t);
+        }
+
+        QMatrix4x4 m;
+        m.translate(0, totalHeight);
+        t->setMatrix(m);
+
+        QRectF targetRect = QRect( 0, totalHeight, width(), pageHeight );
+        if( targetRect.intersects( frustum ) )
+        {
+            if(!t->childCount() > 0)
+            {
+                QSGSimpleTextureNode* tn = new QSGSimpleTextureNode{};
+                t->appendChildNode(tn);
+                tn->setRect(img.rect());
+                tn->setTexture(window()->createTextureFromImage(img));
+            }
+        }
+        else
+        {
+            if(t->childCount() > 0) {
+                delete t->firstChild();
+                t->removeAllChildNodes();
+            }
+        }
+
+        if( i < d->pageCount - 1)
+            totalHeight += pageHeight + pageHeight * 0.025;
+        else
+            totalHeight += pageHeight;
+    }
+    if( int(height()) != totalHeight )
+        setHeight( totalHeight );
+
+    return root;
 }
 
 QImage PDFCanvas::Private::bestMatchingImage(int index)
