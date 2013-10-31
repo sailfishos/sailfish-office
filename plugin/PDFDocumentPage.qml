@@ -78,6 +78,11 @@ DocumentPage {
                 viewScale.origin.y = 0;
             }
 
+            MouseArea {
+                anchors.fill: parent;
+                onClicked: base.open = !base.open;
+            }
+
 //            Calligra.LinkArea {
 //                id: linkArea;
 //                anchors.fill: parent;
