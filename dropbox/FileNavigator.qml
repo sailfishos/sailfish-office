@@ -171,7 +171,7 @@ Page {
 
                         }
                         font.pixelSize: 18
-                        color: completed ? "#8f5555" : Theme.secondaryColor
+                        color: completed ? Theme.highlightColor : Theme.secondaryColor
                     }
 
                     ProgressBar {
