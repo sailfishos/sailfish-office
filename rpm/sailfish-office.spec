@@ -11,7 +11,7 @@ BuildRequires: pkgconfig(Qt5Widgets)
 BuildRequires: pkgconfig(Qt5WebKit)
 BuildRequires: pkgconfig(libjollasignonuiservice-qt5)
 BuildRequires: libqt5sparql-devel
-#BuildRequires: poppler-qt5-devel poppler-qt5 poppler-devel poppler
+BuildRequires: poppler-qt5-devel poppler-qt5 poppler-devel poppler
 BuildRequires: mapplauncherd-qt5-devel
 BuildRequires: cmake
 BuildRequires: qt5-qttools-linguist

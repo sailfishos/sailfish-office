@@ -548,8 +548,8 @@ Page {
         PresentationPage { }
     }
 
-//     Component {
-//         id: pdfPage;
-//         PDFDocumentPage { }
-//     }
+    Component {
+        id: pdfPage;
+        PDFDocumentPage { }
+    }
 }
