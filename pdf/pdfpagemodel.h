@@ -31,6 +31,7 @@ public:
     uint pageWidth() const;
 
     PDFDocument* document() const;
+    virtual QHash<int, QByteArray> roleNames() const;
 
 public Q_SLOTS:
     void setPageWidth(uint pageWidth);

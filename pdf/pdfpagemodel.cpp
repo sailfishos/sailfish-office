@@ -13,7 +13,7 @@
 #include <QThreadPool>
 #include <QDebug>
 
-#include <poppler-qt4.h>
+#include <poppler-qt5.h>
 
 class PDFPageModel::Private
 {
@@ -33,16 +33,20 @@ public:
 PDFPageModel::PDFPageModel(QObject* parent)
     : QAbstractListModel{ parent }, d{ new Private }
 {
-    QHash< int, QByteArray > roleNames;
-    roleNames.insert( PageRole, "page" );
-    roleNames.insert( WidthRole, "width" );
-    roleNames.insert( HeightRole, "height" );
-    setRoleNames(roleNames);
 }
 
 PDFPageModel::~PDFPageModel()
 {
     delete d;
+}
+
+QHash< int, QByteArray > PDFPageModel::roleNames() const
+{
+    QHash< int, QByteArray > names;
+    names.insert( PageRole, "page" );
+    names.insert( WidthRole, "width" );
+    names.insert( HeightRole, "height" );
+    return names;
 }
 
 QVariant PDFPageModel::data(const QModelIndex& index, int role) const

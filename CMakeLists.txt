@@ -32,8 +32,8 @@ configure_file(config.h.in config.h)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -fPIC -pie -rdynamic -Wall")
 
 add_subdirectory(plugin)
-#add_subdirectory(pdf)
 add_subdirectory(dropbox)
+add_subdirectory(pdf)
 
 set(sailfishoffice_SRCS
     main.cpp

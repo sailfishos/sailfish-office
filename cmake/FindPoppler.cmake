@@ -1,7 +1,7 @@
 find_path(POPPLER_INCLUDE_DIR
-    poppler-config.h
+    poppler-version.h
     PATH_SUFFIXES
-    poppler
+    poppler/cpp
 )
 
 find_path(POPPLER_QT5_INCLUDE_DIR

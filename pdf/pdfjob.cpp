@@ -3,7 +3,7 @@
  */
 
 #include "pdfjob.h"
-#include <poppler-qt4.h>
+#include <poppler-qt5.h>
 
 LoadDocumentJob::LoadDocumentJob(const QString& source)
     : PDFJob{ PDFJob::LoadDocumentJob }, m_source{ source }

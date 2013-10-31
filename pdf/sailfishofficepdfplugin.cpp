@@ -4,15 +4,13 @@
 
 #include "sailfishofficepdfplugin.h"
 
-#include <QtDeclarative/QtDeclarative>
-
 #include "pdfdocument.h"
 #include "pdfpagemodel.h"
 #include "pdfpage.h"
 #include "pdfcanvas.h"
 
 SailfishOfficePDFPlugin::SailfishOfficePDFPlugin( QObject* parent )
-    : QDeclarativeExtensionPlugin( parent )
+    : QQmlExtensionPlugin( parent )
 {
 
 }
@@ -26,4 +24,4 @@ void SailfishOfficePDFPlugin::registerTypes(const char* uri)
     qmlRegisterType< PDFCanvas >( uri, 1, 0, "Canvas" );
 }
 
-Q_EXPORT_PLUGIN2(sailfishofficepdfplugin, SailfishOfficePDFPlugin)
+//Q_EXPORT_PLUGIN2(sailfishofficepdfplugin, SailfishOfficePDFPlugin)

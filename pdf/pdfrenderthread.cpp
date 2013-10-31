@@ -11,7 +11,7 @@
 #include <QDebug>
 #include <QCoreApplication>
 
-#include <poppler-qt4.h>
+#include <poppler-qt5.h>
 
 #include "pdfjob.h"
 #include "pdftocmodel.h"

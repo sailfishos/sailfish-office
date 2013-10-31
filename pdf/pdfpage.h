@@ -20,18 +20,18 @@
 #ifndef PDFPAGE_H
 #define PDFPAGE_H
 
-#include <qdeclarativeitem.h>
+#include <qquickpainteditem.h>
 
-class PDFPage : public QDeclarativeItem
+class PDFPage : public QQuickPaintedItem
 {
     Q_OBJECT
     Q_PROPERTY(QImage content READ content WRITE setContent NOTIFY contentChanged)
 
 public:
-    explicit PDFPage(QDeclarativeItem* parent = 0);
+    explicit PDFPage(QQuickItem *parent = 0);
     ~PDFPage();
 
-    virtual void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* );
+    virtual void paint(QPainter* painter);
 
     QImage content() const;
 
