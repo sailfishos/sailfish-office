@@ -21,8 +21,7 @@ Page {
         }
 
         delegate: BackgroundItem {
-            highlighted: model.contentIndex == page.document.currentIndex;
-
+            id: bg;
             Label {
                 anchors {
                     left: parent.left;
@@ -33,6 +32,7 @@ Page {
                 }
                 elide: Text.ElideRight;
                 text: model.title;
+                color: (model.contentIndex == page.document.currentIndex || bg.highlighted) ? Theme.highlightColor : Theme.primaryColor;
             }
             Label {
                 id: pageNumberLbl
@@ -42,6 +42,7 @@ Page {
                     verticalCenter: parent.verticalCenter;
                 }
                 text: model.contentIndex;
+                color: (model.contentIndex == page.document.currentIndex || bg.highlighted) ? Theme.highlightColor : Theme.primaryColor;
             }
 
             onClicked: {

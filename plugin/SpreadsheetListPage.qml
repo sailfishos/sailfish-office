@@ -28,8 +28,7 @@ Page {
         }
 
         delegate: BackgroundItem {
-            highlighted: model.contentIndex == page.document.currentIndex;
-
+            id: bg;
             Calligra.ImageDataItem {
                 id: thumbnail;
 
@@ -52,6 +51,7 @@ Page {
                 }
 
                 text: model.title;
+                color: (model.contentIndex == page.document.currentIndex || bg.highlighted) ? Theme.highlightColor : Theme.primaryColor;
             }
 
             onClicked: {

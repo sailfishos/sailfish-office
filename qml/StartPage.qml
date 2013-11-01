@@ -31,13 +31,14 @@ Page {
             }
 
             // Load icon from a plugin
-            Image {
+            HighlightImage {
                 id: thumbnail
                 x: width - Theme.paddingLarge
                 width: Theme.itemSizeExtraLarge
                 height: width
                 source: model.icon;
                 opacity: delegateItem.down ? 0.5 : 1
+                highlighted: delegateItem.highlighted;
             }
 
             Label {
@@ -46,7 +47,7 @@ Page {
                 elide: Text.ElideRight
                 font.pixelSize: Theme.fontSizeLarge
                 text: model.title
-                color: delegateItem.down ? Theme.highlightColor : Theme.primaryColor
+                color: delegateItem.highlighted ? Theme.highlightColor : Theme.primaryColor
                 anchors {
                     left: thumbnail.right
                     right: parent.right
@@ -96,7 +97,12 @@ Page {
             }
         }
         PullDownMenu {
-            MenuItem { text: "Set up DropBox..."; onClicked: pageStack.push(dropboxProvider.setupPageUrl); }
+            MenuItem {
+                //: Menu item for starting DropBox setup
+                //% "Set up DropBox..."
+                text: qsTrId("sailfish-office-me-setup_dropbox");
+                onClicked: pageStack.push(dropboxProvider.setupPageUrl);
+            }
         }
     }
 
