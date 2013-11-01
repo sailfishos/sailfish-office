@@ -14,93 +14,79 @@ Page {
         id: listView;
         anchors.fill: parent
         
-        /*PullDownMenu {
-            MenuItem {
-                text: "Action";
-                onClicked: console.log("Hello World!");
-            }
-        }*/
-        
         children: ScrollDecorator { }
         header: PageHeader { title: page.title; }
-        //model: DocumentListModel { path: "/home/nemo/Documents"; }
-        
-        spacing: Theme.paddingLarge;
         
         delegate: BackgroundItem {
+            id: bg;
             width: ListView.view.width;
-            height: Theme.itemSizeLarge;
 
-            Image {
+            HighlightImage {
                 id: icon;
                 anchors {
                     left: parent.left;
-                    top: parent.top;
-                    topMargin: Theme.paddingSmall;
+                    leftMargin: Theme.paddingLarge;
+                    verticalCenter: parent.verticalCenter;
                 }
-
+                highlighted: bg.highlighted;
                 source: "image://theme/icon-l-document"
             }
 
             Label {
                 anchors {
                     left: icon.right;
-                    leftMargin: Theme.paddingSmall;
+                    leftMargin: Theme.paddingMedium;
                     right: parent.right;
-                    top: parent.top;
-                    topMargin: Theme.paddingSmall;
+                    bottom: icon.verticalCenter;
                 }
+                color: bg.highlighted ? Theme.highlightColor : Theme.primaryColor
                 text: model.fileName;
-
-                elide: Text.ElideRight;
-                
-                font.pixelSize: Theme.fontSizeLarge;
+                font.pixelSize: Theme.fontSizeMedium;
+                truncationMode: TruncationMode.Fade;
             }
             Label {
                 anchors {
                     left: icon.right;
-                    leftMargin: Theme.paddingSmall;
-                    bottom: parent.bottom;
-                    bottomMargin: Theme.paddingSmall;
+                    leftMargin: Theme.paddingMedium;
+                    top: icon.verticalCenter;
                 }
-                text: model.fileSize;
+                text: Format.formatFileSize(model.fileSize);
 
-                font.pixelSize: Theme.fontSizeSmall;
+                font.pixelSize: Theme.fontSizeExtraSmall;
                 color: Theme.secondaryColor;
+                opacity: 0.6;
             }
             Label {
                 anchors {
                     right: parent.right;
                     rightMargin: Theme.paddingLarge;
-                    bottom: parent.bottom;
-                    bottomMargin: Theme.paddingSmall;
+                    top: icon.verticalCenter;
                 }
                 
-                text: Qt.formatDate(model.fileRead);
+                text: Format.formatDate(model.fileRead, Format.Timepoint);
                 
-                font.pixelSize: Theme.fontSizeSmall;
+                font.pixelSize: Theme.fontSizeExtraSmall;
                 color: Theme.secondaryColor;
+                opacity: 0.6;
             }
-            MouseArea {
-                anchors.fill: parent;
-                onClicked: {
-                    switch(model.fileDocumentClass) {
-                        case DocumentListModel.TextDocument:
-                            pageStack.push(textDocumentPage, { title: model.fileName, path: model.filePath, mimeType: model.fileMimeType });
-                            break;
-                        case DocumentListModel.SpreadSheetDocument:
-                            pageStack.push(spreadsheetPage, { title: model.fileName, path: model.filePath, mimeType: model.fileMimeType });
-                            break;
-                        case DocumentListModel.PresentationDocument:
-                            pageStack.push(presentationPage, { title: model.fileName, path: model.filePath, mimeType: model.fileMimeType });
-                            break;
-                        case DocumentListModel.PDFDocument:
-                           pageStack.push(pdfPage, { title: model.fileName, path: model.filePath, mimeType: model.fileMimeType });
-                           break;
-                        default:
-                            console.log("Unknown file format for file " + model.fileName + " with stated mimetype " + model.fileMimeType);
-                            break;
-                    }
+
+            onClicked: {
+                switch(model.fileDocumentClass) {
+                    case DocumentListModel.TextDocument:
+                        pageStack.push(textDocumentPage, { title: model.fileName, path: model.filePath, mimeType: model.fileMimeType });
+                        break;
+                    case DocumentListModel.SpreadSheetDocument:
+                        pageStack.push(spreadsheetPage, { title: model.fileName, path: model.filePath, mimeType: model.fileMimeType });
+                        break;
+                    case DocumentListModel.PresentationDocument:
+                        pageStack.push(presentationPage, { title: model.fileName, path: model.filePath, mimeType: model.fileMimeType });
+                        break;
+                    case DocumentListModel.PDFDocument:
+                        pageStack.push(pdfPage, { title: model.fileName, path: model.filePath, mimeType: model.fileMimeType });
+                        break;
+                    default:
+                        console.log("Unknown file format for file " + model.fileName + " with stated mimetype " + model.fileMimeType);
+                        break;
                 }
             }
         }
