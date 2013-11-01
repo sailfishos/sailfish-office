@@ -81,6 +81,8 @@ void PDFDocument::setSource(const QString& source)
     if (d->source != source)
     {
         d->source = source;
+        if(source.startsWith("/"))
+            d->source.prepend("file://");
 
         if(d->completed) {
             d->thread->load( QUrl{ d->source }.toLocalFile() );
