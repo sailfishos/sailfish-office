@@ -57,7 +57,7 @@ QVariant DocumentListModel::data(const QModelIndex& index, int role) const
         case FileTypeRole:
             return QString().append(d->entries.at( index.row() ).fileType).append(d->entries.at( index.row() ).fileRead.toString(Qt::ISODate));
         case FileSizeRole:
-            return QString( "%1 KiB" ).arg( d->entries.at( index.row() ).fileSize / 1024 );
+            return d->entries.at( index.row() ).fileSize;
         case FileReadRole:
             return d->entries.at( index.row() ).fileRead;
         case FileMimeTypeRole:
