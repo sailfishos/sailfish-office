@@ -30,9 +30,9 @@ Page {
                     rightMargin: Theme.paddingLarge;
                     verticalCenter: parent.verticalCenter;
                 }
-                elide: Text.ElideRight;
                 text: model.title;
                 color: (model.contentIndex == page.document.currentIndex || bg.highlighted) ? Theme.highlightColor : Theme.primaryColor;
+                truncationMode: TruncationMode.Fade
             }
             Label {
                 id: pageNumberLbl
