@@ -19,6 +19,9 @@ Q_DECL_EXPORT int main(int argc, char *argv[])
 
     auto view = Sailfish::createView("Main.qml");
 
+    //% "Documents"
+    Q_UNUSED(QT_TRID_NOOP("office-ap-name"))
+
     int retn = 1;
     if( !view->errors().count() > 0 )
     {
