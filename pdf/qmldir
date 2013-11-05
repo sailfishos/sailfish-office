@@ -1,1 +1,2 @@
+module Sailfish.Office.PDF
 plugin sailfishofficepdfplugin
