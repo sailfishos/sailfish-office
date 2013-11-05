@@ -28,7 +28,8 @@ public:
         Page,
         SetupPageURL,
         Ready,
-        ProviderModel
+        ProviderModel,
+        NeedsSetup
     };
 
     explicit DocumentProviderListModel(QObject* parent = 0);

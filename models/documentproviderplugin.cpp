@@ -22,6 +22,11 @@ QString DocumentProviderPlugin::setupPageUrl() const
     return QString();
 }
 
+bool DocumentProviderPlugin::needsSetup() const
+{
+    return false;
+}
+
 QUrl DocumentProviderPlugin::page() const
 {
     return d->page;

@@ -22,6 +22,7 @@ public:
         roles[SetupPageURL] = "setupPageUrl";
         roles[Ready] = "ready";
         roles[ProviderModel] = "providerModel";
+        roles[NeedsSetup] = "needsSetup";
     }
     DocumentProviderListModel* q;
     QHash<int, QByteArray> roles;
@@ -41,6 +42,7 @@ public:
         QObject::connect(source, SIGNAL(titleChanged()), q, SLOT(sourceInfoChanged()));
         QObject::connect(source, SIGNAL(modelChanged()), q, SLOT(sourceInfoChanged()));
         QObject::connect(source, SIGNAL(readyChanged()), q, SLOT(sourceInfoChanged()));
+        QObject::connect(source, SIGNAL(needsSetupChanged()), q, SLOT(sourceInfoChanged()));
 
         if (source->isReady())
             q->updateActiveSources();
@@ -170,7 +172,10 @@ QVariant DocumentProviderListModel::data(const QModelIndex& index, int role) con
                     break;
                 case ProviderModel:
                     result.setValue<QObject*>(provider->model());
-                    qDebug() << qobject_cast<DocumentListModel*>(provider->model())->rowCount(QModelIndex());
+                    //qDebug() << qobject_cast<DocumentListModel*>(provider->model())->rowCount(QModelIndex());
+                    break;
+                case NeedsSetup:
+                    result.setValue<bool>(provider->needsSetup());
                     break;
                 default:
                     result.setValue<QString>(QLatin1String("Unknown role in DocumentProviderListModel::data"));

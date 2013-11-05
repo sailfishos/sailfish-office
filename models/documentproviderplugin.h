@@ -16,6 +16,7 @@ class DocumentProviderPlugin : public QObject
     Q_PROPERTY(bool ready READ isReady NOTIFY readyChanged)
     Q_PROPERTY(QUrl page READ page WRITE setPage NOTIFY pageChanged)
     Q_PROPERTY(QString setupPageUrl READ setupPageUrl NOTIFY titleChanged);
+    Q_PROPERTY(bool needsSetup READ needsSetup NOTIFY needsSetupChanged);
 
 public:
     DocumentProviderPlugin(QObject* parent = 0);
@@ -31,6 +32,7 @@ public:
     // Reimplement this and return the name of a QML file containing the account setup
     // for this plugin, if applicable. Otherwise a no-setup plugin will be assumed.
     virtual QString setupPageUrl() const;
+    virtual bool needsSetup() const;
 
     QUrl page() const;
     void setPage(const QUrl &url);
@@ -43,6 +45,7 @@ signals:
     void titleChanged();
     void modelChanged();
     void readyChanged();
+    void needsSetupChanged();
 
 private:
     class Private;
