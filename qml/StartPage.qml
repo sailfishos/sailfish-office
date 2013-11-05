@@ -14,7 +14,7 @@ Page {
             id: delegateItem
             width: view.width
             height: thumbnail.height
-            enabled: model.count > 0 || model.count < 0;
+            enabled: model.count > 0 || model.count === -1;
             opacity: enabled ? 1.0 : 0.5
 
             Label {
@@ -57,9 +57,8 @@ Page {
             }
 
             onClicked: {
-                if(model.count === -1 && model.setupPageUrl !== "")
+                if(model.needsSetup)
                 {
-                    console.debug(model.setupPageUrl);
                     pageStack.push(Qt.resolvedUrl(model.setupPageUrl));
                 }
                 else
@@ -104,6 +103,11 @@ Page {
                 onClicked: pageStack.push(dropboxProvider.setupPageUrl);
             }
         }
+    }
+
+    Component.onCompleted: {
+        controllerMIT.need_authenticate();
+        controllerMIT.getlistoffolder()
     }
 
     Component {

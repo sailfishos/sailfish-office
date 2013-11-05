@@ -12,10 +12,12 @@ Q_DECL_EXPORT int main(int argc, char *argv[])
     QProcess::startDetached(QLatin1String("/usr/bin/kbuildsycoca4"));
 
     auto app = Sailfish::createApplication(argc, argv);
-    auto view = Sailfish::createView("Main.qml");
-
+    // Note, these must be said now, otherwise some plugins using QSettings
+    // will get terribly confused when they fail to load properly.
     app->setOrganizationName("Sailfish");
     app->setApplicationName("Sailfish Office");
+
+    auto view = Sailfish::createView("Main.qml");
 
     //% "Documents"
     Q_UNUSED(QT_TRID_NOOP("office-ap-name"))
