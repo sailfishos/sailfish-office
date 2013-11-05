@@ -11,10 +11,6 @@ DocumentPage {
         }
     }
 
-    Calligra.Document {
-        id: doc;
-    }
-
     Calligra.View {
         id: v;
         anchors.fill: parent;
@@ -50,6 +46,12 @@ DocumentPage {
                 onClicked: page.open = !page.open;
             }
         }
+    }
+
+    Calligra.Document {
+        id: doc;
+
+        onStatusChanged: if(status == Calligra.DocumentStatus.Loaded) controller.zoomToFitWidth(page.width);
     }
     
     busy: doc.status != Calligra.DocumentStatus.Loaded;

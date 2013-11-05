@@ -51,6 +51,8 @@ DocumentPage {
 
     Calligra.Document {
         id: doc;
+
+        onStatusChanged: if(status == Calligra.DocumentStatus.Loaded) controller.zoomToFitWidth(page.width);
     }
     
     busy: doc.status != Calligra.DocumentStatus.Loaded;
@@ -59,6 +61,7 @@ DocumentPage {
         //Delay loading the document until the page has been activated.
         if(status == PageStatus.Active) {
             doc.source = page.path;
+            controller.zoomToWidth(page.width);
         }
     }
 }
