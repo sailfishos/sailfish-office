@@ -390,6 +390,8 @@ void NetworkController::logout(){
     QSettings settings;
     settings.beginGroup("user");
     settings.clear();
+    m_droprestapi->oauth->m_token = "";
+    m_droprestapi->oauth->m_secret = "";
 }
 
 void NetworkController::accountinfo(){
