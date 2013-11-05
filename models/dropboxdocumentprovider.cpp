@@ -82,14 +82,17 @@ QUrl DropboxDocumentProvider::icon() const
 
 int DropboxDocumentProvider::count() const
 {
-    if(d->needAuthenticate)
-        return -1;
-    return -2;//d->fileListModel->rowCount(QModelIndex());
+    return -1;//d->fileListModel->rowCount(QModelIndex());
 }
 
 QString DropboxDocumentProvider::setupPageUrl() const
 {
     return QString(DROPBOX_QML_PLUGIN_DIR).append("Sailfish/Office/Dropbox/SetupPage.qml");
+}
+
+bool DropboxDocumentProvider::needsSetup() const
+{
+    return needAuthenticate();
 }
 
 void DropboxDocumentProvider::classBegin()
@@ -125,5 +128,6 @@ void DropboxDocumentProvider::setNeedAuthenticate(bool newValue)
 {
     d->needAuthenticate = newValue;
     emit needAuthenticateChanged();
+    emit needsSetupChanged();
     emit countChanged();
 }

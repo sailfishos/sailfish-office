@@ -32,6 +32,7 @@ public:
     virtual QUrl icon() const;
     virtual int count() const;
     virtual QString setupPageUrl() const;
+    virtual bool needsSetup() const;
 
     virtual void classBegin();
     virtual void componentComplete();
