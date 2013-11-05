@@ -17,6 +17,9 @@ Q_DECL_EXPORT int main(int argc, char *argv[])
     app->setOrganizationName("Sailfish");
     app->setApplicationName("Sailfish Office");
 
+    //% "Documents"
+    Q_UNUSED(QT_TRID_NOOP("office-ap-name"))
+
     int retn = 1;
     if( !view->errors().count() > 0 )
     {
