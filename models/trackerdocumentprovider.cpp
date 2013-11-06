@@ -152,6 +152,24 @@ QString TrackerDocumentProvider::title() const
     return qtTrId("sailfish-office-he-localfiles_title");
 }
 
+void TrackerDocumentProvider::deleteFile(const QUrl& file)
+{
+    if(QFile::exists(file.toLocalFile()))
+    {
+        QFile::remove(file.toLocalFile());
+
+        const int count = d->model->rowCount(QModelIndex());
+        for(int i = 0; i < count; ++i)
+        {
+            if(d->model->data(d->model->index(i, 0), DocumentListModel::FilePathRole).toUrl() == file)
+            {
+                d->model->removeAt(i);
+                break;
+            }
+        }
+    }
+}
+
 void TrackerDocumentProvider::trackerGraphChanged(const QString& className, const QVariantList&, const QVariantList&)
 {
     if(className == documentClassName)

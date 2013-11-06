@@ -37,6 +37,8 @@ public:
     virtual void classBegin();
     virtual void componentComplete();
 
+    virtual void deleteFile(const QUrl& file) Q_DECL_OVERRIDE;
+
 public Q_SLOTS:
     void startSearch();
     void stopSearch();

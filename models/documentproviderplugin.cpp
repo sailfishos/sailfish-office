@@ -37,3 +37,9 @@ void DocumentProviderPlugin::setPage(const QUrl& url)
     d->page = url;
     emit pageChanged();
 }
+
+void DocumentProviderPlugin::deleteFile(const QUrl& file)
+{
+    Q_UNUSED(file);
+    qWarning("Provider does not implement file deletion.");
+}

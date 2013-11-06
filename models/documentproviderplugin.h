@@ -37,6 +37,8 @@ public:
     QUrl page() const;
     void setPage(const QUrl &url);
 
+    Q_INVOKABLE virtual void deleteFile(const QUrl& file);
+
 signals:
     void countChanged();
     void iconChanged();
