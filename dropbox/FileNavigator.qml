@@ -14,6 +14,8 @@ Page {
     property string fileMimetype;
     property string fileName;
 
+    property QtObject provider;
+
     InfoBanner { id: i_infobanner; }
     Component {
         id: itemDelegate;
