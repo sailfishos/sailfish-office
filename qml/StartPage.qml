@@ -67,6 +67,7 @@ Page {
                     window.pageStack.push(model.page != "" ? Qt.resolvedUrl(model.page) : fileListPage, {
                         title: model.title,
                         model: model.providerModel,
+                        provider: view.model.sources[index]
                         //thumbnailDelegate: thumbnail != "" ? thumbnail : Qt.resolvedUrl("GridImageThumbnail.qml")
                         } )
                 }
