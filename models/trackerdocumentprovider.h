@@ -9,7 +9,7 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QRunnable>
 #include <QtCore/QHash>
-#include </usr/include/qt5/QtQml/QQmlParserStatus>
+#include <QtQml/QQmlParserStatus>
 
 class DocumentListModel;
 class TrackerDocumentProvider : public DocumentProviderPlugin, public QQmlParserStatus
@@ -40,32 +40,14 @@ public:
 public Q_SLOTS:
     void startSearch();
     void stopSearch();
+
+private Q_SLOTS:
     void searchFinished();
+    void trackerGraphChanged(const QString& className, const QVariantList&, const QVariantList& );
+
 private:
     class Private;
     Private* d;
 };
 
-class SearchThread : public QObject, public QRunnable
-{
-    Q_OBJECT
-public:
-    SearchThread(DocumentListModel* model, const QHash< QString, TrackerDocumentProvider::DocumentType >& docTypes, QObject* parent = 0);
-    ~SearchThread();
-
-    void run();
-    void abort() { m_abort = true; }
-
-signals:
-    void documentFound(const QFileInfo& fileInfo);
-    void finished();
-
-private:
-    DocumentListModel* m_model;
-    bool m_abort;
-    QHash<QString, TrackerDocumentProvider::DocumentType> m_docTypes;
-    static const QString textDocumentType;
-    static const QString presentationType;
-    static const QString spreadsheetType;
-};
 #endif // TRACKERDOCUMENTPROVIDER_H

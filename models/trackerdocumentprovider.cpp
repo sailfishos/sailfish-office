@@ -2,6 +2,8 @@
 #include "documentlistmodel.h"
 #include <QDir>
 #include <QtCore/qthreadpool.h>
+#include <QtCore/QModelIndex>
+#include <QtDBus/QDBusConnection>
 
 #include <qglobal.h>
 
@@ -11,119 +13,45 @@
 
 #include "config.h"
 
+//The Tracker driver to use.
+static const QString trackerDriver{"QTRACKER"};
 
-const QString SearchThread::textDocumentType = QString("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#PaginatedTextDocument");
-const QString SearchThread::presentationType = QString("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#PresentationDocument");
-const QString SearchThread::spreadsheetType = QString("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#SpreadsheetDocument");
+//The query to run to get files out of Tracker.
+static const QString documentQuery{
+"PREFIX nfo: <http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#> "
+"PREFIX nie: <http://www.semanticdesktop.org/ontologies/2007/01/19/nie#> "
+"PREFIX nco: <http://www.semanticdesktop.org/ontologies/2007/03/22/nco#> "
+"SELECT ?name ?path ?size ?lastAccessed ?mimeType WHERE { "
+    "?u nfo:fileName ?name . "
+    "?u nie:url ?path . "
+    "?u nfo:fileSize ?size . "
+    "?u nfo:fileLastAccessed ?lastAccessed . "
+    "?u nie:mimeType ?mimeType . "
+    "{ ?u a nfo:PaginatedTextDocument } UNION { ?u a nfo:Presentation } UNION { ?u a nfo:Spreadsheet } "
+"}"
+};
 
-SearchThread::SearchThread(DocumentListModel* model, const QHash<QString, TrackerDocumentProvider::DocumentType> &docTypes, QObject *parent) 
-    : QObject(parent), m_model(model), m_abort(false), m_docTypes(docTypes)
-{
-}
+//Strings used for the DBus connection to listen to Tracker's GraphUpdated signal.
+static const QString dbusService{"org.freedesktop.Tracker1"};
+static const QString dbusPath{"/org/freedesktop/Tracker1/Resources"};
+static const QString dbusInterface{"org.freedesktop.Tracker1.Resources"};
+static const QString dbusSignal{"GraphUpdated"};
 
-SearchThread::~SearchThread()
-{
-}
-
-void SearchThread::run()
-{
-    // Get documents from the device's tracker instance
-    QSparqlConnection connection("QTRACKER");
-    QSparqlQuery query(
-        "PREFIX nfo: <http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#> "
-        "PREFIX nie: <http://www.semanticdesktop.org/ontologies/2007/01/19/nie#> "
-        "PREFIX nco: <http://www.semanticdesktop.org/ontologies/2007/03/22/nco#> "
-        "SELECT ?name ?path ?size ?lastAccessed ?mimeType " // ?lastModified ?type ?uuid "
-        "WHERE { "
-        "?u nfo:fileName ?name . "
-        "?u nie:url ?path . "
-        "?u nfo:fileSize ?size . "
-        "?u nfo:fileLastAccessed ?lastAccessed . "
-        "?u nie:mimeType ?mimeType . "
-//        "?u nfo:fileLastModified ?lastModified . "
-//        "?u rdf:type ?type . "
-//        "?u nie:isStoredAs ?uuid . "
-        "{ ?u a nfo:PaginatedTextDocument } UNION { ?u a nfo:Presentation } UNION { ?u a nfo:Spreadsheet }"
-    " }");
-    QSparqlResult* result = connection.exec(query);
-    result->waitForFinished();
-    if(!result->hasError())
-    {
-        while (result->next() && !m_abort) {
-            //qDebug() << result->binding(0).value().toString() << result->binding(4).value().toString();
-            
-            //CMDocumentListModel::DocumentInfo info;
-            m_model->addItem(
-                result->binding(0).value().toString(),
-                result->binding(1).value().toString(),
-                result->binding(1).value().toString().split('.').last(),
-                result->binding(2).value().toInt(),
-                result->binding(3).value().toDateTime(),
-                result->binding(4).value().toString()
-            );
-//             info.fileName = ;
-//             info.filePath = ;
-//             info.docType = m_docTypes.value(info.filePath.split('.').last());
-//             info.fileSize = result->binding(2).value().toString();
-//             info.authorName = "-";
-//             info.accessedTime = ;
-//             info.modifiedTime = result->binding(4).value().toDateTime();
-//             info.uuid = result->binding(6).value().toString();
-            /*QString type = result->binding(5).value().toString();
-        qDebug() << type;
-        //.split(',').last();
-        if(type == textDocumentType) {
-                info.docType = CMDocumentListModel::TextDocumentType;
-            } else if(type == presentationType) {
-                info.docType = CMDocumentListModel::PresentationType;
-            } else if(type == spreadsheetType) {
-                info.docType = CMDocumentListModel::SpreadsheetType;
-            } else {
-                info.docType = CMDocumentListModel::UnknownType;
-            }
-
-        qDebug() << result->binding(6).value();
-        qDebug() << result->binding(7).value();
-        qDebug() << result->binding(8).value();*/
-
-            //emit documentFound(info);
-        }
-        emit finished();
-        return;
-    }
-    else
-        qDebug() << "Error while querying Tracker:" << result->lastError().message();
-}
+//The semantic class for all document types.
+static const QString documentClassName("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Document");
 
 class TrackerDocumentProvider::Private {
 public:
     Private()
         : model(new DocumentListModel)
-        , searchThread(0)
+        , connection{nullptr}
     {
-        docTypes["odt"] = TextDocumentType;
-        docTypes["doc"] = TextDocumentType;
-        docTypes["docx"] = TextDocumentType;
-        docTypes["odp"] = PresentationType;
-        docTypes["ppt"] = PresentationType;
-        docTypes["pptx"] = PresentationType;
-        docTypes["ods"] = SpreadsheetType;
-        docTypes["xls"] = SpreadsheetType;
-        docTypes["xlsx"] = SpreadsheetType;
-
         model->setObjectName("TrackerDocumentList");
-//         QDir directory;
-//         directory.setPath( "/home/nemo/Documents" );
-//         QFileInfoList entries = directory.entryInfoList( QStringList() << "*.odt" << "*.ods" << "*.odp", QDir::Files, QDir::Name );
-// 
-//         foreach(const QFileInfo& info, entries) {
-//             model->addItem(info.fileName(), info.filePath(), info.fileName().split(".").last(), info.size(), info.lastRead());
-//         }
     }
     ~Private() { model->deleteLater(); }
+
     DocumentListModel* model;
-    QHash<QString, DocumentType> docTypes;
-    SearchThread* searchThread;
+    QSparqlConnection* connection;
 };
 
 TrackerDocumentProvider::TrackerDocumentProvider(QObject* parent)
@@ -134,7 +62,7 @@ TrackerDocumentProvider::TrackerDocumentProvider(QObject* parent)
 
 TrackerDocumentProvider::~TrackerDocumentProvider()
 {
-    stopSearch();
+    delete d->connection;
     delete d;
 }
 
@@ -143,33 +71,44 @@ void TrackerDocumentProvider::classBegin()
 
 void TrackerDocumentProvider::componentComplete()
 {
+    QDBusConnection sessionBus = QDBusConnection::sessionBus();
+    sessionBus.connect(dbusService, dbusPath, dbusInterface, dbusSignal, this, SLOT(trackerGraphChanged(QString,QVariantList,QVariantList)));
+
+    d->connection = new QSparqlConnection(trackerDriver);
     startSearch();
 }
 
 void TrackerDocumentProvider::startSearch()
 {
-    if (d->searchThread) {
-        qDebug() << "Already searching or finished search";
-        return;
-    }
-    d->searchThread = new SearchThread(d->model, d->docTypes);
-    //connect(m_searchThread, SIGNAL(documentFound(CMDocumentListModel::DocumentInfo)), this, SLOT(addDocument(CMDocumentListModel::DocumentInfo)));
-    connect(d->searchThread, SIGNAL(finished()), this, SLOT(searchFinished()));
-    d->searchThread->setAutoDelete(false);
-    QThreadPool::globalInstance()->start(d->searchThread);
+    QSparqlQuery q(documentQuery);
+    QSparqlResult* result = d->connection->exec(q);
+    connect(result, SIGNAL(finished()), this, SLOT(searchFinished()));
+
 }
 
 void TrackerDocumentProvider::stopSearch()
 {
-    if (d->searchThread)
-        d->searchThread->abort();
 }
 
 void TrackerDocumentProvider::searchFinished()
 {
-    Q_ASSERT(d->searchThread);
-    d->searchThread->deleteLater();
-    d->searchThread = 0;
+    QSparqlResult* r = qobject_cast<QSparqlResult*>(sender());
+    if(!r->hasError())
+    {
+        d->model->clear();
+        while(r->next())
+        {
+            d->model->addItem(
+                r->binding(0).value().toString(),
+                r->binding(1).value().toString(),
+                r->binding(1).value().toString().split('.').last(),
+                r->binding(2).value().toInt(),
+                r->binding(3).value().toDateTime(),
+                r->binding(4).value().toString()
+            );
+        }
+    }
+
     emit countChanged();
 }
 
@@ -193,7 +132,7 @@ QUrl TrackerDocumentProvider::icon() const
 
 bool TrackerDocumentProvider::isReady() const
 {
-    return true;
+    return d->connection != nullptr;
 }
 
 QObject* TrackerDocumentProvider::model() const
@@ -211,4 +150,12 @@ QString TrackerDocumentProvider::title() const
     //: Title for local device files plugin
     //% "This Device"
     return qtTrId("sailfish-office-he-localfiles_title");
+}
+
+void TrackerDocumentProvider::trackerGraphChanged(const QString& className, const QVariantList&, const QVariantList&)
+{
+    if(className == documentClassName)
+    {
+        startSearch();
+    }
 }
