@@ -103,6 +103,8 @@ DocumentPage {
   //      }
     }
 
+    busy: !pdfDocument.loaded;
+
     Timer {
         id: updateSourceSizeTimer;
         interval: 5000;
