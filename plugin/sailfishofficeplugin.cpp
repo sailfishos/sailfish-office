@@ -4,10 +4,12 @@
 
 #include "sailfishofficeplugin.h"
 
-#include <QtDeclarative/QtDeclarative>
+#include <QtQml/QtQml>
 
 #include <QTranslator>
 #include <QApplication>
+
+#include "FileInfo.h"
 
 #include "config.h"
 
@@ -35,6 +37,7 @@ SailfishOfficePlugin::SailfishOfficePlugin( QObject* parent )
 void SailfishOfficePlugin::registerTypes(const char* uri)
 {
     Q_ASSERT( uri == QLatin1String( "Sailfish.Office" ) );
+    qmlRegisterType<FileInfo>(uri, 1, 0, "FileInfo");
 }
 
 void SailfishOfficePlugin::initializeEngine(QQmlEngine* engine, const char* uri)

@@ -58,6 +58,8 @@ DocumentPage {
     }
     
     busy: doc.status != Calligra.DocumentStatus.Loaded;
+    source: doc.source;
+    indexCount: doc.indexCount;
 
     onStatusChanged: {
         //Delay loading the document until the page has been activated.
