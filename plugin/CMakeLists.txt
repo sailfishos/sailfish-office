@@ -15,6 +15,7 @@ install(FILES
     DocumentsSharingList.qml
     PDFDocumentPage.qml
     PDFDocumentToCPage.qml
+    PDFView.qml
     PresentationPage.qml
     PresentationThumbnailPage.qml
     SpreadsheetListPage.qml
