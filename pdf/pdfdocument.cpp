@@ -43,7 +43,12 @@ QString PDFDocument::source() const
 
 int PDFDocument::pageCount() const
 {
-    return d->thread->pageCount();
+    if(d->thread && d->thread->isLoaded())
+    {
+        return d->thread->pageCount();
+    }
+
+    return 0;
 }
 
 QObject* PDFDocument::tocModel() const
