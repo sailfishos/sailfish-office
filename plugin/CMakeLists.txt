@@ -1,4 +1,5 @@
 set(plugin_SRCS
+    FileInfo.cpp
     sailfishofficeplugin.cpp
 )
 
@@ -21,5 +22,7 @@ install(FILES
     TextDocumentPage.qml
     TextDocumentToCPage.qml
     ZoomableThumbnail.qml
+    DetailsPage.qml
+    DetailsItem.qml
     DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/qt5/qml/Sailfish/Office
 )

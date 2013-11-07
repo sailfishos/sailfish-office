@@ -49,6 +49,8 @@ DocumentPage {
         }
     }
 
+
+
     Calligra.Document {
         id: doc;
 
@@ -56,12 +58,13 @@ DocumentPage {
     }
     
     busy: doc.status != Calligra.DocumentStatus.Loaded;
+    source: doc.source;
+    indexCount: doc.indexCount;
 
     onStatusChanged: {
         //Delay loading the document until the page has been activated.
         if(status == PageStatus.Active) {
             doc.source = page.path;
-            controller.zoomToWidth(page.width);
         }
     }
 }

@@ -1,5 +1,6 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
+import org.kde.calligra 1.0 as Calligra
 
 Page {
     id: base;
@@ -16,10 +17,13 @@ Page {
     property alias menu: shareList.children;
     property alias busy: busyIndicator.running;
 
+    property url source;
+    property int indexCount;
+
     allowedOrientations: Orientation.All;
     backNavigation: drawer.opened;
     forwardNavigation: drawer.opened;
-    
+
     BusyIndicator { id: busyIndicator; anchors.centerIn: parent; size: BusyIndicatorSize.Large; }
 
     Drawer {
@@ -42,6 +46,13 @@ Page {
 
             visualParent: base;
             anchors.fill: parent;
+
+            PullDownMenu {
+                MenuItem {
+                    text: "Details";
+                    onClicked: pageStack.push(detailsPage, { source: base.source, indexCount: base.indexCount });
+                }
+            }
         }
     }
 
@@ -50,5 +61,11 @@ Page {
         {
             drawer.open = false;
         }
+    }
+
+    Component {
+        id: detailsPage;
+
+        DetailsPage { }
     }
 }

@@ -22,6 +22,7 @@ class PDFDocument : public QObject, public QQmlParserStatus
     Q_PROPERTY(int pageCount READ pageCount NOTIFY pageCountChanged)
     Q_PROPERTY(QObject* tocModel READ tocModel NOTIFY tocModelChanged)
     Q_PROPERTY(QObjectList linkTargets READ linkTargets NOTIFY linkTargetsChanged)
+    Q_PROPERTY(bool loaded READ isLoaded NOTIFY documentLoaded)
 
     Q_INTERFACES(QQmlParserStatus)
 
