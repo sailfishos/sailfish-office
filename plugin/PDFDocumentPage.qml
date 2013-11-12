@@ -8,7 +8,7 @@ DocumentPage {
     attachedPage: Component {
         PDFDocumentToCPage {
             tocModel: pdfDocument.tocModel
-            onPageSelected: view.contentY = pdfCanvas.pagePosition( pageNumber );
+            onPageSelected: view.goToPage( pageNumber );
         }
     }
 

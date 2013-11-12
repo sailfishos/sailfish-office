@@ -74,4 +74,8 @@ SilicaFlickable {
         property real minWidth: base.width;
         property real maxWidth: base.width * 2.5;
     }
+
+    function goToPage(pageNumber) {
+        base.contentY = canvas.pagePosition( pageNumber );
+    }
 }
