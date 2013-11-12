@@ -22,14 +22,13 @@ public:
     bool isLoaded() const;
     QObjectList linkTargets() const;
 
-    void load( const QString& file );
-    void requestPage( int index, uint width );
+    void queueJob( PDFJob* job );
 
     void setCanvasWidth( uint width );
 
 Q_SIGNALS:
     void loadFinished();
-    void pageFinished(int index, QImage image);
+    void jobFinished(PDFJob* job);
 
 private Q_SLOTS:
     void processQueue();

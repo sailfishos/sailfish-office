@@ -21,14 +21,19 @@ public:
     enum JobType {
         LoadDocumentJob,
         RenderPageJob,
+        PageSizesJob,
     };
 
-    PDFJob( JobType type ) : m_type{ type } { }
+    PDFJob( JobType type ) : m_document{ nullptr }, m_type{ type } { }
     virtual ~PDFJob() { }
 
     virtual void run() = 0;
 
     JobType type() const { return m_type; }
+
+protected:
+    friend class PDFRenderThread;
+    Poppler::Document* m_document;
 
 private:
     JobType m_type;
@@ -42,8 +47,6 @@ public:
 
     virtual void run();
 
-    Poppler::Document* m_document;
-
 private:
     QString m_source;
 };
@@ -52,7 +55,7 @@ class RenderPageJob : public PDFJob
 {
     Q_OBJECT
 public:
-    RenderPageJob(int index, uint width, Poppler::Document* document);
+    RenderPageJob(int index, uint width);
 
     virtual void run();
 
@@ -61,7 +64,17 @@ public:
 
 private:
     uint m_width;
-    Poppler::Document* m_document;
+};
+
+class PageSizesJob : public PDFJob
+{
+    Q_OBJECT
+public:
+    PageSizesJob() : PDFJob{ PDFJob::PageSizesJob } { }
+
+    virtual void run();
+
+    QList< QSizeF > m_pageSizes;
 };
 
 #endif // PDFJOB_H

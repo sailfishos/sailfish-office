@@ -41,7 +41,7 @@ Page {
                     rightMargin: Theme.paddingLarge;
                     verticalCenter: parent.verticalCenter;
                 }
-                text: model.contentIndex;
+                text: model.contentIndex + 1;
                 color: (model.contentIndex == page.document.currentIndex || bg.highlighted) ? Theme.highlightColor : Theme.primaryColor;
             }
 

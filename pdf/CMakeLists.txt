@@ -5,8 +5,6 @@ include_directories(${POPPLER_INCLUDE_DIR} ${POPPLER_QT5_INCLUDE_DIR})
 set(pdfplugin_SRCS
     sailfishofficepdfplugin.cpp
     pdfdocument.cpp
-    pdfpagemodel.cpp
-    pdfpage.cpp
     pdfrenderthread.cpp
     pdfjob.cpp
     pdftocmodel.cpp
