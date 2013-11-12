@@ -5,15 +5,16 @@
 #ifndef PDFDOCUMENT_H
 #define PDFDOCUMENT_H
 
-#include <QObject>
-#include <QImage>
-#include <QQmlParserStatus>
+#include <QtCore/QObject>
+#include <QtGui/QImage>
+#include <QtQml/QQmlParserStatus>
 
 namespace Poppler {
     class Document;
     class Page;
 }
 
+class PDFJob;
 class PDFDocument : public QObject, public QQmlParserStatus
 
 {
@@ -44,7 +45,9 @@ public:
 public Q_SLOTS:
     void setSource(const QString& source);
     void requestPage( int index, int size );
+    void requestPageSizes();
     void setCanvasWidth( uint width );
+    void jobFinished(PDFJob* job);
 
 Q_SIGNALS:
     void sourceChanged();
@@ -54,6 +57,7 @@ Q_SIGNALS:
 
     void documentLoaded();
     void pageFinished( int index, QImage image );
+    void pageSizesFinished(const QList< QSizeF >& heights);
 
 private:
     class Private;

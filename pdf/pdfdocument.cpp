@@ -4,6 +4,7 @@
 
 #include "pdfdocument.h"
 #include "pdfrenderthread.h"
+#include "pdfjob.h"
 
 #include <QDebug>
 #include <QUrl>
@@ -26,14 +27,15 @@ PDFDocument::PDFDocument(QObject* parent)
     : QObject(parent), d(new Private())
 {
     d->thread = new PDFRenderThread{ this };
-    connect( d->thread, SIGNAL(loadFinished()), SIGNAL(documentLoaded()) );
-    connect( d->thread, SIGNAL(loadFinished()), SIGNAL(pageCountChanged()) );
-    connect( d->thread, SIGNAL(loadFinished()), SIGNAL(linkTargetsChanged()) );
-    connect( d->thread, SIGNAL(pageFinished(int,QImage)), SIGNAL(pageFinished(int,QImage)));
+    connect( d->thread, &PDFRenderThread::loadFinished, this, &PDFDocument::documentLoaded );
+    connect( d->thread, &PDFRenderThread::loadFinished, this, &PDFDocument::pageCountChanged );
+    connect( d->thread, &PDFRenderThread::loadFinished, this, &PDFDocument::linkTargetsChanged );
+    connect( d->thread, &PDFRenderThread::jobFinished, this, &PDFDocument::jobFinished );
 }
 
 PDFDocument::~PDFDocument()
 {
+    delete d->thread;
 }
 
 QString PDFDocument::source() const
@@ -75,7 +77,8 @@ void PDFDocument::componentComplete()
 {
     if(!d->source.isEmpty())
     {
-        d->thread->load( QUrl{ d->source }.toLocalFile() );
+        LoadDocumentJob* job = new LoadDocumentJob{ QUrl{d->source}.toLocalFile() };
+        d->thread->queueJob( job );
     }
 
     d->completed = true;
@@ -90,7 +93,8 @@ void PDFDocument::setSource(const QString& source)
             d->source.prepend("file://");
 
         if(d->completed) {
-            d->thread->load( QUrl{ d->source }.toLocalFile() );
+            LoadDocumentJob* job = new LoadDocumentJob{ QUrl{source}.toLocalFile() };
+            d->thread->queueJob( job );
         }
 
         emit sourceChanged();
@@ -104,5 +108,38 @@ void PDFDocument::setCanvasWidth(uint width)
 
 void PDFDocument::requestPage(int index, int size)
 {
-    d->thread->requestPage( index, size );
+    if(!isLoaded())
+        return;
+
+    RenderPageJob* job = new RenderPageJob{ index, size };
+    d->thread->queueJob( job );
+}
+
+void PDFDocument::requestPageSizes()
+{
+    if(!isLoaded())
+        return;
+
+    PageSizesJob* job = new PageSizesJob{};
+    d->thread->queueJob( job );
+}
+
+void PDFDocument::jobFinished(PDFJob* job)
+{
+    switch(job->type()) {
+        case PDFJob::RenderPageJob: {
+            RenderPageJob* j = static_cast<RenderPageJob*>(job);
+            emit pageFinished(j->m_index, j->m_page);
+            break;
+        }
+        case PDFJob::PageSizesJob: {
+            PageSizesJob* j = static_cast<PageSizesJob*>(job);
+            emit pageSizesFinished(j->m_pageSizes);
+            break;
+        }
+        default:
+            break;
+    }
+
+    job->deleteLater();
 }

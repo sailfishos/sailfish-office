@@ -18,15 +18,28 @@ void LoadDocumentJob::run()
     m_document->setRenderHint( Poppler::Document::TextAntialiasing, true );
 }
 
-RenderPageJob::RenderPageJob(int index, uint width, Poppler::Document* document)
-    : PDFJob{ PDFJob::RenderPageJob }, m_index{ index }, m_width{ width }, m_document{ document }
+RenderPageJob::RenderPageJob(int index, uint width)
+    : PDFJob{ PDFJob::RenderPageJob }, m_index{ index }, m_width{ width }
 {
 
 }
 
 void RenderPageJob::run()
 {
+    Q_ASSERT(m_document);
+
     Poppler::Page* page = m_document->page( m_index );
     float scale = 72.0f * ( float(m_width) / page->pageSizeF().width() );
     m_page = page->renderToImage( scale, scale );
+}
+
+void PageSizesJob::run()
+{
+    Q_ASSERT(m_document);
+
+    for( int i = 0; i < m_document->numPages(); ++i )
+    {
+        Poppler::Page* page = m_document->page( i );
+        m_pageSizes.append( page->pageSizeF() );
+    }
 }

@@ -18,12 +18,9 @@ SilicaFlickable {
     signal updateSize(real newWidth, real newHeight);
 
     function zoom(amount, center) {
-
         var oldWidth = canvas.width;
-        var oldHeight = canvas.height;
 
         canvas.width *= amount;
-//         updateTimer.restart();
 
         if(canvas.width < d.minWidth) {
             canvas.width = d.minWidth;
@@ -39,30 +36,24 @@ SilicaFlickable {
             base.scaled = true;
         }
 
-        contentX += (center.x * canvas.width / oldWidth) - center.x;
-        if (canvas.height > height) {
-            contentY += (center.y * canvas.height / oldHeight) - center.y;
-        }
+        var realZoom = canvas.width / oldWidth;
+        contentX += (center.x * realZoom) - center.x;
+        contentY += (center.y * realZoom) - center.y;
     }
 
     PDF.Canvas {
         id: canvas;
 
         width: base.width;
-        height: 10;
-
-        //         PDF.Canvas {
-//             id: pdfCanvas;
-//             document: pdfDocument;
-//             width: base.width;
-//             height: 10; // something non-zero to get things going
-//             flickable: view;
-//        }
+        spacing: Theme.paddingLarge;
         flickable: base;
 
         PinchArea {
             anchors.fill: parent;
-            onPinchUpdated: base.zoom(1.0 + (pinch.scale - pinch.previousScale), pinch.center);
+            onPinchUpdated: {
+                var newCenter = mapToItem(canvas, pinch.center.x, pinch.center.y)
+                base.zoom(1.0 + (pinch.scale - pinch.previousScale), newCenter);
+            }
             onPinchFinished: base.returnToBounds();
 
             MouseArea {
@@ -82,29 +73,5 @@ SilicaFlickable {
 
         property real minWidth: base.width;
         property real maxWidth: base.width * 2.5;
-    }
-
-//     Timer {
-//         id: updateTimer;
-//
-//         interval: 500;
-//         repeat: false;
-//         onTriggered: base.updateSize(canvas.width, canvas.height);
-//     }
-
-    /**
-     * The following is a workaround for missing currentItem in
-     * QML's PathView.
-     */
-    Component.onCompleted: {
-        if (PathView.isCurrentItem) {
-            PathView.view.currentItem = base;
-        }
-    }
-
-    PathView.onIsCurrentItemChanged: {
-        if (PathView.isCurrentItem) {
-            PathView.view.currentItem = base;
-        }
     }
 }

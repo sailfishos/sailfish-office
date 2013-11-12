@@ -110,18 +110,9 @@ QObjectList PDFRenderThread::linkTargets() const
     return d->linkTargets;
 }
 
-void PDFRenderThread::load(const QString& file)
+void PDFRenderThread::queueJob(PDFJob* job)
 {
-    LoadDocumentJob* job = new LoadDocumentJob{ file };
-    job->moveToThread( d->thread );
-
-    QMutexLocker locker{ &d->mutex };
-    d->jobQueue.enqueue( job );
-}
-
-void PDFRenderThread::requestPage(int index, uint width )
-{
-    RenderPageJob* job = new RenderPageJob{ index, width, d->document };
+    job->m_document = d->document;
     job->moveToThread( d->thread );
 
     QMutexLocker locker{ &d->mutex };
@@ -157,14 +148,11 @@ void PDFRenderThread::processQueue()
             }
             d->tocModel = new PDFTocModel{ d->document };
             d->rescanDocumentLinks();
+            job->deleteLater();
             emit loadFinished();
             break;
         }
-        case PDFJob::RenderPageJob: {
-            RenderPageJob* rj = static_cast< RenderPageJob* >( job );
-            emit pageFinished( rj->m_index, rj->m_page );
-        }
+        default:
+            emit jobFinished(job);
     }
-
-    job->deleteLater();
 }
