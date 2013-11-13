@@ -6,7 +6,6 @@ Page {
     signal pageSelected(int pageNumber);
 
     property alias tocModel: tocListView.model;
-    property int currentPageNumber: 0;
 
     allowedOrientations: Orientation.All;
 
@@ -19,7 +18,7 @@ Page {
         header: PageHeader { title: qsTrId( "sailfish-office-he-pdf_index" ); }
 
         delegate: BackgroundItem {
-            //highlighted: model.page == page.canvas.currentPageNumber;
+            id: bg;
 
             Label {
                 anchors {
@@ -31,6 +30,8 @@ Page {
                 }
                 elide: Text.ElideRight;
                 text: (model.title === undefined) ? "" : model.title;
+                color: bg.highlighted ? Theme.highlightColor : Theme.primaryColor;
+                truncationMode: TruncationMode.Fade;
             }
             Label {
                 id: pageNumberLbl
@@ -40,10 +41,11 @@ Page {
                     verticalCenter: parent.verticalCenter;
                 }
                 text: (model.pageNumber === undefined) ? "" : model.pageNumber;
+                color: bg.highlighted ? Theme.highlightColor : Theme.primaryColor;
             }
 
             onClicked: {
-                page.pageSelected(model.pageNumber);
+                page.pageSelected(model.pageNumber - 1);
                 pageStack.navigateBack(PageStackAction.Animated);
             }
         }
