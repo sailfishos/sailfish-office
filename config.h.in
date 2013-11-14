@@ -7,7 +7,4 @@
 #define CALLIGRA_QML_PLUGIN_DIR "${CALLIGRA_QML_PLUGIN_DIR}"
 #define DROPBOX_QML_PLUGIN_DIR "${CMAKE_INSTALL_PREFIX}/lib/qt5/qml/"
 
-#define DBUS_SERVICE "org.sailfish.documents"
-#define SIGNON_DBUS_OBJECT "/SailfishDocumentsSignonUi"
-
 #endif //CONFIG_H
