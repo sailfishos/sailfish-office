@@ -7,6 +7,7 @@
 #include <QtCore/QMimeType>
 #include <QtCore/QFileInfo>
 #include <QtCore/QMimeDatabase>
+#include <QtCore/QDir>
 
 class FileInfo::Private
 {
@@ -14,7 +15,11 @@ public:
     Private()
     { }
 
-    QUrl source;
+    void resolvePath();
+
+    QString source;
+
+    QUrl path;
 
     QFileInfo fileInfo;
     QMimeType mimeType;
@@ -30,19 +35,17 @@ FileInfo::~FileInfo()
 {
 }
 
-QUrl FileInfo::source() const
+QString FileInfo::source() const
 {
     return d->source;
 }
 
-void FileInfo::setSource(const QUrl& source)
+void FileInfo::setSource(const QString& source)
 {
     if(source != d->source) {
         d->source = source;
 
-        d->fileInfo = QFileInfo(d->source.toLocalFile());
-        QMimeDatabase db;
-        d->mimeType = db.mimeTypeForFile(d->fileInfo);
+        d->resolvePath();
 
         emit sourceChanged();
     }
@@ -51,6 +54,11 @@ void FileInfo::setSource(const QUrl& source)
 QString FileInfo::fileName() const
 {
     return d->fileInfo.fileName();
+}
+
+QUrl FileInfo::fullPath() const
+{
+    return d->path;
 }
 
 qint64 FileInfo::fileSize() const
@@ -71,4 +79,18 @@ QString FileInfo::mimeTypeComment() const
 QDateTime FileInfo::modifiedDate() const
 {
     return d->fileInfo.lastModified();
+}
+
+void FileInfo::Private::resolvePath()
+{
+    path = QUrl(source);
+    if(path.isEmpty())
+        path = QUrl::fromLocalFile(source);
+
+    if(path.isRelative())
+        path = QUrl::fromLocalFile(QDir::current().absoluteFilePath(source));
+
+    fileInfo = QFileInfo(path.toLocalFile());
+    QMimeDatabase db;
+    mimeType = db.mimeTypeForFile(fileInfo);
 }
