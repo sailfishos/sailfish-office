@@ -66,7 +66,6 @@ Page {
 
                     font.pixelSize: Theme.fontSizeExtraSmall;
                     color: Theme.secondaryColor;
-                    opacity: 0.6;
                 }
                 Label {
                     anchors {
@@ -79,7 +78,6 @@ Page {
 
                     font.pixelSize: Theme.fontSizeExtraSmall;
                     color: Theme.secondaryColor;
-                    opacity: 0.6;
                 }
 
                 onClicked: {
