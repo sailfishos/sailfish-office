@@ -5,9 +5,9 @@ macro(ADD_TRANSLATION _qm_files)
     get_source_file_property(output_location ${_abs_FILE} OUTPUT_LOCATION)
     if(output_location)
       file(MAKE_DIRECTORY "${output_location}")
-      set(qm "${output_location}/${qm}.qm")
+      set(qm "${output_location}/${qm}_eng_en.qm")
     else()
-      set(qm "${CMAKE_CURRENT_BINARY_DIR}/${qm}.qm")
+      set(qm "${CMAKE_CURRENT_BINARY_DIR}/${qm}_eng_en.qm")
     endif()
 
     add_custom_command(OUTPUT ${qm}
