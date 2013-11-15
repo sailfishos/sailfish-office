@@ -27,8 +27,6 @@ Page {
                 topMargin: Theme.paddingSmall;
             }
             text: controllerMIT.needAuthenticate ? "Log in to DropBox" : "Log out of DropBox";
-            //elide: Text.ElideRight;
-            //font.pixelSize: Theme.fontSizeLarge;
             onClicked: {
                 if(controllerMIT.needAuthenticate) {
                     pageStack.push( loginPage );
