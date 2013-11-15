@@ -67,12 +67,12 @@ PDFRenderThread::PDFRenderThread(QObject* parent)
     d->thread = new QThread(this);
 
     d->updateTimer = new QTimer();
-    d->updateTimer->setInterval(500);
+    d->updateTimer->setInterval(50);
     d->updateTimer->start();
     connect(d->updateTimer, SIGNAL(timeout()), this, SLOT(processQueue()), Qt::DirectConnection);
     d->updateTimer->moveToThread(d->thread);
 
-    d->thread->start(QThread::LowestPriority);
+    d->thread->start();
 }
 
 PDFRenderThread::~PDFRenderThread()

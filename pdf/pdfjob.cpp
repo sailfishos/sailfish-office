@@ -3,6 +3,7 @@
  */
 
 #include "pdfjob.h"
+
 #include <poppler-qt5.h>
 
 LoadDocumentJob::LoadDocumentJob(const QString& source)
