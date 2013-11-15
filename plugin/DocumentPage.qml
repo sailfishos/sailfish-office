@@ -49,7 +49,9 @@ Page {
 
             PullDownMenu {
                 MenuItem {
-                    text: "Details";
+                    //: Show the Details page
+                    //% "Details"
+                    text: qsTrId("sailfish-office-me-details_page");
                     onClicked: pageStack.push(detailsPage, { source: base.source, indexCount: base.indexCount });
                 }
             }

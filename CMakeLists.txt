@@ -51,6 +51,7 @@ set(sailfishoffice_QML_SRCS
     qml/Main.qml
     qml/StartPage.qml
     qml/HighlightImage.qml
+    qml/DocumentPages.qml
 )
 
 file(GLOB plugin_QML_SRCS plugin/*.qml)
@@ -69,7 +70,6 @@ target_link_libraries(sailfish-office stdc++ ${QT_LIBRARIES} ${BOOSTER_LIBRARY} 
 
 install(TARGETS sailfish-office DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 install(FILES sailfish-office.desktop DESTINATION ${CMAKE_INSTALL_PREFIX}/share/applications)
-install(FILES org.sailfish.documents.service DESTINATION ${CMAKE_INSTALL_PREFIX}/share/dbus-1/services)
 install(FILES ${sailfishoffice_QML_SRCS} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/sailfish-office
 )
 install(FILES ${engen_qm_file} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/translations)

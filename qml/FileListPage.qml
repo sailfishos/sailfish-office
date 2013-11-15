@@ -66,7 +66,6 @@ Page {
 
                     font.pixelSize: Theme.fontSizeExtraSmall;
                     color: Theme.secondaryColor;
-                    opacity: 0.6;
                 }
                 Label {
                     anchors {
@@ -79,22 +78,21 @@ Page {
 
                     font.pixelSize: Theme.fontSizeExtraSmall;
                     color: Theme.secondaryColor;
-                    opacity: 0.6;
                 }
 
                 onClicked: {
                     switch(model.fileDocumentClass) {
                         case DocumentListModel.TextDocument:
-                            pageStack.push(textDocumentPage, { title: model.fileName, path: model.filePath, mimeType: model.fileMimeType });
+                            pageStack.push(pages.textDocument, { title: model.fileName, path: model.filePath, mimeType: model.fileMimeType });
                             break;
                         case DocumentListModel.SpreadSheetDocument:
-                            pageStack.push(spreadsheetPage, { title: model.fileName, path: model.filePath, mimeType: model.fileMimeType });
+                            pageStack.push(pages.spreadsheet, { title: model.fileName, path: model.filePath, mimeType: model.fileMimeType });
                             break;
                         case DocumentListModel.PresentationDocument:
-                            pageStack.push(presentationPage, { title: model.fileName, path: model.filePath, mimeType: model.fileMimeType });
+                            pageStack.push(pages.presentation, { title: model.fileName, path: model.filePath, mimeType: model.fileMimeType });
                             break;
                         case DocumentListModel.PDFDocument:
-                            pageStack.push(pdfPage, { title: model.fileName, path: model.filePath, mimeType: model.fileMimeType });
+                            pageStack.push(pages.pdf, { title: model.fileName, path: model.filePath, mimeType: model.fileMimeType });
                             break;
                         default:
                             console.log("Unknown file format for file " + model.fileName + " with stated mimetype " + model.fileMimeType);
@@ -136,23 +134,7 @@ Page {
         }
     }
 
-    Component {
-        id: textDocumentPage;
-        TextDocumentPage { }
-    }
-
-    Component {
-        id: spreadsheetPage;
-        SpreadsheetPage { }
-    }
-
-    Component {
-        id: presentationPage;
-        PresentationPage { }
-    }
-
-    Component {
-        id: pdfPage;
-        PDFDocumentPage { }
+    DocumentPages {
+        id: pages;
     }
 }

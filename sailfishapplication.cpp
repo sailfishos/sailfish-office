@@ -26,6 +26,8 @@
 QSharedPointer<QApplication> Sailfish::createApplication(int &argc, char **argv)
 {
     auto app = QSharedPointer<QApplication>{new QApplication{argc, argv}};
+    //FIXME: We should be able to use a pure QGuiApplication but currently too much of
+    //Calligra depends on QApplication.
     //QSharedPointer<QGuiApplication>(MDeclarativeCache::qApplication(argc, argv));
 
     QTranslator* engineeringEnglish = new QTranslator( app.data() );
@@ -53,20 +55,6 @@ QSharedPointer<QQuickView> Sailfish::createView(const QString &file)
     view->engine()->addImportPath(CALLIGRA_QML_PLUGIN_DIR);
     view->engine()->addImportPath(DROPBOX_QML_PLUGIN_DIR);
     view->setSource(QUrl::fromLocalFile(QML_INSTALL_DIR + file));
-
-    // We want to have SignonUI in process, if user wants to create account from Documents
-    SignonUiService* ssoui = new SignonUiService( view.data(), true ); // in process
-    ssoui->setInProcessServiceName( DBUS_SERVICE );
-    ssoui->setInProcessObjectPath( SIGNON_DBUS_OBJECT );
-
-    QDBusConnection sessionBus = QDBusConnection::sessionBus();
-    bool registeredService = sessionBus.registerService( DBUS_SERVICE );
-    bool registeredObject = sessionBus.registerObject( SIGNON_DBUS_OBJECT, ssoui, QDBusConnection::ExportAllContents );
-
-    if( !registeredService || !registeredObject )
-        qWarning( "Warning: Unable to register signon dbus object for Sailfish Office. Is another instance running?" );
-
-    view->rootContext()->setContextProperty( "jolla_signon_ui_service", ssoui );
 
     return view;
 }

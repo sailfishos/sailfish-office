@@ -2,6 +2,8 @@ import QtQuick 2.0
 import Sailfish.Silica 1.0
 import Sailfish.TransferEngine 1.0
 import Sailfish.Accounts 1.0
+import com.jolla.settings.accounts 1.0
+import com.jolla.signonuiservice 1.0
 
 ShareMethodList {
     id: menuList
@@ -20,7 +22,7 @@ ShareMethodList {
 
     //: Share documents
     //% "Share"
-    //listHeader: qsTrId( "sailfish-office-la-share" );
+    listHeader: qsTrId( "sailfish-office-la-share" );
 
     header: PageHeader{ title: menuList.title }
 
@@ -33,19 +35,25 @@ ShareMethodList {
             text: qsTrId( "sailfish-office-me-add_account" );
             x: Theme.paddingLarge
             anchors.verticalCenter: parent.verticalCenter
-            color: parent.down ? Theme.highlightColor : Theme.primaryColor
+            color: highlighted ? Theme.highlightColor : Theme.primaryColor
             visible: true
         }
 
         onClicked: {
             jolla_signon_ui_service.inProcessParent = visualParent
-            pageStack.push(accountsPage)
+            accountCreator.startAccountCreation();
         }
     }
 
-    Component {
-        id: accountsPage
-        //AccountsPage { }
-        Item {}
+    SignonUiService {
+        id: jolla_signon_ui_service;
+        inProcessServiceName: "org.sailfish.office";
+        inProcessObjectPath: "/SailfishOfficeSignonUi"
+    }
+
+    AccountCreationManager {
+        id: accountCreator;
+        endDestination: menuList.visualParent;
+        endDestinationAction: PageStackAction.Pop;
     }
 }
