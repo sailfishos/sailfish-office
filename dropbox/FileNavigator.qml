@@ -407,16 +407,16 @@ Page {
             var docClass = page.model.mimeTypeToDocumentClass(page.fileMimetype);
             switch(docClass) {
                 case DocumentListModel.TextDocument:
-                    pageStack.push(textDocumentPage, { title: page.fileName, path: filePath, mimeType: page.fileMimetype });
+                    pageStack.push(pages.textDocument, { title: page.fileName, path: filePath, mimeType: page.fileMimetype });
                     break;
                 case DocumentListModel.SpreadSheetDocument:
-                    pageStack.push(spreadsheetPage, { title: page.fileName, path: filePath, mimeType: page.fileMimetype });
+                    pageStack.push(pages.spreadsheet, { title: page.fileName, path: filePath, mimeType: page.fileMimetype });
                     break;
                 case DocumentListModel.PresentationDocument:
-                    pageStack.push(presentationPage, { title: page.fileName, path: filePath, mimeType: page.fileMimetype });
+                    pageStack.push(pages.presentation, { title: page.fileName, path: filePath, mimeType: page.fileMimetype });
                     break;
                 case DocumentListModel.PDFDocument:
-                    pageStack.push(pdfPage, { title: page.fileName, path: filePath, mimeType: page.fileMimetype });
+                    pageStack.push(pages.pdf, { title: page.fileName, path: filePath, mimeType: page.fileMimetype });
                     break;
                 default:
                     console.log("Unknown file format " + docClass + " for file " + filePath + " with stated mimetype " + page.fileMimetype);
@@ -540,23 +540,7 @@ Page {
                 return toFixed(((bytes/1024)/1024),2) + " Mbps"
     }
 
-    Component {
-        id: textDocumentPage;
-        TextDocumentPage { }
-    }
-
-    Component {
-        id: spreadsheetPage;
-        SpreadsheetPage { }
-    }
-
-    Component {
-        id: presentationPage;
-        PresentationPage { }
-    }
-
-    Component {
-        id: pdfPage;
-        PDFDocumentPage { }
+    DocumentPages {
+        id: pages;
     }
 }

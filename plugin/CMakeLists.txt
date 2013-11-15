@@ -25,5 +25,6 @@ install(FILES
     ZoomableThumbnail.qml
     DetailsPage.qml
     DetailsItem.qml
+    DocumentPages.qml
     DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/qt5/qml/Sailfish/Office
 )
