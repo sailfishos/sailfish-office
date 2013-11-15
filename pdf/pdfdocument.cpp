@@ -111,6 +111,8 @@ void PDFDocument::requestPage(int index, int size)
     if(!isLoaded())
         return;
 
+    qDebug() << "Requesting page" << index << "at size" << size;
+
     RenderPageJob* job = new RenderPageJob{ index, size };
     d->thread->queueJob( job );
 }
