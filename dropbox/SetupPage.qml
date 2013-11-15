@@ -17,20 +17,18 @@ Page {
         }
         height: Theme.itemSizeLarge;
 
-        Label {
+        Button {
             anchors {
                 left: parent.left;
-                leftMargin: Theme.paddingSmall;
+                leftMargin: Theme.paddingLarge;
                 right: parent.right;
+                rightMargin: Theme.paddingLarge;
                 top: parent.top;
                 topMargin: Theme.paddingSmall;
             }
-            text: controllerMIT.needAuthenticate ? "Log in to DropBox..." : "Log out of DropBox";
-            elide: Text.ElideRight;
-            font.pixelSize: Theme.fontSizeLarge;
-        }
-        MouseArea {
-            anchors.fill: parent;
+            text: controllerMIT.needAuthenticate ? "Log in to DropBox" : "Log out of DropBox";
+            //elide: Text.ElideRight;
+            //font.pixelSize: Theme.fontSizeLarge;
             onClicked: {
                 if(controllerMIT.needAuthenticate) {
                     pageStack.push( loginPage );
