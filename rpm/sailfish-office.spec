@@ -43,6 +43,8 @@ Group: System/Base
 %{_datadir}/applications/*.desktop
 %{_datadir}/%{name}/
 %{_datadir}/translations/
+%{_datadir}/dbus-1/interfaces/
+%{_datadir}/dbus-1/services/
 
 %files ts-devel
 %{_datadir}/translations/source/*.ts

@@ -2,6 +2,7 @@
 #include <QApplication>
 #include <QDir>
 #include <QGraphicsObject>
+#include <QDebug>
 
 #include <QQmlComponent>
 #include <QQmlEngine>
@@ -22,6 +23,8 @@
 #include "models/documentproviderplugin.h"
 #include "models/documentproviderlistmodel.h"
 #include "models/dropboxdocumentprovider.h"
+#include "dbusadaptor.h"
+#include <QtDBus/QDBusConnection>
 
 QSharedPointer<QApplication> Sailfish::createApplication(int &argc, char **argv)
 {
@@ -55,6 +58,14 @@ QSharedPointer<QQuickView> Sailfish::createView(const QString &file)
     view->engine()->addImportPath(CALLIGRA_QML_PLUGIN_DIR);
     view->engine()->addImportPath(DROPBOX_QML_PLUGIN_DIR);
     view->setSource(QUrl::fromLocalFile(QML_INSTALL_DIR + file));
+
+    new DBusAdaptor{view.data()};
+
+    if(!QDBusConnection::sessionBus().registerObject("/org/sailfish/office/ui", view.data()))
+        qWarning() << "Could not register /org/sailfish/office/ui D-Bus object.";
+
+    if(!QDBusConnection::sessionBus().registerService("org.sailfish.office"))
+        qWarning() << "Could not register org.sailfish.office D-Bus service.";
 
     return view;
 }

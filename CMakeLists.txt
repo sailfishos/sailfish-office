@@ -37,6 +37,7 @@ add_subdirectory(pdf)
 
 set(sailfishoffice_SRCS
     main.cpp
+    dbusadaptor.cpp
     sailfishapplication.cpp
     models/documentlistmodel.cpp
     models/documentproviderlistmodel.cpp
@@ -73,6 +74,8 @@ install(FILES ${sailfishoffice_QML_SRCS} DESTINATION ${CMAKE_INSTALL_PREFIX}/sha
 )
 install(FILES ${engen_qm_file} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/translations)
 install(FILES ${CMAKE_BINARY_DIR}/sailfish-office.ts DESTINATION ${CMAKE_INSTALL_PREFIX}/share/translations/source)
+install(FILES org.sailfish.office.service DESTINATION ${CMAKE_INSTALL_PREFIX}/share/dbus-1/services)
+install(FILES org.sailfish.office.xml DESTINATION ${CMAKE_INSTALL_PREFIX}/share/dbus-1/interfaces)
 
 install(FILES
     images/graphic-plugin-local.png
