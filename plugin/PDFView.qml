@@ -60,7 +60,7 @@ SilicaFlickable {
         PDF.LinkArea {
             anchors.fill: parent;
             links: pdfDocument.linkTargets;
-            onLinkClicked: console.debug(linkTarget);
+            onLinkClicked: Qt.openUrlExternally(linkTarget);
             onClicked: base.clicked();
         }
     }
