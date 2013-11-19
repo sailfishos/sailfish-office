@@ -55,11 +55,13 @@ SilicaFlickable {
                 base.zoom(1.0 + (pinch.scale - pinch.previousScale), newCenter);
             }
             onPinchFinished: base.returnToBounds();
+        }
 
-            MouseArea {
-                anchors.fill: parent;
-                onClicked: base.clicked();
-            }
+        PDF.LinkArea {
+            anchors.fill: parent;
+            links: pdfDocument.linkTargets;
+            onLinkClicked: console.debug(linkTarget);
+            onClicked: base.clicked();
         }
     }
 
