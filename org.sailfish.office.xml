@@ -1,0 +1,11 @@
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN"
+ "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+
+<node name="/org/sailfish/office/ui">
+    <interface name="org.sailfish.office.ui">
+        <method name="openFile">
+            <annotation name="org.freedesktop.DBus.Method.NoReply" value="true" />
+            <arg direction="in" type="as" name="files" />
+        </method>
+   </interface>
+</node>

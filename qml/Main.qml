@@ -17,10 +17,23 @@ ApplicationWindow
     //when opening a document so opening becomes more responsive.
     Component.onCompleted: {
         if(Qt.application.arguments.length > 1)
+            openFile(Qt.application.arguments[1]);
+    }
+
+    DocumentPages {
+        id: pages;
+    }
+
+    FileInfo {
+        id: fileInfo;
+    }
+
+    function openFile(file) {
+        fileInfo.source = file;
+
+        if(pageStack.currentPage.path === undefined || pageStack.currentPage.path != fileInfo.fullPath)
         {
-            var file = Qt.application.arguments[1];
-            fileInfo.source = file;
-            switch(Calligra.Global.documentType(file)) {
+            switch(Calligra.Global.documentType(fileInfo.fullPath)) {
                 case Calligra.DocumentType.TextDocument:
                     pageStack.push(pages.textDocument, { title: fileInfo.fileName, path: fileInfo.fullPath, mimeType: fileInfo.mimeType });
                     break;
@@ -38,13 +51,6 @@ ApplicationWindow
                     break;
             }
         }
-    }
-
-    DocumentPages {
-        id: pages;
-    }
-
-    FileInfo {
-        id: fileInfo;
+        activate();
     }
 }
