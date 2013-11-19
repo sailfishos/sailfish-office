@@ -11,47 +11,37 @@ DocumentPage {
         }
     }
 
-    Calligra.View {
-        id: v;
+    SlideshowView {
         anchors.fill: parent;
-        document: doc;
-    }
+        itemWidth: page.width;
+        itemHeight: page.height;
 
-    SilicaFlickable {
-        id: f;
-        anchors.fill: parent;
+        currentIndex: doc.currentIndex;
 
-        Calligra.ViewController {
-            id: controller;
-            view: v;
-            flickable: f;
-            minimumZoomFitsWidth: true;
+        model: Calligra.ContentsModel {
+            document: doc;
+            thumbnailSize.width: page.width;
+            thumbnailSize.height: page.width * 0.75;
         }
 
-        children: [
-            HorizontalScrollDecorator { color: Theme.highlightDimmerColor; },
-            VerticalScrollDecorator { color: Theme.highlightDimmerColor; }
-        ]
+        delegate: ZoomableThumbnail {
+            width: PathView.view.itemWidth;
+            maxHeight: PathView.view.itemHeight;
 
-        PinchArea {
-            anchors.fill: parent;
+            y: - height / 2;
 
-            onPinchUpdated: {
-                var newCenter = mapToItem( f, pinch.center.x, pinch.center.y );
-                controller.zoomAroundPoint(pinch.scale - pinch.previousScale, newCenter.x, newCenter.y);
-            }
+            content: PathView.view.model.thumbnail(index, page.width);
 
-            MouseArea {
-                anchors.fill: parent;
-                onClicked: page.open = !page.open;
+            onClicked: page.open = !page.open;
+
+            onUpdateSize: {
+                content = PathView.view.model.thumbnail(index, newWidth);
             }
         }
     }
 
     Calligra.Document {
         id: doc;
-
-        onStatusChanged: if(status == Calligra.DocumentStatus.Loaded) controller.zoomToFitWidth(page.width);
     }
     
     busy: doc.status != Calligra.DocumentStatus.Loaded;
