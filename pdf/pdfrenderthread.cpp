@@ -29,12 +29,13 @@ public:
 
     Poppler::Document* document;
     PDFTocModel* tocModel;
-    QObjectList linkTargets;
+    QVariantList linkTargets;
     uint canvasWidth;
+    uint canvasSpacing;
 
     void rescanDocumentLinks()
     {
-        qDeleteAll(linkTargets);
+        //qDeleteAll(linkTargets);
         linkTargets.clear();
         qreal pageTop = 0;
         qreal sizeAdjustment = (qreal)canvasWidth / document->page(0)->pageSizeF().width();
@@ -46,17 +47,18 @@ public:
                 if(link->linkType() == Poppler::Link::Browse)
                 {
                     Poppler::LinkBrowse* realLink = static_cast<Poppler::LinkBrowse*>(link);
-                    QRectF linkPos(pageTop + page->pageSizeF().height() * link->linkArea().top() * sizeAdjustment - (page->pageSizeF().height() * -link->linkArea().height() * sizeAdjustment * 0.5),
-                                   page->pageSizeF().width() * link->linkArea().left() * sizeAdjustment,
-                                   page->pageSizeF().height() * -link->linkArea().height() * sizeAdjustment,
-                                   page->pageSizeF().width() * link->linkArea().width() * sizeAdjustment);
+                    QRectF linkPos(page->pageSizeF().width() * link->linkArea().left() * sizeAdjustment,
+                                   (pageTop + page->pageSizeF().height() * link->linkArea().top() * sizeAdjustment) - (page->pageSizeF().height() * -link->linkArea().height() * sizeAdjustment * 0.5),
+                                   page->pageSizeF().width() * link->linkArea().width() * sizeAdjustment,
+                                   page->pageSizeF().height() * -link->linkArea().height() * sizeAdjustment
+                                  );
                     QObject * obj = new QObject(updateTimer);
                     obj->setProperty("linkRect", linkPos);
                     obj->setProperty("linkTarget", realLink->url());
-                    linkTargets.append(obj);
+                    linkTargets.append(QVariant::fromValue<QObject*>(obj));
                 }
             }
-            pageTop += (page->pageSizeF().height() * sizeAdjustment) + 0.025 * (page->pageSizeF().height() * sizeAdjustment);
+            pageTop += (page->pageSizeF().height() * sizeAdjustment) + canvasSpacing;
         }
     }
 };
@@ -105,7 +107,7 @@ bool PDFRenderThread::isLoaded() const
     return d->document != nullptr;
 }
 
-QObjectList PDFRenderThread::linkTargets() const
+QVariantList PDFRenderThread::linkTargets() const
 {
     return d->linkTargets;
 }
@@ -122,6 +124,11 @@ void PDFRenderThread::queueJob(PDFJob* job)
 void PDFRenderThread::setCanvasWidth(uint width)
 {
     d->canvasWidth = width;
+}
+
+void PDFRenderThread::setCanvasSpacing(uint spacing)
+{
+    d->canvasSpacing = spacing;
 }
 
 void PDFRenderThread::processQueue()

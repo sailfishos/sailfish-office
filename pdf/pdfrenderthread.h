@@ -7,6 +7,7 @@
 
 #include <QObject>
 #include <QImage>
+#include <QVariant>
 
 class QSize;
 class PDFJob;
@@ -20,11 +21,12 @@ public:
     int pageCount() const;
     QObject* tocModel() const;
     bool isLoaded() const;
-    QObjectList linkTargets() const;
+    QVariantList linkTargets() const;
 
     void queueJob( PDFJob* job );
 
     void setCanvasWidth( uint width );
+    void setCanvasSpacing( uint spacing );
 
 Q_SIGNALS:
     void loadFinished();

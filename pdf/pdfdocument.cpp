@@ -5,6 +5,7 @@
 #include "pdfdocument.h"
 #include "pdfrenderthread.h"
 #include "pdfjob.h"
+#include <QtCore/QVariant>
 
 #include <QDebug>
 #include <QUrl>
@@ -63,7 +64,7 @@ bool PDFDocument::isLoaded() const
     return d->thread->isLoaded();
 }
 
-QObjectList PDFDocument::linkTargets() const
+QVariantList PDFDocument::linkTargets() const
 {
     return d->thread->linkTargets();
 }
@@ -104,6 +105,11 @@ void PDFDocument::setSource(const QString& source)
 void PDFDocument::setCanvasWidth(uint width)
 {
     d->thread->setCanvasWidth( width );
+}
+
+void PDFDocument::setCanvasSpacing(uint spacing)
+{
+    d->thread->setCanvasSpacing( spacing );
 }
 
 void PDFDocument::requestPage(int index, int size)

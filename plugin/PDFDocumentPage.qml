@@ -18,6 +18,7 @@ DocumentPage {
         document: pdfDocument;
 
         onClicked: base.open = !base.open;
+        onWidthChanged: { pdfDocument.setCanvasWidth(width); pdfDocument.setCanvasSpacing(Theme.paddingLarge); }
     }
 
     PDF.Document {
