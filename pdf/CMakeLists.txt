@@ -9,6 +9,7 @@ set(pdfplugin_SRCS
     pdfjob.cpp
     pdftocmodel.cpp
     pdfcanvas.cpp
+    pdflinkarea.cpp
 )
 
 add_library(sailfishofficepdfplugin MODULE ${pdfplugin_SRCS})
