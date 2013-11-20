@@ -48,6 +48,13 @@ SilicaFlickable {
         spacing: Theme.paddingLarge;
         flickable: base;
 
+        PDF.LinkArea {
+            anchors.fill: parent;
+            links: pdfDocument.linkTargets;
+            onLinkClicked: Qt.openUrlExternally(linkTarget);
+            onClicked: base.clicked();
+        }
+
         PinchArea {
             anchors.fill: parent;
             onPinchUpdated: {
@@ -55,13 +62,6 @@ SilicaFlickable {
                 base.zoom(1.0 + (pinch.scale - pinch.previousScale), newCenter);
             }
             onPinchFinished: base.returnToBounds();
-        }
-
-        PDF.LinkArea {
-            anchors.fill: parent;
-            links: pdfDocument.linkTargets;
-            onLinkClicked: Qt.openUrlExternally(linkTarget);
-            onClicked: base.clicked();
         }
     }
 
