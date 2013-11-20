@@ -8,7 +8,7 @@ Source0: %{name}-%{version}.tar.gz
 BuildRequires: pkgconfig(Qt5Declarative)
 BuildRequires: pkgconfig(Qt5Quick)
 BuildRequires: pkgconfig(Qt5Widgets)
-BuildRequires: pkgconfig(Qt5WebKit)
+#BuildRequires: pkgconfig(Qt5WebKit)
 BuildRequires: pkgconfig(Qt5DBus)
 BuildRequires: libqt5sparql-devel
 BuildRequires: poppler-qt5-devel poppler-qt5 poppler-devel poppler
@@ -20,7 +20,7 @@ Requires: calligra-components calligra-filters
 Requires: sailfishsilica-qt5
 Requires: sailfish-components-accounts-qt5
 Requires: libqt5sparql-tracker
-Requires: qt5-qtqml-import-webkitplugin
+#Requires: qt5-qtqml-import-webkitplugin
 Requires: libjollasignonuiservice-qt5-plugin
 
 %package ts-devel
