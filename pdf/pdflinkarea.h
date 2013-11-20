@@ -7,34 +7,25 @@
 
 #include <QtQuick/QQuickPaintedItem>
 
+class PDFCanvas;
 class PDFLinkArea : public QQuickItem
 {
     Q_OBJECT
-    Q_PROPERTY(QVariantList links READ links WRITE setLinks NOTIFY linksChanged)
-    Q_PROPERTY(QSizeF sourceSize READ sourceSize WRITE setSourceSize NOTIFY sourceSizeChanged)
-//     Q_PROPERTY(QColor linkColor READ linkColor WRITE setLinkColor NOTIFY linkColorChanged)
+    Q_PROPERTY( PDFCanvas* canvas READ canvas WRITE setCanvas NOTIFY canvasChanged )
 
 public:
     PDFLinkArea(QQuickItem* parent = 0);
     virtual ~PDFLinkArea();
-//     virtual void paint(QPainter* painter);
 
-    QVariantList links() const;
-    void setLinks(const QVariantList& newLinks);
-
-    QSizeF sourceSize() const;
-    void setSourceSize( const QSizeF& size );
-
-    QColor linkColor() const;
-    void setLinkColor( const QColor& color );
+    PDFCanvas* canvas() const;
+    void setCanvas( PDFCanvas* newCanvas );
 
 Q_SIGNALS:
-    void linksChanged();
     void clicked();
     void doubleClicked();
     void linkClicked(QUrl linkTarget);
-    void sourceSizeChanged();
-    void linkColorChanged();
+
+    void canvasChanged();
 
 protected:
     virtual void mousePressEvent(QMouseEvent* event);

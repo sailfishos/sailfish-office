@@ -22,7 +22,6 @@ class PDFDocument : public QObject, public QQmlParserStatus
     Q_PROPERTY(QString source READ source WRITE setSource NOTIFY sourceChanged)
     Q_PROPERTY(int pageCount READ pageCount NOTIFY pageCountChanged)
     Q_PROPERTY(QObject* tocModel READ tocModel NOTIFY tocModelChanged)
-    Q_PROPERTY(QVariantList linkTargets READ linkTargets NOTIFY linkTargetsChanged)
     Q_PROPERTY(bool loaded READ isLoaded NOTIFY documentLoaded)
 
     Q_INTERFACES(QQmlParserStatus)
@@ -32,10 +31,13 @@ public:
     ~PDFDocument();
 
 public:
+    typedef QMultiMap< int, QPair< QRectF, QUrl > > LinkMap;
+
     QString source() const;
     int pageCount() const;
     QObject* tocModel() const;
-    QVariantList linkTargets() const;
+
+    LinkMap linkTargets() const;
 
     bool isLoaded() const;
 
@@ -46,15 +48,12 @@ public Q_SLOTS:
     void setSource(const QString& source);
     void requestPage( int index, int size );
     void requestPageSizes();
-    void setCanvasWidth( uint width );
-    void setCanvasSpacing( uint spacing );
     void jobFinished(PDFJob* job);
 
 Q_SIGNALS:
     void sourceChanged();
     void pageCountChanged();
     void tocModelChanged();
-    void linkTargetsChanged();
 
     void documentLoaded();
     void pageFinished( int index, QImage image );

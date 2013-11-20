@@ -5,9 +5,10 @@
 #ifndef PDFRENDERTHREAD_H
 #define PDFRENDERTHREAD_H
 
-#include <QObject>
-#include <QImage>
-#include <QVariant>
+#include <QtCore/QObject>
+#include <QtCore/QUrl>
+#include <QtCore/QMultiMap>
+#include <QtGui/QImage>
 
 class QSize;
 class PDFJob;
@@ -21,12 +22,9 @@ public:
     int pageCount() const;
     QObject* tocModel() const;
     bool isLoaded() const;
-    QVariantList linkTargets() const;
+    QMultiMap< int, QPair< QRectF, QUrl > > linkTargets() const;
 
     void queueJob( PDFJob* job );
-
-    void setCanvasWidth( uint width );
-    void setCanvasSpacing( uint spacing );
 
 Q_SIGNALS:
     void loadFinished();
