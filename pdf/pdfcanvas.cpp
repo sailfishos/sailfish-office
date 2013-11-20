@@ -9,6 +9,7 @@
 #include <QtQuick/QSGTransformNode>
 #include <QtQuick/QSGSimpleTextureNode>
 #include <QtQuick/QQuickWindow>
+#include <QtQuick/QSGSimpleRectNode>
 
 #include "pdfrenderthread.h"
 #include "pdfdocument.h"
@@ -30,6 +31,8 @@ struct PDFPage {
     int imageWidth;
     QSGTexture* texture;
     QSGTexture* oldTexture;
+
+    QList< QPair< QRectF, QUrl > > links;
 };
 
 class PDFCanvas::Private
@@ -63,7 +66,13 @@ public:
     QRectF visibleArea;
 
     QList< QSizeF > pageSizes;
+
+    QColor linkColor;
+
+    static const float wiggleFactor;
 };
+
+const float PDFCanvas::Private::wiggleFactor{ 4.f };
 
 PDFCanvas::PDFCanvas(QQuickItem* parent)
     : QQuickItem(parent), d(new Private(this))
@@ -119,7 +128,6 @@ void PDFCanvas::setDocument(PDFDocument* doc)
         }
 
         d->document = doc;
-        d->document->setCanvasWidth( width() );
 
         connect( d->document, &PDFDocument::documentLoaded, this, &PDFCanvas::documentLoaded );
         connect( d->document, &PDFDocument::pageFinished, this, &PDFCanvas::pageFinished );
@@ -153,6 +161,22 @@ void PDFCanvas::setSpacing(float newValue)
     }
 }
 
+QColor PDFCanvas::linkColor() const
+{
+    return d->linkColor;
+}
+
+void PDFCanvas::setLinkColor(const QColor& color)
+{
+    if( color != d->linkColor )
+    {
+        d->linkColor = color;
+        d->linkColor.setAlphaF( 0.25 );
+        update();
+        emit linkColorChanged();
+    }
+}
+
 void PDFCanvas::layout()
 {
     if(d->pageSizes.count() == 0)
@@ -160,6 +184,8 @@ void PDFCanvas::layout()
         d->document->requestPageSizes();
         return;
     }
+
+    PDFDocument::LinkMap links = d->document->linkTargets();
 
     QSizeF firstPage = d->pageSizes.at(0);
     float scale = width() / firstPage.width();
@@ -173,6 +199,7 @@ void PDFCanvas::layout()
         page.index = i;
         page.rect = QRectF(0, totalHeight, unscaledSize.width() * scale, unscaledSize.height() * scale);
         page.texture = d->pages.contains( i ) ? d->pages.value( i ).texture : nullptr;
+        page.links = links.values( i );
         d->pages.insert( i, page );
 
         totalHeight += page.rect.height();
@@ -182,6 +209,31 @@ void PDFCanvas::layout()
 
     setHeight(int(totalHeight));
     update();
+}
+
+QUrl PDFCanvas::urlAtPoint(const QPoint& point)
+{
+    for( int i = 0; i < d->pageCount; ++i )
+    {
+        const PDFPage& page = d->pages.value( i );
+        if( page.rect.contains( point ) )
+        {
+            for( const QPair< QRectF, QUrl >& link : page.links )
+            {
+                QRectF hitTarget{
+                    link.first.x() * page.rect.width() - Private::wiggleFactor,
+                    link.first.y() * page.rect.height() - Private::wiggleFactor + page.rect.y(),
+                    link.first.width() * page.rect.width() + Private::wiggleFactor * 2,
+                    link.first.height() * page.rect.height() + Private::wiggleFactor * 2
+                };
+
+                if( hitTarget.contains( point ) )
+                    return link.second;
+            }
+        }
+    }
+
+    return QUrl();
 }
 
 void PDFCanvas::pageFinished( int id, const QImage& image )
@@ -278,6 +330,32 @@ QSGNode* PDFCanvas::updatePaintNode(QSGNode* node, QQuickItem::UpdatePaintNodeDa
 
             tn->setTexture( page.texture );
             tn->setRect( 0.f, 0.f, page.rect.size().width(), page.rect.size().height() );
+
+            if( page.links.count() > 0 )
+            {
+                for( int l = 0; l < page.links.count(); ++l )
+                {
+                    QRectF linkRect = page.links.value( l ).first;
+
+                    QSGSimpleRectNode* linkNode = static_cast< QSGSimpleRectNode* >( tn->childAtIndex( l ) );
+                    if( !linkNode )
+                    {
+
+                        linkNode = new QSGSimpleRectNode;
+                        tn->appendChildNode( linkNode );
+                    }
+
+                    QRectF targetRect{
+                        linkRect.x() * page.rect.width(),
+                        linkRect.y() * page.rect.height(),
+                        linkRect.width() * page.rect.width(),
+                        linkRect.height() * page.rect.height()
+                    };
+
+                    linkNode->setRect( targetRect );
+                    linkNode->setColor( d->linkColor );
+                }
+            }
         }
         else
         {
@@ -297,7 +375,6 @@ void PDFCanvas::documentLoaded()
     d->pages.clear();
     d->pageCount = d->document->pageCount();
 
-    d->document->setCanvasWidth( width() );
     d->renderWidth = width();
     d->document->requestPage( 0, d->renderWidth );
 
@@ -306,7 +383,6 @@ void PDFCanvas::documentLoaded()
 
 void PDFCanvas::resizeTimeout()
 {
-    d->document->setCanvasWidth( width() );
     d->renderWidth = width();
 
     for( int i = 0; i < d->pageCount; ++i )

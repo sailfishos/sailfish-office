@@ -5,7 +5,6 @@
 #include "pdfdocument.h"
 #include "pdfrenderthread.h"
 #include "pdfjob.h"
-#include <QtCore/QVariant>
 
 #include <QDebug>
 #include <QUrl>
@@ -30,7 +29,6 @@ PDFDocument::PDFDocument(QObject* parent)
     d->thread = new PDFRenderThread{ this };
     connect( d->thread, &PDFRenderThread::loadFinished, this, &PDFDocument::documentLoaded );
     connect( d->thread, &PDFRenderThread::loadFinished, this, &PDFDocument::pageCountChanged );
-    connect( d->thread, &PDFRenderThread::loadFinished, this, &PDFDocument::linkTargetsChanged );
     connect( d->thread, &PDFRenderThread::jobFinished, this, &PDFDocument::jobFinished );
 }
 
@@ -64,7 +62,7 @@ bool PDFDocument::isLoaded() const
     return d->thread->isLoaded();
 }
 
-QVariantList PDFDocument::linkTargets() const
+PDFDocument::LinkMap PDFDocument::linkTargets() const
 {
     return d->thread->linkTargets();
 }
@@ -100,16 +98,6 @@ void PDFDocument::setSource(const QString& source)
 
         emit sourceChanged();
     }
-}
-
-void PDFDocument::setCanvasWidth(uint width)
-{
-    d->thread->setCanvasWidth( width );
-}
-
-void PDFDocument::setCanvasSpacing(uint spacing)
-{
-    d->thread->setCanvasSpacing( spacing );
 }
 
 void PDFDocument::requestPage(int index, int size)

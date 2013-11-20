@@ -5,12 +5,12 @@ import Sailfish.Office.PDF 1.0 as PDF
 SilicaFlickable {
     id: base;
 
-    contentWidth: canvas.width;
-    contentHeight: canvas.height;
+    contentWidth: pdfCanvas.width;
+    contentHeight: pdfCanvas.height;
 
-    property alias itemWidth: canvas.width;
-    property alias itemHeight: canvas.height;
-    property alias document: canvas.document;
+    property alias itemWidth: pdfCanvas.width;
+    property alias itemHeight: pdfCanvas.height;
+    property alias document: pdfCanvas.document;
 
     property bool scaled: false;
 
@@ -18,50 +18,52 @@ SilicaFlickable {
     signal updateSize(real newWidth, real newHeight);
 
     function zoom(amount, center) {
-        var oldWidth = canvas.width;
+        var oldWidth = pdfCanvas.width;
 
-        canvas.width *= amount;
+        pdfCanvas.width *= amount;
 
-        if(canvas.width < d.minWidth) {
-            canvas.width = d.minWidth;
+        if(pdfCanvas.width < d.minWidth) {
+            pdfCanvas.width = d.minWidth;
         }
 
-        if(canvas.width > d.maxWidth) {
-            canvas.width = d.maxWidth;
+        if(pdfCanvas.width > d.maxWidth) {
+            pdfCanvas.width = d.maxWidth;
         }
 
-        if(canvas.width == d.minWidth) {
+        if(pdfCanvas.width == d.minWidth) {
             base.scaled = false;
         } else {
             base.scaled = true;
         }
 
-        var realZoom = canvas.width / oldWidth;
+        var realZoom = pdfCanvas.width / oldWidth;
         contentX += (center.x * realZoom) - center.x;
         contentY += (center.y * realZoom) - center.y;
     }
 
     PDF.Canvas {
-        id: canvas;
+        id: pdfCanvas;
 
         width: base.width;
         spacing: Theme.paddingLarge;
         flickable: base;
-
-        PDF.LinkArea {
-            anchors.fill: parent;
-            links: pdfDocument.linkTargets;
-            onLinkClicked: Qt.openUrlExternally(linkTarget);
-            onClicked: base.clicked();
-        }
+        linkColor: Theme.highlightColor;
 
         PinchArea {
             anchors.fill: parent;
             onPinchUpdated: {
-                var newCenter = mapToItem(canvas, pinch.center.x, pinch.center.y)
+                var newCenter = mapToItem(pdfCanvas, pinch.center.x, pinch.center.y)
                 base.zoom(1.0 + (pinch.scale - pinch.previousScale), newCenter);
             }
             onPinchFinished: base.returnToBounds();
+
+            PDF.LinkArea {
+                anchors.fill: parent;
+
+                canvas: pdfCanvas;
+                onLinkClicked: Qt.openUrlExternally(linkTarget);
+                onClicked: base.clicked();
+            }
         }
     }
 
@@ -78,6 +80,6 @@ SilicaFlickable {
     }
 
     function goToPage(pageNumber) {
-        base.contentY = canvas.pagePosition( pageNumber );
+        base.contentY = pdfCanvas.pagePosition( pageNumber );
     }
 }
