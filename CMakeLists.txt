@@ -80,5 +80,10 @@ install(FILES org.sailfish.office.xml DESTINATION ${CMAKE_INSTALL_PREFIX}/share/
 install(FILES
     images/graphic-plugin-local.png
     images/graphic-plugin-network.png
+    images/icon-m-mime-formatted.png
+    images/icon-m-mime-pdf.png
+    images/icon-m-mime-spreadsheet.png
+    images/icon-m-mime-presentation.png
+    images/icon-m-mime-plaintext.png
     DESTINATION ${CMAKE_INSTALL_PREFIX}/share/sailfish-office/images/
 )
