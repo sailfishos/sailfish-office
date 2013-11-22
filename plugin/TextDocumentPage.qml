@@ -42,9 +42,11 @@ DocumentPage {
                 controller.zoomAroundPoint(pinch.scale - pinch.previousScale, newCenter.x, newCenter.y);
             }
 
-            MouseArea {
+            Calligra.LinkArea {
                 anchors.fill: parent;
+                document: doc;
                 onClicked: page.open = !page.open;
+                onLinkClicked: Qt.openUrlExternally(linkTarget);
             }
         }
     }
