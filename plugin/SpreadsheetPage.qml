@@ -50,6 +50,7 @@ DocumentPage {
                 document: doc;
                 onClicked: page.open = !page.open;
                 onLinkClicked: Qt.openUrlExternally(linkTarget);
+                controllerZoom: controller.zoom;
             }
         }
     }
