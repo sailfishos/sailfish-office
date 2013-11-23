@@ -33,17 +33,59 @@ Page {
 
                 width: parent.width;
 
-                HighlightImage {
+                Image {
                     id: icon;
+
+                    // TODO: move all graphics to platform theme packages
+                    property string fileMimeType: {
+                        switch (model.fileMimeType) {
+                        case "application/vnd.oasis.opendocument.spreadsheet":
+                        case "application/x-kspread":
+                        case "application/vnd.ms-excel":
+                        case "text/csv":
+                        case "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
+                        case "application/vnd.openxmlformats-officedocument.spreadsheetml.template":
+                            return "images/icon-m-mime-spreadsheet.png";
+                        case "application/vnd.oasis.opendocument.presentation":
+                        case "application/vnd.oasis.opendocument.presentation-template":
+                        case "application/x-kpresenter":
+                        case "application/vnd.ms-powerpoint":
+                        case "application/vnd.openxmlformats-officedocument.presentationml.presentation":
+                        case "application/vnd.openxmlformats-officedocument.presentationml.template":
+                            return "images/icon-m-mime-presentation.png";
+                        case "application/vnd.oasis.opendocument.text-master":
+                        case "application/vnd.oasis.opendocument.text":
+                        case "application/vnd.oasis.opendocument.text-template":
+                        case "application/msword":
+                        case "application/rtf":
+                        case "application/x-mswrite":
+                        case "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+                        case "application/vnd.openxmlformats-officedocument.wordprocessingml.template":
+                        case "application/vnd.ms-works":
+                            return "images/icon-m-mime-formatted.png";
+                        case "text/plain":
+                            return "images/icon-m-mime-plaintext.png";
+                        case "application/pdf":
+                            return "images/icon-m-mime-pdf.png";
+                        default:
+                            return ""
+                        }
+                    }
                     anchors {
                         left: parent.left;
                         leftMargin: Theme.paddingLarge;
                         verticalCenter: parent.verticalCenter;
                     }
-                    highlighted: bg.highlighted;
-                    source: "image://theme/icon-l-document"
+                    source: fileMimeType
+                    states: State {
+                        when: icon.fileMimeType === ""
+                        PropertyChanges {
+                            target: icon
+                            source: "image://theme/icon-l-document?"
+                                    + (bg.highlighted ? Theme.highlightColor : Theme.primaryColor);
+                        }
+                    }
                 }
-
                 Label {
                     anchors {
                         left: icon.right;
