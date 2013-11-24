@@ -26,6 +26,7 @@ Page {
 
     BusyIndicator { id: busyIndicator; anchors.centerIn: parent; size: BusyIndicatorSize.Large; }
 
+    Component.onDestruction: window.documentItem = null
     Drawer {
         id: drawer;
 
@@ -62,6 +63,7 @@ Page {
         if( status == PageStatus.Active )
         {
             drawer.open = false;
+            window.documentItem = drawer.foregroundItem;
         }
     }
 

@@ -72,12 +72,6 @@ QSharedPointer<QQuickView> Sailfish::createView(const QString &file)
 
 void Sailfish::showView(const QSharedPointer<QQuickView> &view) 
 {
-    view->setResizeMode(QQuickView::SizeRootObjectToView);
-//    view->setAttribute(Qt::WA_OpaquePaintEvent);
-//    view->setAttribute(Qt::WA_NoSystemBackground);
-//    view->viewport()->setAttribute(Qt::WA_OpaquePaintEvent);
-//    view->viewport()->setAttribute(Qt::WA_NoSystemBackground);
-    view->setDefaultAlphaBuffer(true);
     view->showFullScreen();
 }
 
