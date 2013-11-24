@@ -3,13 +3,16 @@
 #include <QtDeclarative/QtDeclarative>
 #include <QQuickView>
 #include <QQmlError>
-
+#include <QQuickWindow>
 #include "sailfishapplication.h"
 
 Q_DECL_EXPORT int main(int argc, char *argv[])
 {
     // First of all, run kbuildsycoca to make sure the data is correct when we get to it.
     QProcess::startDetached(QLatin1String("/usr/bin/kbuildsycoca4"));
+
+    // TODO: start using Silica booster
+    QQuickWindow::setDefaultAlphaBuffer(true);
 
     auto app = Sailfish::createApplication(argc, argv);
     // Note, these must be said now, otherwise some plugins using QSettings
