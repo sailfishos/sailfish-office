@@ -12,7 +12,9 @@ DocumentPage {
     }
 
     SlideshowView {
-        anchors.fill: parent;
+        width: page.width;
+        height: page.height;
+
         itemWidth: page.width;
         itemHeight: page.height;
 

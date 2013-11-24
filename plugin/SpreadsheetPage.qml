@@ -17,14 +17,18 @@ DocumentPage {
 
     Calligra.View {
         id: v;
-        anchors.fill: parent;
+
+        width: page.width;
+        height: page.height;
+
         document: doc;
     }
 
     SilicaFlickable {
         id: f;
 
-        anchors.fill: parent;
+        width: page.width;
+        height: page.height;
 
         Calligra.ViewController {
             id: controller;

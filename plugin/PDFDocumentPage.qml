@@ -14,7 +14,10 @@ DocumentPage {
 
     PDFView {
         id: view;
-        anchors.fill: parent;
+
+        width: base.width;
+        height: base.height;
+
         document: pdfDocument;
 
         onClicked: base.open = !base.open;
