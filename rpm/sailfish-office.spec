@@ -22,6 +22,7 @@ Requires: sailfish-components-accounts-qt5
 Requires: libqt5sparql-tracker
 #Requires: qt5-qtqml-import-webkitplugin
 Requires: libjollasignonuiservice-qt5-plugin
+Requires:  %{name}-all-translations
 
 %package ts-devel
 Summary: Translation source for %{name}
