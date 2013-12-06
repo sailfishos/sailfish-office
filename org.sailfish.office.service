@@ -1,3 +1,3 @@
 [D-BUS Service]
 Name=org.sailfish.office
-Exec=/usr/bin/invoker --type=j -s /usr/bin/sailfish-office
+Exec=/usr/bin/invoker -t qt5 -s /usr/bin/sailfish-office
