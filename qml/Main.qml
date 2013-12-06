@@ -61,8 +61,9 @@ ApplicationWindow
                   provider: model
         }, PageStackAction.Immediate)
         window.fileListModel = model.model
+
         if(Qt.application.arguments.length > 1)
-            openFile(Qt.application.arguments[1], PageStackAction.Immediate);
+            openFile(Qt.application.arguments[1]);
     }
 
     cover: Qt.resolvedUrl("CoverPage.qml")
@@ -82,23 +83,23 @@ ApplicationWindow
         id: fileInfo;
     }
 
-    function openFile(file, operationType) {
+    function openFile(file) {
         fileInfo.source = file;
 
         if(pageStack.currentPage.path === undefined || pageStack.currentPage.path != fileInfo.fullPath)
         {
             switch(Calligra.Global.documentType(fileInfo.fullPath)) {
                 case Calligra.DocumentType.TextDocument:
-                    pageStack.push(pages.textDocument, { title: fileInfo.fileName, path: fileInfo.fullPath, mimeType: fileInfo.mimeType }, operationType);
+                    pageStack.push(pages.textDocument, { title: fileInfo.fileName, path: fileInfo.fullPath, mimeType: fileInfo.mimeType }, PageStackAction.Immediate);
                     break;
                 case Calligra.DocumentType.Spreadsheet:
-                    pageStack.push(pages.spreadsheet, { title: fileInfo.fileName, path: fileInfo.fullPath, mimeType: fileInfo.mimeType }, operationType);
+                    pageStack.push(pages.spreadsheet, { title: fileInfo.fileName, path: fileInfo.fullPath, mimeType: fileInfo.mimeType }, PageStackAction.Immediate);
                     break;
                 case Calligra.DocumentType.Presentation:
-                    pageStack.push(pages.presentation, { title: fileInfo.fileName, path: fileInfo.fullPath, mimeType: fileInfo.mimeType }, operationType);
+                    pageStack.push(pages.presentation, { title: fileInfo.fileName, path: fileInfo.fullPath, mimeType: fileInfo.mimeType }, PageStackAction.Immediate);
                     break;
                 case Calligra.DocumentType.StaticTextDocument:
-                    pageStack.push(pages.pdf, { title: fileInfo.fileName, path: fileInfo.fullPath, mimeType: fileInfo.mimeType }, operationType);
+                    pageStack.push(pages.pdf, { title: fileInfo.fileName, path: fileInfo.fullPath, mimeType: fileInfo.mimeType }, PageStackAction.Immediate);
                     break;
                 default:
                     console.log("Warning: Unrecognised file type for file " + fileInfo.fullPath);
