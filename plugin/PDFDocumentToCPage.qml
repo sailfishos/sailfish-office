@@ -23,7 +23,7 @@ Page {
             Label {
                 anchors {
                     left: parent.left;
-                    leftMargin: Theme.paddingLarge * model.level;
+                    leftMargin: Theme.paddingLarge * (model.level+1);
                     right: pageNumberLbl.left;
                     rightMargin: Theme.paddingLarge;
                     verticalCenter: parent.verticalCenter;
