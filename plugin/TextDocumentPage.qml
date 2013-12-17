@@ -45,6 +45,7 @@ DocumentPage {
                 var newCenter = mapToItem( f, pinch.center.x, pinch.center.y );
                 controller.zoomAroundPoint(pinch.scale - pinch.previousScale, newCenter.x, newCenter.y);
             }
+            onPinchFinished: controller.zoomTimeout();
 
             Calligra.LinkArea {
                 anchors.fill: parent;
