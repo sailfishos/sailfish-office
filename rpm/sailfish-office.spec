@@ -63,3 +63,7 @@ make %{?_smp_mflags}
 
 %install
 make DESTDIR=%{buildroot} install
+
+
+%post
+/usr/bin/update-desktop-database -q
