@@ -11,6 +11,10 @@ ApplicationWindow
     property Item documentItem
     property QtObject fileListModel
 
+    Connections {
+        target: Qt.application
+        onActiveChanged: window.allowedOrientations = Qt.application.active ? Orientation.All : pageStack.currentOrientation
+    }
     function mimeToIcon(fileMimeType) {
         // TODO: move all graphics to platform theme packages
         switch (fileMimeType) {
@@ -66,6 +70,7 @@ ApplicationWindow
             openFile(Qt.application.arguments[1]);
     }
 
+    _defaultPageOrientations: Orientation.Portrait | Orientation.Landscape
     cover: Qt.resolvedUrl("CoverPage.qml")
     Component {
         id: fileListPage

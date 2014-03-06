@@ -58,10 +58,15 @@ CoverBackground {
         }
     }
     ShaderEffectSource {
-        anchors.fill: parent
+        property bool isPortrait: !pageStack.currentPage || pageStack.currentPage.isPortrait 
+
+        anchors.centerIn: parent
         sourceItem: window.documentItem
         textureSize: Qt.size(width, height)
         live: status === Cover.Active
+        width: isPortrait ? parent.width : parent.height
+        height: isPortrait ? parent.height : parent.width
+        rotation: isPortrait ? 0 : 90
     }
 }
 
