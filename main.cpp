@@ -1,10 +1,26 @@
  
 #include <QApplication>
-#include <QtDeclarative/QtDeclarative>
+#include <QGuiApplication>
+#include <QProcess>
 #include <QQuickView>
 #include <QQmlError>
-#include <QQuickWindow>
+#include <QQmlContext>
 #include "sailfishapplication.h"
+
+class CoverWindowFetcher : public QObject
+{
+    Q_OBJECT
+public:
+    Q_INVOKABLE QQuickWindow *coverWindow() {
+        foreach (QWindow *w, qGuiApp->allWindows()) {
+            if (QQuickWindow *qw = qobject_cast<QQuickWindow *>(w)) {
+                if (w->inherits("DeclarativeCoverWindow"))
+                    return qw;
+            }
+        }
+        return 0;
+    }
+};
 
 Q_DECL_EXPORT int main(int argc, char *argv[])
 {
@@ -22,6 +38,10 @@ Q_DECL_EXPORT int main(int argc, char *argv[])
 
     auto view = Sailfish::createView("Main.qml");
 
+    QQmlContext *context = view->rootContext();
+    context->setContextProperty(QStringLiteral("coverWindowAccessor"), new CoverWindowFetcher);
+    context->setContextProperty(QStringLiteral("applicationWindow"), view.data());
+
     //% "Documents"
     Q_UNUSED(QT_TRID_NOOP("sailfish-office-ap-name"))
 
@@ -34,3 +54,5 @@ Q_DECL_EXPORT int main(int argc, char *argv[])
 
     return retn;
 }
+
+#include "main.moc"
