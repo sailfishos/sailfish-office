@@ -19,8 +19,6 @@ struct PDFPage {
         : index{-1}
         , requested{ false }
         , imageWidth{ -1 }
-        , texture{ nullptr }
-        , oldTexture{ nullptr }
     { }
 
     int index;
@@ -29,10 +27,25 @@ struct PDFPage {
     bool requested;
 
     int imageWidth;
-    QSGTexture* texture;
-    QSGTexture* oldTexture;
+    QImage image;
 
     QList< QPair< QRectF, QUrl > > links;
+};
+
+class TextureNode : public QSGSimpleTextureNode
+{
+public:
+    TextureNode() : imageKey(0), t(0) {}
+    ~TextureNode() { delete t; }
+    void setTexture(QSGTexture *texture) {
+        t = texture;
+        QSGSimpleTextureNode::setTexture(t);
+    }
+
+    qint64 imageKey;
+
+private:
+    QSGTexture *t;
 };
 
 class PDFCanvas::Private
@@ -198,7 +211,7 @@ void PDFCanvas::layout()
         PDFPage page;
         page.index = i;
         page.rect = QRectF(0, totalHeight, unscaledSize.width() * scale, unscaledSize.height() * scale);
-        page.texture = d->pages.contains( i ) ? d->pages.value( i ).texture : nullptr;
+        page.image = d->pages.contains( i ) ? d->pages.value( i ).image : QImage();
         page.links = links.values( i );
         d->pages.insert( i, page );
 
@@ -240,8 +253,7 @@ void PDFCanvas::pageFinished( int id, const QImage& image )
 {
     PDFPage& page = d->pages[ id ];
 
-    page.oldTexture = page.texture;
-    page.texture = window()->createTextureFromImage( image );
+    page.image = image;
     page.imageWidth = image.width();
     page.requested = false;
 
@@ -287,7 +299,7 @@ QSGNode* PDFCanvas::updatePaintNode(QSGNode* node, QQuickItem::UpdatePaintNodeDa
 
         if( page.rect.intersects( loadedArea ) )
         {
-            if( !page.texture && !page.requested )
+            if( page.image.isNull() && !page.requested )
             {
                 d->document->requestPage( i, d->renderWidth );
                 page.requested = true;
@@ -295,17 +307,10 @@ QSGNode* PDFCanvas::updatePaintNode(QSGNode* node, QQuickItem::UpdatePaintNodeDa
         }
         else
         {
-            if( page.texture )
+            if( !page.image.isNull() )
             {
-                delete page.texture;
-                page.texture = nullptr;
+                page.image = QImage();
             }
-        }
-
-        if( page.oldTexture )
-        {
-            delete page.oldTexture;
-            page.oldTexture = nullptr;
         }
 
         QSGTransformNode* t = static_cast<QSGTransformNode*>( root->childAtIndex(i) );
@@ -319,16 +324,22 @@ QSGNode* PDFCanvas::updatePaintNode(QSGNode* node, QQuickItem::UpdatePaintNodeDa
         m.translate( 0, page.rect.y() );
         t->setMatrix(m);
 
-        if( page.texture && page.rect.intersects( visibleArea ) )
+        if( !page.image.isNull() && page.rect.intersects( visibleArea ) )
         {
-            QSGSimpleTextureNode* tn = static_cast< QSGSimpleTextureNode* >( t->firstChild() );
+            TextureNode* tn = static_cast< TextureNode* >( t->firstChild() );
             if(!tn)
             {
-                tn = new QSGSimpleTextureNode{};
+                tn = new TextureNode{};
                 t->appendChildNode( tn );
             }
 
-            tn->setTexture( page.texture );
+            if (tn->imageKey != page.image.cacheKey())
+            {
+                if (tn->texture())
+                    delete tn->texture();
+                tn->setTexture( window()->createTextureFromImage(page.image) );
+                tn->imageKey = page.image.cacheKey();
+            }
             tn->setRect( 0.f, 0.f, page.rect.size().width(), page.rect.size().height() );
 
             if( page.links.count() > 0 )
@@ -387,7 +398,7 @@ void PDFCanvas::resizeTimeout()
 
     for( int i = 0; i < d->pageCount; ++i )
     {
-        if( d->pages[ i ].texture && d->pages[ i ].imageWidth != d->renderWidth )
+        if( !d->pages[ i ].image.isNull() && d->pages[ i ].imageWidth != d->renderWidth )
             d->document->requestPage( i, d->renderWidth );
     }
 
