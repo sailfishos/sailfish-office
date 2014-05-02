@@ -57,16 +57,52 @@ CoverBackground {
             }
         }
     }
-    ShaderEffectSource {
-        property bool isPortrait: !pageStack.currentPage || pageStack.currentPage.isPortrait 
 
+    Item {
+        property bool isPortrait: !pageStack.currentPage || pageStack.currentPage.isPortrait
         anchors.centerIn: parent
-        sourceItem: window.documentItem
-        textureSize: Qt.size(width, height)
-        live: status === Cover.Active
         width: isPortrait ? parent.width : parent.height
         height: isPortrait ? parent.height : parent.width
         rotation: isPortrait ? 0 : 90
+
+        Image {
+            id: previewImage
+            anchors.fill: parent
+            property QtObject coverWindow;
+            property bool isGrabAvailable: typeof previewImage.grabToImage !== 'undefined';
+            function updatePreview() {
+                if (!isGrabAvailable)
+                    return;
+                if (window.documentItem && applicationWindow.visible) {
+                    window.documentItem.grabToImage(function(result) { previewImage.source = result.url; },
+                                                             Qt.size(width, height));
+                }
+            }
+            Component.onCompleted: {
+                if (isGrabAvailable)
+                    coverWindow = coverWindowAccessor.coverWindow();
+            }
+            Connections {
+                id: windowConnections;
+                target: previewImage.coverWindow;
+                onVisibilityChanged: previewImage.updatePreview();
+                ignoreUnknownSignals: true;
+            }
+            Connections {
+                target: window
+                onDocumentItemChanged: { previewImage.updatePreview(); }
+                onOrientationChanged: { previewImage.updatePreview(); }
+            }
+        }
+
+        // This bit can be removed once we're fully on a Qt 5.2 stack.
+        ShaderEffectSource {
+            anchors.fill: parent
+            visible: !previewImage.coverWindow
+            sourceItem: visible ? window.documentItem : null
+            textureSize: Qt.size(width, height)
+            live: status === Cover.Active
+        }
     }
 }
 
