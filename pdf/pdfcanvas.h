@@ -6,6 +6,7 @@
 #define PDFCANVAS_H
 
 #include <QtQuick/QQuickItem>
+#include <QtQuick/QSGTexture>
 
 class PDFDocument;
 class PDFCanvas : public QQuickItem
@@ -18,7 +19,7 @@ class PDFCanvas : public QQuickItem
 
 public:
     PDFCanvas(QQuickItem* parent = 0);
-    ~PDFCanvas();;
+    ~PDFCanvas();
 
     Q_INVOKABLE qreal pagePosition( int index ) const;
 
@@ -64,10 +65,11 @@ protected:
     virtual QSGNode* updatePaintNode(QSGNode* node, UpdatePaintNodeData* );
 
 private Q_SLOTS:
-    void pageFinished( int id, const QImage& image );
+    void pageFinished( int id, QSGTexture *texture );
     void documentLoaded();
     void resizeTimeout();
     void pageSizesFinished(const QList< QSizeF >& sizes);
+    void sceneGraphInvalidated();
 
 private:
     class Private;

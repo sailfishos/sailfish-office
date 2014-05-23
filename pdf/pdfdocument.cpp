@@ -100,13 +100,27 @@ void PDFDocument::setSource(const QString& source)
     }
 }
 
-void PDFDocument::requestPage(int index, int size)
+void PDFDocument::requestPage(int index, int size, QQuickWindow *window )
 {
     if(!isLoaded())
         return;
 
-    RenderPageJob* job = new RenderPageJob{ index, size };
+    RenderPageJob* job = new RenderPageJob{ index, size, window };
     d->thread->queueJob( job );
+}
+
+void PDFDocument::prioritizeRequest(int index, int size)
+{
+    if (!isLoaded())
+        return;
+    d->thread->prioritizeJob(index, size);
+}
+
+void PDFDocument::cancelPageRequest(int index)
+{
+    if (!isLoaded())
+        return;
+    d->thread->cancelRenderJob(index);
 }
 
 void PDFDocument::requestPageSizes()

@@ -9,6 +9,9 @@
 #include <QtGui/QImage>
 #include <QtQml/QQmlParserStatus>
 
+#include <QtQuick/QSGTexture>
+#include <QtQuick/QQuickWindow>
+
 namespace Poppler {
     class Document;
     class Page;
@@ -46,7 +49,9 @@ public:
 
 public Q_SLOTS:
     void setSource(const QString& source);
-    void requestPage( int index, int size );
+    void requestPage( int index, int size, QQuickWindow *window );
+    void prioritizeRequest( int index, int size);
+    void cancelPageRequest(int index);
     void requestPageSizes();
     void jobFinished(PDFJob* job);
 
@@ -56,7 +61,7 @@ Q_SIGNALS:
     void tocModelChanged();
 
     void documentLoaded();
-    void pageFinished( int index, QImage image );
+    void pageFinished( int index, QSGTexture *page );
     void pageSizesFinished(const QList< QSizeF >& heights);
 
 private:
