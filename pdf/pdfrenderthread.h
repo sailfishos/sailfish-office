@@ -12,6 +12,8 @@
 
 class QSize;
 class PDFJob;
+class PDFRenderThreadPrivate;
+
 class PDFRenderThread : public QObject
 {
     Q_OBJECT
@@ -25,17 +27,17 @@ public:
     QMultiMap< int, QPair< QRectF, QUrl > > linkTargets() const;
 
     void queueJob( PDFJob* job );
+    void cancelRenderJob(int index);
+    void prioritizeJob(int index, int size);
 
 Q_SIGNALS:
     void loadFinished();
     void jobFinished(PDFJob* job);
 
-private Q_SLOTS:
-    void processQueue();
-
 private:
-    class Private;
-    Private * const d;
+    friend class PDFRenderThreadPrivate;
+
+    PDFRenderThreadPrivate * const d;
 };
 
 #endif // PDFRENDERTHREAD_H

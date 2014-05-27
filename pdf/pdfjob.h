@@ -8,6 +8,7 @@
 #include <QString>
 #include <QImage>
 #include <QObject>
+#include <QtQuick/QQuickWindow>
 
 namespace Poppler
 {
@@ -32,7 +33,7 @@ public:
     JobType type() const { return m_type; }
 
 protected:
-    friend class PDFRenderThread;
+    friend class PDFRenderThreadPrivate;
     Poppler::Document* m_document;
 
 private:
@@ -55,14 +56,17 @@ class RenderPageJob : public PDFJob
 {
     Q_OBJECT
 public:
-    RenderPageJob(int index, uint width);
+    RenderPageJob(int index, uint width, QQuickWindow *window);
 
     virtual void run();
 
     int m_index;
-    QImage m_page;
+    QSGTexture *m_page;
+
+    int renderWidth() const { return m_width; }
 
 private:
+    QQuickWindow *m_window;
     uint m_width;
 };
 

@@ -19,10 +19,9 @@ void LoadDocumentJob::run()
     m_document->setRenderHint( Poppler::Document::TextAntialiasing, true );
 }
 
-RenderPageJob::RenderPageJob(int index, uint width)
-    : PDFJob{ PDFJob::RenderPageJob }, m_index{ index }, m_width{ width }
+RenderPageJob::RenderPageJob(int index, uint width, QQuickWindow *window)
+    : PDFJob{ PDFJob::RenderPageJob }, m_index{ index }, m_width{ width }, m_window{ window }
 {
-
 }
 
 void RenderPageJob::run()
@@ -31,7 +30,8 @@ void RenderPageJob::run()
 
     Poppler::Page* page = m_document->page( m_index );
     float scale = 72.0f * ( float(m_width) / page->pageSizeF().width() );
-    m_page = page->renderToImage( scale, scale );
+    QImage image = page->renderToImage( scale, scale );
+    m_page = m_window->createTextureFromImage(image);
 }
 
 void PageSizesJob::run()
