@@ -5,6 +5,5 @@
 #define IMAGES_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/share/sailfish-office/images/"
 #define TRANSLATION_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/share/translations/"
 #define CALLIGRA_QML_PLUGIN_DIR "${CALLIGRA_QML_PLUGIN_DIR}"
-#define DROPBOX_QML_PLUGIN_DIR "${CMAKE_INSTALL_PREFIX}/lib/qt5/qml/"
 
 #endif //CONFIG_H

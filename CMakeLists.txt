@@ -32,7 +32,6 @@ configure_file(config.h.in config.h)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -fPIC -pie -rdynamic -Wall")
 
 add_subdirectory(plugin)
-#add_subdirectory(dropbox)
 add_subdirectory(pdf)
 
 set(sailfishoffice_SRCS
@@ -43,7 +42,6 @@ set(sailfishoffice_SRCS
     models/documentproviderlistmodel.cpp
     models/documentproviderplugin.cpp
     models/trackerdocumentprovider.cpp
-    models/dropboxdocumentprovider.cpp
 )
 
 set(sailfishoffice_QML_SRCS
@@ -51,7 +49,6 @@ set(sailfishoffice_QML_SRCS
     qml/FileListPage.qml
     qml/Main.qml
     qml/StartPage.qml
-    qml/HighlightImage.qml
 )
 
 file(GLOB plugin_QML_SRCS plugin/*.qml)

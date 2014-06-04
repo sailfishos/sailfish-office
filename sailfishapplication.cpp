@@ -22,7 +22,6 @@
 #include "models/trackerdocumentprovider.h"
 #include "models/documentproviderplugin.h"
 #include "models/documentproviderlistmodel.h"
-#include "models/dropboxdocumentprovider.h"
 #include "dbusadaptor.h"
 #include <QtDBus/QDBusConnection>
 
@@ -51,12 +50,10 @@ QSharedPointer<QQuickView> Sailfish::createView(const QString &file)
     qmlRegisterType< DocumentListModel >( "Sailfish.Office.Files", 1, 0, "DocumentListModel" );
     qmlRegisterType< DocumentProviderListModel >( "Sailfish.Office.Files", 1, 0, "DocumentProviderListModel" );
     qmlRegisterType< TrackerDocumentProvider >( "Sailfish.Office.Files", 1, 0, "TrackerDocumentProvider" );
-    qmlRegisterType< DropboxDocumentProvider >( "Sailfish.Office.Files", 1, 0, "DropboxDocumentProvider" );
     qmlRegisterInterface< DocumentProviderPlugin >( "DocumentProviderPlugin" );
 
     QSharedPointer<QQuickView> view(MDeclarativeCache::qQuickView());
     view->engine()->addImportPath(CALLIGRA_QML_PLUGIN_DIR);
-    view->engine()->addImportPath(DROPBOX_QML_PLUGIN_DIR);
     view->setSource(QUrl::fromLocalFile(QML_INSTALL_DIR + file));
 
     new DBusAdaptor{view.data()};

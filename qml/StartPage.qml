@@ -1,7 +1,7 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
+import Sailfish.Silica.private 1.0
 import Sailfish.Office.Files 1.0
-//import Sailfish.Office.Dropbox 1.0
 //import QtMobility.gallery 1.1
 
 Page {
@@ -90,20 +90,7 @@ Page {
             id: documentSources
             TrackerDocumentProvider {
             }
-//             DropboxDocumentProvider {
-//                 id: dropboxProvider
-//                 needAuthenticate: controllerMIT.needAuthenticate
-//                 fileListModel: folderListModel;
-//             }
         }
-//         PullDownMenu {
-//             MenuItem {
-//                 //: Menu item for starting DropBox setup
-//                 //% "Set up DropBox..."
-//                 text: qsTrId("sailfish-office-me-setup_dropbox");
-//                 onClicked: pageStack.push(dropboxProvider.setupPageUrl);
-//             }
-//         }
     }
 
     Component.onCompleted: {
