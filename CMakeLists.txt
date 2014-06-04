@@ -49,7 +49,6 @@ set(sailfishoffice_QML_SRCS
     qml/FileListPage.qml
     qml/Main.qml
     qml/StartPage.qml
-    qml/HighlightImage.qml
 )
 
 file(GLOB plugin_QML_SRCS plugin/*.qml)
