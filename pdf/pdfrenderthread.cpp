@@ -34,6 +34,40 @@ class PDFRenderThreadQueue;
 
 const QEvent::Type Event_JobPending = QEvent::Type(QEvent::User + 1);
 
+class Thread : public QThread
+{
+    Q_OBJECT;
+public:
+    Thread()
+        : jobQueue(0)
+    {
+    }
+
+    void run() {
+        QThread::exec();
+        delete document;
+        delete tocModel;
+        deleteLater();
+    }
+
+    bool event(QEvent *e) {
+        // intercept deleteLater to wait for this thread to be
+        // finished. CAlled on the GUI thread.
+        if (e->type() == QEvent::DeferredDelete)
+            wait();
+        return QThread::event(e);
+    }
+
+    PDFRenderThreadQueue *jobQueue;
+    QMutex mutex;
+
+    // Used for cleanup only
+    Poppler::Document *document;
+    PDFTocModel *tocModel;
+
+
+};
+
 class PDFRenderThreadPrivate
 {
 public:
@@ -41,9 +75,7 @@ public:
 
     PDFRenderThread *q;
 
-    QThread* thread;
-    PDFRenderThreadQueue *jobQueue;
-    QMutex mutex;
+    Thread *thread;
 
     Poppler::Document* document;
     PDFTocModel* tocModel;
@@ -69,7 +101,6 @@ public:
         }
     }
 
-    void processPendingJob();
 };
 
 class PDFRenderThreadQueue : public QObject, public QQueue< PDFJob* >
@@ -78,73 +109,77 @@ public:
     PDFRenderThreadPrivate *d;
 protected:
     bool event(QEvent *);
+    void processPendingJob();
 };
 
 PDFRenderThread::PDFRenderThread(QObject* parent)
     : QObject( parent ), d( new PDFRenderThreadPrivate() )
 {
     d->q = this;
-    d->thread = new QThread(this);
-    d->jobQueue = new PDFRenderThreadQueue();
-    d->jobQueue->d = d;
-
+    d->thread = new Thread();
+    d->thread->jobQueue = new PDFRenderThreadQueue();
+    d->thread->jobQueue->d = d;
     d->thread->start();
-    d->jobQueue->moveToThread(d->thread);
+    d->thread->jobQueue->moveToThread(d->thread);
 }
 
 PDFRenderThread::~PDFRenderThread()
 {
+    // Cancel outstanding render jobs and schedule the queue
+    // for deletion. Also set the jobQueue to 0 so we don't
+    // end up calling back to the now deleted documents object.
+    cancelRenderJob(-1);
+    d->thread->mutex.lock();
+    d->thread->document = d->document;
+    d->thread->tocModel = d->tocModel;
+    d->thread->jobQueue->deleteLater();
+    d->thread->jobQueue = 0;
+    d->thread->mutex.unlock();
     d->thread->exit();
-    d->thread->wait();
-
-    qDeleteAll(*d->jobQueue);
-
-    delete d->document;
-    delete d->tocModel;
 
     delete d;
 }
 
 int PDFRenderThread::pageCount() const
 {
-    QMutexLocker locker{ &d->mutex };
+    QMutexLocker locker{ &d->thread->mutex };
     return d->document->numPages();
 }
 
 QObject* PDFRenderThread::tocModel() const
 {
-    QMutexLocker{ &d->mutex };
+    QMutexLocker{ &d->thread->mutex };
     return d->tocModel;
 }
 
 bool PDFRenderThread::isLoaded() const
 {
-    QMutexLocker{ &d->mutex };
+    QMutexLocker{ &d->thread->mutex };
     return d->document != nullptr;
 }
 
 QMultiMap< int, QPair< QRectF, QUrl > > PDFRenderThread::linkTargets() const
 {
-    QMutexLocker{ &d->mutex };
+    QMutexLocker{ &d->thread->mutex };
     return d->linkTargets;
 }
 
 void PDFRenderThread::queueJob(PDFJob* job)
 {
-    QMutexLocker locker{ &d->mutex };
+    QMutexLocker locker{ &d->thread->mutex };
     job->moveToThread( d->thread );
-    d->jobQueue->enqueue( job );
-    QCoreApplication::postEvent(d->jobQueue, new QEvent(Event_JobPending));
+    d->thread->jobQueue->enqueue( job );
+    QCoreApplication::postEvent(d->thread->jobQueue, new QEvent(Event_JobPending));
 }
 
 void PDFRenderThread::cancelRenderJob(int index)
 {
-    QMutexLocker locker{ &d->mutex };
-    for (QList<PDFJob *>::iterator it = d->jobQueue->begin(); it != d->jobQueue->end(); ) {
+    QMutexLocker locker{ &d->thread->mutex };
+    for (QList<PDFJob *>::iterator it = d->thread->jobQueue->begin(); it != d->thread->jobQueue->end(); ) {
         PDFJob *j = *it;
         if (j->type() == PDFJob::RenderPageJob
                 && (index < 0 || static_cast<RenderPageJob *>(j)->m_index == index)) {
-            it = d->jobQueue->erase(it);
+            it = d->thread->jobQueue->erase(it);
             j->deleteLater();
             continue; // to skip the ++it at the end of the loop
         }
@@ -154,15 +189,15 @@ void PDFRenderThread::cancelRenderJob(int index)
 
 void PDFRenderThread::prioritizeJob(int index, int size)
 {
-    QMutexLocker locker{ &d->mutex };
-    for (QList<PDFJob *>::iterator it = d->jobQueue->begin(); it != d->jobQueue->end(); ++it) {
+    QMutexLocker locker{ &d->thread->mutex };
+    for (QList<PDFJob *>::iterator it = d->thread->jobQueue->begin(); it != d->thread->jobQueue->end(); ++it) {
         PDFJob *j = *it;
         if (j->type() == PDFJob::RenderPageJob) {
             RenderPageJob *rj = static_cast<RenderPageJob *>(j);
             if (rj->m_index == index && rj->renderWidth() == size) {
-                if (it != d->jobQueue->begin()) { // If it is already at the front, just abort..
-                    d->jobQueue->erase(it);
-                    d->jobQueue->push_front(j);
+                if (it != d->thread->jobQueue->begin()) { // If it is already at the front, just abort..
+                    d->thread->jobQueue->erase(it);
+                    d->thread->jobQueue->push_front(j);
                 }
                 return;
             }
@@ -170,49 +205,58 @@ void PDFRenderThread::prioritizeJob(int index, int size)
     }
 }
 
-void PDFRenderThreadPrivate::processPendingJob()
+void PDFRenderThreadQueue::processPendingJob()
 {
-    QMutexLocker locker{ &mutex };
-    if( jobQueue->count() == 0 )
+    Thread *t = qobject_cast<Thread *>(QThread::currentThread());
+
+    QMutexLocker locker{ &t->mutex };
+    if (!t->jobQueue || count() == 0)
         return;
 
-    PDFJob* job = jobQueue->dequeue();
+    PDFJob* job = dequeue();
     if (job->type() != PDFJob::LoadDocumentJob)
-        job->m_document = document;
+        job->m_document = d->document;
     locker.unlock();
 
     job->run();
 
     locker.relock();
 
+    if (!qobject_cast<Thread *>(QThread::currentThread())->jobQueue) {
+        delete job;
+       return;
+    }
+
     switch(job->type())
     {
         case PDFJob::LoadDocumentJob: {
             LoadDocumentJob* dj = static_cast< LoadDocumentJob* >( job );
-            if( document )
-                delete document;
+            if( d->document )
+                delete d->document;
 
-            document = dj->m_document;
-            if(tocModel) {
-                tocModel->deleteLater();
-                tocModel = nullptr;
+            d->document = dj->m_document;
+            if(d->tocModel) {
+                d->tocModel->deleteLater();
+                d->tocModel = nullptr;
             }
-            tocModel = new PDFTocModel{ document };
-            rescanDocumentLinks();
+            d->tocModel = new PDFTocModel{ d->document };
+            d->rescanDocumentLinks();
             job->deleteLater();
-            emit q->loadFinished();
+            emit d->q->loadFinished();
             break;
         }
         default:
-            emit q->jobFinished(job);
+            emit d->q->jobFinished(job);
     }
 }
 
 bool PDFRenderThreadQueue::event(QEvent *e)
 {
     if (e->type() == Event_JobPending) {
-        d->processPendingJob();
+        processPendingJob();
         return true;
     }
     return QObject::event(e);
 }
+
+#include "pdfrenderthread.moc"

@@ -47,7 +47,7 @@ public:
     JobType type() const { return m_type; }
 
 protected:
-    friend class PDFRenderThreadPrivate;
+    friend class PDFRenderThreadQueue;
     Poppler::Document* m_document;
 
 private:

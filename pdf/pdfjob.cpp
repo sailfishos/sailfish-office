@@ -34,7 +34,7 @@ void LoadDocumentJob::run()
 }
 
 RenderPageJob::RenderPageJob(int index, uint width, QQuickWindow *window)
-    : PDFJob{ PDFJob::RenderPageJob }, m_index{ index }, m_width{ width }, m_window{ window }
+    : PDFJob{ PDFJob::RenderPageJob }, m_index{ index }, m_page{ 0 }, m_window{ window }, m_width{ width }
 {
 }
 
