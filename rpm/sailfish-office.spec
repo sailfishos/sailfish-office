@@ -5,7 +5,6 @@ Summary: Sailfish office viewer
 Group: System/Base
 License: GPLv2
 Source0: %{name}-%{version}.tar.gz
-BuildRequires: pkgconfig(Qt5Declarative)
 BuildRequires: pkgconfig(Qt5Quick)
 BuildRequires: pkgconfig(Qt5Widgets)
 #BuildRequires: pkgconfig(Qt5WebKit)
