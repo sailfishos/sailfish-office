@@ -43,7 +43,7 @@ Group: System/Base
 %{_libdir}/qt5/qml/Sailfish/Office/
 %{_datadir}/applications/*.desktop
 %{_datadir}/%{name}/
-%{_datadir}/translations/
+%{_datadir}/translations/*.qm
 %{_datadir}/dbus-1/interfaces/
 %{_datadir}/dbus-1/services/
 
