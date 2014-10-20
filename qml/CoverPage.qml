@@ -82,6 +82,7 @@ CoverBackground {
         width: isPortrait ? parent.width : parent.height
         height: isPortrait ? parent.height : parent.width
         rotation: isPortrait ? 0 : 90
+        visible: window.documentItem != null
 
         Image {
             id: previewImage
