@@ -1,8 +1,8 @@
 Name: sailfish-office
-Version: 0.1
+Version: 1.1.4
 Release: 1
 Summary: Sailfish office viewer
-Group: System/Base
+Group: Applications/Office
 License: GPLv2
 Source0: %{name}-%{version}.tar.gz
 BuildRequires: pkgconfig(Qt5Quick)
