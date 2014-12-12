@@ -208,17 +208,17 @@ void PDFCanvas::layout()
 
     PDFDocument::LinkMap links = d->document->linkTargets();
 
-    QSizeF firstPage = d->pageSizes.at(0);
-    float scale = width() / firstPage.width();
+    float scale = width() / d->renderWidth;
 
     float totalHeight = 0.f;
     for( int i = 0; i < d->pageCount; ++i )
     {
         QSizeF unscaledSize = d->pageSizes.at( i );
+        float ratio = unscaledSize.height() / unscaledSize.width();
 
         PDFPage page;
         page.index = i;
-        page.rect = QRectF(0, totalHeight, unscaledSize.width() * scale, unscaledSize.height() * scale);
+        page.rect = QRectF(0, totalHeight, d->renderWidth * scale, d->renderWidth * ratio * scale);
         page.links = links.values( i );
         page.requested = false; // We're cancelling all requests below
         if (d->pages.contains(i)) {
