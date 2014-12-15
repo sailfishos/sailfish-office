@@ -1,5 +1,5 @@
 Name: sailfish-office
-Version: 1.1.4
+Version: 1.1.5
 Release: 1
 Summary: Sailfish office viewer
 Group: Applications/Office
