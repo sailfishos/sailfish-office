@@ -18,22 +18,31 @@
 
 import QtQuick 2.0
 import Sailfish.Silica 1.0
-import Sailfish.Silica.theme 1.0
 
-Item {
+Column {
     property alias detail: detailLabel.text
     property alias value: valueLabel.text
 
     width: parent.width
-    height: Theme.itemSizeLarge
+    anchors {
+        left: parent.left
+        right: parent.right
+        leftMargin: Theme.paddingLarge
+        rightMargin: Theme.paddingLarge
+    }
 
-    Column {
-        x: Theme.paddingLarge
-        Label {
-            id: detailLabel
-            height: Theme.fontSizeLarge
-            font.family: Theme.fontFamilyHeading
-        }
-        Label { id: valueLabel }
+    Label {
+        id: detailLabel
+        width: parent.width
+        font.pixelSize: Theme.fontSizeMedium
+        elide: Text.ElideRight
+        wrapMode: Text.Wrap
+    }
+    Label {
+        id: valueLabel
+        width: parent.width
+        font.pixelSize: Theme.fontSizeSmall
+        elide: Text.ElideRight
+        wrapMode: Text.Wrap
     }
 }
