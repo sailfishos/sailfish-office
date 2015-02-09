@@ -13,7 +13,6 @@ find_package(Qt5DBus REQUIRED)
 find_package(Qt5LinguistTools REQUIRED)
 find_package(QtSparql REQUIRED)
 find_package(Booster REQUIRED)
-find_package(JollaSignonUiService REQUIRED)
 
 include(cmake/QtTranslationWithID.cmake)
 
@@ -23,7 +22,6 @@ include_directories(
     ${QT_INCLUDES}
     ${BOOSTER_INCLUDE_DIR}
     ${QTSPARQL_INCLUDE_DIR}
-    ${JOLLASIGNONUISERVICE_INCLUDE_DIR}
 )
 
 set(CALLIGRA_QML_PLUGIN_DIR /usr/lib/calligra CACHE PATH "The location of the Calligra QtQuick Components")
@@ -63,7 +61,7 @@ create_translation(engen_qm_file ${CMAKE_BINARY_DIR}/sailfish-office.ts ${sailfi
 
 add_executable(sailfish-office ${sailfishoffice_SRCS} ${engen_qm_file})
 qt5_use_modules(sailfish-office Widgets Quick DBus)
-target_link_libraries(sailfish-office stdc++ ${QT_LIBRARIES} ${BOOSTER_LIBRARY} ${QTSPARQL_LIBRARY} ${JOLLASIGNONUISERVICE_LIBRARY})
+target_link_libraries(sailfish-office stdc++ ${QT_LIBRARIES} ${BOOSTER_LIBRARY} ${QTSPARQL_LIBRARY})
 
 install(TARGETS sailfish-office DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 install(FILES sailfish-office.desktop DESTINATION ${CMAKE_INSTALL_PREFIX}/share/applications)

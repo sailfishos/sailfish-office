@@ -31,8 +31,6 @@
 
 #include <MDeclarativeCache>
 
-#include <signonuiservice.h>
-
 #include "sailfishapplication.h"
 #include "config.h"
 #include "models/documentlistmodel.h"
