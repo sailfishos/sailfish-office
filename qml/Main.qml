@@ -29,10 +29,6 @@ ApplicationWindow
     property Item documentItem
     property QtObject fileListModel
 
-    Connections {
-        target: Qt.application
-        onActiveChanged: window.allowedOrientations = Qt.application.active ? Orientation.All : pageStack.currentOrientation
-    }
     function mimeToIcon(fileMimeType) {
         // TODO: move all graphics to platform theme packages
         switch (fileMimeType) {
@@ -86,9 +82,15 @@ ApplicationWindow
 
         if(Qt.application.arguments.length > 1)
             openFile(Qt.application.arguments[1]);
+
+        if (window.hasOwnProperty("defaultAllowedOrientations")) {
+            allowedOrientations = Qt.binding(function() { return Qt.application.active ? defaultAllowedOrientations : pageStack.currentOrientation })
+        }
     }
 
-    _defaultPageOrientations: Orientation.Portrait | Orientation.Landscape
+    // TODO: Bind directly the "defaultAllowedOrientations" once it's available in SDK
+    allowedOrientations: Qt.application.active ? Orientation.All : pageStack.currentOrientation
+    _defaultPageOrientations: Orientation.All
     cover: Qt.resolvedUrl("CoverPage.qml")
     Component {
         id: fileListPage
