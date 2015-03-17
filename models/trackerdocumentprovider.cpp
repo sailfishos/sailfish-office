@@ -113,9 +113,13 @@ void TrackerDocumentProvider::searchFinished()
     QSparqlResult* r = qobject_cast<QSparqlResult*>(sender());
     if(!r->hasError())
     {
-        d->model->clear();
+        // d->model->clear();
+        // Mark all current entries in the model dirty.
+        d->model->setAllItemsDirty(true);
         while(r->next())
         {
+            // This will remove the dirty flag for already
+            // existing entries.
             d->model->addItem(
                 r->binding(0).value().toString(),
                 r->binding(1).value().toString(),
@@ -125,6 +129,8 @@ void TrackerDocumentProvider::searchFinished()
                 r->binding(4).value().toString()
             );
         }
+        // Remove all entries with the dirty mark.
+        d->model->removeItemsDirty();
     }
 
     emit countChanged();
