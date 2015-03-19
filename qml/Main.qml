@@ -91,6 +91,7 @@ ApplicationWindow
     // TODO: Bind directly the "defaultAllowedOrientations" once it's available in SDK
     allowedOrientations: Qt.application.active ? Orientation.All : pageStack.currentOrientation
     _defaultPageOrientations: Orientation.All
+    _defaultLabelFormat: Text.PlainText
     cover: Qt.resolvedUrl("CoverPage.qml")
     Component {
         id: fileListPage
