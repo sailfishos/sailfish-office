@@ -89,7 +89,7 @@ Page {
                 property string fileMimeType: window.mimeToIcon(model.fileMimeType)
                 anchors {
                     left: parent.left;
-                    leftMargin: Theme.paddingLarge;
+                    leftMargin: Theme.horizontalPageMargin;
                     verticalCenter: parent.verticalCenter;
                 }
                 source: fileMimeType
@@ -107,6 +107,7 @@ Page {
                     left: icon.right;
                     leftMargin: Theme.paddingMedium;
                     right: parent.right;
+                    rightMargin: Theme.horizontalPageMargin;
                     bottom: icon.verticalCenter;
                 }
                 color: listItem.highlighted ? Theme.highlightColor : Theme.primaryColor
@@ -129,7 +130,7 @@ Page {
             Label {
                 anchors {
                     right: parent.right;
-                    rightMargin: Theme.paddingLarge;
+                    rightMargin: Theme.horizontalPageMargin;
                     top: icon.verticalCenter;
                 }
 

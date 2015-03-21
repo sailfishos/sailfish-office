@@ -27,8 +27,8 @@ Column {
     anchors {
         left: parent.left
         right: parent.right
-        leftMargin: Theme.paddingLarge
-        rightMargin: Theme.paddingLarge
+        leftMargin: Theme.horizontalPageMargin
+        rightMargin: Theme.horizontalPageMargin
     }
 
     Label {
