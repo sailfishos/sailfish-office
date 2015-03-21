@@ -71,7 +71,7 @@ Page {
                     property string fileMimeType: window.mimeToIcon(model.fileMimeType)
                     anchors {
                         left: parent.left;
-                        leftMargin: Theme.paddingLarge;
+                        leftMargin: Theme.horizontalPageMargin;
                         verticalCenter: parent.verticalCenter;
                     }
                     source: fileMimeType
@@ -110,7 +110,7 @@ Page {
                 Label {
                     anchors {
                         right: parent.right;
-                        rightMargin: Theme.paddingLarge;
+                        rightMargin: Theme.horizontalPageMargin;
                         top: icon.verticalCenter;
                     }
 
