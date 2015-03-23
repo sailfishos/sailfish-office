@@ -29,6 +29,7 @@ struct DocumentListModelEntry
     QDateTime fileRead;
     QString mimeType;
     DocumentListModel::DocumentClass documentClass;
+    bool dirty; // When true, should be removed from list.
 };
 
 class DocumentListModel::Private
@@ -97,15 +98,32 @@ QHash< int, QByteArray > DocumentListModel::roleNames() const
     return d->roles;
 }
 
+void DocumentListModel::setAllItemsDirty(bool status)
+{
+    for(QList<DocumentListModelEntry>::iterator entry = d->entries.begin();
+        entry != d->entries.end(); entry++) {
+        entry->dirty = status;
+    }
+}
+
 void DocumentListModel::addItem(QString name, QString path, QString type, int size, QDateTime lastRead, QString mimeType)
 {
     // We sometimes get duplicate entries... and that's kind of silly.
-    foreach(const DocumentListModelEntry& entry, d->entries) {
-        if(entry.filePath == path)
+    for(QList<DocumentListModelEntry>::iterator entry = d->entries.begin();
+        entry != d->entries.end(); entry++) {
+        if(entry->filePath == path) {
+            entry->dirty = false;
+            entry->fileType = type;
+            entry->fileSize = size;
+            entry->fileRead = lastRead;
+            entry->mimeType = mimeType;
+            entry->documentClass = static_cast<DocumentClass>(mimeTypeToDocumentClass(mimeType));
             return;
+        }
     }
 
     DocumentListModelEntry entry;
+    entry.dirty    = false;
     entry.fileName = name;
     entry.filePath = path;
     entry.fileType = type;
@@ -124,6 +142,18 @@ void DocumentListModel::addItem(QString name, QString path, QString type, int si
     d->entries.insert(index, entry);
     endInsertRows();
 }
+
+void DocumentListModel::removeItemsDirty()
+{
+    for (int index=0; index <  d->entries.count(); index++) {
+        if (d->entries.at(index).dirty) {
+            beginRemoveRows(QModelIndex(), index, index);
+            d->entries.removeAt(index);
+            endRemoveRows();
+        }
+    }
+}
+
 
 void DocumentListModel::removeAt(int index)
 {
