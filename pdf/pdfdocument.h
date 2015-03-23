@@ -40,6 +40,7 @@ class PDFDocument : public QObject, public QQmlParserStatus
     Q_PROPERTY(int pageCount READ pageCount NOTIFY pageCountChanged)
     Q_PROPERTY(QObject* tocModel READ tocModel NOTIFY tocModelChanged)
     Q_PROPERTY(bool loaded READ isLoaded NOTIFY documentLoaded)
+    Q_PROPERTY(bool failure READ isFailed NOTIFY documentFailed)
 
     Q_INTERFACES(QQmlParserStatus)
 
@@ -57,6 +58,7 @@ public:
     LinkMap linkTargets() const;
 
     bool isLoaded() const;
+    bool isFailed() const;
 
     virtual void classBegin();
     virtual void componentComplete();
@@ -75,6 +77,7 @@ Q_SIGNALS:
     void tocModelChanged();
 
     void documentLoaded();
+    void documentFailed();
     void pageFinished( int index, QSGTexture *page );
     void pageSizesFinished(const QList< QSizeF >& heights);
 
