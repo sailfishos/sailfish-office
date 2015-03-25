@@ -76,6 +76,11 @@ bool PDFDocument::isLoaded() const
     return d->thread->isLoaded();
 }
 
+bool PDFDocument::isFailed() const
+{
+    return d->thread->isFailed();
+}
+
 PDFDocument::LinkMap PDFDocument::linkTargets() const
 {
     return d->thread->linkTargets();

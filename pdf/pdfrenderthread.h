@@ -38,6 +38,7 @@ public:
     int pageCount() const;
     QObject* tocModel() const;
     bool isLoaded() const;
+    bool isFailed() const;
     QMultiMap< int, QPair< QRectF, QUrl > > linkTargets() const;
 
     void queueJob( PDFJob* job );

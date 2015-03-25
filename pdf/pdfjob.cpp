@@ -29,8 +29,10 @@ LoadDocumentJob::LoadDocumentJob(const QString& source)
 void LoadDocumentJob::run()
 {
     m_document = Poppler::Document::load(m_source);
-    m_document->setRenderHint( Poppler::Document::Antialiasing, true );
-    m_document->setRenderHint( Poppler::Document::TextAntialiasing, true );
+    if (m_document) {
+        m_document->setRenderHint( Poppler::Document::Antialiasing, true );
+        m_document->setRenderHint( Poppler::Document::TextAntialiasing, true );
+    }
 }
 
 RenderPageJob::RenderPageJob(int index, uint width, QQuickWindow *window)

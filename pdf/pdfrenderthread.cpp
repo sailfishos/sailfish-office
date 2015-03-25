@@ -77,6 +77,7 @@ public:
 
     Thread *thread;
 
+    bool loadFailure;
     Poppler::Document* document;
     PDFTocModel* tocModel;
 
@@ -143,7 +144,7 @@ PDFRenderThread::~PDFRenderThread()
 int PDFRenderThread::pageCount() const
 {
     QMutexLocker locker{ &d->thread->mutex };
-    return d->document->numPages();
+    return (d->document != nullptr) ? d->document->numPages() : 0;
 }
 
 QObject* PDFRenderThread::tocModel() const
@@ -156,6 +157,11 @@ bool PDFRenderThread::isLoaded() const
 {
     QMutexLocker{ &d->thread->mutex };
     return d->document != nullptr;
+}
+bool PDFRenderThread::isFailed() const
+{
+    QMutexLocker{ &d->thread->mutex };
+    return d->loadFailure;
 }
 
 QMultiMap< int, QPair< QRectF, QUrl > > PDFRenderThread::linkTargets() const
@@ -214,8 +220,14 @@ void PDFRenderThreadQueue::processPendingJob()
         return;
 
     PDFJob* job = dequeue();
-    if (job->type() != PDFJob::LoadDocumentJob)
+    switch(job->type()) {
+    case PDFJob::LoadDocumentJob:
+        d->loadFailure = false;
+        break;
+    default:
         job->m_document = d->document;
+        break;
+    }
     locker.unlock();
 
     job->run();
@@ -227,26 +239,29 @@ void PDFRenderThreadQueue::processPendingJob()
        return;
     }
 
-    switch(job->type())
-    {
-        case PDFJob::LoadDocumentJob: {
-            LoadDocumentJob* dj = static_cast< LoadDocumentJob* >( job );
-            if( d->document )
-                delete d->document;
+    switch(job->type()) {
+    case PDFJob::LoadDocumentJob:
+        LoadDocumentJob* dj = static_cast< LoadDocumentJob* >( job );
+        if( d->document )
+            delete d->document;
+        if(d->tocModel) {
+            d->tocModel->deleteLater();
+            d->tocModel = nullptr;
+        }
 
-            d->document = dj->m_document;
-            if(d->tocModel) {
-                d->tocModel->deleteLater();
-                d->tocModel = nullptr;
-            }
+        d->document = dj->m_document;
+        if(d->document) {
             d->tocModel = new PDFTocModel{ d->document };
             d->rescanDocumentLinks();
-            job->deleteLater();
-            emit d->q->loadFinished();
-            break;
+        } else {
+            d->loadFailure = true;
         }
-        default:
-            emit d->q->jobFinished(job);
+        job->deleteLater();
+        emit d->q->loadFinished();
+        break;
+    default:
+        emit d->q->jobFinished(job);
+        break;
     }
 }
 
