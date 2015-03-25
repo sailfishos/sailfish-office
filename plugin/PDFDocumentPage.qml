@@ -19,7 +19,6 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 import Sailfish.Office.PDF 1.0 as PDF
-import org.nemomobile.notifications 1.0
 
 DocumentPage {
     id: base;
@@ -42,17 +41,29 @@ DocumentPage {
         onClicked: base.open = !base.open;
     }
 
+    ViewPlaceholder {
+        flickable: view;
+        enabled: pdfDocument.failure;
+        //% "Broken file"
+        text: qsTrId("sailfish-office-me-broken-pdf-summary");
+        //% "Cannot open PDF file"
+        hintText: qsTrId("sailfish-office-me-broken-pdf-desc");
+        MouseArea {
+            anchors.fill: parent
+            onClicked: base.open = !base.open;
+        }
+        /*Button {
+            anchors.top: parent.bottom;
+            text: "Unlock"
+        }*/
+    }
+
     PDF.Document {
         id: pdfDocument;
         source: base.path;
-        onDocumentLoaded: if (failure) {
-            pageStack.completeAnimation();
-            pageStack.pop();
-            notification.publish();
-        }
     }
 
-    busy: !pdfDocument.loaded;
+    busy: !pdfDocument.loaded && !pdfDocument.failure;
     source: pdfDocument.source;
     indexCount: pdfDocument.pageCount;
 
@@ -61,12 +72,4 @@ DocumentPage {
         interval: 5000;
         onTriggered: linkArea.sourceSize = Qt.size( base.width, pdfCanvas.height );
     }
-
-    Notification {
-        id: notification;
-        //% "Cannot open PDF file"
-        previewBody: qsTrId("sailfish-office-me-broken-pdf-desc");
-        //% "Broken file"
-        previewSummary: qsTrId("sailfish-office-me-broken-pdf-summary");
-    }    
 }
