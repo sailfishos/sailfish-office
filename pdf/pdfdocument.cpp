@@ -43,6 +43,7 @@ PDFDocument::PDFDocument(QObject* parent)
     d->thread = new PDFRenderThread{ this };
     connect( d->thread, &PDFRenderThread::loadFinished, this, &PDFDocument::documentLoaded );
     connect( d->thread, &PDFRenderThread::loadFinished, this, &PDFDocument::pageCountChanged );
+    connect( d->thread, &PDFRenderThread::loadFinished, this, &PDFDocument::loadFinished );
     connect( d->thread, &PDFRenderThread::jobFinished, this, &PDFDocument::jobFinished );
 }
 
@@ -151,6 +152,11 @@ void PDFDocument::requestPageSizes()
     d->thread->queueJob( job );
 }
 
+void PDFDocument::loadFinished()
+{
+  if (d->thread->isFailed())
+    emit documentFailed();
+}
 void PDFDocument::jobFinished(PDFJob* job)
 {
     switch(job->type()) {

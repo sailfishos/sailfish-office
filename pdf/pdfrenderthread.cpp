@@ -117,6 +117,7 @@ PDFRenderThread::PDFRenderThread(QObject* parent)
     : QObject( parent ), d( new PDFRenderThreadPrivate() )
 {
     d->q = this;
+    d->loadFailure = false;
     d->thread = new Thread();
     d->thread->jobQueue = new PDFRenderThreadQueue();
     d->thread->jobQueue->d = d;
@@ -240,28 +241,30 @@ void PDFRenderThreadQueue::processPendingJob()
     }
 
     switch(job->type()) {
-    case PDFJob::LoadDocumentJob:
-        LoadDocumentJob* dj = static_cast< LoadDocumentJob* >( job );
-        if( d->document )
-            delete d->document;
-        if(d->tocModel) {
-            d->tocModel->deleteLater();
-            d->tocModel = nullptr;
+        case PDFJob::LoadDocumentJob: {
+            LoadDocumentJob* dj = static_cast< LoadDocumentJob* >( job );
+            if( d->document )
+                delete d->document;
+            if(d->tocModel) {
+                d->tocModel->deleteLater();
+                d->tocModel = nullptr;
+            }
+    
+            d->document = dj->m_document;
+            if(d->document) {
+                d->tocModel = new PDFTocModel{ d->document };
+                d->rescanDocumentLinks();
+            } else {
+                d->loadFailure = true;
+            }
+            job->deleteLater();
+            emit d->q->loadFinished();
+            break;
         }
-
-        d->document = dj->m_document;
-        if(d->document) {
-            d->tocModel = new PDFTocModel{ d->document };
-            d->rescanDocumentLinks();
-        } else {
-            d->loadFailure = true;
+        default: {
+            emit d->q->jobFinished(job);
+            break;
         }
-        job->deleteLater();
-        emit d->q->loadFinished();
-        break;
-    default:
-        emit d->q->jobFinished(job);
-        break;
     }
 }
 

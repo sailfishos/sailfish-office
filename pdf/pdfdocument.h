@@ -69,6 +69,7 @@ public Q_SLOTS:
     void prioritizeRequest( int index, int size);
     void cancelPageRequest(int index);
     void requestPageSizes();
+    void loadFinished();
     void jobFinished(PDFJob* job);
 
 Q_SIGNALS:
