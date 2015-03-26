@@ -39,23 +39,46 @@ DocumentPage {
         document: pdfDocument;
 
         onClicked: base.open = !base.open;
-    }
 
-    ViewPlaceholder {
-        flickable: view;
-        enabled: pdfDocument.failure;
-        //% "Broken file"
-        text: qsTrId("sailfish-office-me-broken-pdf-summary");
-        //% "Cannot open PDF file"
-        hintText: qsTrId("sailfish-office-me-broken-pdf-desc");
-        MouseArea {
-            anchors.fill: parent
-            onClicked: base.open = !base.open;
+        ViewPlaceholder {
+            enabled: pdfDocument.failure || pdfDocument.locked
+            y: (flickable ? flickable.originY : 0) + (base.height - height - (passwd.visible ? passwd.height : 0)) / 2
+            //% "Broken file"
+            text: pdfDocument.failure ? qsTrId("sailfish-office-me-broken-pdf") :
+            //%  "Locked file"
+            qsTrId("sailfish-office-me-locked-pdf")
+            //% "Cannot read the PDF document"
+            hintText: pdfDocument.failure ? qsTrId("sailfish-office-me-broken-pdf-hint") :
+            //% "Enter password to unlock"
+            qsTrId("sailfish-office-me-locked-pdf-hint")
+            MouseArea {
+                anchors.fill: parent
+                onClicked: base.open = !base.open
+            }
+            TextField {
+                id: passwd
+                visible: pdfDocument.locked
+                width: parent.width - Theme.paddingLarge
+                anchors.top: parent.bottom
+                anchors.horizontalCenter: parent.horizontalCenter
+
+                //% "password"
+                label: qsTrId("sailfish-office-la-password")
+                placeholderText: label
+
+                inputMethodHints: Qt.ImhNoPredictiveText | Qt.ImhNoAutoUppercase
+                echoMode: TextInput.Password
+                EnterKey.enabled: text
+                EnterKey.onClicked: {
+                    focus = false
+                    pdfDocument.requestUnLock(text)
+                    text = ""
+                }
+
+                onFocusChanged: if (focus) base.open = false
+            }
         }
-        /*Button {
-            anchors.top: parent.bottom;
-            text: "Unlock"
-        }*/
+
     }
 
     PDF.Document {
