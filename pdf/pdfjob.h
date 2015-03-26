@@ -35,6 +35,7 @@ class PDFJob : public QObject
 public:
     enum JobType {
         LoadDocumentJob,
+        UnLockDocumentJob,
         RenderPageJob,
         PageSizesJob,
     };
@@ -64,6 +65,18 @@ public:
 
 private:
     QString m_source;
+};
+
+class UnLockDocumentJob : public PDFJob
+{
+    Q_OBJECT
+public:
+    UnLockDocumentJob( const QString& password );
+
+    virtual void run();
+
+private:
+    QString m_password;
 };
 
 class RenderPageJob : public PDFJob

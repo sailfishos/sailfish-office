@@ -82,6 +82,11 @@ bool PDFDocument::isFailed() const
     return d->thread->isFailed();
 }
 
+bool PDFDocument::isLocked() const
+{
+    return d->thread->isLocked();
+}
+
 PDFDocument::LinkMap PDFDocument::linkTargets() const
 {
     return d->thread->linkTargets();
@@ -120,9 +125,18 @@ void PDFDocument::setSource(const QString& source)
     }
 }
 
+void PDFDocument::requestUnLock(const QString& password)
+{
+    if (!isLocked())
+        return;
+
+    UnLockDocumentJob* job = new UnLockDocumentJob(password);
+    d->thread->queueJob(job);
+}
+
 void PDFDocument::requestPage(int index, int size, QQuickWindow *window )
 {
-    if(!isLoaded())
+    if(!isLoaded() || isLocked())
         return;
 
     RenderPageJob* job = new RenderPageJob{ index, size, window };
@@ -131,21 +145,21 @@ void PDFDocument::requestPage(int index, int size, QQuickWindow *window )
 
 void PDFDocument::prioritizeRequest(int index, int size)
 {
-    if (!isLoaded())
+    if (!isLoaded() || isLocked())
         return;
     d->thread->prioritizeJob(index, size);
 }
 
 void PDFDocument::cancelPageRequest(int index)
 {
-    if (!isLoaded())
+    if (!isLoaded() || isLocked())
         return;
     d->thread->cancelRenderJob(index);
 }
 
 void PDFDocument::requestPageSizes()
 {
-    if(!isLoaded())
+    if(!isLoaded() || isLocked())
         return;
 
     PageSizesJob* job = new PageSizesJob{};
@@ -154,12 +168,19 @@ void PDFDocument::requestPageSizes()
 
 void PDFDocument::loadFinished()
 {
-  if (d->thread->isFailed())
-    emit documentFailed();
+    if (d->thread->isFailed())
+        emit documentFailed();
+    if (d->thread->isLocked())
+        emit documentLocked();
 }
 void PDFDocument::jobFinished(PDFJob* job)
 {
     switch(job->type()) {
+        case PDFJob::UnLockDocumentJob: {
+            emit documentLocked();
+            emit pageCountChanged();
+            break;
+        }
         case PDFJob::RenderPageJob: {
             RenderPageJob* j = static_cast<RenderPageJob*>(job);
             emit pageFinished(j->m_index, j->m_page);

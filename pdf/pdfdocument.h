@@ -41,6 +41,7 @@ class PDFDocument : public QObject, public QQmlParserStatus
     Q_PROPERTY(QObject* tocModel READ tocModel NOTIFY tocModelChanged)
     Q_PROPERTY(bool loaded READ isLoaded NOTIFY documentLoaded)
     Q_PROPERTY(bool failure READ isFailed NOTIFY documentFailed)
+    Q_PROPERTY(bool locked READ isLocked NOTIFY documentLocked)
 
     Q_INTERFACES(QQmlParserStatus)
 
@@ -59,12 +60,14 @@ public:
 
     bool isLoaded() const;
     bool isFailed() const;
+    bool isLocked() const;
 
     virtual void classBegin();
     virtual void componentComplete();
 
 public Q_SLOTS:
     void setSource(const QString& source);
+    void requestUnLock( const QString& password );
     void requestPage( int index, int size, QQuickWindow *window );
     void prioritizeRequest( int index, int size);
     void cancelPageRequest(int index);
@@ -79,6 +82,7 @@ Q_SIGNALS:
 
     void documentLoaded();
     void documentFailed();
+    void documentLocked();
     void pageFinished( int index, QSGTexture *page );
     void pageSizesFinished(const QList< QSizeF >& heights);
 

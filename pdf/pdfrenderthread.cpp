@@ -145,7 +145,12 @@ PDFRenderThread::~PDFRenderThread()
 int PDFRenderThread::pageCount() const
 {
     QMutexLocker locker{ &d->thread->mutex };
-    return (d->document != nullptr) ? d->document->numPages() : 0;
+    if (d->document != nullptr &&
+        !d->document->isLocked()) {
+        return d->document->numPages();
+    } else {
+        return 0;
+    }
 }
 
 QObject* PDFRenderThread::tocModel() const
@@ -163,6 +168,11 @@ bool PDFRenderThread::isFailed() const
 {
     QMutexLocker{ &d->thread->mutex };
     return d->loadFailure;
+}
+bool PDFRenderThread::isLocked() const
+{
+    QMutexLocker(&d->thread->mutex);
+    return (d->document != nullptr) ? d->document->isLocked() : false;
 }
 
 QMultiMap< int, QPair< QRectF, QUrl > > PDFRenderThread::linkTargets() const
@@ -252,8 +262,10 @@ void PDFRenderThreadQueue::processPendingJob()
     
             d->document = dj->m_document;
             if(d->document) {
-                d->tocModel = new PDFTocModel{ d->document };
-                d->rescanDocumentLinks();
+                if (!d->document->isLocked()) {
+                    d->tocModel = new PDFTocModel(d->document);
+                    d->rescanDocumentLinks();
+                }
             } else {
                 d->loadFailure = true;
             }
