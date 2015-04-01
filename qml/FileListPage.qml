@@ -23,17 +23,23 @@ import Sailfish.Office.Files 1.0
 
 Page {
     id: page
-    property alias model: listView.model;
+    property alias model: filteredModel.sourceModel;
     property string title: "";
     property QtObject provider;
 
     allowedOrientations: Orientation.All;
+
+    FilterModel {
+        id: filteredModel
+        filterRegExp: RegExp("")
+    }
 
     SilicaListView {
         id: listView;
         anchors.fill: parent
 
         currentIndex: -1;
+        model: filteredModel
 
         children: ScrollDecorator { }
         header: PageHeader {
