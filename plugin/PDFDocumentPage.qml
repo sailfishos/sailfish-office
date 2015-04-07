@@ -19,7 +19,6 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 import Sailfish.Office.PDF 1.0 as PDF
-import org.nemomobile.notifications 1.0
 
 DocumentPage {
     id: base;
@@ -40,19 +39,54 @@ DocumentPage {
         document: pdfDocument;
 
         onClicked: base.open = !base.open;
+
+        ViewPlaceholder {
+            enabled: pdfDocument.failure || pdfDocument.locked
+            y: (flickable ? flickable.originY : 0) + (base.height - height - (passwd.visible ? passwd.height : 0)) / 2
+            //% "Broken file"
+            text: pdfDocument.failure ? qsTrId("sailfish-office-me-broken-pdf") :
+            //%  "Locked file"
+            qsTrId("sailfish-office-me-locked-pdf")
+            //% "Cannot read the PDF document"
+            hintText: pdfDocument.failure ? qsTrId("sailfish-office-me-broken-pdf-hint") :
+            //% "Enter password to unlock"
+            qsTrId("sailfish-office-me-locked-pdf-hint")
+            MouseArea {
+                anchors.fill: parent
+                onClicked: base.open = !base.open
+            }
+            TextField {
+                id: passwd
+                visible: pdfDocument.locked
+                width: parent.width - Theme.paddingLarge
+                anchors.top: parent.bottom
+                anchors.horizontalCenter: parent.horizontalCenter
+
+                //% "password"
+                label: qsTrId("sailfish-office-la-password")
+                placeholderText: label
+
+                inputMethodHints: Qt.ImhNoPredictiveText | Qt.ImhNoAutoUppercase
+                echoMode: TextInput.Password
+                EnterKey.enabled: text
+                EnterKey.onClicked: {
+                    focus = false
+                    pdfDocument.requestUnLock(text)
+                    text = ""
+                }
+
+                onFocusChanged: if (focus) base.open = false
+            }
+        }
+
     }
 
     PDF.Document {
         id: pdfDocument;
         source: base.path;
-        onDocumentLoaded: if (failure) {
-            pageStack.completeAnimation();
-            pageStack.pop();
-            notification.publish();
-        }
     }
 
-    busy: !pdfDocument.loaded;
+    busy: !pdfDocument.loaded && !pdfDocument.failure;
     source: pdfDocument.source;
     indexCount: pdfDocument.pageCount;
 
@@ -61,12 +95,4 @@ DocumentPage {
         interval: 5000;
         onTriggered: linkArea.sourceSize = Qt.size( base.width, pdfCanvas.height );
     }
-
-    Notification {
-        id: notification;
-        //% "Cannot open PDF file"
-        previewBody: qsTrId("sailfish-office-me-broken-pdf-desc");
-        //% "Broken file"
-        previewSummary: qsTrId("sailfish-office-me-broken-pdf-summary");
-    }    
 }

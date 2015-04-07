@@ -39,6 +39,7 @@ public:
     QObject* tocModel() const;
     bool isLoaded() const;
     bool isFailed() const;
+    bool isLocked() const;
     QMultiMap< int, QPair< QRectF, QUrl > > linkTargets() const;
 
     void queueJob( PDFJob* job );

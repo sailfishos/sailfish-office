@@ -35,6 +35,20 @@ void LoadDocumentJob::run()
     }
 }
 
+UnLockDocumentJob::UnLockDocumentJob(const QString& password)
+    : PDFJob(PDFJob::UnLockDocumentJob), m_password(password)
+{
+
+}
+
+void UnLockDocumentJob::run()
+{
+    Q_ASSERT(m_document);
+
+    if (m_document->isLocked())
+        m_document->unlock( m_password.toUtf8(), m_password.toUtf8() );
+}
+
 RenderPageJob::RenderPageJob(int index, uint width, QQuickWindow *window)
     : PDFJob{ PDFJob::RenderPageJob }, m_index{ index }, m_page{ 0 }, m_window{ window }, m_width{ width }
 {
