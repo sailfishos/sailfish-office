@@ -30,39 +30,45 @@ SilicaFlickable {
     property alias itemHeight: pdfCanvas.height;
     property alias document: pdfCanvas.document;
 
-    property bool scaled: false;
+    property bool scaled: pdfCanvas.width != width;
 
     signal clicked();
     signal updateSize(real newWidth, real newHeight);
 
+    function clamp(value) {
+        if (value < width) {
+            return width;
+        }
+
+        if (value > width * 2.5) {
+            return width * 2.5;
+        }
+
+        return value;
+    }
+
     function zoom(amount, center) {
         var oldWidth = pdfCanvas.width;
 
-        pdfCanvas.width *= amount;
-
-        if(pdfCanvas.width < d.minWidth) {
-            pdfCanvas.width = d.minWidth;
-        }
-
-        if(pdfCanvas.width > d.maxWidth) {
-            pdfCanvas.width = d.maxWidth;
-        }
-
-        if(pdfCanvas.width == d.minWidth) {
-            base.scaled = false;
-        } else {
-            base.scaled = true;
-        }
+        pdfCanvas.width = clamp(pdfCanvas.width * amount);
 
         var realZoom = pdfCanvas.width / oldWidth;
         contentX += (center.x * realZoom) - center.x;
         contentY += (center.y * realZoom) - center.y;
     }
 
+    // Ensure proper zooming level when device is rotated.
+    onWidthChanged: pdfCanvas.width = scaled ? clamp(pdfCanvas.width) : width
+
     PDF.Canvas {
         id: pdfCanvas;
 
         width: base.width;
+        // When not zoomed, device rotation will change width and height,
+        // so, we shift content position with changing ratio.
+        onHeightChanged: if (!base.scaled) base.contentY *= height / base.contentHeight
+        onWidthChanged: if (!base.scaled) base.contentX *= width / base.contentWidth
+
         spacing: Theme.paddingLarge;
         flickable: base;
         linkColor: Theme.highlightColor;
@@ -89,13 +95,6 @@ SilicaFlickable {
         HorizontalScrollDecorator { color: Theme.highlightDimmerColor; },
         VerticalScrollDecorator { color: Theme.highlightDimmerColor; }
     ]
-
-    QtObject {
-        id: d;
-
-        property real minWidth: base.width;
-        property real maxWidth: base.width * 2.5;
-    }
 
     function goToPage(pageNumber) {
         base.contentY = pdfCanvas.pagePosition( pageNumber );
