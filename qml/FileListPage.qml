@@ -124,6 +124,7 @@ Page {
                     }
                     color: (bg.highlighted || listItem.menuOpen) ? Theme.highlightColor : Theme.primaryColor
                     text: searchText.length > 0 ? Theme.highlightText(model.fileName, searchText, Theme.highlightColor) : model.fileName
+                    textFormat: searchText.length > 0 ? Text.StyledText : Text.PlainText
                     font.pixelSize: Theme.fontSizeMedium;
                     truncationMode: TruncationMode.Fade;
                 }
