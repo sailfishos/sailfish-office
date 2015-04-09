@@ -23,26 +23,57 @@ import Sailfish.Office.Files 1.0
 
 Page {
     id: page
-    property alias model: listView.model;
+    property alias model: filteredModel.sourceModel;
     property string title: "";
+    property string searchText: "";
     property QtObject provider;
 
     allowedOrientations: Orientation.All;
+
+    FilterModel {
+        id: filteredModel
+        filterRegExp: RegExp(searchText, "i")
+    }
 
     SilicaListView {
         id: listView;
         anchors.fill: parent
 
         currentIndex: -1;
+        model: filteredModel
 
         children: ScrollDecorator { }
-        header: PageHeader {
+        header: SearchPageHeader {
+            id: header
+            width: parent.width
+
             //: Application title
             //% "Documents"
             title: qsTrId("sailfish-office-he-apptitle");
 
             // TODO: uncomment once there are more document sources
             // title: page.title;
+
+            Binding {
+                target: page
+                property: "searchText"
+                value: header.searchText
+            }
+
+            Connections {
+                target: menuItemSearch
+                onClicked: header.enableSearch()
+            }
+        }
+
+        PullDownMenu {
+            MenuItem {
+                id: menuItemSearch
+
+                //: Search menu entry
+                //% "Search"
+                text: qsTrId("sailfish-office-me-search")
+            }
         }
         
         ViewPlaceholder {
@@ -92,7 +123,7 @@ Page {
                         bottom: icon.verticalCenter;
                     }
                     color: (bg.highlighted || listItem.menuOpen) ? Theme.highlightColor : Theme.primaryColor
-                    text: model.fileName;
+                    text: searchText.length > 0 ? Theme.highlightText(model.fileName, searchText, Theme.highlightColor) : model.fileName
                     font.pixelSize: Theme.fontSizeMedium;
                     truncationMode: TruncationMode.Fade;
                 }
