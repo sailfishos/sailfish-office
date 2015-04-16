@@ -51,6 +51,7 @@ public:
     Private( PDFCanvas* qq )
         : q{ qq }
         , pageCount{ 0 }
+        , currentPage{ 0 }
         , renderWidth{ 0 }
         , document{ nullptr }
         , flickable(0)
@@ -63,6 +64,7 @@ public:
     QHash< int, PDFPage > pages;
 
     int pageCount;
+    int currentPage;
 
     int renderWidth;
 
@@ -168,6 +170,11 @@ qreal PDFCanvas::pagePosition(int index) const
         return 0.f;
 
     return d->pages.value( index ).rect.y();
+}
+
+int PDFCanvas::currentPage() const
+{
+    return d->currentPage;
 }
 
 float PDFCanvas::spacing() const
@@ -333,6 +340,7 @@ QSGNode* PDFCanvas::updatePaintNode(QSGNode* node, QQuickItem::UpdatePaintNodeDa
     }
 
     QList<QPair<int, int> > priorityRequests;
+    bool currentPageSet = false;
 
     for( int i = 0; i < d->pageCount; ++i )
     {
@@ -381,6 +389,14 @@ QSGNode* PDFCanvas::updatePaintNode(QSGNode* node, QQuickItem::UpdatePaintNodeDa
         m.translate( 0, page.rect.y() );
         t->setMatrix(m);
 
+        if (showPage && !currentPageSet) {
+            currentPageSet = true;
+            if (d->currentPage != i + 1) {
+                d->currentPage = i + 1;
+                emit currentPageChanged();
+            }
+        }
+          
         if( page.texture && showPage )
         {
             QSGSimpleTextureNode *tn = static_cast<QSGSimpleTextureNode *>(t->firstChild());

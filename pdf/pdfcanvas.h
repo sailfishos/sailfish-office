@@ -30,6 +30,7 @@ class PDFCanvas : public QQuickItem
     Q_PROPERTY( QQuickItem* flickable READ flickable WRITE setFlickable NOTIFY flickableChanged )
     Q_PROPERTY( float spacing READ spacing WRITE setSpacing NOTIFY spacingChanged )
     Q_PROPERTY( QColor linkColor READ linkColor WRITE setLinkColor NOTIFY linkColorChanged )
+    Q_PROPERTY( int currentPage READ currentPage NOTIFY currentPageChanged )
 
 public:
     PDFCanvas(QQuickItem* parent = 0);
@@ -61,6 +62,11 @@ public:
      */
     void setLinkColor( const QColor& color );
 
+    /**
+     * Getter for property #currentPage.
+     */
+    int currentPage() const;
+
     void layout();
 
     /**
@@ -73,6 +79,7 @@ Q_SIGNALS:
     void flickableChanged();
     void spacingChanged();
     void linkColorChanged();
+    void currentPageChanged();
 
 protected:
     virtual void geometryChanged(const QRectF& newGeometry, const QRectF& oldGeometry);
