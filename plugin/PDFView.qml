@@ -57,17 +57,23 @@ SilicaFlickable {
         contentY += (center.y * realZoom) - center.y;
     }
 
+    function adjust() {
+        var oldWidth = pdfCanvas.width
+        var oldHeight = pdfCanvas.height
+
+        pdfCanvas.width = scaled ? clamp(pdfCanvas.width) : width
+
+        contentX *= pdfCanvas.width / oldWidth
+        contentY *= pdfCanvas.height / oldHeight
+    }
+
     // Ensure proper zooming level when device is rotated.
-    onWidthChanged: pdfCanvas.width = scaled ? clamp(pdfCanvas.width) : width
+    onWidthChanged: adjust()
 
     PDF.Canvas {
         id: pdfCanvas;
 
         width: base.width;
-        // When not zoomed, device rotation will change width and height,
-        // so, we shift content position with changing ratio.
-        onHeightChanged: if (!base.scaled) base.contentY *= height / base.contentHeight
-        onWidthChanged: if (!base.scaled) base.contentX *= width / base.contentWidth
 
         spacing: Theme.paddingLarge;
         flickable: base;
