@@ -25,6 +25,7 @@ namespace Poppler { class Document; }
 class PDFTocModel : public QAbstractListModel
 {
     Q_OBJECT
+    Q_PROPERTY(int count READ count NOTIFY countChanged)
 
 public:
     enum PDFTocModelRoles {
@@ -38,6 +39,11 @@ public:
     virtual QVariant data(const QModelIndex& index, int role) const;
     virtual int rowCount(const QModelIndex& parent) const;
     virtual QHash<int, QByteArray> roleNames() const;
+
+    int count() const;
+
+Q_SIGNALS:
+    void countChanged();
 
 private:
     class Private;

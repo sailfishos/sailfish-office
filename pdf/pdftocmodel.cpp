@@ -145,3 +145,8 @@ int PDFTocModel::rowCount(const QModelIndex& parent) const
         return 0;
     return d->entries.count();
 }
+
+int PDFTocModel::count() const
+{
+  return d->entries.count();
+}
