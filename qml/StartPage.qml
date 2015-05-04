@@ -70,6 +70,7 @@ Page {
                     left: thumbnail.right
                     right: parent.right
                     leftMargin: Theme.paddingLarge
+                    rightMargin: Theme.horizontalPageMargin
                     verticalCenter: parent.verticalCenter
                 }
             }

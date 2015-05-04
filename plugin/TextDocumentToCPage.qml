@@ -43,7 +43,7 @@ Page {
             Label {
                 anchors {
                     left: parent.left;
-                    leftMargin: Theme.paddingLarge * (model.level+1);
+                    leftMargin: Theme.horizontalPageMargin + (Theme.paddingLarge * model.level);
                     right: pageNumberLbl.left;
                     rightMargin: Theme.paddingLarge;
                     verticalCenter: parent.verticalCenter;
@@ -56,7 +56,7 @@ Page {
                 id: pageNumberLbl
                 anchors {
                     right: parent.right;
-                    rightMargin: Theme.paddingLarge;
+                    rightMargin: Theme.horizontalPageMargin;
                     verticalCenter: parent.verticalCenter;
                 }
                 text: model.contentIndex + 1;

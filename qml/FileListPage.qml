@@ -39,10 +39,8 @@ Page {
         id: listView;
         anchors.fill: parent
 
-        currentIndex: -1;
         model: filteredModel
 
-        children: ScrollDecorator { }
         header: SearchPageHeader {
             id: header
             width: parent.width
@@ -82,128 +80,112 @@ Page {
             text: qsTrId("sailfish-office-la-no_documents")
             enabled: !listView.count
         }
-        delegate: Item {
+        delegate: ListItem {
             id: listItem;
+            contentHeight: Theme.itemSizeMedium
 
-            property bool menuOpen: ListView.isCurrentItem;
-
-            width: ListView.view.width;
-            height: menuOpen ? contextMenu.height + bg.height : bg.height;
-
-            BackgroundItem {
-                id: bg;
-
-                width: parent.width;
-
-                Image {
-                    id: icon;
-
-
-                    property string fileMimeType: window.mimeToIcon(model.fileMimeType)
-                    anchors {
-                        left: parent.left;
-                        leftMargin: Theme.paddingLarge;
-                        verticalCenter: parent.verticalCenter;
-                    }
-                    source: fileMimeType
-                    states: State {
-                        when: icon.fileMimeType === ""
-                        PropertyChanges {
-                            target: icon
-                            source: "image://theme/icon-l-document?"
-                                    + (bg.highlighted ? Theme.highlightColor : Theme.primaryColor);
-                        }
+            Image {
+                id: icon;
+                property string fileMimeType: window.mimeToIcon(model.fileMimeType)
+                anchors {
+                    left: parent.left;
+                    leftMargin: Theme.horizontalPageMargin;
+                    verticalCenter: parent.verticalCenter;
+                }
+                source: fileMimeType
+                states: State {
+                    when: icon.fileMimeType === ""
+                    PropertyChanges {
+                        target: icon
+                        source: "image://theme/icon-l-document?"
+                                + (listItem.highlighted ? Theme.highlightColor : Theme.primaryColor);
                     }
                 }
-                Label {
-                    anchors {
-                        left: icon.right;
-                        leftMargin: Theme.paddingMedium;
-                        right: parent.right;
-                        bottom: icon.verticalCenter;
-                    }
-                    color: (bg.highlighted || listItem.menuOpen) ? Theme.highlightColor : Theme.primaryColor
-                    text: searchText.length > 0 ? Theme.highlightText(model.fileName, searchText, Theme.highlightColor) : model.fileName
-                    textFormat: searchText.length > 0 ? Text.StyledText : Text.PlainText
-                    font.pixelSize: Theme.fontSizeMedium;
-                    truncationMode: TruncationMode.Fade;
+            }
+            Label {
+                anchors {
+                    left: icon.right;
+                    leftMargin: Theme.paddingMedium;
+                    right: parent.right;
+                    rightMargin: Theme.horizontalPageMargin;
+                    bottom: icon.verticalCenter;
                 }
-                Label {
-                    anchors {
-                        left: icon.right;
-                        leftMargin: Theme.paddingMedium;
-                        top: icon.verticalCenter;
-                    }
-                    text: Format.formatFileSize(model.fileSize);
-
-                    font.pixelSize: Theme.fontSizeExtraSmall;
-                    color: Theme.secondaryColor;
+                color: listItem.highlighted ? Theme.highlightColor : Theme.primaryColor
+                text: searchText.length > 0 ? Theme.highlightText(model.fileName, searchText, Theme.highlightColor) : model.fileName
+                textFormat: searchText.length > 0 ? Text.StyledText : Text.PlainText
+                font.pixelSize: Theme.fontSizeMedium;
+                truncationMode: TruncationMode.Fade;
+            }
+            Label {
+                anchors {
+                    left: icon.right;
+                    leftMargin: Theme.paddingMedium;
+                    top: icon.verticalCenter;
                 }
-                Label {
-                    anchors {
-                        right: parent.right;
-                        rightMargin: Theme.paddingLarge;
-                        top: icon.verticalCenter;
-                    }
+                text: Format.formatFileSize(model.fileSize);
 
-                    text: Format.formatDate(model.fileRead, Format.Timepoint);
-
-                    font.pixelSize: Theme.fontSizeExtraSmall;
-                    color: Theme.secondaryColor;
+                font.pixelSize: Theme.fontSizeExtraSmall;
+                color: listItem.highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
+            }
+            Label {
+                anchors {
+                    right: parent.right;
+                    rightMargin: Theme.horizontalPageMargin;
+                    top: icon.verticalCenter;
                 }
 
-                onClicked: {
-                    switch(model.fileDocumentClass) {
-                        case DocumentListModel.TextDocument:
-                            pageStack.push(pages.textDocument, { title: model.fileName, path: model.filePath, mimeType: model.fileMimeType });
-                            break;
-                        case DocumentListModel.SpreadSheetDocument:
-                            pageStack.push(pages.spreadsheet, { title: model.fileName, path: model.filePath, mimeType: model.fileMimeType });
-                            break;
-                        case DocumentListModel.PresentationDocument:
-                            pageStack.push(pages.presentation, { title: model.fileName, path: model.filePath, mimeType: model.fileMimeType });
-                            break;
-                        case DocumentListModel.PDFDocument:
-                            pageStack.push(pages.pdf, { title: model.fileName, path: model.filePath, mimeType: model.fileMimeType });
-                            break;
-                        default:
-                            console.log("Unknown file format for file " + model.fileName + " with stated mimetype " + model.fileMimeType);
-                            break;
-                    }
-                }
+                text: Format.formatDate(model.fileRead, Format.Timepoint);
 
-                onPressAndHold: {
-                    listItem.ListView.view.currentIndex = index;
-                    contextMenu.show(listItem);
-                }
+                font.pixelSize: Theme.fontSizeExtraSmall;
+                color: listItem.highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
+            }
 
-                RemorseItem { id: remorse; }
+            onClicked: {
+                switch(model.fileDocumentClass) {
+                    case DocumentListModel.TextDocument:
+                        pageStack.push(pages.textDocument, { title: model.fileName, path: model.filePath, mimeType: model.fileMimeType });
+                        break;
+                    case DocumentListModel.SpreadSheetDocument:
+                        pageStack.push(pages.spreadsheet, { title: model.fileName, path: model.filePath, mimeType: model.fileMimeType });
+                        break;
+                    case DocumentListModel.PresentationDocument:
+                        pageStack.push(pages.presentation, { title: model.fileName, path: model.filePath, mimeType: model.fileMimeType });
+                        break;
+                    case DocumentListModel.PDFDocument:
+                        pageStack.push(pages.pdf, { title: model.fileName, path: model.filePath, mimeType: model.fileMimeType });
+                        break;
+                    default:
+                        console.log("Unknown file format for file " + model.fileName + " with stated mimetype " + model.fileMimeType);
+                        break;
+                }
             }
 
             function deleteFile() {
                 var idx = index;
                 //: Deleting file after timeout.
                 //% "Deleting"
-                remorse.execute(listItem, qsTrId("sailfish-office-la-deleting"), function() { page.provider.deleteFile(model.filePath) });
+                remorseAction(qsTrId("sailfish-office-la-deleting"), function() { page.provider.deleteFile(model.filePath) });
             }
 
             ListView.onAdd: AddAnimation { target: listItem; }
             ListView.onRemove: RemoveAnimation { target: listItem; }
-        }
 
-        ContextMenu {
-            id: contextMenu;
-            MenuItem {
-                //: Delete a file from the device
-                //% "Delete"
-                text: qsTrId("sailfish-office-me-delete");
-                onClicked: {
-                    listView.currentItem.deleteFile();
+            menu: Component {
+                ContextMenu {
+                    id: contextMenu;
+                    MenuItem {
+                        //: Delete a file from the device
+                        //% "Delete"
+                        text: qsTrId("sailfish-office-me-delete");
+                        onClicked: {
+                            listItem.deleteFile();
+                        }
+                    }
                 }
             }
-
-            onClosed: listView.currentIndex = -1;
         }
+
+        VerticalScrollDecorator { }
     }
 
     DocumentPages {

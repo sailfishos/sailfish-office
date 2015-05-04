@@ -27,8 +27,8 @@ Column {
     anchors {
         left: parent.left
         right: parent.right
-        leftMargin: Theme.paddingLarge
-        rightMargin: Theme.paddingLarge
+        leftMargin: Theme.horizontalPageMargin
+        rightMargin: Theme.horizontalPageMargin
     }
 
     Label {
@@ -37,6 +37,7 @@ Column {
         font.pixelSize: Theme.fontSizeMedium
         elide: Text.ElideRight
         wrapMode: Text.Wrap
+        color: Theme.secondaryHighlightColor
     }
     Label {
         id: valueLabel
@@ -44,5 +45,6 @@ Column {
         font.pixelSize: Theme.fontSizeSmall
         elide: Text.ElideRight
         wrapMode: Text.Wrap
+        color: Theme.highlightColor
     }
 }

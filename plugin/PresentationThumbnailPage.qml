@@ -79,10 +79,19 @@ Page {
                     id: label;
                     anchors.centerIn: parent;
                     text: model.contentIndex + 1;
+                    color: mouseArea.pressed && mouseArea.containsMouse ? Theme.highlightColor : Theme.primaryColor
                 }
+
+                Rectangle {
+                    anchors.fill: parent
+                    color: mouseArea.pressed && mouseArea.containsMouse ? Theme.highlightBackgroundColor : "transparent"
+                    opacity: Theme.highlightBackgroundOpacity
+                }
+
             }
 
             MouseArea {
+                id: mouseArea
                 anchors.fill: parent;
                 onClicked: {
                     page.document.currentIndex = model.contentIndex;
