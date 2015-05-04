@@ -37,6 +37,7 @@ Column {
         font.pixelSize: Theme.fontSizeMedium
         elide: Text.ElideRight
         wrapMode: Text.Wrap
+        color: Theme.secondaryHighlightColor
     }
     Label {
         id: valueLabel
@@ -44,5 +45,6 @@ Column {
         font.pixelSize: Theme.fontSizeSmall
         elide: Text.ElideRight
         wrapMode: Text.Wrap
+        color: Theme.highlightColor
     }
 }
