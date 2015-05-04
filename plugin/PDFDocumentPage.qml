@@ -38,6 +38,7 @@ DocumentPage {
         height: base.height;
 
         document: pdfDocument;
+        searchModel: pdfDocument.searchModel
 
         onClicked: base.open = !base.open;
 

@@ -216,8 +216,6 @@ void PDFCanvas::layout()
 
     PDFDocument::LinkMap links = d->document->linkTargets();
 
-    float scale = width() / d->renderWidth;
-
     float totalHeight = 0.f;
     for( int i = 0; i < d->pageCount; ++i )
     {
@@ -226,7 +224,7 @@ void PDFCanvas::layout()
 
         PDFPage page;
         page.index = i;
-        page.rect = QRectF(0, totalHeight, d->renderWidth * scale, d->renderWidth * ratio * scale);
+        page.rect = QRectF(0, totalHeight, width(), width() * ratio);
         page.links = links.values( i );
         page.requested = false; // We're cancelling all requests below
         if (d->pages.contains(i)) {
@@ -244,6 +242,8 @@ void PDFCanvas::layout()
     // We're going to be requesting new images for all content, so remove
     // pending reuqests to minimize the delay before they come.
     d->document->cancelPageRequest(-1);
+
+    emit pageLayoutChanged();
 
     update();
 }
@@ -273,6 +273,18 @@ QUrl PDFCanvas::urlAtPoint(const QPoint& point)
     return QUrl();
 }
 
+QRectF PDFCanvas::fromPageToItem(int index, const QRectF &rect)
+{
+    if (index < 0 || index >= d->pageCount)
+        return QRectF();
+
+    const PDFPage &page = d->pages.value(index);
+    return QRectF(rect.x() * page.rect.width() + page.rect.x(),
+                  rect.y() * page.rect.height() + page.rect.y(),
+                  rect.width() * page.rect.width(),
+                  rect.height() * page.rect.height());
+}
+
 void PDFCanvas::pageFinished( int id, QSGTexture *texture )
 {
     PDFPage& page = d->pages[ id ];
@@ -287,8 +299,10 @@ void PDFCanvas::pageFinished( int id, QSGTexture *texture )
 
 void PDFCanvas::geometryChanged(const QRectF& newGeometry, const QRectF& oldGeometry)
 {
-    QMetaObject::invokeMethod(d->resizeTimer, "start");
-    layout();
+    if (oldGeometry.width() != newGeometry.width()) {
+        QMetaObject::invokeMethod(d->resizeTimer, "start");
+        layout();
+    }
     QQuickItem::geometryChanged(newGeometry, oldGeometry);
 }
 

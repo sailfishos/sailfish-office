@@ -19,6 +19,7 @@
 #include "pdfdocument.h"
 #include "pdfrenderthread.h"
 #include "pdfjob.h"
+#include "pdfsearchmodel.h"
 
 #include <QDebug>
 #include <QUrl>
@@ -28,9 +29,12 @@
 class PDFDocument::Private
 {
 public:
-    Private() : document( nullptr ), completed(false) { }
+    Private() : searching(false), document( nullptr ), completed(false) { }
 
     PDFRenderThread* thread;
+
+    bool searching;
+    PDFSearchModel *searchModel;
 
     Poppler::Document* document;
     QString source;
@@ -45,11 +49,15 @@ PDFDocument::PDFDocument(QObject* parent)
     connect( d->thread, &PDFRenderThread::loadFinished, this, &PDFDocument::pageCountChanged );
     connect( d->thread, &PDFRenderThread::loadFinished, this, &PDFDocument::loadFinished );
     connect( d->thread, &PDFRenderThread::jobFinished, this, &PDFDocument::jobFinished );
+
+    d->searchModel = nullptr;
 }
 
 PDFDocument::~PDFDocument()
 {
     delete d->thread;
+    if (d->searchModel != nullptr)
+      delete d->searchModel;
 }
 
 QString PDFDocument::source() const
@@ -70,6 +78,16 @@ int PDFDocument::pageCount() const
 QObject* PDFDocument::tocModel() const
 {
     return d->thread->tocModel();
+}
+
+QObject* PDFDocument::searchModel() const
+{
+    return d->searchModel;
+}
+
+bool PDFDocument::searching() const
+{
+    return d->searching;
 }
 
 bool PDFDocument::isLoaded() const
@@ -136,7 +154,7 @@ void PDFDocument::requestUnLock(const QString& password)
 
 void PDFDocument::requestPage(int index, int size, QQuickWindow *window )
 {
-    if(!isLoaded() || isLocked())
+    if (!isLoaded() || isLocked())
         return;
 
     RenderPageJob* job = new RenderPageJob{ index, size, window };
@@ -159,11 +177,30 @@ void PDFDocument::cancelPageRequest(int index)
 
 void PDFDocument::requestPageSizes()
 {
-    if(!isLoaded() || isLocked())
+    if (!isLoaded() || isLocked())
         return;
 
     PageSizesJob* job = new PageSizesJob{};
     d->thread->queueJob( job );
+}
+
+void PDFDocument::search(const QString &search, uint startPage)
+{
+    if (!isLoaded() || isLocked())
+        return;
+
+    if (d->searchModel != nullptr) {
+        delete d->searchModel;
+        d->searchModel = nullptr;
+        emit searchModelChanged();
+    }
+
+    if (search.length() > 0) {
+        d->searching = true;
+        emit searchingChanged();
+        SearchDocumentJob* job = new SearchDocumentJob(search, startPage);
+        d->thread->queueJob(job);
+    }
 }
 
 void PDFDocument::loadFinished()
@@ -189,6 +226,16 @@ void PDFDocument::jobFinished(PDFJob* job)
         case PDFJob::PageSizesJob: {
             PageSizesJob* j = static_cast<PageSizesJob*>(job);
             emit pageSizesFinished(j->m_pageSizes);
+            break;
+        }
+        case PDFJob::SearchDocumentJob: {
+            SearchDocumentJob* j = static_cast<SearchDocumentJob*>(job);
+            if (d->searchModel)
+              delete d->searchModel;
+            d->searchModel = new PDFSearchModel(j->m_matches);
+            emit searchModelChanged();
+            d->searching = false;
+            emit searchingChanged();
             break;
         }
         default:

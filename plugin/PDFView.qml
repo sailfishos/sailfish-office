@@ -30,6 +30,7 @@ SilicaFlickable {
     property alias itemHeight: pdfCanvas.height;
     property alias document: pdfCanvas.document;
     property alias currentPage: pdfCanvas.currentPage
+    property alias searchModel: searchDisplay.model
 
     property bool scaled: pdfCanvas.width != width;
 
@@ -100,6 +101,26 @@ SilicaFlickable {
                 canvas: pdfCanvas;
                 onLinkClicked: Qt.openUrlExternally(linkTarget);
                 onClicked: base.clicked();
+            }
+        }
+
+        Repeater {
+            id: searchDisplay
+            delegate: Rectangle {
+                property int page: model.page
+                property rect pageRect: model.rect
+                property rect match: pdfCanvas.fromPageToItem(page, pageRect)
+                Connections {
+                    target: pdfCanvas
+                    onPageLayoutChanged: match = pdfCanvas.fromPageToItem(page, pageRect)
+                }
+
+                opacity: 0.5;
+                color: Theme.highlightColor;
+                x: match.x - Theme.paddingSmall / 2;
+                y: match.y - Theme.paddingSmall / 4;
+                width: match.width + Theme.paddingSmall;
+                height: match.height + Theme.paddingSmall / 2;
             }
         }
     }

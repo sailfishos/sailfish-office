@@ -73,6 +73,11 @@ public:
      * \return The url of the link at point or an empty url if there is no link at point.
      */
     QUrl urlAtPoint( const QPoint& point );
+    /**
+     * \return A rectangle in the canvas coordinates from a rectangle
+     * in page coordinates. Index is the index of the page.
+     */
+    Q_INVOKABLE QRectF fromPageToItem(int index, const QRectF &rect);
 
 Q_SIGNALS:
     void documentChanged();
@@ -80,6 +85,7 @@ Q_SIGNALS:
     void spacingChanged();
     void linkColorChanged();
     void currentPageChanged();
+    void pageLayoutChanged();
 
 protected:
     virtual void geometryChanged(const QRectF& newGeometry, const QRectF& oldGeometry);
