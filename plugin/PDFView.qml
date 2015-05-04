@@ -30,39 +30,57 @@ SilicaFlickable {
     property alias itemHeight: pdfCanvas.height;
     property alias document: pdfCanvas.document;
 
-    property bool scaled: false;
+    property bool scaled: pdfCanvas.width != width;
 
     signal clicked();
     signal updateSize(real newWidth, real newHeight);
 
+    function clamp(value) {
+        if (value < width) {
+            return width;
+        }
+
+        if (value > width * 2.5) {
+            return width * 2.5;
+        }
+
+        return value;
+    }
+
     function zoom(amount, center) {
         var oldWidth = pdfCanvas.width;
+        var oldHeight = pdfCanvas.height
+        var oldContentX = contentX
+        var oldContentY = contentY
 
-        pdfCanvas.width *= amount;
+        pdfCanvas.width = clamp(pdfCanvas.width * amount);
 
-        if(pdfCanvas.width < d.minWidth) {
-            pdfCanvas.width = d.minWidth;
-        }
-
-        if(pdfCanvas.width > d.maxWidth) {
-            pdfCanvas.width = d.maxWidth;
-        }
-
-        if(pdfCanvas.width == d.minWidth) {
-            base.scaled = false;
-        } else {
-            base.scaled = true;
-        }
-
-        var realZoom = pdfCanvas.width / oldWidth;
-        contentX += (center.x * realZoom) - center.x;
-        contentY += (center.y * realZoom) - center.y;
+        /* One cannot use += here because changing contentX will change contentY
+           to adjust to new height, so we use saved values. */
+        contentX = oldContentX + (center.x * pdfCanvas.width / oldWidth) - center.x
+        contentY = oldContentY + (center.y * pdfCanvas.height / oldHeight) - center.y
     }
+
+    function adjust() {
+        var oldWidth = pdfCanvas.width
+        var oldHeight = pdfCanvas.height
+        var oldContentX = contentX
+        var oldContentY = contentY
+
+        pdfCanvas.width = scaled ? clamp(pdfCanvas.width) : width
+
+        contentX = oldContentX * pdfCanvas.width / oldWidth
+        contentY = oldContentY * pdfCanvas.height / oldHeight
+    }
+
+    // Ensure proper zooming level when device is rotated.
+    onWidthChanged: adjust()
 
     PDF.Canvas {
         id: pdfCanvas;
 
         width: base.width;
+
         spacing: Theme.paddingLarge;
         flickable: base;
         linkColor: Theme.highlightColor;
@@ -89,13 +107,6 @@ SilicaFlickable {
         HorizontalScrollDecorator { color: Theme.highlightDimmerColor; },
         VerticalScrollDecorator { color: Theme.highlightDimmerColor; }
     ]
-
-    QtObject {
-        id: d;
-
-        property real minWidth: base.width;
-        property real maxWidth: base.width * 2.5;
-    }
 
     function goToPage(pageNumber) {
         base.contentY = pdfCanvas.pagePosition( pageNumber );

@@ -153,6 +153,7 @@ void PDFCanvas::setDocument(PDFDocument* doc)
         connect( d->document, &PDFDocument::documentLoaded, this, &PDFCanvas::documentLoaded );
         connect( d->document, &PDFDocument::pageFinished, this, &PDFCanvas::pageFinished );
         connect( d->document, &PDFDocument::pageSizesFinished, this, &PDFCanvas::pageSizesFinished );
+        connect( d->document, &PDFDocument::documentLocked, this, &PDFCanvas::documentLoaded );
 
         if( d->document->isLoaded() )
             documentLoaded();

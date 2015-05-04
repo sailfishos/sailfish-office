@@ -43,6 +43,7 @@ PDFDocument::PDFDocument(QObject* parent)
     d->thread = new PDFRenderThread{ this };
     connect( d->thread, &PDFRenderThread::loadFinished, this, &PDFDocument::documentLoaded );
     connect( d->thread, &PDFRenderThread::loadFinished, this, &PDFDocument::pageCountChanged );
+    connect( d->thread, &PDFRenderThread::loadFinished, this, &PDFDocument::loadFinished );
     connect( d->thread, &PDFRenderThread::jobFinished, this, &PDFDocument::jobFinished );
 }
 
@@ -74,6 +75,16 @@ QObject* PDFDocument::tocModel() const
 bool PDFDocument::isLoaded() const
 {
     return d->thread->isLoaded();
+}
+
+bool PDFDocument::isFailed() const
+{
+    return d->thread->isFailed();
+}
+
+bool PDFDocument::isLocked() const
+{
+    return d->thread->isLocked();
 }
 
 PDFDocument::LinkMap PDFDocument::linkTargets() const
@@ -114,9 +125,18 @@ void PDFDocument::setSource(const QString& source)
     }
 }
 
+void PDFDocument::requestUnLock(const QString& password)
+{
+    if (!isLocked())
+        return;
+
+    UnLockDocumentJob* job = new UnLockDocumentJob(password);
+    d->thread->queueJob(job);
+}
+
 void PDFDocument::requestPage(int index, int size, QQuickWindow *window )
 {
-    if(!isLoaded())
+    if(!isLoaded() || isLocked())
         return;
 
     RenderPageJob* job = new RenderPageJob{ index, size, window };
@@ -125,30 +145,42 @@ void PDFDocument::requestPage(int index, int size, QQuickWindow *window )
 
 void PDFDocument::prioritizeRequest(int index, int size)
 {
-    if (!isLoaded())
+    if (!isLoaded() || isLocked())
         return;
     d->thread->prioritizeJob(index, size);
 }
 
 void PDFDocument::cancelPageRequest(int index)
 {
-    if (!isLoaded())
+    if (!isLoaded() || isLocked())
         return;
     d->thread->cancelRenderJob(index);
 }
 
 void PDFDocument::requestPageSizes()
 {
-    if(!isLoaded())
+    if(!isLoaded() || isLocked())
         return;
 
     PageSizesJob* job = new PageSizesJob{};
     d->thread->queueJob( job );
 }
 
+void PDFDocument::loadFinished()
+{
+    if (d->thread->isFailed())
+        emit documentFailed();
+    if (d->thread->isLocked())
+        emit documentLocked();
+}
 void PDFDocument::jobFinished(PDFJob* job)
 {
     switch(job->type()) {
+        case PDFJob::UnLockDocumentJob: {
+            emit documentLocked();
+            emit pageCountChanged();
+            break;
+        }
         case PDFJob::RenderPageJob: {
             RenderPageJob* j = static_cast<RenderPageJob*>(job);
             emit pageFinished(j->m_index, j->m_page);

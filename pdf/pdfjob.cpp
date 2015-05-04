@@ -29,8 +29,24 @@ LoadDocumentJob::LoadDocumentJob(const QString& source)
 void LoadDocumentJob::run()
 {
     m_document = Poppler::Document::load(m_source);
-    m_document->setRenderHint( Poppler::Document::Antialiasing, true );
-    m_document->setRenderHint( Poppler::Document::TextAntialiasing, true );
+    if (m_document) {
+        m_document->setRenderHint( Poppler::Document::Antialiasing, true );
+        m_document->setRenderHint( Poppler::Document::TextAntialiasing, true );
+    }
+}
+
+UnLockDocumentJob::UnLockDocumentJob(const QString& password)
+    : PDFJob(PDFJob::UnLockDocumentJob), m_password(password)
+{
+
+}
+
+void UnLockDocumentJob::run()
+{
+    Q_ASSERT(m_document);
+
+    if (m_document->isLocked())
+        m_document->unlock( m_password.toUtf8(), m_password.toUtf8() );
 }
 
 RenderPageJob::RenderPageJob(int index, uint width, QQuickWindow *window)

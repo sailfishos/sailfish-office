@@ -36,6 +36,7 @@ set(sailfishoffice_SRCS
     main.cpp
     dbusadaptor.cpp
     sailfishapplication.cpp
+    models/filtermodel.cpp
     models/documentlistmodel.cpp
     models/documentproviderlistmodel.cpp
     models/documentproviderplugin.cpp
@@ -44,6 +45,7 @@ set(sailfishoffice_SRCS
 
 set(sailfishoffice_QML_SRCS
     qml/CoverPage.qml
+    qml/SearchPageHeader.qml
     qml/FileListPage.qml
     qml/Main.qml
     qml/StartPage.qml

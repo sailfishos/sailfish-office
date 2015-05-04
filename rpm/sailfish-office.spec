@@ -1,5 +1,5 @@
 Name: sailfish-office
-Version: 1.1.6
+Version: 1.1.11
 Release: 1
 Summary: Sailfish office viewer
 Group: Applications/Office
@@ -16,7 +16,7 @@ BuildRequires: cmake
 BuildRequires: qt5-qttools-linguist
 Requires: calligra-components >= 2.7.9+git4
 Requires: calligra-filters >= 2.7.9+git4
-Requires: sailfishsilica-qt5
+Requires: sailfishsilica-qt5 >= 0.13.44
 Requires: sailfish-components-accounts-qt5
 Requires: libqt5sparql-tracker
 #Requires: qt5-qtqml-import-webkitplugin
