@@ -35,6 +35,17 @@ Page {
         //% "Index"
         header: PageHeader { title: qsTrId( "sailfish-office-he-pdf_index" ); }
 
+        ViewPlaceholder {
+            id: placeholder
+            //% "Document has no table of content"
+            text: qsTrId("sailfish-office-me-no-toc")
+        }
+        // The enabled attribute of the placeholder is not set by binding since
+        // the model object comes from a different thread and QML cannot listen
+        // on signals from a different thread. Thus, the attribute is set by
+        // reading the count value instead of a binding.
+        onModelChanged: placeholder.enabled = !model || (model.count == 0)
+
         delegate: BackgroundItem {
             id: bg;
 
