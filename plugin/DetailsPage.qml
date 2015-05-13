@@ -40,7 +40,6 @@ Page {
         Column {
             id: contentColumn
             width: parent.width
-            spacing: Theme.paddingLarge
 
             PageHeader {
                 id: detailsHeader
@@ -49,36 +48,36 @@ Page {
                 title: qsTrId("sailfish-office-he-details");
             }
 
-            DetailsItem {
+            DetailItem {
                 //: File name detail of the document
                 //% "File Name"
-                detail: qsTrId("sailfish-office-la-filename");
+                label: qsTrId("sailfish-office-la-filename");
                 value: info.fileName;
             }
 
-            DetailsItem {
+            DetailItem {
                 //: File size detail of the document
                 //% "Size"
-                detail: qsTrId("sailfish-office-la-filesize");
+                label: qsTrId("sailfish-office-la-filesize");
                 value: Format.formatFileSize(info.fileSize);
             }
 
-            DetailsItem {
+            DetailItem {
                 //: File type detail of the document
                 //% "Type"
-                detail: qsTrId("sailfish-office-la-filetype");
+                label: qsTrId("sailfish-office-la-filetype");
                 value: info.mimeTypeComment;
             }
 
-            DetailsItem {
+            DetailItem {
                 //: Last modified date of the document
                 //% "Last Modified"
-                detail: qsTrId("sailfish-office-la-lastmodified");
+                label: qsTrId("sailfish-office-la-lastmodified");
                 value: Format.formatDate(info.modifiedDate, Format.DateFull);
             }
 
-            DetailsItem {
-                detail: {
+            DetailItem {
+                label: {
                     switch(Calligra.Global.documentType(page.source)) {
                         case Calligra.DocumentType.TextDocument:
                             //: Page count of the text document
