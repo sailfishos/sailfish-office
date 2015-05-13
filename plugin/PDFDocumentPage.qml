@@ -38,7 +38,6 @@ DocumentPage {
         height: base.height;
 
         document: pdfDocument;
-        searchModel: pdfDocument.searchModel
 
         onClicked: base.open = !base.open;
 
@@ -92,11 +91,17 @@ DocumentPage {
         parentHeight: base.height
         flickable: view
         hidden: base.open || documentPlaceholder.enabled
+        autoHide: search.text.length == 0 && !search.activeFocus
 
         // Toolbar contain.
         Row {
             id: row
             height: parent.height
+            x: search.activeFocus ? -pageCount.width : 0
+
+            Behavior on x {
+                NumberAnimation { easing.type: Easing.InOutQuad; duration: 400 }
+            }
 
             Item {
                 anchors.verticalCenter: parent.verticalCenter
@@ -118,17 +123,53 @@ DocumentPage {
                     onClicked: base.pushAttachedPage()
                 }
             }
-            Item {
-                // Spacer, to be replaced later with a search field.
-                width: toolbar.width - pageCount.width - pdfTOC.width
-                height: parent.height
-            }
-	    IconButton {
-		id: pdfTOC
+            SearchField {
+                id: search
+                width: activeFocus ? toolbar.width : toolbar.width - pageCount.width - ( pdfDocument.searchModel ? searchPrev.width + searchNext.width : 0)
                 anchors.verticalCenter: parent.verticalCenter
-		icon.source: "image://theme/icon-m-menu"
-		onClicked: base.pushAttachedPage()
-	    }
+
+                enabled: !pdfDocument.searching
+
+                inputMethodHints: Qt.ImhNoAutoUppercase | Qt.ImhPreferLowercase | Qt.ImhNoPredictiveText
+                EnterKey.onClicked: { focus = false; pdfDocument.search(text, view.currentPage - 1) }
+
+                Behavior on width {
+                    NumberAnimation { easing.type: Easing.InOutQuad; duration: 400 }
+                }
+            }
+            IconButton {
+                id: searchPrev
+                anchors.verticalCenter: parent.verticalCenter
+                icon.source: "image://theme/icon-m-left"
+                enabled: pdfDocument.searchModel && pdfDocument.searchModel.count > 0
+                onClicked: view.prevSearchMatch()
+            }
+            IconButton {
+                id: searchNext
+                anchors.verticalCenter: parent.verticalCenter
+                icon.source: "image://theme/icon-m-right"
+                enabled: pdfDocument.searchModel && pdfDocument.searchModel.count > 0
+                onClicked: view.nextSearchMatch()
+            }
+        }
+        // Additional information
+        Label {
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.bottom: parent.bottom
+            
+            opacity: pdfDocument.searchModel && !search.activeFocus ? 1. : 0.
+            visible: opacity > 0.
+            text: pdfDocument.searchModel && pdfDocument.searchModel.count > 0
+            //% "%n item(s) found"
+            ? qsTrId("sailfish-office-lb-%n-matches", pdfDocument.searchModel.count)
+            //% "no matching found"
+            : qsTrId("sailfish-office-lb-no-matches")
+            font.pixelSize: Theme.fontSizeSmall
+            color: Theme.secondaryHighlightColor
+
+            Behavior on opacity {
+                FadeAnimation {}
+            }
         }
     }
 
@@ -137,7 +178,7 @@ DocumentPage {
         source: base.path;
     }
 
-    busy: !pdfDocument.loaded && !pdfDocument.failure;
+    busy: (!pdfDocument.loaded && !pdfDocument.failure) || pdfDocument.searching;
     source: pdfDocument.source;
     indexCount: pdfDocument.pageCount;
 

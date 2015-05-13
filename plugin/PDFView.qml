@@ -30,7 +30,6 @@ SilicaFlickable {
     property alias itemHeight: pdfCanvas.height;
     property alias document: pdfCanvas.document;
     property alias currentPage: pdfCanvas.currentPage
-    property alias searchModel: searchDisplay.model
 
     property bool scaled: pdfCanvas.width != width;
 
@@ -75,6 +74,51 @@ SilicaFlickable {
         contentY = oldContentY * pdfCanvas.height / oldHeight
     }
 
+    function moveToSearchMatch(index) {
+        if (index < 0 || index >= searchDisplay.count) return
+
+        searchDisplay.currentIndex = index
+        
+        var match = searchDisplay.itemAt(index)
+        var cX = match.x + match.width / 2. - width / 2.
+        transX.to = (cX < 0) ? 0 : (cX > pdfCanvas.width - width) ? pdfCanvas.width - width : cX
+        var cY = match.y + match.height / 2. - height / 2.
+        transY.to = (cY < 0) ? 0 : (cY > pdfCanvas.height - height) ? pdfCanvas.height - height : cY
+
+        scaleIn.target = match
+        scaleOut.target = match
+
+        focusSearchMatch.start()
+    }
+
+    function nextSearchMatch() {
+        if (searchDisplay.currentIndex + 1 >= searchDisplay.count) {
+            moveToSearchMatch(0)
+        } else {
+            moveToSearchMatch(searchDisplay.currentIndex + 1)
+        }
+    }
+
+    function prevSearchMatch() {
+        if (searchDisplay.currentIndex < 1) {
+            moveToSearchMatch(searchDisplay.count - 1)
+        } else {
+            moveToSearchMatch(searchDisplay.currentIndex - 1)
+        }
+    }
+
+    SequentialAnimation {
+        id: focusSearchMatch
+        ParallelAnimation {
+            NumberAnimation { id: transX; target: base; property: "contentX"; duration: 400; easing.type: Easing.InOutCubic }
+            NumberAnimation { id: transY; target: base; property: "contentY"; duration: 400; easing.type: Easing.InOutCubic }
+        }
+        SequentialAnimation {
+            NumberAnimation { id: scaleIn; property: "scale"; duration: 200; to: 3.; easing.type: Easing.InOutCubic }
+            NumberAnimation { id: scaleOut; property: "scale"; duration: 200; to: 1.; easing.type: Easing.InOutCubic }
+        }
+    }
+
     // Ensure proper zooming level when device is rotated.
     onWidthChanged: adjust()
 
@@ -106,6 +150,10 @@ SilicaFlickable {
 
         Repeater {
             id: searchDisplay
+            property int currentIndex
+            model: pdfCanvas.document.searchModel
+            onModelChanged: moveToSearchMatch(0)
+
             delegate: Rectangle {
                 property int page: model.page
                 property rect pageRect: model.rect

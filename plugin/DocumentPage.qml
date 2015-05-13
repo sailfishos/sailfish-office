@@ -53,7 +53,7 @@ Page {
         }
     }
 
-    BusyIndicator { id: busyIndicator; anchors.centerIn: parent; size: BusyIndicatorSize.Large; }
+    BusyIndicator { id: busyIndicator; anchors.centerIn: parent; size: BusyIndicatorSize.Large; z: 1 }
 
     Component.onDestruction: window.documentItem = null
     Drawer {
