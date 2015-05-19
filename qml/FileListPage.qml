@@ -40,6 +40,7 @@ Page {
         anchors.fill: parent
 
         model: filteredModel
+        currentIndex: -1 // otherwise currentItem will steal focus
 
         header: SearchPageHeader {
             id: header
@@ -77,7 +78,9 @@ Page {
         ViewPlaceholder {
             //: View placeholder shown when there are no documents
             //% "No documents"
-            text: qsTrId("sailfish-office-la-no_documents")
+            text: searchText.length == 0 ? qsTrId("sailfish-office-la-no_documents") :
+            //% "No document found"
+            qsTrId("sailfish-office-la-not-found")
             enabled: !listView.count
         }
         delegate: ListItem {
