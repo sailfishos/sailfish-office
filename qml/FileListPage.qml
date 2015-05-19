@@ -40,6 +40,7 @@ Page {
         anchors.fill: parent
 
         model: filteredModel
+        currentIndex: -1 // otherwise currentItem will steal focus
 
         header: SearchPageHeader {
             id: header
