@@ -78,5 +78,7 @@ Page {
                 pageStack.navigateBack(PageStackAction.Animated);
             }
         }
+        
+        VerticalScrollDecorator { }
     }
 }
