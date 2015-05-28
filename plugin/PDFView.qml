@@ -29,6 +29,7 @@ SilicaFlickable {
     property alias itemWidth: pdfCanvas.width;
     property alias itemHeight: pdfCanvas.height;
     property alias document: pdfCanvas.document;
+    property alias currentPage: pdfCanvas.currentPage
 
     property bool scaled: pdfCanvas.width != width;
 

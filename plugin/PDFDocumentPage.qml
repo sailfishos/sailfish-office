@@ -26,6 +26,7 @@ DocumentPage {
     attachedPage: Component {
         PDFDocumentToCPage {
             tocModel: pdfDocument.tocModel
+            pageCount: pdfDocument.pageCount
             onPageSelected: view.goToPage( pageNumber );
         }
     }
@@ -41,6 +42,7 @@ DocumentPage {
         onClicked: base.open = !base.open;
 
         ViewPlaceholder {
+            id: documentPlaceholder
             enabled: pdfDocument.failure || pdfDocument.locked
             y: (flickable ? flickable.originY : 0) + (base.height - height - (passwd.visible ? passwd.height : 0)) / 2
             //% "Broken file"
@@ -78,7 +80,55 @@ DocumentPage {
                 onFocusChanged: if (focus) base.open = false
             }
         }
+    }
 
+    ToolBar {
+        id: toolbar
+        width: parent.width
+        height: base.orientation == Orientation.Portrait || base.orientation == Orientation.InvertedPortrait
+        ? Theme.itemSizeLarge
+        : Theme.itemSizeSmall
+        parentHeight: base.height
+        flickable: view
+        hidden: base.open || documentPlaceholder.enabled
+
+        // Toolbar contain.
+        Row {
+            id: row
+            height: parent.height
+
+            Item {
+                anchors.verticalCenter: parent.verticalCenter
+                width: pageCount.width
+                height: pageCount.height
+                Row {
+                    id: pageCount
+                    Image {
+                        source: "image://theme/icon-m-document"
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+                    Label {
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: view.currentPage + " / " + view.document.pageCount
+                    }
+                }
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: base.pushAttachedPage()
+                }
+            }
+            Item {
+                // Spacer, to be replaced later with a search field.
+                width: toolbar.width - pageCount.width - pdfTOC.width
+                height: parent.height
+            }
+	    IconButton {
+		id: pdfTOC
+                anchors.verticalCenter: parent.verticalCenter
+		icon.source: "image://theme/icon-m-menu"
+		onClicked: base.pushAttachedPage()
+	    }
+        }
     }
 
     PDF.Document {

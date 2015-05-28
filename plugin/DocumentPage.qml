@@ -37,10 +37,21 @@ Page {
 
     property url source;
     property int indexCount;
+    property bool _forceNavigation: false
 
     allowedOrientations: Orientation.All;
-    backNavigation: drawer.opened;
-    forwardNavigation: drawer.opened;
+    backNavigation: drawer.opened || _forceNavigation;
+    forwardNavigation: drawer.opened || _forceNavigation;
+
+    function pushAttachedPage() {
+        if (pageStack.nextPage(base) === null) {
+            pageStack.push(base.attachedPage)
+        } else {
+            _forceNavigation = true
+            pageStack.navigateForward()
+            _forceNavigation = false
+        }
+    }
 
     BusyIndicator { id: busyIndicator; anchors.centerIn: parent; size: BusyIndicatorSize.Large; }
 
