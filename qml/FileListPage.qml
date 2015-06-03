@@ -66,6 +66,7 @@ Page {
         }
 
         PullDownMenu {
+            visible: listView.count > 0
             MenuItem {
                 id: menuItemSearch
 
