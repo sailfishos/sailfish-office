@@ -19,6 +19,7 @@ Requires: calligra-filters >= 2.7.9+git4
 Requires: sailfishsilica-qt5 >= 0.13.44
 Requires: sailfish-components-accounts-qt5
 Requires: libqt5sparql-tracker
+Requires: mapplauncherd >= 4.1.17
 #Requires: qt5-qtqml-import-webkitplugin
 Requires:  %{name}-all-translations
 
