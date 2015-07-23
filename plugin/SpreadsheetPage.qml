@@ -53,6 +53,8 @@ DocumentPage {
             id: controller;
             view: v;
             flickable: f;
+            useZoomProxy: false;
+            maximumZoom: 5.0;
         }
 
         children: [
@@ -65,7 +67,7 @@ DocumentPage {
 
             onPinchUpdated: {
                 var newCenter = mapToItem( f, pinch.center.x, pinch.center.y );
-                controller.zoomAroundPoint(pinch.scale - pinch.previousScale, newCenter.x, newCenter.y);
+                controller.zoomAroundPoint(controller.zoom * (pinch.scale - pinch.previousScale), newCenter.x, newCenter.y);
             }
             onPinchFinished: controller.zoomTimeout();
 
