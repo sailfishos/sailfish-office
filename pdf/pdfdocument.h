@@ -42,6 +42,8 @@ class PDFDocument : public QObject, public QQmlParserStatus
     Q_PROPERTY(bool loaded READ isLoaded NOTIFY documentLoaded)
     Q_PROPERTY(bool failure READ isFailed NOTIFY documentFailed)
     Q_PROPERTY(bool locked READ isLocked NOTIFY documentLocked)
+    Q_PROPERTY(bool searching READ searching NOTIFY searchingChanged)
+    Q_PROPERTY(QObject* searchModel READ searchModel NOTIFY searchModelChanged)
 
     Q_INTERFACES(QQmlParserStatus)
 
@@ -55,7 +57,9 @@ public:
     QString source() const;
     int pageCount() const;
     QObject* tocModel() const;
-
+    bool searching() const;
+    QObject* searchModel() const;
+    
     LinkMap linkTargets() const;
 
     bool isLoaded() const;
@@ -72,6 +76,7 @@ public Q_SLOTS:
     void prioritizeRequest( int index, int size);
     void cancelPageRequest(int index);
     void requestPageSizes();
+    void search(const QString& search, uint startPage = 0);
     void loadFinished();
     void jobFinished(PDFJob* job);
 
@@ -79,6 +84,8 @@ Q_SIGNALS:
     void sourceChanged();
     void pageCountChanged();
     void tocModelChanged();
+    void searchingChanged();
+    void searchModelChanged();
 
     void documentLoaded();
     void documentFailed();

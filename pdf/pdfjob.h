@@ -38,6 +38,7 @@ public:
         UnLockDocumentJob,
         RenderPageJob,
         PageSizesJob,
+        SearchDocumentJob,
     };
 
     PDFJob( JobType type ) : m_document{ nullptr }, m_type{ type } { }
@@ -107,5 +108,21 @@ public:
 
     QList< QSizeF > m_pageSizes;
 };
+
+class SearchDocumentJob : public PDFJob
+{
+    Q_OBJECT
+public:
+    SearchDocumentJob( const QString& search, uint page );
+
+    virtual void run();
+
+    QList<QPair<int, QRectF>> m_matches;
+
+private:
+    QString m_search;
+    uint startPage;
+};
+
 
 #endif // PDFJOB_H
