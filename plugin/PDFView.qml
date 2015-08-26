@@ -144,6 +144,7 @@ SilicaFlickable {
 
                 canvas: pdfCanvas;
                 onLinkClicked: Qt.openUrlExternally(linkTarget);
+                onGotoClicked: base.goToPage(page - 1)
                 onClicked: base.clicked();
             }
         }

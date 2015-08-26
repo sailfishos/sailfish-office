@@ -38,6 +38,7 @@ Q_SIGNALS:
     void clicked();
     void doubleClicked();
     void linkClicked(QUrl linkTarget);
+    void gotoClicked(int page);
 
     void canvasChanged();
 

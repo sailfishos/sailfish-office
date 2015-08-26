@@ -92,12 +92,27 @@ public:
             Poppler::Page* page = document->page(i);
             for(Poppler::Link* link : page->links())
             {
-                if(link->linkType() == Poppler::Link::Browse)
-                {
+                switch (link->linkType()) {
+                case (Poppler::Link::Browse): {
                     Poppler::LinkBrowse* realLink = static_cast<Poppler::LinkBrowse*>(link);
                     QRectF linkArea = link->linkArea();
                     linkTargets.insert( i, QPair< QRectF, QUrl >{ linkArea, realLink->url() } );
+                    break;
                 }
+                case (Poppler::Link::Goto): {
+                    Poppler::LinkGoto* gotoLink = static_cast<Poppler::LinkGoto*>(link);
+                    // Not handling goto link to external file currently.
+                    if (gotoLink->isExternal())
+                        break;
+                    QRectF linkArea = link->linkArea();
+                    QString linkPage = QString("?page=%1").arg(gotoLink->destination().pageNumber());
+                    linkTargets.insert( i, QPair< QRectF, QUrl >{ linkArea, linkPage } );
+                    break;
+                }
+                default:
+                    break;
+                }
+
             }
         }
     }
