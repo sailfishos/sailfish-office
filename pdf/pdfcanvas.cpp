@@ -164,12 +164,12 @@ void PDFCanvas::setDocument(PDFDocument* doc)
     }
 }
 
-qreal PDFCanvas::pagePosition(int index) const
+QRectF PDFCanvas::pageRectangle(int index) const
 {
     if( d->pages.count() == 0 )
-        return 0.f;
+        return QRectF();
 
-    return d->pages.value( index ).rect.y();
+    return d->pages.value( index ).rect;
 }
 
 int PDFCanvas::currentPage() const

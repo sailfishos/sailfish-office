@@ -87,7 +87,12 @@ void PDFLinkArea::mouseReleaseEvent(QMouseEvent* event)
     } else if (url.isRelative() && url.hasQuery()) {
         QUrlQuery query = QUrlQuery(url);
         if (query.hasQueryItem("page")) {
-            emit gotoClicked(query.queryItemValue("page").toInt());
+            bool ok;
+            double top = query.queryItemValue("top").toFloat(&ok);
+            if (!ok) top = -1.;
+            double left = query.queryItemValue("left").toFloat(&ok);
+            if (!ok) left = -1.;
+            emit gotoClicked(query.queryItemValue("page").toInt(), top, left);
         } else {
             emit clicked();
         }

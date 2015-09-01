@@ -24,6 +24,7 @@
 #include <QMutex>
 #include <QDebug>
 #include <QCoreApplication>
+#include <QUrlQuery>
 
 #include <poppler-qt5.h>
 
@@ -105,8 +106,17 @@ public:
                     if (gotoLink->isExternal())
                         break;
                     QRectF linkArea = link->linkArea();
-                    QString linkPage = QString("?page=%1").arg(gotoLink->destination().pageNumber());
-                    linkTargets.insert( i, QPair< QRectF, QUrl >{ linkArea, linkPage } );
+                    QUrl linkURL = QUrl("");
+                    QUrlQuery query = QUrlQuery();
+                    query.addQueryItem("page", QString::number(gotoLink->destination().pageNumber()));
+                    if (gotoLink->destination().isChangeLeft()) {
+                        query.addQueryItem("left", QString::number(gotoLink->destination().left()));
+                    }
+                    if (gotoLink->destination().isChangeTop()) {
+                        query.addQueryItem("top", QString::number(gotoLink->destination().top()));
+                    }
+                    linkURL.setQuery(query);
+                    linkTargets.insert( i, QPair< QRectF, QUrl >{ linkArea, linkURL } );
                     break;
                 }
                 default:
