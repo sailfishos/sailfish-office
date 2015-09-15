@@ -56,8 +56,7 @@ PDFDocument::PDFDocument(QObject* parent)
 PDFDocument::~PDFDocument()
 {
     delete d->thread;
-    if (d->searchModel != nullptr)
-      delete d->searchModel;
+    delete d->searchModel;
 }
 
 QString PDFDocument::source() const
@@ -210,6 +209,7 @@ void PDFDocument::loadFinished()
     if (d->thread->isLocked())
         emit documentLocked();
 }
+
 void PDFDocument::jobFinished(PDFJob* job)
 {
     switch(job->type()) {

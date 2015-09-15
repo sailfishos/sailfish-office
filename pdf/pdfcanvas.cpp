@@ -113,9 +113,7 @@ PDFCanvas::PDFCanvas(QQuickItem* parent)
 
 PDFCanvas::~PDFCanvas()
 {
-    if(d->resizeTimer)
-        delete d->resizeTimer;
-
+    delete d->resizeTimer;
     delete d;
 }
 
@@ -344,9 +342,7 @@ QSGNode* PDFCanvas::updatePaintNode(QSGNode* node, QQuickItem::UpdatePaintNodeDa
 {
     if( d->pageCount == 0 || !d->flickable )
     {
-        if( node ) {
-            delete node;
-        }
+        delete node;
         d->cleanTextures();
         return nullptr;
     }
@@ -359,7 +355,7 @@ QSGNode* PDFCanvas::updatePaintNode(QSGNode* node, QQuickItem::UpdatePaintNodeDa
     //Visible area equals flickable translated by contentX/Y
     QRectF visibleArea{ d->flickable->property("contentX").toFloat(), d->flickable->property("contentY").toFloat(), d->flickable->width(), d->flickable->height() };
 
-    //Loaded area equals visible area scaled to five     times the size
+    //Loaded area equals visible area scaled to five times the size
     QRectF loadedArea = {
         visibleArea.x() - visibleArea.width() * 2,
         visibleArea.y() - visibleArea.height() * 2,

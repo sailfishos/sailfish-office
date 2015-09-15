@@ -23,7 +23,7 @@
 FilterModel::FilterModel(QObject* parent)
     : QSortFilterProxyModel(parent)
 {
-  this->setFilterRole(DocumentListModel::Roles::FileNameRole);
+    this->setFilterRole(DocumentListModel::Roles::FileNameRole);
 }
 
 FilterModel::~FilterModel()
@@ -32,10 +32,10 @@ FilterModel::~FilterModel()
 
 void FilterModel::setSourceModel(DocumentListModel *model)
 {
-  QSortFilterProxyModel::setSourceModel(static_cast<QAbstractItemModel*>(model));
+    QSortFilterProxyModel::setSourceModel(static_cast<QAbstractItemModel*>(model));
 }
 
 DocumentListModel* FilterModel::sourceModel() const
 {
-  return static_cast<DocumentListModel*>(QSortFilterProxyModel::sourceModel());
+    return static_cast<DocumentListModel*>(QSortFilterProxyModel::sourceModel());
 }

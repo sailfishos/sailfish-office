@@ -37,7 +37,7 @@ const QEvent::Type Event_JobPending = QEvent::Type(QEvent::User + 1);
 
 class Thread : public QThread
 {
-    Q_OBJECT;
+    Q_OBJECT
 public:
     Thread()
         : jobQueue(0)
@@ -272,14 +272,14 @@ void PDFRenderThreadQueue::processPendingJob()
 
     if (!qobject_cast<Thread *>(QThread::currentThread())->jobQueue) {
         delete job;
-       return;
+        return;
     }
 
     switch(job->type()) {
         case PDFJob::LoadDocumentJob: {
             LoadDocumentJob* dj = static_cast< LoadDocumentJob* >( job );
-            if( d->document )
-                delete d->document;
+            delete d->document;
+
             if(d->tocModel) {
                 d->tocModel->deleteLater();
                 d->tocModel = nullptr;
