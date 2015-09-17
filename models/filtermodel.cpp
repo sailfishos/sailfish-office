@@ -39,3 +39,36 @@ DocumentListModel* FilterModel::sourceModel() const
 {
     return static_cast<DocumentListModel*>(QSortFilterProxyModel::sourceModel());
 }
+
+bool FilterModel::tagFiltered() const
+{
+    return !tags.empty();
+}
+bool FilterModel::hasTag(const QString &tag) const
+{
+    return tags.contains(tag);
+}
+void FilterModel::addTag(const QString &tag)
+{
+    tags.insert(tag, true);
+    invalidateFilter();
+    emit tagFilteringChanged();
+}
+void FilterModel::removeTag(const QString &tag)
+{
+    tags.remove(tag);
+    invalidateFilter();
+    emit tagFilteringChanged();
+}
+bool FilterModel::filterAcceptsRow(int source_row, const QModelIndex & source_parent) const
+{
+    bool ret;
+
+    ret = true;
+    for (QMap<QString, bool>::const_iterator it = tags.begin();
+         it != tags.end() && ret; it++) {
+        ret = sourceModel()->hasTagAt(source_row, it.key());
+    }
+
+    return ret && QSortFilterProxyModel::filterAcceptsRow(source_row, source_parent);
+}

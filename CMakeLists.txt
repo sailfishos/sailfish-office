@@ -37,6 +37,7 @@ set(sailfishoffice_SRCS
     dbusadaptor.cpp
     models/filtermodel.cpp
     models/tagsthread.cpp
+    models/taglistmodel.cpp
     models/documentlistmodel.cpp
     models/documentproviderlistmodel.cpp
     models/documentprovider.cpp
@@ -45,6 +46,8 @@ set(sailfishoffice_SRCS
 
 set(sailfishoffice_QML_SRCS
     qml/CoverPage.qml
+    qml/Tag.qml
+    qml/TagsSelector.qml
     qml/FileListPage.qml
     qml/Main.qml
     qml/CoverFileItem.qml

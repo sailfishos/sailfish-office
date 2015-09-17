@@ -27,18 +27,29 @@ class FilterModel : public QSortFilterProxyModel
 {
     Q_OBJECT
     Q_PROPERTY(DocumentListModel *sourceModel READ sourceModel WRITE setSourceModel NOTIFY sourceModelChanged)
+    Q_PROPERTY(bool tagFiltered READ tagFiltered NOTIFY tagFilteringChanged)
 public:
     FilterModel(QObject *parent = 0);
     ~FilterModel();
 
+    virtual bool filterAcceptsRow(int source_row, const QModelIndex & source_parent) const;
+
 public:
     DocumentListModel* sourceModel() const;
+    bool tagFiltered() const;
 
 public Q_SLOTS:
     void setSourceModel(DocumentListModel *model);
+    bool hasTag(const QString &tag) const;
+    void addTag(const QString &tag);
+    void removeTag(const QString &tag);
 
 Q_SIGNALS:
     void sourceModelChanged();
+    void tagFilteringChanged();
+
+private:
+    QMap<QString, bool> tags;
 };
 
 #endif // FILTERMODEL_H

@@ -23,12 +23,14 @@
 #include <qdatetime.h>
 
 #include "tagsthread.h"
+#include "taglistmodel.h"
 
 class DocumentListModelPrivate;
 
 class DocumentListModel : public QAbstractListModel
 {
     Q_OBJECT
+    Q_PROPERTY(TagListModel* tags READ tags NOTIFY tagsChanged)
 public:
     enum DocumentClass {
         UnknownDocument,
@@ -66,10 +68,19 @@ public:
     void removeAt(int index);
     void clear();
 
+    TagListModel* tags() const;
+
     Q_INVOKABLE int mimeTypeToDocumentClass(QString mimeType) const;
+    bool hasTagAt(int row, const QString &tag) const;
+    Q_INVOKABLE bool hasTag(const QString &path, const QString &tag) const;
+    Q_INVOKABLE void addTag(const QString &path, const QString &tag);
+    Q_INVOKABLE void removeTag(const QString &path, const QString &tag);
 
 public Q_SLOTS:
     void jobFinished(TagsThreadJob* job);
+
+Q_SIGNALS:
+    void tagsChanged();
 
 private:
     class Private;

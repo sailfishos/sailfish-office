@@ -134,7 +134,7 @@ void TagsThreadQueue::processPendingJob()
     locker.unlock();
     
     // Retrieve tags here
-    //job->run();
+    job->run();
 
     locker.relock();
 
@@ -158,6 +158,14 @@ bool TagsThreadQueue::event(QEvent *e)
 TagsThreadJob::~TagsThreadJob()
 {
     fprintf(stdout, "killing job for %s\n", path.toLocal8Bit().data());
+}
+
+void TagsThreadJob::run()
+{
+    if (!strstr(path.toLocal8Bit().data(), ".pdf")) {
+        tags.append(QString("PDF"));
+    }
+    tags.append(QString("newt"));
 }
 
 #include "tagsthread.moc"

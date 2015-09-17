@@ -33,6 +33,7 @@
 #include <MDeclarativeCache>
 
 #include "config.h"
+#include "models/taglistmodel.h"
 #include "models/filtermodel.h"
 #include "models/documentlistmodel.h"
 #include "models/trackerdocumentprovider.h"
@@ -66,6 +67,7 @@ QSharedPointer<QQuickView> createView(const QString &file)
     qmlRegisterType<DocumentListModel>("Sailfish.Office.Files", 1, 0, "DocumentListModel");
     qmlRegisterType<DocumentProviderListModel>("Sailfish.Office.Files", 1, 0, "DocumentProviderListModel");
     qmlRegisterType<TrackerDocumentProvider>("Sailfish.Office.Files", 1, 0, "TrackerDocumentProvider");
+    qmlRegisterType<TagListModel>("Sailfish.Office.Files", 1, 0, "TagListModel");
     qmlRegisterType<FilterModel>("Sailfish.Office.Files", 1, 0, "FilterModel");
     qmlRegisterInterface<DocumentProvider>("DocumentProvider");
 

@@ -19,6 +19,7 @@
 #include "documentlistmodel.h"
 
 #include <QDir>
+#include <QSet>
 
 struct DocumentListModelEntry
 {
@@ -28,7 +29,7 @@ struct DocumentListModelEntry
     int fileSize;
     QDateTime fileRead;
     QString mimeType;
-    QList<QString> tags;
+    QSet<QString> tags;
     TagsThreadJob *job;
     DocumentListModel::DocumentClass documentClass;
     bool dirty; // When true, should be removed from list.
@@ -50,6 +51,7 @@ public:
     QList<DocumentListModelEntry> entries;
     QHash< int, QByteArray > roles;
     TagsThread *tagsThread;
+    TagListModel tagsModel;
 };
 
 DocumentListModel::DocumentListModel(QObject *parent)
@@ -89,6 +91,59 @@ QVariant DocumentListModel::data(const QModelIndex &index, int role) const
     }
 
     return QVariant();
+}
+bool DocumentListModel::hasTagAt(int row, const QString &tag) const
+{
+    if (row < 0 && row >= d->entries.count())
+      return false;
+
+    return d->entries.at(row).tags.contains(tag);
+}
+bool DocumentListModel::hasTag(const QString &path, const QString &tag) const
+{
+    for (QList<DocumentListModelEntry>::iterator entry = d->entries.begin();
+         entry != d->entries.end(); entry++) {
+        if ( path == entry->filePath )
+            return entry->tags.contains(tag);
+    }
+
+    return false;
+}
+void DocumentListModel::addTag(const QString &path, const QString &tag)
+{
+    int row = 0;
+    for (QList<DocumentListModelEntry>::iterator entry = d->entries.begin();
+         entry != d->entries.end(); entry++) {
+        if ( path == entry->filePath ) {
+            if ( !entry->tags.contains(tag) ) {
+                entry->tags.insert(tag);
+                dataChanged(index(row), index(row));
+                d->tagsModel.addItem(tag);
+            }
+            return;
+        }
+        row += 1;
+    }
+}
+void DocumentListModel::removeTag(const QString &path, const QString &tag)
+{
+    int row = 0;
+    for (QList<DocumentListModelEntry>::iterator entry = d->entries.begin();
+         entry != d->entries.end(); entry++) {
+        if ( path == entry->filePath ) {
+            if ( entry->tags.contains(tag) ) {
+                entry->tags.remove(tag);
+                dataChanged(index(row), index(row));
+                d->tagsModel.removeItem(tag);
+            }
+            return;
+        }
+        row += 1;
+    }
+}
+TagListModel* DocumentListModel::tags() const
+{
+    return &d->tagsModel;
 }
 
 int DocumentListModel::rowCount(const QModelIndex& parent) const
@@ -180,17 +235,21 @@ void DocumentListModel::clear()
 
 void DocumentListModel::jobFinished(TagsThreadJob *job)
 {
-    int index = 0;
+    int row = 0;
     for(QList<DocumentListModelEntry>::iterator entry = d->entries.begin();
         entry != d->entries.end(); entry++) {
         if (entry->filePath == job->path) {
-            // Notify tags ready at index.
             entry->job  = 0;
-            entry->tags = job->tags;
-            fprintf(stdout, "Ok, copy tags for index %d\n", index);
+            entry->tags.clear();
+            for (int i=0; i < job->tags.count(); i++) {
+                entry->tags.insert(job->tags.at(i));
+                d->tagsModel.addItem(job->tags.at(i));
+            }
+            dataChanged(index(row), index(row));
+            fprintf(stdout, "Ok, copy tags for index %d\n", row);
             break;
         }
-        index += 1;
+        row += 1;
     }
     job->deleteLater();
 }

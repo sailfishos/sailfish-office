@@ -28,6 +28,8 @@ public:
     TagsThreadJob( QString &path ): path(path) {};
     ~TagsThreadJob();
 
+    void run();
+
     QList<QString> tags;
     QString path;
 };
