@@ -22,6 +22,8 @@
 #include <QAbstractListModel>
 #include <qdatetime.h>
 
+#include "tagsthread.h"
+
 class DocumentListModelPrivate;
 
 class DocumentListModel : public QAbstractListModel
@@ -65,6 +67,9 @@ public:
     void clear();
 
     Q_INVOKABLE int mimeTypeToDocumentClass(QString mimeType) const;
+
+public Q_SLOTS:
+    void jobFinished(TagsThreadJob* job);
 
 private:
     class Private;

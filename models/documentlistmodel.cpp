@@ -28,6 +28,8 @@ struct DocumentListModelEntry
     int fileSize;
     QDateTime fileRead;
     QString mimeType;
+    QList<QString> tags;
+    TagsThreadJob *job;
     DocumentListModel::DocumentClass documentClass;
     bool dirty; // When true, should be removed from list.
 };
@@ -46,16 +48,20 @@ public:
         roles.insert(FileDocumentClass, "fileDocumentClass");
     }
     QList<DocumentListModelEntry> entries;
-    QHash<int, QByteArray> roles;
+    QHash< int, QByteArray > roles;
+    TagsThread *tagsThread;
 };
 
 DocumentListModel::DocumentListModel(QObject *parent)
     : QAbstractListModel(parent), d(new Private)
 {
+    d->tagsThread = new TagsThread( this );
+    connect( d->tagsThread, &TagsThread::jobFinished, this, &DocumentListModel::jobFinished );
 }
 
 DocumentListModel::~DocumentListModel()
 {
+    delete d->tagsThread;
 }
 
 QVariant DocumentListModel::data(const QModelIndex &index, int role) const
@@ -129,6 +135,9 @@ void DocumentListModel::addItem(QString name, QString path, QString type, int si
     entry.fileRead = lastRead;
     entry.mimeType = mimeType;
     entry.documentClass = static_cast<DocumentClass>(mimeTypeToDocumentClass(mimeType));
+    entry.job = new TagsThreadJob(path);
+    //entry.job.setTarget(entry.tags);
+    d->tagsThread->queueJob(entry.job);
 
     int index = 0;
     for (; index < d->entries.count(); ++index) {
@@ -145,9 +154,7 @@ void DocumentListModel::removeItemsDirty()
 {
     for (int index=0; index < d->entries.count(); index++) {
         if (d->entries.at(index).dirty) {
-            beginRemoveRows(QModelIndex(), index, index);
-            d->entries.removeAt(index);
-            endRemoveRows();
+            removeAt(index);
         }
     }
 }
@@ -156,6 +163,7 @@ void DocumentListModel::removeItemsDirty()
 void DocumentListModel::removeAt(int index)
 {
     if (index > -1 && index < d->entries.count()) {
+        d->tagsThread->cancelJob(d->entries.at(index).job);
         beginRemoveRows(QModelIndex(), index, index);
         d->entries.removeAt(index);
         endRemoveRows();
@@ -164,9 +172,27 @@ void DocumentListModel::removeAt(int index)
 
 void DocumentListModel::clear()
 {
+    d->tagsThread->cancelJob(0);
     beginResetModel();
     d->entries.clear();
     endResetModel();
+}
+
+void DocumentListModel::jobFinished(TagsThreadJob *job)
+{
+    int index = 0;
+    for(QList<DocumentListModelEntry>::iterator entry = d->entries.begin();
+        entry != d->entries.end(); entry++) {
+        if (entry->filePath == job->path) {
+            // Notify tags ready at index.
+            entry->job  = 0;
+            entry->tags = job->tags;
+            fprintf(stdout, "Ok, copy tags for index %d\n", index);
+            break;
+        }
+        index += 1;
+    }
+    job->deleteLater();
 }
 
 int DocumentListModel::mimeTypeToDocumentClass(QString mimeType) const
