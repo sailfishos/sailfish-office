@@ -34,6 +34,7 @@ SilicaFlickable {
     property bool scaled: pdfCanvas.width != width;
 
     signal clicked();
+    signal pageSizesReady()
     signal updateSize(real newWidth, real newHeight);
 
     function clamp(value) {
@@ -125,12 +126,19 @@ SilicaFlickable {
     PDF.Canvas {
         id: pdfCanvas;
 
+        property bool _pageSizesReady
+
         width: base.width;
 
         spacing: Theme.paddingLarge;
         flickable: base;
         linkColor: Theme.highlightColor;
         pagePlaceholderColor: Theme.highlightColor;
+
+        onPageLayoutChanged: if (!_pageSizesReady) {
+            _pageSizesReady = true
+            base.pageSizesReady()
+        }
 
         PinchArea {
             anchors.fill: parent;
@@ -197,7 +205,19 @@ SilicaFlickable {
         if (scrollY > contentHeight - height) {
             scrollY = contentHeight - height
         }
-        contentX = scrollX
-        contentY = scrollY
+        contentX = Math.max(0, scrollX)
+        contentY = Math.max(0, scrollY)
+    }
+    // This function is the inverse of goToPage(), returning (pageNumber, top, left).
+    function getPagePosition() {
+        // Find the page on top
+        var i = currentPage - 1
+        var rect = pdfCanvas.pageRectangle( i )
+        while (rect.y > contentY && i > 0) {
+            rect = pdfCanvas.pageRectangle( --i )
+        }
+        var top  = (contentY - rect.y) / rect.height
+        var left = (contentX - rect.x) / rect.width
+        return [i, top, left]
     }
 }

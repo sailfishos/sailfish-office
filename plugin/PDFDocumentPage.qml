@@ -19,15 +19,51 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 import Sailfish.Office.PDF 1.0 as PDF
+import org.nemomobile.configuration 1.0
+import QtQuick.LocalStorage 2.0
+import "PDFStorage.js" as PDFStorage
 
 DocumentPage {
     id: base;
+
+    property var _settings // Handle save and restore the view settings using PDFStorage
+
+    function savePageSettings() {
+        if (!rememberPositionConfig.value) { return }
+        
+        if (!_settings) {
+            _settings = new PDFStorage.Settings(pdfDocument.source)
+        }
+        var last = view.getPagePosition()
+        _settings.setLastPage(last[0] + 1, last[1], last[2], view.itemWidth)
+    }
 
     attachedPage: Component {
         PDFDocumentToCPage {
             tocModel: pdfDocument.tocModel
             pageCount: pdfDocument.pageCount
             onPageSelected: view.goToPage( pageNumber );
+        }
+    }
+
+    // Save and restore view settings when needed.
+    onStatusChanged: if ( status == PageStatus.Inactive ) { savePageSettings() }   
+    Connections {
+        target: Qt.application
+        onAboutToQuit: savePageSettings()
+    }
+    Connections {
+        target: view
+        onPageSizesReady: if ( rememberPositionConfig.value ) {
+            if (!_settings) {
+                _settings = new PDFStorage.Settings(pdfDocument.source)
+            }
+            var last = _settings.getLastPage()
+            if (last[3] > 0) {
+                view.itemWidth = last[3]
+                view.adjust()
+            }
+            view.goToPage( last[0] - 1, last[1], last[2] )
         }
     }
 
@@ -183,6 +219,13 @@ DocumentPage {
     busy: (!pdfDocument.loaded && !pdfDocument.failure) || pdfDocument.searching;
     source: pdfDocument.source;
     indexCount: pdfDocument.pageCount;
+
+    ConfigurationValue {
+        id: rememberPositionConfig
+        
+        key: "/apps/sailfish-office/settings/rememberPosition"
+        defaultValue: true
+    }
 
     Timer {
         id: updateSourceSizeTimer;
