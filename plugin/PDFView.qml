@@ -19,6 +19,8 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 import Sailfish.Office.PDF 1.0 as PDF
+import QtQuick.LocalStorage 2.0
+import "PDFStorage.js" as PDFStorage
 
 SilicaFlickable {
     id: base;
@@ -122,6 +124,7 @@ SilicaFlickable {
     // Ensure proper zooming level when device is rotated.
     onWidthChanged: adjust()
 
+    Component.onDestruction: pdfCanvas.savePageSettings()
     PDF.Canvas {
         id: pdfCanvas;
 
@@ -131,6 +134,35 @@ SilicaFlickable {
         flickable: base;
         linkColor: Theme.highlightColor;
         pagePlaceholderColor: Theme.highlightColor;
+
+        onPageLayoutChanged: restorePageSettings()
+
+        // Handle save and restore the view settings.
+        property var _settings
+        function restorePageSettings() {
+            if (!_settings) {
+                _settings = new PDFStorage.Settings(document.source)
+                var last = _settings.getLastPage()
+                if (last[3] > 0) {
+                    width = last[3]
+                    base.adjust()
+                }
+                base.goToPage( last[0], last[1], last[2] )
+            }
+        }
+        function savePageSettings() {
+            if (_settings) {
+                // Find the page on top
+                var i = currentPage - 1
+                var rect = pageRectangle( i )
+                while (rect.y > contentY && i >= 0) {
+                    rect = pageRectangle( --i )
+                }
+                var top  = (contentY - rect.y) / rect.height
+                var left = (contentX - rect.x) / rect.width
+                _settings.setLastPage(i, top, left, width)
+            }
+        }
 
         PinchArea {
             anchors.fill: parent;
@@ -197,7 +229,7 @@ SilicaFlickable {
         if (scrollY > contentHeight - height) {
             scrollY = contentHeight - height
         }
-        contentX = scrollX
-        contentY = scrollY
+        contentX = Math.max(0, scrollX)
+        contentY = Math.max(0, scrollY)
     }
 }
