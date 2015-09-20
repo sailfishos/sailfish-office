@@ -34,12 +34,14 @@ struct PDFPage {
     PDFPage()
         : index{-1}
         , requested{ false }
+        , rectPlaceholder{ false }
         , texture{ nullptr }
     { }
 
     int index;
     QRectF rect;
     bool requested;
+    bool rectPlaceholder;
     QSGTexture *texture;
 
     QList< QPair< QRectF, QUrl > > links;
@@ -80,6 +82,7 @@ public:
     QList< QSizeF > pageSizes;
 
     QColor linkColor;
+    QColor pagePlaceholderColor;
 
     QList<QSGTexture *> texturesToClean;
     QPointer<QQuickWindow> connectedWindow;
@@ -205,6 +208,21 @@ void PDFCanvas::setLinkColor(const QColor& color)
         emit linkColorChanged();
     }
 }
+QColor PDFCanvas::pagePlaceholderColor() const
+{
+    return d->pagePlaceholderColor;
+}
+
+void PDFCanvas::setPagePlaceholderColor(const QColor& color)
+{
+    if( color != d->pagePlaceholderColor )
+    {
+        d->pagePlaceholderColor = color;
+        d->pagePlaceholderColor.setAlphaF( 0.25 );
+        update();
+        emit pagePlaceholderColorChanged();
+    }
+}
 
 void PDFCanvas::layout()
 {
@@ -318,6 +336,7 @@ void PDFCanvas::sceneGraphInvalidated()
             page.texture = 0;
         }
         page.requested = false;
+        page.rectPlaceholder = false;
     }
 }
 
@@ -414,9 +433,13 @@ QSGNode* PDFCanvas::updatePaintNode(QSGNode* node, QQuickItem::UpdatePaintNodeDa
                 currentPage = i + 1;
             }
         }
-          
+
         if( page.texture && showPage )
         {
+            if ( page.rectPlaceholder ) {
+                delete t->firstChild();
+                t->removeAllChildNodes();
+            }
             QSGSimpleTextureNode *tn = static_cast<QSGSimpleTextureNode *>(t->firstChild());
             if (!tn)
             {
@@ -424,6 +447,7 @@ QSGNode* PDFCanvas::updatePaintNode(QSGNode* node, QQuickItem::UpdatePaintNodeDa
                 t->appendChildNode( tn );
             }
 
+            page.rectPlaceholder = false;
             tn->setTexture(page.texture);
             tn->setRect( 0.f, 0.f, page.rect.size().width(), page.rect.size().height() );
 
@@ -453,10 +477,19 @@ QSGNode* PDFCanvas::updatePaintNode(QSGNode* node, QQuickItem::UpdatePaintNodeDa
                 }
             }
         }
-        else
+        else if ( !page.rectPlaceholder && showPage )
         {
-            if( t->childCount() > 0 )
-            {
+            QSGSimpleRectNode *bgNode = new QSGSimpleRectNode();
+            t->appendChildNode( bgNode );
+
+            page.rectPlaceholder = true;
+            bgNode->setRect( 0., 0., page.rect.width(), page.rect.height() );
+            bgNode->setColor( d->pagePlaceholderColor );
+        }
+        else if ( !showPage )
+        {
+            page.rectPlaceholder = false;
+            if( t->childCount() > 0 ) {
                 delete t->firstChild();
                 t->removeAllChildNodes();
             }
