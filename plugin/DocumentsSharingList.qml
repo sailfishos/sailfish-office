@@ -42,7 +42,7 @@ ShareMethodList {
     //% "Share"
     listHeader: qsTrId( "sailfish-office-la-share" );
 
-    header: PageHeader{ title: menuList.title }
+    header: PageHeader { title: menuList.title }
 
     // Add "add account" to the footer. User must be able to
     // create accounts in a case there are none.

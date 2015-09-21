@@ -27,6 +27,9 @@ PanelBackground {
     property bool hidden: false
     property bool autoHide: true
 
+    property int _previousContentY
+    property bool _dragUp
+
     anchors.top: flickable.bottom
 
     states: [
@@ -50,8 +53,6 @@ PanelBackground {
         property: "clip"
         value: enabled
     }
-    property int _previousContentY
-    property bool _dragUp
     Connections {
         target: flickable
         onContentYChanged:  {

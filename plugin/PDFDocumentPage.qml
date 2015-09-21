@@ -46,13 +46,13 @@ DocumentPage {
             enabled: pdfDocument.failure || pdfDocument.locked
             y: (flickable ? flickable.originY : 0) + (base.height - height - (passwd.visible ? passwd.height : 0)) / 2
             //% "Broken file"
-            text: pdfDocument.failure ? qsTrId("sailfish-office-me-broken-pdf") :
-            //%  "Locked file"
-            qsTrId("sailfish-office-me-locked-pdf")
+            text: pdfDocument.failure ? qsTrId("sailfish-office-me-broken-pdf")
+                                      : //% "Locked file"
+                                        qsTrId("sailfish-office-me-locked-pdf")
             //% "Cannot read the PDF document"
-            hintText: pdfDocument.failure ? qsTrId("sailfish-office-me-broken-pdf-hint") :
-            //% "Enter password to unlock"
-            qsTrId("sailfish-office-me-locked-pdf-hint")
+            hintText: pdfDocument.failure ? qsTrId("sailfish-office-me-broken-pdf-hint")
+                                          : //% "Enter password to unlock"
+                                            qsTrId("sailfish-office-me-locked-pdf-hint")
             MouseArea {
                 anchors.fill: parent
                 onClicked: base.open = !base.open
@@ -86,8 +86,8 @@ DocumentPage {
         id: toolbar
         width: parent.width
         height: base.orientation == Orientation.Portrait || base.orientation == Orientation.InvertedPortrait
-        ? Theme.itemSizeLarge
-        : Theme.itemSizeSmall
+                ? Theme.itemSizeLarge
+                : Theme.itemSizeSmall
         parentHeight: base.height
         flickable: view
         hidden: base.open || documentPlaceholder.enabled
@@ -125,7 +125,9 @@ DocumentPage {
             }
             SearchField {
                 id: search
-                width: activeFocus ? toolbar.width : toolbar.width - pageCount.width - ( pdfDocument.searchModel ? searchPrev.width + searchNext.width : 0)
+                width: activeFocus ? toolbar.width
+                                   : toolbar.width - pageCount.width - ( pdfDocument.searchModel
+                                                                        ? searchPrev.width + searchNext.width : 0)
                 anchors.verticalCenter: parent.verticalCenter
 
                 enabled: !pdfDocument.searching
@@ -160,10 +162,10 @@ DocumentPage {
             opacity: pdfDocument.searchModel && !search.activeFocus ? 1. : 0.
             visible: opacity > 0.
             text: pdfDocument.searchModel && pdfDocument.searchModel.count > 0
-            //% "%n item(s) found"
-            ? qsTrId("sailfish-office-lb-%n-matches", pdfDocument.searchModel.count)
-            //% "no matching found"
-            : qsTrId("sailfish-office-lb-no-matches")
+                  ? //% "%n item(s) found"
+                    qsTrId("sailfish-office-lb-%n-matches", pdfDocument.searchModel.count)
+                  : //% "no matching found"
+                    qsTrId("sailfish-office-lb-no-matches")
             font.pixelSize: Theme.fontSizeSmall
             color: Theme.secondaryHighlightColor
 
