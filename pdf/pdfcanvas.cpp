@@ -51,7 +51,7 @@ public:
     Private( PDFCanvas* qq )
         : q{ qq }
         , pageCount{ 0 }
-        , currentPage{ 0 }
+        , currentPage{ 1 }
         , renderWidth{ 0 }
         , document{ nullptr }
         , flickable(0)
@@ -354,7 +354,8 @@ QSGNode* PDFCanvas::updatePaintNode(QSGNode* node, QQuickItem::UpdatePaintNodeDa
     }
 
     QList<QPair<int, int> > priorityRequests;
-    bool currentPageSet = false;
+    int currentPage = d->currentPage;
+    qreal maxVisibleArea = 0.;
 
     for( int i = 0; i < d->pageCount; ++i )
     {
@@ -403,11 +404,14 @@ QSGNode* PDFCanvas::updatePaintNode(QSGNode* node, QQuickItem::UpdatePaintNodeDa
         m.translate( 0, page.rect.y() );
         t->setMatrix(m);
 
-        if (showPage && !currentPageSet) {
-            currentPageSet = true;
-            if (d->currentPage != i + 1) {
-                d->currentPage = i + 1;
-                emit currentPageChanged();
+        if (showPage) {
+            QRectF inter = page.rect.intersected(visibleArea);
+            qreal area = inter.width() * inter.height();
+            // Select the current page as the page with the maximum
+            // visible area.
+            if (area > maxVisibleArea) {
+                maxVisibleArea = area;
+                currentPage = i + 1;
             }
         }
           
@@ -467,6 +471,11 @@ QSGNode* PDFCanvas::updatePaintNode(QSGNode* node, QQuickItem::UpdatePaintNodeDa
     }
 
     d->cleanTextures();
+
+    if (d->currentPage != currentPage) {
+        d->currentPage = currentPage;
+        emit currentPageChanged();
+    }
 
     return root;
 }
