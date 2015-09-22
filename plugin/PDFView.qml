@@ -130,6 +130,7 @@ SilicaFlickable {
         spacing: Theme.paddingLarge;
         flickable: base;
         linkColor: Theme.highlightColor;
+        pagePlaceholderColor: Theme.highlightColor;
 
         PinchArea {
             anchors.fill: parent;
