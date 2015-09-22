@@ -144,6 +144,8 @@ SilicaFlickable {
 
                 canvas: pdfCanvas;
                 onLinkClicked: Qt.openUrlExternally(linkTarget);
+                onGotoClicked: base.goToPage(page - 1, top, left,
+                                             Theme.paddingLarge, Theme.paddingLarge)
                 onClicked: base.clicked();
             }
         }
@@ -178,7 +180,23 @@ SilicaFlickable {
         VerticalScrollDecorator { color: Theme.highlightDimmerColor; }
     ]
 
-    function goToPage(pageNumber) {
-        base.contentY = pdfCanvas.pagePosition( pageNumber );
+    function goToPage(pageNumber, top, left, topSpacing, leftSpacing) {
+        var rect = pdfCanvas.pageRectangle( pageNumber )
+        var scrollX, scrollY
+        // Adjust horizontal position if required.
+        scrollX = base.contentX
+        if (left !== undefined && left >= 0.) {
+            scrollX = rect.x + left * rect.width - ( leftSpacing !== undefined ? leftSpacing : 0.)
+        }
+        if (scrollX > contentWidth - width) {
+            scrollX = contentWidth - width
+        }
+        // Adjust vertical position.
+        scrollY = rect.y + (top === undefined ? 0. : top * rect.height) - ( topSpacing !== undefined ? topSpacing : 0.);
+        if (scrollY > contentHeight - height) {
+            scrollY = contentHeight - height
+        }
+        contentX = scrollX
+        contentY = scrollY
     }
 }

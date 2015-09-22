@@ -18,6 +18,7 @@
 
 #include "pdflinkarea.h"
 #include "pdfcanvas.h"
+#include <QUrlQuery>
 
 class PDFLinkArea::Private
 {
@@ -81,10 +82,21 @@ void PDFLinkArea::mouseReleaseEvent(QMouseEvent* event)
     if( d->canvas )
         url = d->canvas->urlAtPoint( event->pos() );
 
-    if(url.isEmpty()) {
+    if (url.isEmpty()) {
         emit clicked();
-    }
-    else {
+    } else if (url.isRelative() && url.hasQuery()) {
+        QUrlQuery query = QUrlQuery(url);
+        if (query.hasQueryItem("page")) {
+            bool ok;
+            double top = query.queryItemValue("top").toFloat(&ok);
+            if (!ok) top = -1.;
+            double left = query.queryItemValue("left").toFloat(&ok);
+            if (!ok) left = -1.;
+            emit gotoClicked(query.queryItemValue("page").toInt(), top, left);
+        } else {
+            emit clicked();
+        }
+    } else {
         emit linkClicked(url);
     }
     event->accept();

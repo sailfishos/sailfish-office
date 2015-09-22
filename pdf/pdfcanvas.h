@@ -36,7 +36,7 @@ public:
     PDFCanvas(QQuickItem* parent = 0);
     ~PDFCanvas();
 
-    Q_INVOKABLE qreal pagePosition( int index ) const;
+    Q_INVOKABLE QRectF pageRectangle( int index ) const;
 
     QQuickItem *flickable() const;
     void setFlickable(QQuickItem *f);
