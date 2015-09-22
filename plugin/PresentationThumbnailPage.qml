@@ -23,12 +23,6 @@ import org.kde.calligra 1.0 as Calligra
 Page {
     id: page;
 
-    QtObject {
-        id: theme;
-        property int paddingMedium: 12;
-        property int paddingSmall: 8;
-    }
-
     property QtObject document;
 
     allowedOrientations: Orientation.All;

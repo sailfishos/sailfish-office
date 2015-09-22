@@ -27,11 +27,6 @@ Page {
 
     allowedOrientations: Orientation.All;
 
-    QtObject {
-        id: theme;
-        property int itemSizeLarge: 64;
-    }
-
     SilicaListView {
         anchors.fill: parent;
 
