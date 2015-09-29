@@ -1,0 +1,15 @@
+{
+    "translation_catalog": "settings-sailfish-office",
+    "entries": [
+        {
+            "path": "applications/sailfish-office.desktop",
+            "title": "Documents",
+            "translation_id": "settings_applications-office",
+            "type": "page",
+            "icon": "image://theme/icon-m-documents",
+            "params": {
+                "source": "/usr/share/jolla-settings/pages/sailfish-office/office.qml"
+            }
+        }
+    ]
+}

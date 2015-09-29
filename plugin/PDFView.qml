@@ -19,6 +19,7 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 import Sailfish.Office.PDF 1.0 as PDF
+import org.nemomobile.configuration 1.0
 import QtQuick.LocalStorage 2.0
 import "PDFStorage.js" as PDFStorage
 
@@ -124,7 +125,7 @@ SilicaFlickable {
     // Ensure proper zooming level when device is rotated.
     onWidthChanged: adjust()
 
-    Component.onDestruction: pdfCanvas.savePageSettings()
+    Component.onDestruction: if (rememberPositionConfig.value) pdfCanvas.savePageSettings()
     PDF.Canvas {
         id: pdfCanvas;
 
@@ -135,7 +136,7 @@ SilicaFlickable {
         linkColor: Theme.highlightColor;
         pagePlaceholderColor: Theme.highlightColor;
 
-        onPageLayoutChanged: restorePageSettings()
+        onPageLayoutChanged: if (rememberPositionConfig.value) restorePageSettings()
 
         // Handle save and restore the view settings.
         property var _settings
@@ -231,5 +232,12 @@ SilicaFlickable {
         }
         contentX = Math.max(0, scrollX)
         contentY = Math.max(0, scrollY)
+    }
+
+    ConfigurationValue {
+        id: rememberPositionConfig
+
+        key: "/apps/sailfish-office/settings/rememberPosition"
+        defaultValue: false
     }
 }

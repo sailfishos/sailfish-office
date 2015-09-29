@@ -45,6 +45,7 @@ Group: System/Base
 %{_datadir}/translations/*.qm
 %{_datadir}/dbus-1/interfaces/
 %{_datadir}/dbus-1/services/
+%{_datadir}/jolla-settings/
 
 %files ts-devel
 %{_datadir}/translations/source/*.ts
