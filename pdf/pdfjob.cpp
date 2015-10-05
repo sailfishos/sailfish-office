@@ -63,6 +63,7 @@ void RenderPageJob::run()
     QImage image = page->renderToImage( scale, scale );
     // Note: assuming there's exactly one handler (PDFCanvas) to catch ownership of this when PDFDocument emits a signal with this
     m_page = m_window->createTextureFromImage(image);
+    delete page;
 }
 
 void PageSizesJob::run()
@@ -73,6 +74,7 @@ void PageSizesJob::run()
     {
         Poppler::Page* page = m_document->page( i );
         m_pageSizes.append( page->pageSizeF() );
+        delete page;
     }
 }
 
@@ -109,5 +111,7 @@ void SearchDocumentJob::run()
                                  Poppler::Page::NextResult,
                                  Poppler::Page::CaseInsensitive);
         }
+
+        delete page;
     }
 }

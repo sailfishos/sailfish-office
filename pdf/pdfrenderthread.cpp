@@ -127,6 +127,7 @@ public:
             }
 
             qDeleteAll(links);
+            delete page;
         }
     }
 
