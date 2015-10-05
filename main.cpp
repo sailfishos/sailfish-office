@@ -22,12 +22,17 @@
 #include <QQuickView>
 #include <QQmlError>
 #include <QQmlContext>
+#include <QQmlEngine>
 #include "sailfishapplication.h"
 
 class CoverWindowFetcher : public QObject
 {
     Q_OBJECT
 public:
+    CoverWindowFetcher(QObject *parent)
+        : QObject(parent) {
+    }
+
     Q_INVOKABLE QQuickWindow *coverWindow() {
         foreach (QWindow *w, qGuiApp->allWindows()) {
             if (QQuickWindow *qw = qobject_cast<QQuickWindow *>(w)) {
@@ -53,7 +58,7 @@ Q_DECL_EXPORT int main(int argc, char *argv[])
     auto view = Sailfish::createView("Main.qml");
 
     QQmlContext *context = view->rootContext();
-    context->setContextProperty(QStringLiteral("coverWindowAccessor"), new CoverWindowFetcher);
+    context->setContextProperty(QStringLiteral("coverWindowAccessor"), new CoverWindowFetcher(view->engine()));
     context->setContextProperty(QStringLiteral("applicationWindow"), view.data());
 
     //% "Documents"
