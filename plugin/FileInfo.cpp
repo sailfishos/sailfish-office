@@ -47,6 +47,7 @@ FileInfo::FileInfo(QObject* parent)
 
 FileInfo::~FileInfo()
 {
+    delete d;
 }
 
 QString FileInfo::source() const

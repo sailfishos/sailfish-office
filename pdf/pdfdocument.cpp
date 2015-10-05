@@ -57,6 +57,7 @@ PDFDocument::~PDFDocument()
 {
     delete d->thread;
     delete d->searchModel;
+    delete d;
 }
 
 QString PDFDocument::source() const
