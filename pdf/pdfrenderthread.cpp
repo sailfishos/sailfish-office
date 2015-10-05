@@ -91,7 +91,8 @@ public:
         for(int i = 0; i < document->numPages(); ++i)
         {
             Poppler::Page* page = document->page(i);
-            for(Poppler::Link* link : page->links())
+            QList<Poppler::Link*> links = page->links();
+            for(Poppler::Link* link : links)
             {
                 switch (link->linkType()) {
                 case (Poppler::Link::Browse): {
@@ -124,6 +125,8 @@ public:
                 }
 
             }
+
+            qDeleteAll(links);
         }
     }
 
