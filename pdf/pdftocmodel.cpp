@@ -97,6 +97,7 @@ PDFTocModel::PDFTocModel(Poppler::Document* document, QObject* parent)
     d->document = document;
     QDomDocument* toc = document->toc();
     d->addSynopsisChildren(toc, 0);
+    delete toc;
 }
 
 PDFTocModel::~PDFTocModel()
