@@ -113,6 +113,15 @@ PDFCanvas::PDFCanvas(QQuickItem* parent)
 
 PDFCanvas::~PDFCanvas()
 {
+    for( int i = 0; i < d->pageCount; ++i )
+    {
+        PDFPage &page = d->pages[ i ];
+        if (page.texture) {
+            delete page.texture;
+            page.texture = 0;
+        }
+    }
+
     delete d->resizeTimer;
     delete d;
 }
