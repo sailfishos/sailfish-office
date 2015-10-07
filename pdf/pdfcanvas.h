@@ -32,6 +32,7 @@ class PDFCanvas : public QQuickItem
     Q_PROPERTY( QColor linkColor READ linkColor WRITE setLinkColor NOTIFY linkColorChanged )
     Q_PROPERTY( QColor pagePlaceholderColor READ pagePlaceholderColor WRITE setPagePlaceholderColor NOTIFY pagePlaceholderColorChanged )
     Q_PROPERTY( int currentPage READ currentPage NOTIFY currentPageChanged )
+    Q_PROPERTY( bool rememberPagePosition READ rememberPagePosition WRITE setRememberPagePosition NOTIFY rememberPagePositionChanged )
 
 public:
     PDFCanvas(QQuickItem* parent = 0);
@@ -76,6 +77,9 @@ public:
      */
     int currentPage() const;
 
+    bool rememberPagePosition() const;
+    void setRememberPagePosition(bool status);
+
     void layout();
 
     /**
@@ -92,6 +96,9 @@ Q_SIGNALS:
     void documentChanged();
     void flickableChanged();
     void spacingChanged();
+    void rememberPagePositionChanged();
+    void requestPageWidth(unsigned int width);
+    void requestPagePosition(unsigned int page, qreal top, qreal left);
     void linkColorChanged();
     void pagePlaceholderColorChanged();
     void currentPageChanged();
