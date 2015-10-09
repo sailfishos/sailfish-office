@@ -33,8 +33,8 @@ class DocumentProviderPlugin : public QObject
     Q_PROPERTY(QObject *model READ model NOTIFY modelChanged)
     Q_PROPERTY(bool ready READ isReady NOTIFY readyChanged)
     Q_PROPERTY(QUrl page READ page WRITE setPage NOTIFY pageChanged)
-    Q_PROPERTY(QString setupPageUrl READ setupPageUrl NOTIFY titleChanged);
-    Q_PROPERTY(bool needsSetup READ needsSetup NOTIFY needsSetupChanged);
+    Q_PROPERTY(QString setupPageUrl READ setupPageUrl NOTIFY titleChanged)
+    Q_PROPERTY(bool needsSetup READ needsSetup NOTIFY needsSetupChanged)
 
 public:
     DocumentProviderPlugin(QObject* parent = 0);

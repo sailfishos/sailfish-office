@@ -35,7 +35,7 @@ public:
         PresentationDocument,
         PDFDocument
     };
-    Q_ENUMS(DocumentClass);
+    Q_ENUMS(DocumentClass)
 
     enum Roles
     {

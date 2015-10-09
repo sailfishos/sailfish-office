@@ -93,6 +93,7 @@ ApplicationWindow
     _defaultPageOrientations: Orientation.All
     _defaultLabelFormat: Text.PlainText
     cover: Qt.resolvedUrl("CoverPage.qml")
+
     Component {
         id: fileListPage
         FileListPage {}

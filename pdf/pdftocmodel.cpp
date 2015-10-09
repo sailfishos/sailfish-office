@@ -62,7 +62,10 @@ public:
             // if (!e.attribute("ExternalFileName").isNull()) item.setAttribute("ExternalFileName", e.attribute("ExternalFileName"));
             if (!e.attribute("DestinationName").isNull()) {
                 Poppler::LinkDestination *dest = document->linkDestination(e.attribute("DestinationName"));
-                if(dest) tocEntry->pageNumber = dest->pageNumber();
+                if(dest) {
+                    tocEntry->pageNumber = dest->pageNumber();
+                    delete dest;
+                }
                 //item.setAttribute("ViewportName", e.attribute("DestinationName"));
             }
             if (!e.attribute("Destination").isNull())
@@ -94,6 +97,7 @@ PDFTocModel::PDFTocModel(Poppler::Document* document, QObject* parent)
     d->document = document;
     QDomDocument* toc = document->toc();
     d->addSynopsisChildren(toc, 0);
+    delete toc;
 }
 
 PDFTocModel::~PDFTocModel()

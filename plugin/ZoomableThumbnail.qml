@@ -24,19 +24,17 @@ SilicaFlickable {
     id: base;
 
     property real maxHeight: height;
-
-    height: Math.min(thumb.height, maxHeight);
-
-    contentWidth: thumb.width;
-    contentHeight: thumb.height;
-
     property alias content: thumb.data;
     property bool scaled: false;
 
-    clip: true;
-
     signal clicked();
     signal updateSize(real newWidth, real newHeight);
+
+    height: Math.min(thumb.height, maxHeight);
+    contentWidth: thumb.width;
+    contentHeight: thumb.height;
+    clip: true;
+
 
     function zoom(amount, center) {
 

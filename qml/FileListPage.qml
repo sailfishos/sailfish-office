@@ -24,8 +24,8 @@ import Sailfish.Office.Files 1.0
 Page {
     id: page
     property alias model: filteredModel.sourceModel;
-    property string title: "";
-    property string searchText: "";
+    property string title
+    property string searchText
     property QtObject provider;
 
     allowedOrientations: Orientation.All;
@@ -79,9 +79,9 @@ Page {
         ViewPlaceholder {
             //: View placeholder shown when there are no documents
             //% "No documents"
-            text: searchText.length == 0 ? qsTrId("sailfish-office-la-no_documents") :
-            //% "No document found"
-            qsTrId("sailfish-office-la-not-found")
+            text: searchText.length == 0 ? qsTrId("sailfish-office-la-no_documents")
+                                         : //% "No document found"
+                                           qsTrId("sailfish-office-la-not-found")
             enabled: !listView.count
         }
         delegate: ListItem {
@@ -115,7 +115,8 @@ Page {
                     bottom: icon.verticalCenter;
                 }
                 color: listItem.highlighted ? Theme.highlightColor : Theme.primaryColor
-                text: searchText.length > 0 ? Theme.highlightText(model.fileName, searchText, Theme.highlightColor) : model.fileName
+                text: searchText.length > 0 ? Theme.highlightText(model.fileName, searchText, Theme.highlightColor)
+                                            : model.fileName
                 textFormat: searchText.length > 0 ? Text.StyledText : Text.PlainText
                 font.pixelSize: Theme.fontSizeMedium;
                 truncationMode: TruncationMode.Fade;

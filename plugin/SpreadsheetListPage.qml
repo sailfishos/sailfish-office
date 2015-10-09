@@ -27,11 +27,6 @@ Page {
 
     allowedOrientations: Orientation.All;
 
-    QtObject {
-        id: theme;
-        property int itemSizeLarge: 64;
-    }
-
     SilicaListView {
         anchors.fill: parent;
 
@@ -69,7 +64,8 @@ Page {
                 }
 
                 text: model.title;
-                color: (model.contentIndex == page.document.currentIndex || bg.highlighted) ? Theme.highlightColor : Theme.primaryColor;
+                color: (model.contentIndex == page.document.currentIndex || bg.highlighted) ? Theme.highlightColor
+                                                                                            : Theme.primaryColor;
                 truncationMode: TruncationMode.Fade
             }
 
