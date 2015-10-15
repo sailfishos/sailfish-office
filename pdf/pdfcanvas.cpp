@@ -90,7 +90,7 @@ public:
 
     QRectF visibleArea;
     bool rememberPagePosition;
-    QString dSource;
+    QString documentSource;
     unsigned int rememberPage;
     unsigned int rememberWidth;
     qreal rememberTop;
@@ -184,7 +184,7 @@ void PDFCanvas::setDocument(PDFDocument* doc)
         }
 
         d->document = doc;
-        d->dSource  = d->document->source();
+        d->documentSource  = d->document->source();
 
         connect( d->document, &PDFDocument::documentLoaded, this, &PDFCanvas::documentLoaded );
         connect( d->document, &PDFDocument::pageFinished, this, &PDFCanvas::pageFinished );
@@ -583,41 +583,41 @@ void PDFCanvas::pageSizesFinished(const QList< QSizeF >& sizes)
 {
     d->pageSizes = sizes;
     if (d->rememberWidth > 0) {
-      emit requestPageWidth(d->rememberWidth);
+        emit requestPageWidth(d->rememberWidth);
     }
     layout();
     if (d->rememberPage > 0 || d->rememberTop > 0. || d->rememberLeft > 0.) {
-      /* We wait for the layout to be done here, so pageRectangle() will
-         be available at QML level. */
-      emit requestPagePosition(d->rememberPage, d->rememberTop, d->rememberLeft);
+        /* We wait for the layout to be done here, so pageRectangle() will
+           be available at QML level. */
+        emit requestPagePosition(d->rememberPage, d->rememberTop, d->rememberLeft);
     }
 }
 
 /* Part related to access the local storage, as available from QML side. */
 static const QString dbConnection{"PdfSettings"};
-static QString _databasesPath()
+static QString databasesPath()
 {
     return QStandardPaths::writableLocation(QStandardPaths::DataLocation) +
-    QDir::separator() + QLatin1String("QML") + QDir::separator() + 
-    QLatin1String("OfflineStorage") + QDir::separator() + QLatin1String("Databases");
+        QDir::separator() + QLatin1String("QML") + QDir::separator() + 
+        QLatin1String("OfflineStorage") + QDir::separator() + QLatin1String("Databases");
 }
-static void _initDatabasesPath()
+static void initDatabasesPath()
 {
-    QString databasesPath = _databasesPath();
-    if (!QDir().mkpath(databasesPath))
-        qWarning() << "LocalStorage: can't create path - " << databasesPath;
+    QString dbPath = databasesPath();
+    if (!QDir().mkpath(dbPath))
+        qWarning() << "LocalStorage: can't create path - " << dbPath;
 }
 
-static bool _openDatabaseSync(const QString &dbname, const QString &dbversion,
-                              const QString &dbdescription, unsigned int estimatedsize)
+static bool addDb(const QString &dbname, const QString &dbversion,
+                  const QString &dbdescription, unsigned int estimatedsize)
 {
-    _initDatabasesPath();
+    initDatabasesPath();
 
     QCryptographicHash md5(QCryptographicHash::Md5);
     md5.addData(dbname.toUtf8());
     QString dbid(QLatin1String(md5.result().toHex()));
 
-    QString basename = _databasesPath() + QDir::separator() + dbid;
+    QString basename = databasesPath() + QDir::separator() + dbid;
 
     QSettings ini(basename + QLatin1String(".ini"), QSettings::IniFormat);
     if (!QFile::exists(basename + QLatin1String(".sqlite"))) {
@@ -634,20 +634,21 @@ static bool _openDatabaseSync(const QString &dbname, const QString &dbversion,
         }
     }
   
-    QSqlDatabase database = QSqlDatabase::addDatabase(QLatin1String("QSQLITE"), dbConnection);
+    QSqlDatabase database = QSqlDatabase::addDatabase(QLatin1String("QSQLITE"),
+                                                      dbConnection);
     database.setDatabaseName(basename + QLatin1String(".sqlite"));
 
     return true;
 }
 
-static void _ensureDbConnection()
+static void ensureDb()
 {
     if (!QSqlDatabase::contains(dbConnection)) {
-        _openDatabaseSync("sailfish-office", "1.0",
-                          "Local storage for the document viewer.", 10000);
+        addDb("sailfish-office", "1.0",
+              "Local storage for the document viewer.", 10000);
     }
 }
-static void _ensureTable(QSqlDatabase &db)
+static void ensureTable(QSqlDatabase &db)
 {
     QSqlQuery qCreate = QSqlQuery(db);
     qCreate.exec(QLatin1String("CREATE TABLE IF NOT EXISTS LastViewSettings("
@@ -663,9 +664,9 @@ static void _ensureTable(QSqlDatabase &db)
 
 void PDFCanvas::Private::loadPagePosition()
 {
-    _ensureDbConnection();
+    ensureDb();
     QSqlDatabase db = QSqlDatabase::database(dbConnection);
-    _ensureTable(db);
+    ensureTable(db);
 
     QSqlQuery query = QSqlQuery(db);
     query.prepare(QLatin1String("SELECT page, top, left, width FROM LastViewSettings WHERE file = ?"));
@@ -680,9 +681,9 @@ void PDFCanvas::Private::loadPagePosition()
 }
 void PDFCanvas::Private::savePagePosition()
 {
-    _ensureDbConnection();
+    ensureDb();
     QSqlDatabase db = QSqlDatabase::database(dbConnection);
-    _ensureTable(db);
+    ensureTable(db);
 
     /* Detect the page on top of the visibleArea (not the current which is the biggest). */
     int vPage = currentPage - 1;
@@ -695,7 +696,7 @@ void PDFCanvas::Private::savePagePosition()
 
     QSqlQuery query = QSqlQuery(db);
     query.prepare(QLatin1String("INSERT OR REPLACE INTO LastViewSettings(file, page, top, left, width) VALUES (?,?,?,?,?)"));
-    query.addBindValue(dSource);
+    query.addBindValue(documentSource);
     query.addBindValue(vPage + 1);
     query.addBindValue(vTop);
     query.addBindValue(vLeft);
