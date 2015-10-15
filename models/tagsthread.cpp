@@ -23,6 +23,10 @@
 #include <QMutex>
 #include <QDebug>
 #include <QCoreApplication>
+#include <QtSql/QSqlDatabase>
+#include <QtSql/QSqlQuery>
+#include <QStandardPaths>
+#include <QDir>
 
 class TagsThreadQueue;
 
@@ -165,8 +169,104 @@ void TagsThreadJob::run()
         tags.append(QString("PDF"));
     }
     tags.append(QString("newt"));*/
+    switch (task) {
+    case (TaskLoadTags):
+        loadTagsFromDb();
+        break;
+    case (TaskAddTags):
+        addTagsToDb();
+        break;
+    case (TaskRemoveTags):
+        removeTagsFromDb();
+        break;
+    }
 }
 
+
+/* Part related to access the local storage, as available from QML side. */
+static const QString dbConnection{"TagsStorage"};
+static void addDatabase()
+{
+    QString basename = QStandardPaths::writableLocation(QStandardPaths::DataLocation) +
+        QDir::separator() + dbConnection + QLatin1String(".sqlite");
+    QSqlDatabase database = QSqlDatabase::addDatabase(QLatin1String("QSQLITE"),
+                                                      dbConnection);
+    database.setDatabaseName(basename);
+}
+
+static void ensureDbConnection()
+{
+    if (!QSqlDatabase::contains(dbConnection)) {
+        addDatabase();
+    }
+}
+static bool ensureTable(QSqlDatabase &db)
+{
+    bool ret;
+    QSqlQuery qCreate = QSqlQuery(db);
+    ret = qCreate.exec(QLatin1String("CREATE TABLE IF NOT EXISTS Tags("
+                                     "file TEXT   NOT NULL,"
+                                     "tag  TEXT   NOT NULL)"));
+    if (!ret)
+        return false;
+  
+    QSqlQuery qIndex = QSqlQuery(db);
+    ret = qIndex.exec(QLatin1String("CREATE INDEX IF NOT EXISTS idx_file ON Tags(file)"));
+    return ret;
+}
+
+void TagsThreadJob::loadTagsFromDb()
+{
+    ensureDbConnection();
+    QSqlDatabase db = QSqlDatabase::database(dbConnection);
+    if (!ensureTable(db))
+        return;
+
+    QSqlQuery query = QSqlQuery(db);
+    query.prepare(QLatin1String("SELECT tag FROM Tags WHERE file = ?"));
+    query.addBindValue(path);
+
+    if (!query.exec())
+        return;
+
+    while (query.next()) {
+        tags.append(query.value(0).toString());
+    }
+}
+void TagsThreadJob::addTagsToDb()
+{
+    ensureDbConnection();
+    QSqlDatabase db = QSqlDatabase::database(dbConnection);
+    if (!ensureTable(db))
+        return;
+    
+    for (QList<QString>::const_iterator tag = tags.begin(); tag != tags.end(); tag++ ) {
+        QSqlQuery query = QSqlQuery(db);
+        query.prepare(QLatin1String("INSERT INTO Tags(file, tag) VALUES (?, ?)"));
+        query.addBindValue(path);
+        query.addBindValue(*tag);
+
+        if (!query.exec())
+            return;
+    }
+}
+void TagsThreadJob::removeTagsFromDb()
+{
+    ensureDbConnection();
+    QSqlDatabase db = QSqlDatabase::database(dbConnection);
+    if (!ensureTable(db))
+        return;
+    
+    for (QList<QString>::const_iterator tag = tags.begin(); tag != tags.end(); tag++ ) {
+        QSqlQuery query = QSqlQuery(db);
+        query.prepare(QLatin1String("DELETE FROM Tags WHERE file = ? AND tag = ?"));
+        query.addBindValue(path);
+        query.addBindValue(*tag);
+
+        if (!query.exec())
+            return;
+    }
+}
 
 
 #include "tagsthread.moc"

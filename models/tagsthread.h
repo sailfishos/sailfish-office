@@ -25,13 +25,24 @@ class TagsThreadJob : public QObject
 {
     Q_OBJECT
 public:
-    TagsThreadJob( QString &path ): path(path) {};
+    enum Task
+    {
+        TaskLoadTags,
+        TaskAddTags,
+        TaskRemoveTags
+    };
+    TagsThreadJob( const QString &path, Task task ): path(path), task(task) {};
     ~TagsThreadJob();
 
     void run();
 
     QList<QString> tags;
     QString path;
+    Task task;
+private:
+    void loadTagsFromDb();
+    void addTagsToDb();
+    void removeTagsFromDb();
 };
 
 class TagsThreadPrivate;

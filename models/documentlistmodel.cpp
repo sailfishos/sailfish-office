@@ -119,6 +119,11 @@ void DocumentListModel::addTag(const QString &path, const QString &tag)
                 entry->tags.insert(tag);
                 dataChanged(index(row), index(row));
                 d->tagsModel.addItem(tag);
+                if (!entry->job) {
+                    entry->job = new TagsThreadJob(path, TagsThreadJob::TaskAddTags);
+                    entry->job->tags.append(tag);
+                    d->tagsThread->queueJob(entry->job);
+                }
             }
             return;
         }
@@ -135,6 +140,11 @@ void DocumentListModel::removeTag(const QString &path, const QString &tag)
                 entry->tags.remove(tag);
                 dataChanged(index(row), index(row));
                 d->tagsModel.removeItem(tag);
+                if (!entry->job) {
+                    entry->job = new TagsThreadJob(path, TagsThreadJob::TaskRemoveTags);
+                    entry->job->tags.append(tag);
+                    d->tagsThread->queueJob(entry->job);
+                }
             }
             return;
         }
@@ -190,8 +200,7 @@ void DocumentListModel::addItem(QString name, QString path, QString type, int si
     entry.fileRead = lastRead;
     entry.mimeType = mimeType;
     entry.documentClass = static_cast<DocumentClass>(mimeTypeToDocumentClass(mimeType));
-    entry.job = new TagsThreadJob(path);
-    //entry.job.setTarget(entry.tags);
+    entry.job = new TagsThreadJob(path, TagsThreadJob::TaskLoadTags);
     d->tagsThread->queueJob(entry.job);
 
     int index = 0;
@@ -239,13 +248,15 @@ void DocumentListModel::jobFinished(TagsThreadJob *job)
     for(QList<DocumentListModelEntry>::iterator entry = d->entries.begin();
         entry != d->entries.end(); entry++) {
         if (entry->filePath == job->path) {
-            entry->job  = 0;
-            entry->tags.clear();
-            for (int i=0; i < job->tags.count(); i++) {
-                entry->tags.insert(job->tags.at(i));
-                d->tagsModel.addItem(job->tags.at(i));
+            entry->job = 0;
+            if (job->task == TagsThreadJob::TaskLoadTags) {
+                entry->tags.clear();
+                for (int i=0; i < job->tags.count(); i++) {
+                    entry->tags.insert(job->tags.at(i));
+                    d->tagsModel.addItem(job->tags.at(i));
+                }
+                dataChanged(index(row), index(row));
             }
-            dataChanged(index(row), index(row));
             break;
         }
         row += 1;
