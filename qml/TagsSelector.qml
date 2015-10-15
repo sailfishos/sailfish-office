@@ -19,28 +19,21 @@
 
 import QtQuick 2.0
 import Sailfish.Silica 1.0
+import Sailfish.Office.Files 1.0
 
 Page {
     id: page
 
     property bool editing
     property alias title: header.title
-    property alias model: tags.model //selectionModel.sourceModel
+    property alias model: selectionModel.sourceModel
     property var highlight // An object with three methods :
                            // hasTag(tag), addTag(tag), removeTag(tag)
 
-    /*SortFilterSelectionModel {
+    TagFilterModel {
         id: selectionModel
-
-        filter {
-            property: "label"
-            value: searchField.text
-        }
-        sort {
-            property: "label"
-            order: Qt.AscendingOrder
-        }
-    }*/
+        filterRegExp: RegExp(searchField.text, "i")
+    }
 
     SilicaFlickable {
         anchors.fill: parent
@@ -70,6 +63,23 @@ Page {
                 EnterKey.onClicked: focus = false
             }
 
+            InfoLabel {
+                id: placeholder
+                //% "No tag exists."
+                text: qsTrId("sailfish-office-no-tag")
+                visible: opacity > 0
+                opacity: searchField.text === "" && page.model.count == 0 ? 1.0 : 0.0
+                Behavior on opacity { FadeAnimation {} }
+            }
+            InfoLabel {
+                font.pixelSize: Theme.fontSizeLarge
+                color: Theme.rgba(Theme.highlightColor, 0.4)
+                //% "Create one by typing in the above search field."
+                text: qsTrId("sailfish-office-no-tag-hint")
+                visible: opacity > 0
+                opacity: placeholder.opacity
+            }
+
             Flow {
                 id: selection
 
@@ -79,7 +89,6 @@ Page {
                     right: parent.right
                     rightMargin: Theme.horizontalPageMargin
                 }
-                //height: parent.height - searchField.height - column.spacing
                 spacing: Theme.paddingMedium
 
                 MouseArea {
@@ -122,15 +131,14 @@ Page {
                         selected: page.highlight.hasTag(model.label)
                         tag: model.label
 
-                        onClicked: if (selected) {
-                            selected = false
-                            page.highlight.removeTag(model.label)
-                        } else {
-                            selected = true
+                        onClicked: selected = !selected
+                        onSelectedChanged: if (selected) {
                             page.highlight.addTag(model.label)
+                        } else {
+                            page.highlight.removeTag(model.label)
                         }
                     }
-                    //model: selectionModel
+                    model: selectionModel
                 }
             }
         }

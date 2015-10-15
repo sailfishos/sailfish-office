@@ -19,6 +19,7 @@
 #ifndef FILTERMODEL_H
 #define FILTERMODEL_H
 
+#include <QSet>
 #include <QSortFilterProxyModel>
 
 #include "documentlistmodel.h"
@@ -49,7 +50,7 @@ Q_SIGNALS:
     void tagFilteringChanged();
 
 private:
-    QMap<QString, bool> tags;
+    QSet<QString> tags;
 };
 
 #endif // FILTERMODEL_H

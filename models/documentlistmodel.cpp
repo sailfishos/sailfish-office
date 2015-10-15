@@ -246,7 +246,6 @@ void DocumentListModel::jobFinished(TagsThreadJob *job)
                 d->tagsModel.addItem(job->tags.at(i));
             }
             dataChanged(index(row), index(row));
-            fprintf(stdout, "Ok, copy tags for index %d\n", row);
             break;
         }
         row += 1;

@@ -21,7 +21,6 @@
 struct TagListModelEntry
 {
     QString label;
-    unsigned int index;
     unsigned int usage;
 };
 
@@ -90,43 +89,67 @@ bool TagListModel::contains(const QString &tag) const
 
 void TagListModel::addItem(const QString &tag)
 {
+    int row = 0;
     for (QList<TagListModelEntry>::iterator entry = d->tags.begin();
          entry != d->tags.end(); entry++) {
-        if (QString::localeAwareCompare(entry->label, tag) == 0) {
+        if ( entry->label == tag ) {
             entry->usage += 1;
-            dataChanged(index(entry->index), index(entry->index));
+            dataChanged(index(row), index(row));
             return;
         }
+        row += 1;
     }
 
     TagListModelEntry entry;
     entry.label = tag;
     entry.usage = 1;
-    // Add the new tag in the alphabetic order.
-    for (entry.index = 0; entry.index < d->tags.count(); entry.index++)
-        if (QString::localeAwareCompare(d->tags.at(entry.index).label, tag) > 0)
-            break;
-    beginInsertRows(QModelIndex(), entry.index, entry.index);
-    d->tags.insert(entry.index, entry);
+    beginInsertRows(QModelIndex(), d->tags.count(), d->tags.count());
+    d->tags.append(entry);
     endInsertRows();
     emit countChanged();
 }
 
 void TagListModel::removeItem(const QString &tag)
 {
+    int row = 0;
     for(QList<TagListModelEntry>::iterator entry = d->tags.begin();
         entry != d->tags.end(); entry++) {
         if (entry->label == tag) {
             entry->usage -= 1;
             if (entry->usage) {
-                dataChanged(index(entry->index), index(entry->index));
+                dataChanged(index(row), index(row));
             } else {
-                beginRemoveRows(QModelIndex(), entry->index, entry->index);
-                d->tags.removeAt(entry->index);
+                beginRemoveRows(QModelIndex(), row, row);
+                d->tags.removeAt(row);
                 endRemoveRows();
                 emit countChanged();
             }
             return;
         }
+        row += 1;
     }
+}
+
+TagFilterModel::TagFilterModel(QObject* parent)
+    : QSortFilterProxyModel(parent)
+{
+    this->setFilterRole(TagListModel::Roles::TagLabelRole);
+    this->setSortRole(TagListModel::Roles::TagLabelRole);
+    this->setSortLocaleAware(true);
+    this->setSortCaseSensitivity(Qt::CaseInsensitive);
+    sort(0);
+}
+
+TagFilterModel::~TagFilterModel()
+{
+}
+
+void TagFilterModel::setSourceModel(TagListModel *model)
+{
+    QSortFilterProxyModel::setSourceModel(static_cast<QAbstractItemModel*>(model));
+}
+
+TagListModel* TagFilterModel::sourceModel() const
+{
+    return static_cast<TagListModel*>(QSortFilterProxyModel::sourceModel());
 }

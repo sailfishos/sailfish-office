@@ -20,6 +20,7 @@
 #define TAGLISTMODEL_H
 
 #include <QAbstractListModel>
+#include <QSortFilterProxyModel>
 
 class TagListModel : public QAbstractListModel
 {
@@ -53,6 +54,24 @@ Q_SIGNALS:
 private:
     class Private;
     const QScopedPointer< Private > d;
+};
+
+class TagFilterModel : public QSortFilterProxyModel
+{
+    Q_OBJECT
+    Q_PROPERTY(TagListModel *sourceModel READ sourceModel WRITE setSourceModel NOTIFY sourceModelChanged)
+public:
+    TagFilterModel(QObject* parent = 0);
+    ~TagFilterModel();
+
+public:
+    TagListModel* sourceModel() const;
+
+public Q_SLOTS:
+    void setSourceModel(TagListModel *model);
+
+Q_SIGNALS:
+    void sourceModelChanged();
 };
 
 #endif // TAGLISTMODEL_H

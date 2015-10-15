@@ -68,6 +68,7 @@ QSharedPointer<QQuickView> createView(const QString &file)
     qmlRegisterType<DocumentProviderListModel>("Sailfish.Office.Files", 1, 0, "DocumentProviderListModel");
     qmlRegisterType<TrackerDocumentProvider>("Sailfish.Office.Files", 1, 0, "TrackerDocumentProvider");
     qmlRegisterType<TagListModel>("Sailfish.Office.Files", 1, 0, "TagListModel");
+    qmlRegisterType<TagFilterModel>("Sailfish.Office.Files", 1, 0, "TagFilterModel");
     qmlRegisterType<FilterModel>("Sailfish.Office.Files", 1, 0, "FilterModel");
     qmlRegisterInterface<DocumentProvider>("DocumentProvider");
 

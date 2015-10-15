@@ -157,15 +157,16 @@ bool TagsThreadQueue::event(QEvent *e)
 
 TagsThreadJob::~TagsThreadJob()
 {
-    fprintf(stdout, "killing job for %s\n", path.toLocal8Bit().data());
 }
 
 void TagsThreadJob::run()
 {
-    if (!strstr(path.toLocal8Bit().data(), ".pdf")) {
+    /*if (!strstr(path.toLocal8Bit().data(), ".pdf")) {
         tags.append(QString("PDF"));
     }
-    tags.append(QString("newt"));
+    tags.append(QString("newt"));*/
 }
+
+
 
 #include "tagsthread.moc"

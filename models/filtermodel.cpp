@@ -50,7 +50,7 @@ bool FilterModel::hasTag(const QString &tag) const
 }
 void FilterModel::addTag(const QString &tag)
 {
-    tags.insert(tag, true);
+    tags.insert(tag);
     invalidateFilter();
     emit tagFilteringChanged();
 }
@@ -65,9 +65,9 @@ bool FilterModel::filterAcceptsRow(int source_row, const QModelIndex & source_pa
     bool ret;
 
     ret = true;
-    for (QMap<QString, bool>::const_iterator it = tags.begin();
+    for (QSet<QString>::const_iterator it = tags.begin();
          it != tags.end() && ret; it++) {
-        ret = sourceModel()->hasTagAt(source_row, it.key());
+        ret = sourceModel()->hasTagAt(source_row, *it);
     }
 
     return ret && QSortFilterProxyModel::filterAcceptsRow(source_row, source_parent);
