@@ -30,7 +30,6 @@ struct DocumentListModelEntry
     QDateTime fileRead;
     QString mimeType;
     QSet<QString> tags;
-    TagsThreadJob *job;
     DocumentListModel::DocumentClass documentClass;
     bool dirty; // When true, should be removed from list.
 };
@@ -119,11 +118,9 @@ void DocumentListModel::addTag(const QString &path, const QString &tag)
                 entry->tags.insert(tag);
                 dataChanged(index(row), index(row));
                 d->tagsModel.addItem(tag);
-                if (!entry->job) {
-                    entry->job = new TagsThreadJob(path, TagsThreadJob::TaskAddTags);
-                    entry->job->tags.append(tag);
-                    d->tagsThread->queueJob(entry->job);
-                }
+                TagsThreadJob *job = new TagsThreadJob(path, TagsThreadJob::TaskAddTags);
+                job->tags.append(tag);
+                d->tagsThread->queueJob(job);
             }
             return;
         }
@@ -140,11 +137,9 @@ void DocumentListModel::removeTag(const QString &path, const QString &tag)
                 entry->tags.remove(tag);
                 dataChanged(index(row), index(row));
                 d->tagsModel.removeItem(tag);
-                if (!entry->job) {
-                    entry->job = new TagsThreadJob(path, TagsThreadJob::TaskRemoveTags);
-                    entry->job->tags.append(tag);
-                    d->tagsThread->queueJob(entry->job);
-                }
+                TagsThreadJob *job = new TagsThreadJob(path, TagsThreadJob::TaskRemoveTags);
+                job->tags.append(tag);
+                d->tagsThread->queueJob(job);
             }
             return;
         }
@@ -200,8 +195,7 @@ void DocumentListModel::addItem(QString name, QString path, QString type, int si
     entry.fileRead = lastRead;
     entry.mimeType = mimeType;
     entry.documentClass = static_cast<DocumentClass>(mimeTypeToDocumentClass(mimeType));
-    entry.job = new TagsThreadJob(path, TagsThreadJob::TaskLoadTags);
-    d->tagsThread->queueJob(entry.job);
+    d->tagsThread->queueJob(new TagsThreadJob(path, TagsThreadJob::TaskLoadTags));
 
     int index = 0;
     for (; index < d->entries.count(); ++index) {
@@ -227,7 +221,7 @@ void DocumentListModel::removeItemsDirty()
 void DocumentListModel::removeAt(int index)
 {
     if (index > -1 && index < d->entries.count()) {
-        d->tagsThread->cancelJob(d->entries.at(index).job);
+        d->tagsThread->cancelJobsForPath(d->entries.at(index).filePath);
         beginRemoveRows(QModelIndex(), index, index);
         d->entries.removeAt(index);
         endRemoveRows();
@@ -236,7 +230,7 @@ void DocumentListModel::removeAt(int index)
 
 void DocumentListModel::clear()
 {
-    d->tagsThread->cancelJob(0);
+    d->tagsThread->cancelAllJobs();
     beginResetModel();
     d->entries.clear();
     endResetModel();
@@ -244,22 +238,22 @@ void DocumentListModel::clear()
 
 void DocumentListModel::jobFinished(TagsThreadJob *job)
 {
-    int row = 0;
-    for(QList<DocumentListModelEntry>::iterator entry = d->entries.begin();
-        entry != d->entries.end(); entry++) {
-        if (entry->filePath == job->path) {
-            entry->job = 0;
-            if (job->task == TagsThreadJob::TaskLoadTags) {
+    if (job->task == TagsThreadJob::TaskLoadTags) {
+        int row = 0;
+        for(QList<DocumentListModelEntry>::iterator entry = d->entries.begin();
+            entry != d->entries.end(); entry++) {
+            if (entry->filePath == job->path) {
                 entry->tags.clear();
-                for (int i=0; i < job->tags.count(); i++) {
-                    entry->tags.insert(job->tags.at(i));
-                    d->tagsModel.addItem(job->tags.at(i));
+                for (QList<QString>::const_iterator tag = job->tags.begin();
+                     tag != job->tags.end(); tag++) {
+                    entry->tags.insert(*tag);
+                    d->tagsModel.addItem(*tag);
                 }
                 dataChanged(index(row), index(row));
+                break;
             }
-            break;
+            row += 1;
         }
-        row += 1;
     }
     job->deleteLater();
 }

@@ -54,7 +54,8 @@ public:
     ~TagsThread();
 
     void queueJob( TagsThreadJob *job );
-    void cancelJob( TagsThreadJob *job );
+    void cancelAllJobs();
+    void cancelJobsForPath( const QString &path );
 
 Q_SIGNALS:
     void jobFinished( TagsThreadJob *job );

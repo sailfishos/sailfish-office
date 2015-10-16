@@ -90,7 +90,7 @@ TagsThread::~TagsThread()
     // Cancel outstanding render jobs and schedule the queue
     // for deletion. Also set the jobQueue to 0 so we don't
     // end up calling back to the now deleted documents object.
-    cancelJob(0);
+    cancelAllJobs();
     priv->thread->mutex.lock();
     priv->thread->jobQueue->deleteLater();
     priv->thread->jobQueue = 0;
@@ -108,21 +108,26 @@ void TagsThread::queueJob(TagsThreadJob *job)
     QCoreApplication::postEvent(priv->thread->jobQueue, new QEvent(Event_JobPending));
 }
 
-void TagsThread::cancelJob(TagsThreadJob *job)
+void TagsThread::cancelAllJobs()
 {
     QMutexLocker locker{ &priv->thread->mutex };
     for (QList<TagsThreadJob *>::iterator it = priv->thread->jobQueue->begin(); it != priv->thread->jobQueue->end(); ) {
         TagsThreadJob *j = *it;
-        if (!job || j == job) {
+        it = priv->thread->jobQueue->erase(it);
+        j->deleteLater();
+    }
+}
+void TagsThread::cancelJobsForPath( const QString &path )
+{
+    QMutexLocker locker{ &priv->thread->mutex };
+    for (QList<TagsThreadJob *>::iterator it = priv->thread->jobQueue->begin(); it != priv->thread->jobQueue->end(); ) {
+      if (path == (*it)->path) {
+            TagsThreadJob *j = *it;
             it = priv->thread->jobQueue->erase(it);
             j->deleteLater();
-            if (job) {
-                continue; // to skip the ++it at the end of the loop
-            } else {
-                return;
-            }
+        } else {
+            ++it;
         }
-        ++it;
     }
 }
 
