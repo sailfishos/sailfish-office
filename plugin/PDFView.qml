@@ -19,6 +19,7 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 import Sailfish.Office.PDF 1.0 as PDF
+import org.nemomobile.configuration 1.0
 
 SilicaFlickable {
     id: base;
@@ -132,6 +133,10 @@ SilicaFlickable {
         linkColor: Theme.highlightColor;
         pagePlaceholderColor: Theme.highlightColor;
 
+        rememberPagePosition: rememberPositionConfig.value
+        onRequestPageWidth: { pdfCanvas.width = width; adjust() }
+        onRequestPagePosition: base.goToPage(page - 1, top, left)
+
         PinchArea {
             anchors.fill: parent;
             onPinchUpdated: {
@@ -197,7 +202,13 @@ SilicaFlickable {
         if (scrollY > contentHeight - height) {
             scrollY = contentHeight - height
         }
-        contentX = scrollX
-        contentY = scrollY
+        contentX = Math.max(0, scrollX)
+        contentY = Math.max(0, scrollY)
+    }
+
+    ConfigurationValue {
+        id: rememberPositionConfig
+        key: "/apps/sailfish-office/settings/rememberPosition"
+        defaultValue: true
     }
 }

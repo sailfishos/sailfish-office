@@ -15,6 +15,7 @@ set(pdfplugin_SRCS
 
 add_library(sailfishofficepdfplugin MODULE ${pdfplugin_SRCS})
 qt5_use_modules(sailfishofficepdfplugin Quick)
+qt5_use_modules(sailfishofficepdfplugin Sql)
 target_link_libraries(sailfishofficepdfplugin stdc++ ${QT_LIBRARIES} ${POPPLER_LIBRARY} ${POPPLER_QT5_LIBRARY})
 
 install(TARGETS sailfishofficepdfplugin DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/qt5/qml/Sailfish/Office/PDF)

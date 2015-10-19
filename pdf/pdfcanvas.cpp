@@ -18,6 +18,12 @@
 
 #include "pdfcanvas.h"
 
+#include <QDir>
+#include <QtSql/QSqlDatabase>
+#include <QtSql/QSqlQuery>
+#include <QCryptographicHash>
+#include <QStandardPaths>
+#include <QSettings>
 #include <QtCore/QTimer>
 #include <QtCore/QPointer>
 #include <QtGui/QPainter>
@@ -59,6 +65,11 @@ public:
         , flickable(0)
         , resizeTimer{ nullptr }
         , spacing{10.f}
+        , rememberPagePosition{ true }
+        , rememberPage{ 0 }
+        , rememberWidth{ 0 }
+        , rememberTop{ 0. }
+        , rememberLeft{ 0. }
     { }
 
     PDFCanvas* q;
@@ -78,6 +89,12 @@ public:
     float spacing;
 
     QRectF visibleArea;
+    bool rememberPagePosition;
+    QString documentSource;
+    unsigned int rememberPage;
+    unsigned int rememberWidth;
+    qreal rememberTop;
+    qreal rememberLeft;
 
     QList< QSizeF > pageSizes;
 
@@ -95,6 +112,9 @@ public:
     }
 
     static const float wiggleFactor;
+
+    void loadPagePosition();
+    void savePagePosition();
 };
 
 
@@ -120,6 +140,9 @@ PDFCanvas::~PDFCanvas()
             delete page.texture;
             page.texture = 0;
         }
+    }
+    if ( d->rememberPagePosition ) {
+        d->savePagePosition();
     }
 
     delete d->resizeTimer;
@@ -161,6 +184,7 @@ void PDFCanvas::setDocument(PDFDocument* doc)
         }
 
         d->document = doc;
+        d->documentSource  = d->document->source();
 
         connect( d->document, &PDFDocument::documentLoaded, this, &PDFCanvas::documentLoaded );
         connect( d->document, &PDFDocument::pageFinished, this, &PDFCanvas::pageFinished );
@@ -185,6 +209,19 @@ QRectF PDFCanvas::pageRectangle(int index) const
 int PDFCanvas::currentPage() const
 {
     return d->currentPage;
+}
+
+bool PDFCanvas::rememberPagePosition() const
+{
+    return d->rememberPagePosition;
+}
+
+void PDFCanvas::setRememberPagePosition(bool status)
+{
+    if (d->rememberPagePosition != status) {
+        d->rememberPagePosition = status;
+        emit rememberPagePositionChanged();
+    }
 }
 
 float PDFCanvas::spacing() const
@@ -362,14 +399,16 @@ QSGNode* PDFCanvas::updatePaintNode(QSGNode* node, QQuickItem::UpdatePaintNodeDa
     }
 
     //Visible area equals flickable translated by contentX/Y
-    QRectF visibleArea{ d->flickable->property("contentX").toFloat(), d->flickable->property("contentY").toFloat(), d->flickable->width(), d->flickable->height() };
+    d->visibleArea = QRectF( d->flickable->property("contentX").toFloat(),
+                             d->flickable->property("contentY").toFloat(),
+                             d->flickable->width(), d->flickable->height() );
 
     //Loaded area equals visible area scaled to five times the size
     QRectF loadedArea = {
-        visibleArea.x() - visibleArea.width() * 2,
-        visibleArea.y() - visibleArea.height() * 2,
-        visibleArea.width() * 5,
-        visibleArea.height() * 5,
+        d->visibleArea.x() - d->visibleArea.width() * 2,
+        d->visibleArea.y() - d->visibleArea.height() * 2,
+        d->visibleArea.width() * 5,
+        d->visibleArea.height() * 5,
     };
 
     QSGNode* root = static_cast<QSGNode*>( node );
@@ -386,7 +425,7 @@ QSGNode* PDFCanvas::updatePaintNode(QSGNode* node, QQuickItem::UpdatePaintNodeDa
         PDFPage& page = d->pages[ i ];
 
         bool loadPage = page.rect.intersects(loadedArea);
-        bool showPage = page.rect.intersects(visibleArea);
+        bool showPage = page.rect.intersects(d->visibleArea);
 
         if( loadPage )
         {
@@ -429,7 +468,7 @@ QSGNode* PDFCanvas::updatePaintNode(QSGNode* node, QQuickItem::UpdatePaintNodeDa
         t->setMatrix(m);
 
         if (showPage) {
-            QRectF inter = page.rect.intersected(visibleArea);
+            QRectF inter = page.rect.intersected(d->visibleArea);
             qreal area = inter.width() * inter.height();
             // Select the current page as the page with the maximum
             // visible area.
@@ -524,6 +563,14 @@ void PDFCanvas::documentLoaded()
     d->pageCount = d->document->pageCount();
     d->renderWidth = width();
     layout();
+
+    /* We load from storage the page position in advance here,
+       to overlap with the page calculation thread. The requestPagePosition
+       signal will be emitted later when the page size calculation will be
+       finished. */
+    if ( d->rememberPagePosition ) {
+        d->loadPagePosition();
+    }
 }
 
 void PDFCanvas::resizeTimeout()
@@ -535,5 +582,124 @@ void PDFCanvas::resizeTimeout()
 void PDFCanvas::pageSizesFinished(const QList< QSizeF >& sizes)
 {
     d->pageSizes = sizes;
+    if (d->rememberWidth > 0) {
+        emit requestPageWidth(d->rememberWidth);
+    }
     layout();
+    if (d->rememberPage > 0 || d->rememberTop > 0. || d->rememberLeft > 0.) {
+        /* We wait for the layout to be done here, so pageRectangle() will
+           be available at QML level. */
+        emit requestPagePosition(d->rememberPage, d->rememberTop, d->rememberLeft);
+    }
+}
+
+/* Part related to access the local storage, as available from QML side. */
+static const QString dbConnection{"PdfSettings"};
+static QString databasesPath()
+{
+    return QStandardPaths::writableLocation(QStandardPaths::DataLocation) +
+        QDir::separator() + QLatin1String("QML") + QDir::separator() + 
+        QLatin1String("OfflineStorage") + QDir::separator() + QLatin1String("Databases");
+}
+static void initDatabasesPath()
+{
+    QString dbPath = databasesPath();
+    if (!QDir().mkpath(dbPath))
+        qWarning() << "LocalStorage: can't create path - " << dbPath;
+}
+
+static bool addDb(const QString &dbname, const QString &dbversion,
+                  const QString &dbdescription, unsigned int estimatedsize)
+{
+    initDatabasesPath();
+
+    QCryptographicHash md5(QCryptographicHash::Md5);
+    md5.addData(dbname.toUtf8());
+    QString dbid(QLatin1String(md5.result().toHex()));
+
+    QString basename = databasesPath() + QDir::separator() + dbid;
+
+    QSettings ini(basename + QLatin1String(".ini"), QSettings::IniFormat);
+    if (!QFile::exists(basename + QLatin1String(".sqlite"))) {
+        ini.setValue(QLatin1String("Name"), dbname);
+        ini.setValue(QLatin1String("Version"), dbversion);
+        ini.setValue(QLatin1String("Description"), dbdescription);
+        ini.setValue(QLatin1String("EstimatedSize"), QString::number(estimatedsize));
+        ini.setValue(QLatin1String("Driver"), QLatin1String("QSQLITE"));
+    } else {
+        if (!dbversion.isEmpty() && ini.value(QLatin1String("Version")) != dbversion) {
+            // Incompatible
+            qWarning() << "SQL: database version mismatch";
+            return false;
+        }
+    }
+  
+    QSqlDatabase database = QSqlDatabase::addDatabase(QLatin1String("QSQLITE"),
+                                                      dbConnection);
+    database.setDatabaseName(basename + QLatin1String(".sqlite"));
+
+    return true;
+}
+
+static void ensureDb()
+{
+    if (!QSqlDatabase::contains(dbConnection)) {
+        addDb("sailfish-office", "1.0",
+              "Local storage for the document viewer.", 10000);
+    }
+}
+static void ensureTable(QSqlDatabase &db)
+{
+    QSqlQuery qCreate = QSqlQuery(db);
+    qCreate.exec(QLatin1String("CREATE TABLE IF NOT EXISTS LastViewSettings("
+                               "file TEXT   NOT NULL,"
+                               "page INT    NOT NULL,"
+                               "top  REAL           ,"
+                               "left REAL           ,"
+                               "width INT CHECK(width > 0))"));
+  
+    QSqlQuery qIndex = QSqlQuery(db);
+    qIndex.exec(QLatin1String("CREATE UNIQUE INDEX IF NOT EXISTS idx_file ON LastViewSettings(file)"));
+}
+
+void PDFCanvas::Private::loadPagePosition()
+{
+    ensureDb();
+    QSqlDatabase db = QSqlDatabase::database(dbConnection);
+    ensureTable(db);
+
+    QSqlQuery query = QSqlQuery(db);
+    query.prepare(QLatin1String("SELECT page, top, left, width FROM LastViewSettings WHERE file = ?"));
+    query.addBindValue(document->source());
+
+    if (query.exec() && query.next()) {
+        rememberPage  = query.value(0).toInt();
+        rememberTop   = query.value(1).toReal();
+        rememberLeft  = query.value(2).toReal();
+        rememberWidth = query.value(3).toInt();
+    }
+}
+void PDFCanvas::Private::savePagePosition()
+{
+    ensureDb();
+    QSqlDatabase db = QSqlDatabase::database(dbConnection);
+    ensureTable(db);
+
+    /* Detect the page on top of the visibleArea (not the current which is the biggest). */
+    int vPage = currentPage - 1;
+    QRectF rect = q->pageRectangle( vPage );
+    while (vPage > 0 && rect.y() > visibleArea.y()) {
+        rect = q->pageRectangle( --vPage );
+    }
+    qreal vTop  = (visibleArea.y() - rect.y()) / rect.height();
+    qreal vLeft = (visibleArea.x() - rect.x()) / rect.width();
+
+    QSqlQuery query = QSqlQuery(db);
+    query.prepare(QLatin1String("INSERT OR REPLACE INTO LastViewSettings(file, page, top, left, width) VALUES (?,?,?,?,?)"));
+    query.addBindValue(documentSource);
+    query.addBindValue(vPage + 1);
+    query.addBindValue(vTop);
+    query.addBindValue(vLeft);
+    query.addBindValue((int)q->width());
+    query.exec();
 }
