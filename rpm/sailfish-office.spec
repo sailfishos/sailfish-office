@@ -21,6 +21,7 @@ Requires: sailfish-components-accounts-qt5
 Requires: libqt5sparql-tracker
 Requires: mapplauncherd >= 4.1.17
 #Requires: qt5-qtqml-import-webkitplugin
+Requires: nemo-qml-plugin-configuration-qt5
 Requires:  %{name}-all-translations
 
 %package ts-devel
