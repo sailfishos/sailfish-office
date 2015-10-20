@@ -99,7 +99,7 @@ void SearchDocumentJob::run()
         bool found;
         found = page->search(m_search, sLeft, sTop, sRight, sBottom,
                              Poppler::Page::FromTop,
-                             Poppler::Page::CaseInsensitive);
+                             Poppler::Page::IgnoreCase);
         while (found) {
             QRectF result;
             result.setLeft(sLeft * scaleW);
@@ -109,7 +109,7 @@ void SearchDocumentJob::run()
             m_matches.append(QPair<int, QRectF>(ipage, result));
             found = page->search(m_search, sLeft, sTop, sRight, sBottom,
                                  Poppler::Page::NextResult,
-                                 Poppler::Page::CaseInsensitive);
+                                 Poppler::Page::IgnoreCase);
         }
 
         delete page;
