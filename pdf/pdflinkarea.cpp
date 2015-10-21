@@ -19,21 +19,22 @@
 #include "pdflinkarea.h"
 #include "pdfcanvas.h"
 #include <QUrlQuery>
+#include <QTimer>
 
 class PDFLinkArea::Private
 {
 public:
     Private()
         : canvas(nullptr)
-        , clickInProgress(false)
         , wiggleFactor(4)
     { }
 
     PDFCanvas *canvas;
 
-    bool clickInProgress;
     QPointF clickLocation;
     int wiggleFactor;
+
+    QTimer pressTimer;
 };
 
 PDFLinkArea::PDFLinkArea(QQuickItem *parent)
@@ -41,6 +42,10 @@ PDFLinkArea::PDFLinkArea(QQuickItem *parent)
     , d(new Private)
 {
     setAcceptedMouseButtons(Qt::LeftButton | Qt::RightButton | Qt::MidButton);
+
+    d->pressTimer.setInterval(750);
+    d->pressTimer.setSingleShot(true);
+    connect(&d->pressTimer, &QTimer::timeout, this, &PDFLinkArea::pressTimeout);
 }
 
 PDFLinkArea::~PDFLinkArea()
@@ -64,15 +69,31 @@ void PDFLinkArea::setCanvas(PDFCanvas *newCanvas)
 
 void PDFLinkArea::mousePressEvent(QMouseEvent *event)
 {
-    d->clickInProgress = true;
     d->clickLocation = event->pos();
+    d->pressTimer.start();
+}
+
+void PDFLinkArea::mouseMoveEvent(QMouseEvent *event)
+{
+    // Don't activate anything if the finger has moved too far
+    QRect rect((d->clickLocation - QPointF(d->wiggleFactor, d->wiggleFactor)).toPoint(),
+               QSize(d->wiggleFactor * 2, d->wiggleFactor * 2));
+    if (!rect.contains(event->pos())) {
+        d->pressTimer.stop();
+        return;
+    }
 }
 
 void PDFLinkArea::mouseReleaseEvent(QMouseEvent *event)
 {
-    d->clickInProgress = false;
+    // Don't activate click if the longPress already fired.
+    if (!d->pressTimer.isActive())
+        return;
+    d->pressTimer.stop();
+
     // Don't activate anything if the finger has moved too far
-    QRect rect((d->clickLocation - QPointF(d->wiggleFactor, d->wiggleFactor)).toPoint(), QSize(d->wiggleFactor * 2, d->wiggleFactor * 2));
+    QRect rect((d->clickLocation - QPointF(d->wiggleFactor, d->wiggleFactor)).toPoint(),
+               QSize(d->wiggleFactor * 2, d->wiggleFactor * 2));
     if (!rect.contains(event->pos())) {
         return;
     }
@@ -98,10 +119,19 @@ void PDFLinkArea::mouseReleaseEvent(QMouseEvent *event)
     } else {
         emit linkClicked(url);
     }
-    event->accept();
 }
 
 void PDFLinkArea::mouseDoubleClickEvent(QMouseEvent* event)
 {
     emit doubleClicked();
+}
+
+void PDFLinkArea::mouseUngrabEvent()
+{
+    d->pressTimer.stop();
+}
+
+void PDFLinkArea::pressTimeout()
+{
+    emit longPress(d->clickLocation);
 }
