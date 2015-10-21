@@ -26,10 +26,7 @@
 #include <QtQuick/QSGTexture>
 #include <QtQuick/QQuickWindow>
 
-namespace Poppler {
-    class Document;
-    class Page;
-}
+#include <poppler-qt5.h>
 
 class PDFJob;
 
@@ -53,6 +50,7 @@ public:
 
 public:
     typedef QMultiMap<int, QPair<QRectF, QUrl> > LinkMap;
+    typedef QList<QPair<QRectF, Poppler::TextBox*> > TextList;
 
     QString source() const;
     int pageCount() const;
@@ -61,6 +59,7 @@ public:
     QObject* searchModel() const;
     
     LinkMap linkTargets() const;
+    TextList textBoxesAtPage(int page);
 
     bool isLoaded() const;
     bool isFailed() const;

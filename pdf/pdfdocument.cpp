@@ -108,6 +108,11 @@ PDFDocument::LinkMap PDFDocument::linkTargets() const
     return d->thread->linkTargets();
 }
 
+PDFDocument::TextList PDFDocument::textBoxesAtPage(int page)
+{
+    return d->thread->textBoxesAtPage(page);
+}
+
 void PDFDocument::classBegin()
 {
 }
