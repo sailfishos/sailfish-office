@@ -23,28 +23,28 @@ import Sailfish.Office 1.0
 //cleaner so someone can simply instantiate an object and call a
 //method on that to open a document.
 Item {
-    property alias textDocument: textDocumentPage;
-    property alias spreadsheet: spreadsheetPage;
-    property alias presentation: presentationPage;
-    property alias pdf: pdfPage;
+    property alias textDocument: textDocumentPage
+    property alias spreadsheet: spreadsheetPage
+    property alias presentation: presentationPage
+    property alias pdf: pdfPage
 
     Component {
-        id: textDocumentPage;
+        id: textDocumentPage
         TextDocumentPage { }
     }
 
     Component {
-        id: spreadsheetPage;
+        id: spreadsheetPage
         SpreadsheetPage { }
     }
 
     Component {
-        id: presentationPage;
+        id: presentationPage
         PresentationPage { }
     }
 
     Component {
-        id: pdfPage;
+        id: pdfPage
         PDFDocumentPage { }
     }
 }

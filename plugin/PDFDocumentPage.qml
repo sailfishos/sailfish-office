@@ -24,7 +24,7 @@ import QtQuick.LocalStorage 2.0
 import "PDFStorage.js" as PDFStorage
 
 DocumentPage {
-    id: base;
+    id: base
 
     property var _settings // Handle save and restore the view settings using PDFStorage
 
@@ -42,19 +42,20 @@ DocumentPage {
         PDFDocumentToCPage {
             tocModel: pdfDocument.tocModel
             pageCount: pdfDocument.pageCount
-            onPageSelected: view.goToPage( pageNumber );
+            onPageSelected: view.goToPage(pageNumber)
         }
     }
 
     // Save and restore view settings when needed.
-    onStatusChanged: if ( status == PageStatus.Inactive ) { savePageSettings() }   
+    onStatusChanged: if (status == PageStatus.Inactive) { savePageSettings() }
+
     Connections {
         target: Qt.application
         onAboutToQuit: savePageSettings()
     }
     Connections {
         target: view
-        onPageSizesReady: if ( rememberPositionConfig.value ) {
+        onPageSizesReady: if (rememberPositionConfig.value) {
             if (!_settings) {
                 _settings = new PDFStorage.Settings(pdfDocument.source)
             }
@@ -68,14 +69,13 @@ DocumentPage {
     }
 
     PDFView {
-        id: view;
+        id: view
 
-        width: base.width;
-        height: base.height;
+        width: base.width
+        height: base.height
+        document: pdfDocument
 
-        document: pdfDocument;
-
-        onClicked: base.open = !base.open;
+        onClicked: base.open = !base.open
 
         ViewPlaceholder {
             id: documentPlaceholder
@@ -162,7 +162,7 @@ DocumentPage {
             SearchField {
                 id: search
                 width: activeFocus ? toolbar.width
-                                   : toolbar.width - pageCount.width - ( pdfDocument.searchModel
+                                   : toolbar.width - pageCount.width - (pdfDocument.searchModel
                                                                         ? searchPrev.width + searchNext.width : 0)
                 anchors.verticalCenter: parent.verticalCenter
 
@@ -212,13 +212,13 @@ DocumentPage {
     }
 
     PDF.Document {
-        id: pdfDocument;
-        source: base.path;
+        id: pdfDocument
+        source: base.path
     }
 
-    busy: (!pdfDocument.loaded && !pdfDocument.failure) || pdfDocument.searching;
-    source: pdfDocument.source;
-    indexCount: pdfDocument.pageCount;
+    busy: (!pdfDocument.loaded && !pdfDocument.failure) || pdfDocument.searching
+    source: pdfDocument.source
+    indexCount: pdfDocument.pageCount
 
     ConfigurationValue {
         id: rememberPositionConfig
@@ -228,8 +228,8 @@ DocumentPage {
     }
 
     Timer {
-        id: updateSourceSizeTimer;
-        interval: 5000;
-        onTriggered: linkArea.sourceSize = Qt.size( base.width, pdfCanvas.height );
+        id: updateSourceSizeTimer
+        interval: 5000
+        onTriggered: linkArea.sourceSize = Qt.size(base.width, pdfCanvas.height)
     }
 }

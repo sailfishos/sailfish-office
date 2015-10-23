@@ -21,57 +21,57 @@ import Sailfish.Silica 1.0
 import org.kde.calligra 1.0 as Calligra
 
 DocumentPage {
-    id: page;
+    id: page
 
     attachedPage: Component {
         PresentationThumbnailPage {
-            document: doc;
+            document: doc
         }
     }
 
     SlideshowView {
-        width: page.width;
-        height: page.height;
+        width: page.width
+        height: page.height
 
-        itemWidth: page.width;
-        itemHeight: page.height;
+        itemWidth: page.width
+        itemHeight: page.height
 
-        currentIndex: doc.currentIndex;
+        currentIndex: doc.currentIndex
 
         model: Calligra.ContentsModel {
-            document: doc;
-            thumbnailSize.width: page.width;
-            thumbnailSize.height: page.width * 0.75;
+            document: doc
+            thumbnailSize.width: page.width
+            thumbnailSize.height: page.width * 0.75
         }
 
         delegate: ZoomableThumbnail {
-            width: PathView.view.itemWidth;
-            maxHeight: PathView.view.itemHeight;
+            width: PathView.view.itemWidth
+            maxHeight: PathView.view.itemHeight
 
-            y: - height / 2;
+            y: - height / 2
 
-            content: PathView.view.model.thumbnail(index, page.width);
+            content: PathView.view.model.thumbnail(index, page.width)
 
-            onClicked: page.open = !page.open;
+            onClicked: page.open = !page.open
 
             onUpdateSize: {
-                content = PathView.view.model.thumbnail(index, newWidth);
+                content = PathView.view.model.thumbnail(index, newWidth)
             }
         }
     }
 
     Calligra.Document {
-        id: doc;
+        id: doc
     }
     
-    busy: doc.status != Calligra.DocumentStatus.Loaded;
-    source: doc.source;
-    indexCount: doc.indexCount;
+    busy: doc.status != Calligra.DocumentStatus.Loaded
+    source: doc.source
+    indexCount: doc.indexCount
 
     onStatusChanged: {
         //Delay loading the document until the page has been activated.
-        if(status == PageStatus.Active) {
-            doc.source = page.path;
+        if (status == PageStatus.Active) {
+            doc.source = page.path
         }
     }
 }

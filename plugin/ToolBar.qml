@@ -24,7 +24,7 @@ PanelBackground {
 
     property variant flickable: undefined
     property int parentHeight
-    property bool hidden: false
+    property bool hidden
     property bool autoHide: true
 
     property int _previousContentY

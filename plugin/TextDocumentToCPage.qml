@@ -21,53 +21,53 @@ import Sailfish.Silica 1.0
 import org.kde.calligra 1.0 as Calligra
 
 Page {
-    id: page;
+    id: page
 
-    property QtObject document;
+    property QtObject document
 
-    allowedOrientations: Orientation.All;
+    allowedOrientations: Orientation.All
 
     SilicaListView {
-        anchors.fill: parent;
+        anchors.fill: parent
 
         //: Page with Text document index
         //% "Index"
-        header: PageHeader { title: qsTrId( "sailfish-office-he-index") }
+        header: PageHeader { title: qsTrId("sailfish-office-he-index") }
 
         model: Calligra.ContentsModel {
-            document: page.document;
+            document: page.document
         }
 
         delegate: BackgroundItem {
-            id: bg;
+            id: bg
             Label {
                 anchors {
-                    left: parent.left;
-                    leftMargin: Theme.horizontalPageMargin + (Theme.paddingLarge * model.level);
-                    right: pageNumberLbl.left;
-                    rightMargin: Theme.paddingLarge;
-                    verticalCenter: parent.verticalCenter;
+                    left: parent.left
+                    leftMargin: Theme.horizontalPageMargin + (Theme.paddingLarge * model.level)
+                    right: pageNumberLabel.left
+                    rightMargin: Theme.paddingLarge
+                    verticalCenter: parent.verticalCenter
                 }
-                text: model.title;
+                text: model.title
                 color: (model.contentIndex == page.document.currentIndex || bg.highlighted) ? Theme.highlightColor
-                                                                                            : Theme.primaryColor;
+                                                                                            : Theme.primaryColor
                 truncationMode: TruncationMode.Fade
             }
             Label {
-                id: pageNumberLbl
+                id: pageNumberLabel
                 anchors {
-                    right: parent.right;
-                    rightMargin: Theme.horizontalPageMargin;
-                    verticalCenter: parent.verticalCenter;
+                    right: parent.right
+                    rightMargin: Theme.horizontalPageMargin
+                    verticalCenter: parent.verticalCenter
                 }
-                text: model.contentIndex + 1;
+                text: model.contentIndex + 1
                 color: (model.contentIndex == page.document.currentIndex || bg.highlighted) ? Theme.highlightColor
-                                                                                            : Theme.primaryColor;
+                                                                                            : Theme.primaryColor
             }
 
             onClicked: {
-                page.document.currentIndex = model.contentIndex;
-                pageStack.navigateBack(PageStackAction.Animated);
+                page.document.currentIndex = model.contentIndex
+                pageStack.navigateBack(PageStackAction.Animated)
             }
         }
     }

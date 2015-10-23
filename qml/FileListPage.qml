@@ -23,12 +23,13 @@ import Sailfish.Office.Files 1.0
 
 Page {
     id: page
-    property alias model: filteredModel.sourceModel;
+
+    property alias model: filteredModel.sourceModel
     property string title
     property string searchText
-    property QtObject provider;
+    property QtObject provider
 
-    allowedOrientations: Orientation.All;
+    allowedOrientations: Orientation.All
 
     FilterModel {
         id: filteredModel
@@ -36,9 +37,9 @@ Page {
     }
 
     SilicaListView {
-        id: listView;
-        anchors.fill: parent
+        id: listView
 
+        anchors.fill: parent
         model: filteredModel
         currentIndex: -1 // otherwise currentItem will steal focus
 
@@ -48,10 +49,10 @@ Page {
 
             //: Application title
             //% "Documents"
-            title: qsTrId("sailfish-office-he-apptitle");
+            title: qsTrId("sailfish-office-he-apptitle")
 
             // TODO: uncomment once there are more document sources
-            // title: page.title;
+            // title: page.title
 
             Binding {
                 target: page
@@ -85,16 +86,16 @@ Page {
             enabled: !listView.count
         }
         delegate: ListItem {
-            id: listItem;
+            id: listItem
             contentHeight: Theme.itemSizeMedium
 
             Image {
-                id: icon;
+                id: icon
                 property string fileMimeType: window.mimeToIcon(model.fileMimeType)
                 anchors {
-                    left: parent.left;
-                    leftMargin: Theme.horizontalPageMargin;
-                    verticalCenter: parent.verticalCenter;
+                    left: parent.left
+                    leftMargin: Theme.horizontalPageMargin
+                    verticalCenter: parent.verticalCenter
                 }
                 source: fileMimeType
                 states: State {
@@ -102,46 +103,46 @@ Page {
                     PropertyChanges {
                         target: icon
                         source: "image://theme/icon-l-document?"
-                                + (listItem.highlighted ? Theme.highlightColor : Theme.primaryColor);
+                                + (listItem.highlighted ? Theme.highlightColor : Theme.primaryColor)
                     }
                 }
             }
             Label {
                 anchors {
-                    left: icon.right;
-                    leftMargin: Theme.paddingMedium;
-                    right: parent.right;
-                    rightMargin: Theme.horizontalPageMargin;
-                    bottom: icon.verticalCenter;
+                    left: icon.right
+                    leftMargin: Theme.paddingMedium
+                    right: parent.right
+                    rightMargin: Theme.horizontalPageMargin
+                    bottom: icon.verticalCenter
                 }
                 color: listItem.highlighted ? Theme.highlightColor : Theme.primaryColor
                 text: searchText.length > 0 ? Theme.highlightText(model.fileName, searchText, Theme.highlightColor)
                                             : model.fileName
                 textFormat: searchText.length > 0 ? Text.StyledText : Text.PlainText
-                font.pixelSize: Theme.fontSizeMedium;
-                truncationMode: TruncationMode.Fade;
+                font.pixelSize: Theme.fontSizeMedium
+                truncationMode: TruncationMode.Fade
             }
             Label {
                 anchors {
-                    left: icon.right;
-                    leftMargin: Theme.paddingMedium;
-                    top: icon.verticalCenter;
+                    left: icon.right
+                    leftMargin: Theme.paddingMedium
+                    top: icon.verticalCenter
                 }
-                text: Format.formatFileSize(model.fileSize);
+                text: Format.formatFileSize(model.fileSize)
 
-                font.pixelSize: Theme.fontSizeExtraSmall;
+                font.pixelSize: Theme.fontSizeExtraSmall
                 color: listItem.highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
             }
             Label {
                 anchors {
-                    right: parent.right;
-                    rightMargin: Theme.horizontalPageMargin;
-                    top: icon.verticalCenter;
+                    right: parent.right
+                    rightMargin: Theme.horizontalPageMargin
+                    top: icon.verticalCenter
                 }
 
-                text: Format.formatDate(model.fileRead, Format.Timepoint);
+                text: Format.formatDate(model.fileRead, Format.Timepoint)
 
-                font.pixelSize: Theme.fontSizeExtraSmall;
+                font.pixelSize: Theme.fontSizeExtraSmall
                 color: listItem.highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
             }
 
@@ -166,24 +167,24 @@ Page {
             }
 
             function deleteFile() {
-                var idx = index;
+                var idx = index
                 //: Deleting file after timeout.
                 //% "Deleting"
-                remorseAction(qsTrId("sailfish-office-la-deleting"), function() { page.provider.deleteFile(model.filePath) });
+                remorseAction(qsTrId("sailfish-office-la-deleting"), function() { page.provider.deleteFile(model.filePath) })
             }
 
-            ListView.onAdd: AddAnimation { target: listItem; }
-            ListView.onRemove: RemoveAnimation { target: listItem; }
+            ListView.onAdd: AddAnimation { target: listItem }
+            ListView.onRemove: RemoveAnimation { target: listItem }
 
             menu: Component {
                 ContextMenu {
-                    id: contextMenu;
+                    id: contextMenu
                     MenuItem {
                         //: Delete a file from the device
                         //% "Delete"
-                        text: qsTrId("sailfish-office-me-delete");
+                        text: qsTrId("sailfish-office-me-delete")
                         onClicked: {
-                            listItem.deleteFile();
+                            listItem.deleteFile()
                         }
                     }
                 }
@@ -194,6 +195,6 @@ Page {
     }
 
     DocumentPages {
-        id: pages;
+        id: pages
     }
 }

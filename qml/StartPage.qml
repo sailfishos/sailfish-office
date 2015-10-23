@@ -20,19 +20,19 @@ import QtQuick 2.0
 import Sailfish.Silica 1.0
 import Sailfish.Silica.private 1.0
 import Sailfish.Office.Files 1.0
-//import QtMobility.gallery 1.1
 
 Page {
 
-    allowedOrientations: Orientation.All;
+    allowedOrientations: Orientation.All
 
     Component {
         id: delegate
+
         BackgroundItem {
             id: delegateItem
             width: view.width
             height: thumbnail.height
-            enabled: model.count > 0 || model.count === -1;
+            enabled: model.count > 0 || model.count === -1
             opacity: enabled ? 1.0 : 0.5
 
             Label {
@@ -54,9 +54,9 @@ Page {
                 x: width - Theme.paddingLarge
                 width: Theme.itemSizeExtraLarge
                 height: width
-                source: model.icon;
+                source: model.icon
                 opacity: delegateItem.down ? 0.5 : 1
-                highlighted: delegateItem.highlighted;
+                highlighted: delegateItem.highlighted
             }
 
             Label {
@@ -76,13 +76,10 @@ Page {
             }
 
             onClicked: {
-                if(model.needsSetup)
-                {
-                    pageStack.push(Qt.resolvedUrl(model.setupPageUrl));
-                }
-                else
-                {
-                    //console.debug("Model name: " + providerModel.objectName);
+                if (model.needsSetup) {
+                    pageStack.push(Qt.resolvedUrl(model.setupPageUrl))
+                } else {
+                    //console.debug("Model name: " + providerModel.objectName)
                     window.pageStack.push(model.page != "" ? Qt.resolvedUrl(model.page) : fileListPage, {
                         title: model.title,
                         model: model.providerModel,
@@ -103,7 +100,7 @@ Page {
         header: PageHeader {
             //: Application title
             //% "Documents"
-            title: qsTrId("sailfish-office-he-apptitle");
+            title: qsTrId("sailfish-office-he-apptitle")
         }
         model: DocumentProviderListModel {
             id: documentSources
@@ -112,13 +109,8 @@ Page {
         }
     }
 
-    Component.onCompleted: {
-//         controllerMIT.need_authenticate();
-//         controllerMIT.getlistoffolder()
-    }
-
     Component {
-        id: fileListPage;
+        id: fileListPage
         FileListPage { }
     }
 }
