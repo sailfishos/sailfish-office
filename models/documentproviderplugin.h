@@ -37,7 +37,7 @@ class DocumentProviderPlugin : public QObject
     Q_PROPERTY(bool needsSetup READ needsSetup NOTIFY needsSetupChanged)
 
 public:
-    DocumentProviderPlugin(QObject* parent = 0);
+    DocumentProviderPlugin(QObject *parent = 0);
     virtual ~DocumentProviderPlugin();
 
     virtual int count() const = 0;
@@ -55,7 +55,7 @@ public:
     QUrl page() const;
     void setPage(const QUrl &url);
 
-    Q_INVOKABLE virtual void deleteFile(const QUrl& file);
+    Q_INVOKABLE virtual void deleteFile(const QUrl &file);
 
 signals:
     void countChanged();
@@ -69,7 +69,7 @@ signals:
 
 private:
     class Private;
-    Private* d;
+    Private *d;
 };
 Q_DECLARE_INTERFACE(DocumentProviderPlugin, "DocumentProviderPluginInterface/1.0")
 

@@ -42,19 +42,18 @@ public:
     }
 };
 
-SailfishOfficePlugin::SailfishOfficePlugin( QObject* parent )
-    : QQmlExtensionPlugin( parent )
+SailfishOfficePlugin::SailfishOfficePlugin(QObject *parent)
+    : QQmlExtensionPlugin(parent)
 {
-
 }
 
-void SailfishOfficePlugin::registerTypes(const char* uri)
+void SailfishOfficePlugin::registerTypes(const char *uri)
 {
-    Q_ASSERT( uri == QLatin1String( "Sailfish.Office" ) );
+    Q_ASSERT(uri == QLatin1String("Sailfish.Office"));
     qmlRegisterType<FileInfo>(uri, 1, 0, "FileInfo");
 }
 
-void SailfishOfficePlugin::initializeEngine(QQmlEngine* engine, const char* uri)
+void SailfishOfficePlugin::initializeEngine(QQmlEngine *engine, const char *uri)
 {
     Q_ASSERT( uri == QLatin1String( "Sailfish.Office" ) );
 

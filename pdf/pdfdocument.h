@@ -48,11 +48,11 @@ class PDFDocument : public QObject, public QQmlParserStatus
     Q_INTERFACES(QQmlParserStatus)
 
 public:
-    PDFDocument(QObject* parent = 0);
+    PDFDocument(QObject *parent = 0);
     ~PDFDocument();
 
 public:
-    typedef QMultiMap< int, QPair< QRectF, QUrl > > LinkMap;
+    typedef QMultiMap<int, QPair<QRectF, QUrl> > LinkMap;
 
     QString source() const;
     int pageCount() const;
@@ -70,15 +70,15 @@ public:
     virtual void componentComplete();
 
 public Q_SLOTS:
-    void setSource(const QString& source);
-    void requestUnLock( const QString& password );
-    void requestPage( int index, int size, QQuickWindow *window );
-    void prioritizeRequest( int index, int size);
+    void setSource(const QString &source);
+    void requestUnLock(const QString &password);
+    void requestPage(int index, int size, QQuickWindow *window);
+    void prioritizeRequest(int index, int size);
     void cancelPageRequest(int index);
     void requestPageSizes();
-    void search(const QString& search, uint startPage = 0);
+    void search(const QString &search, uint startPage = 0);
     void loadFinished();
-    void jobFinished(PDFJob* job);
+    void jobFinished(PDFJob *job);
 
 Q_SIGNALS:
     void sourceChanged();
@@ -90,8 +90,8 @@ Q_SIGNALS:
     void documentLoaded();
     void documentFailed();
     void documentLocked();
-    void pageFinished( int index, QSGTexture *page );
-    void pageSizesFinished(const QList< QSizeF >& heights);
+    void pageFinished(int index, QSGTexture *page);
+    void pageSizesFinished(const QList<QSizeF> &heights);
 
 private:
     class Private;

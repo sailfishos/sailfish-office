@@ -39,10 +39,9 @@ public:
     QMimeType mimeType;
 };
 
-FileInfo::FileInfo(QObject* parent)
+FileInfo::FileInfo(QObject *parent)
     : QObject(parent), d(new Private)
 {
-
 }
 
 FileInfo::~FileInfo()
@@ -55,9 +54,9 @@ QString FileInfo::source() const
     return d->source;
 }
 
-void FileInfo::setSource(const QString& source)
+void FileInfo::setSource(const QString &source)
 {
-    if(source != d->source) {
+    if (source != d->source) {
         d->source = source;
 
         d->resolvePath();
@@ -99,10 +98,10 @@ QDateTime FileInfo::modifiedDate() const
 void FileInfo::Private::resolvePath()
 {
     path = QUrl(source);
-    if(path.isEmpty())
+    if (path.isEmpty())
         path = QUrl::fromLocalFile(source);
 
-    if(path.isRelative())
+    if (path.isRelative())
         path = QUrl::fromLocalFile(QDir::current().absoluteFilePath(source));
 
     fileInfo = QFileInfo(path.toLocalFile());

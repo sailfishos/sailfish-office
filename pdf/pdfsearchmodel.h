@@ -31,11 +31,11 @@ public:
         Page = Qt::UserRole + 1,
         Rect
     };
-    explicit PDFSearchModel(const QList< QPair<int, QRectF> > &matches, QObject* parent = 0);
+    explicit PDFSearchModel(const QList< QPair<int, QRectF> > &matches, QObject *parent = 0);
     virtual ~PDFSearchModel();
 
-    virtual QVariant data(const QModelIndex& index, int role) const;
-    virtual int rowCount(const QModelIndex& parent) const;
+    virtual QVariant data(const QModelIndex &index, int role) const;
+    virtual int rowCount(const QModelIndex &parent) const;
     virtual QHash<int, QByteArray> roleNames() const;
 
     int count() const;

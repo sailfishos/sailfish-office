@@ -20,7 +20,7 @@
 
 #include "documentlistmodel.h"
 
-FilterModel::FilterModel(QObject* parent)
+FilterModel::FilterModel(QObject *parent)
     : QSortFilterProxyModel(parent)
 {
     this->setFilterRole(DocumentListModel::Roles::FileNameRole);

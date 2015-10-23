@@ -31,17 +31,17 @@ class PDFDocument::Private
 public:
     Private() : searching(false), document( nullptr ), completed(false) { }
 
-    PDFRenderThread* thread;
+    PDFRenderThread *thread;
 
     bool searching;
     PDFSearchModel *searchModel;
 
-    Poppler::Document* document;
+    Poppler::Document *document;
     QString source;
     bool completed;
 };
 
-PDFDocument::PDFDocument(QObject* parent)
+PDFDocument::PDFDocument(QObject *parent)
     : QObject(parent), d(new Private())
 {
     d->thread = new PDFRenderThread{ this };
@@ -67,8 +67,7 @@ QString PDFDocument::source() const
 
 int PDFDocument::pageCount() const
 {
-    if(d->thread && d->thread->isLoaded())
-    {
+    if (d->thread && d->thread->isLoaded()) {
         return d->thread->pageCount();
     }
 
@@ -112,13 +111,11 @@ PDFDocument::LinkMap PDFDocument::linkTargets() const
 
 void PDFDocument::classBegin()
 {
-
 }
 
 void PDFDocument::componentComplete()
 {
-    if(!d->source.isEmpty())
-    {
+    if (!d->source.isEmpty()) {
         LoadDocumentJob* job = new LoadDocumentJob{ QUrl{d->source}.toLocalFile() };
         d->thread->queueJob( job );
     }
@@ -126,15 +123,14 @@ void PDFDocument::componentComplete()
     d->completed = true;
 }
 
-void PDFDocument::setSource(const QString& source)
+void PDFDocument::setSource(const QString &source)
 {
-    if (d->source != source)
-    {
+    if (d->source != source) {
         d->source = source;
-        if(source.startsWith("/"))
+        if (source.startsWith("/"))
             d->source.prepend("file://");
 
-        if(d->completed) {
+        if (d->completed) {
             LoadDocumentJob* job = new LoadDocumentJob{ QUrl{source}.toLocalFile() };
             d->thread->queueJob( job );
         }
@@ -143,7 +139,7 @@ void PDFDocument::setSource(const QString& source)
     }
 }
 
-void PDFDocument::requestUnLock(const QString& password)
+void PDFDocument::requestUnLock(const QString &password)
 {
     if (!isLocked())
         return;
@@ -214,33 +210,33 @@ void PDFDocument::loadFinished()
 void PDFDocument::jobFinished(PDFJob* job)
 {
     switch(job->type()) {
-        case PDFJob::UnLockDocumentJob: {
-            emit documentLocked();
-            emit pageCountChanged();
-            break;
-        }
-        case PDFJob::RenderPageJob: {
-            RenderPageJob* j = static_cast<RenderPageJob*>(job);
-            emit pageFinished(j->m_index, j->m_page);
-            break;
-        }
-        case PDFJob::PageSizesJob: {
-            PageSizesJob* j = static_cast<PageSizesJob*>(job);
-            emit pageSizesFinished(j->m_pageSizes);
-            break;
-        }
-        case PDFJob::SearchDocumentJob: {
-            SearchDocumentJob* j = static_cast<SearchDocumentJob*>(job);
-            if (d->searchModel)
-              delete d->searchModel;
-            d->searchModel = new PDFSearchModel(j->m_matches);
-            emit searchModelChanged();
-            d->searching = false;
-            emit searchingChanged();
-            break;
-        }
-        default:
-            break;
+    case PDFJob::UnLockDocumentJob: {
+        emit documentLocked();
+        emit pageCountChanged();
+        break;
+    }
+    case PDFJob::RenderPageJob: {
+        RenderPageJob* j = static_cast<RenderPageJob*>(job);
+        emit pageFinished(j->m_index, j->m_page);
+        break;
+    }
+    case PDFJob::PageSizesJob: {
+        PageSizesJob* j = static_cast<PageSizesJob*>(job);
+        emit pageSizesFinished(j->m_pageSizes);
+        break;
+    }
+    case PDFJob::SearchDocumentJob: {
+        SearchDocumentJob* j = static_cast<SearchDocumentJob*>(job);
+        if (d->searchModel)
+            delete d->searchModel;
+        d->searchModel = new PDFSearchModel(j->m_matches);
+        emit searchModelChanged();
+        d->searching = false;
+        emit searchingChanged();
+        break;
+    }
+    default:
+        break;
     }
 
     job->deleteLater();

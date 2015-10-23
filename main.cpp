@@ -65,8 +65,7 @@ Q_DECL_EXPORT int main(int argc, char *argv[])
     Q_UNUSED(QT_TRID_NOOP("sailfish-office-ap-name"))
 
     int retn = 1;
-    if( !view->errors().count() > 0 )
-    {
+    if (!view->errors().count() > 0) {
         Sailfish::showView(view);
         retn = app->exec();
     }

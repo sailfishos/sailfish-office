@@ -68,11 +68,11 @@ public:
     }
     ~Private() { model->deleteLater(); }
 
-    DocumentListModel* model;
-    QSparqlConnection* connection;
+    DocumentListModel *model;
+    QSparqlConnection *connection;
 };
 
-TrackerDocumentProvider::TrackerDocumentProvider(QObject* parent)
+TrackerDocumentProvider::TrackerDocumentProvider(QObject *parent)
     : DocumentProviderPlugin(parent)
     , d(new Private)
 {
@@ -110,14 +110,12 @@ void TrackerDocumentProvider::stopSearch()
 
 void TrackerDocumentProvider::searchFinished()
 {
-    QSparqlResult* r = qobject_cast<QSparqlResult*>(sender());
-    if(!r->hasError())
-    {
+    QSparqlResult *r = qobject_cast<QSparqlResult*>(sender());
+    if (!r->hasError()) {
         // d->model->clear();
         // Mark all current entries in the model dirty.
         d->model->setAllItemsDirty(true);
-        while(r->next())
-        {
+        while (r->next()) {
             // This will remove the dirty flag for already
             // existing entries.
             d->model->addItem(
@@ -176,17 +174,14 @@ QString TrackerDocumentProvider::title() const
     return qtTrId("sailfish-office-he-localfiles_title");
 }
 
-void TrackerDocumentProvider::deleteFile(const QUrl& file)
+void TrackerDocumentProvider::deleteFile(const QUrl &file)
 {
-    if(QFile::exists(file.toLocalFile()))
-    {
+    if (QFile::exists(file.toLocalFile())) {
         QFile::remove(file.toLocalFile());
 
         const int count = d->model->rowCount(QModelIndex());
-        for(int i = 0; i < count; ++i)
-        {
-            if(d->model->data(d->model->index(i, 0), DocumentListModel::FilePathRole).toUrl() == file)
-            {
+        for (int i = 0; i < count; ++i) {
+            if (d->model->data(d->model->index(i, 0), DocumentListModel::FilePathRole).toUrl() == file) {
                 d->model->removeAt(i);
                 break;
             }
@@ -194,10 +189,9 @@ void TrackerDocumentProvider::deleteFile(const QUrl& file)
     }
 }
 
-void TrackerDocumentProvider::trackerGraphChanged(const QString& className, const QVariantList&, const QVariantList&)
+void TrackerDocumentProvider::trackerGraphChanged(const QString &className, const QVariantList&, const QVariantList&)
 {
-    if(className == documentClassName)
-    {
+    if (className == documentClassName) {
         startSearch();
     }
 }

@@ -48,15 +48,15 @@ public:
         FileDocumentClass
     };
 
-    DocumentListModel( QObject* parent = 0 );
+    DocumentListModel(QObject *parent = 0);
     ~DocumentListModel();
 
-    DocumentListModel( const DocumentListModel& ) = delete;
-    DocumentListModel& operator=( const DocumentListModel& ) = delete;
+    DocumentListModel(const DocumentListModel&) = delete;
+    DocumentListModel& operator=(const DocumentListModel&) = delete;
 
-    virtual QVariant data(const QModelIndex& index, int role) const;
-    virtual int rowCount(const QModelIndex& parent) const;
-    virtual QHash< int, QByteArray > roleNames() const;
+    virtual QVariant data(const QModelIndex &index, int role) const;
+    virtual int rowCount(const QModelIndex &parent) const;
+    virtual QHash<int, QByteArray> roleNames() const;
 
     void setAllItemsDirty(bool status);
     void addItem(QString name, QString path, QString type, int size, QDateTime lastRead, QString mimeType);
@@ -65,9 +65,10 @@ public:
     void clear();
 
     Q_INVOKABLE int mimeTypeToDocumentClass(QString mimeType) const;
+
 private:
     class Private;
-    const QScopedPointer< Private > d;
+    const QScopedPointer<Private> d;
 };
 
 #endif // DOCUMENTLISTMODEL_H

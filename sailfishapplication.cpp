@@ -48,13 +48,13 @@ QSharedPointer<QApplication> Sailfish::createApplication(int &argc, char **argv)
     //Calligra depends on QApplication.
     //QSharedPointer<QGuiApplication>(MDeclarativeCache::qApplication(argc, argv));
 
-    QTranslator* engineeringEnglish = new QTranslator( app.data() );
-    if( !engineeringEnglish->load("sailfish-office_eng_en", TRANSLATION_INSTALL_DIR) )
+    QTranslator *engineeringEnglish = new QTranslator( app.data() );
+    if (!engineeringEnglish->load("sailfish-office_eng_en", TRANSLATION_INSTALL_DIR))
         qWarning( "Could not load engineering english translation file!");
     QCoreApplication::installTranslator( engineeringEnglish );
 
     QTranslator* translator = new QTranslator( app.data() );
-    if( !translator->load( QLocale::system(), "sailfish-office", "-", TRANSLATION_INSTALL_DIR) )
+    if (!translator->load( QLocale::system(), "sailfish-office", "-", TRANSLATION_INSTALL_DIR))
         qWarning( ("Could not load translations for " + QLocale::system().name()).toLatin1() );
     QCoreApplication::installTranslator( translator );
 
@@ -75,10 +75,10 @@ QSharedPointer<QQuickView> Sailfish::createView(const QString &file)
 
     new DBusAdaptor{view.data()};
 
-    if(!QDBusConnection::sessionBus().registerObject("/org/sailfish/office/ui", view.data()))
+    if (!QDBusConnection::sessionBus().registerObject("/org/sailfish/office/ui", view.data()))
         qWarning() << "Could not register /org/sailfish/office/ui D-Bus object.";
 
-    if(!QDBusConnection::sessionBus().registerService("org.sailfish.office"))
+    if (!QDBusConnection::sessionBus().registerService("org.sailfish.office"))
         qWarning() << "Could not register org.sailfish.office D-Bus service.";
 
     return view;

@@ -30,10 +30,10 @@ public:
         roles.insert( Rect, "rect" );
     }
     const QList< QPair<int, QRectF> > &m_matches;
-    QHash< int, QByteArray > roles;
+    QHash<int, QByteArray> roles;
 };
 
-PDFSearchModel::PDFSearchModel(const QList< QPair<int, QRectF> > &matches, QObject* parent)
+PDFSearchModel::PDFSearchModel(const QList< QPair<int, QRectF> > &matches, QObject *parent)
   : QAbstractListModel(parent), d(new Private(matches))
 {
 }
@@ -42,7 +42,7 @@ PDFSearchModel::~PDFSearchModel()
 {
 }
 
-QHash< int, QByteArray > PDFSearchModel::roleNames() const
+QHash<int, QByteArray> PDFSearchModel::roleNames() const
 {
     return d->roles;
 }
@@ -50,23 +50,21 @@ QHash< int, QByteArray > PDFSearchModel::roleNames() const
 QVariant PDFSearchModel::data(const QModelIndex& index, int role) const
 {
     QVariant result;
-    if(index.isValid())
-    {
+    if (index.isValid()) {
         int row = index.row();
-        if(row > -1 && row < d->m_matches.count())
-        {
+        if (row > -1 && row < d->m_matches.count()) {
             const QPair<int, QRectF> &match = d->m_matches.at(row);
             switch(role)
             {
-                case Page:
-                    result.setValue<int>(match.first);
-                    break;
-                case Rect:
-                    result.setValue<QRectF>(match.second);
-                    break;
-                default:
-                    result.setValue<QString>(QString("Unknown role: %1").arg(role));
-                    break;
+            case Page:
+                result.setValue<int>(match.first);
+                break;
+            case Rect:
+                result.setValue<QRectF>(match.second);
+                break;
+            default:
+                result.setValue<QString>(QString("Unknown role: %1").arg(role));
+                break;
             }
         }
     }
@@ -75,12 +73,12 @@ QVariant PDFSearchModel::data(const QModelIndex& index, int role) const
 
 int PDFSearchModel::rowCount(const QModelIndex& parent) const
 {
-    if(parent.isValid())
+    if (parent.isValid())
         return 0;
     return d->m_matches.count();
 }
 
 int PDFSearchModel::count() const
 {
-  return d->m_matches.count();
+    return d->m_matches.count();
 }

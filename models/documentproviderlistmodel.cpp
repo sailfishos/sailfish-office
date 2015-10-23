@@ -26,7 +26,7 @@
 class DocumentProviderListModel::Private
 {
 public:
-    Private(DocumentProviderListModel* qq)
+    Private(DocumentProviderListModel *qq)
         : q(qq)
         , completed(false)
         , albumDelegate(0)
@@ -42,7 +42,7 @@ public:
         roles[ProviderModel] = "providerModel";
         roles[NeedsSetup] = "needsSetup";
     }
-    DocumentProviderListModel* q;
+    DocumentProviderListModel *q;
     QHash<int, QByteArray> roles;
     bool completed;
     QList<DocumentProviderPlugin*> providers;
@@ -85,7 +85,7 @@ public:
     }
 };
 
-DocumentProviderListModel::DocumentProviderListModel(QObject* parent)
+DocumentProviderListModel::DocumentProviderListModel(QObject *parent)
     : QAbstractListModel(parent)
     , d(new Private(this))
 {
@@ -102,7 +102,7 @@ void DocumentProviderListModel::classBegin()
 
 void DocumentProviderListModel::componentComplete()
 {
-    if(d->completed)
+    if (d->completed)
         return;
     d->completed = true;
 
@@ -123,14 +123,13 @@ QQmlListProperty< DocumentProviderPlugin > DocumentProviderListModel::sources()
 
 void DocumentProviderListModel::updateActiveSources()
 {
-
 }
 
 void DocumentProviderListModel::sourceInfoChanged()
 {
     DocumentProviderPlugin* source = qobject_cast< DocumentProviderPlugin* >(sender());
     int index = d->providers.indexOf(source);
-    if(index > -1) {
+    if (index > -1) {
         QModelIndex changedIndex = createIndex(index, 0);
         dataChanged(changedIndex, changedIndex);
     }
@@ -141,7 +140,7 @@ QQmlComponent* DocumentProviderListModel::albumDelegate() const
     return d->albumDelegate;
 }
 
-void DocumentProviderListModel::setAlbumDelegate(QQmlComponent* albumDelegate)
+void DocumentProviderListModel::setAlbumDelegate(QQmlComponent *albumDelegate)
 {
     if (d->albumDelegate != albumDelegate) {
         d->albumDelegate = albumDelegate;
@@ -149,69 +148,66 @@ void DocumentProviderListModel::setAlbumDelegate(QQmlComponent* albumDelegate)
     }
 }
 
-QModelIndex DocumentProviderListModel::index(int row, int column, const QModelIndex& parent) const
+QModelIndex DocumentProviderListModel::index(int row, int column, const QModelIndex &parent) const
 {
     return QAbstractListModel::index(row, column, parent);
 }
 
-QVariant DocumentProviderListModel::data(const QModelIndex& index, int role) const
+QVariant DocumentProviderListModel::data(const QModelIndex &index, int role) const
 {
     QVariant result;
-    if(index.isValid())
-    {
-        if(index.row() > -1 && index.row() < d->providers.count())
-        {
+    if (index.isValid()) {
+        if (index.row() > -1 && index.row() < d->providers.count()) {
             const DocumentProviderPlugin* provider = d->providers.at(index.row());
-            switch(role)
-            {
-                case Title:
-                    result.setValue<QString>(provider->title());
-                    break;
-                case Description:
-                    result.setValue<QString>(provider->description());
-                    break;
-                case Icon:
-                    result.setValue<QUrl>(provider->icon());
-                    break;
-                case Count:
-                    result.setValue<int>(provider->count());
-                    break;
-                case Thumbnail:
-                    result.setValue<QUrl>(provider->thumbnail());
-                    break;
-                case Page:
-                    result.setValue<QUrl>(provider->page());
-                    break;
-                case SetupPageURL:
-                    result.setValue<QUrl>(QUrl::fromLocalFile(provider->setupPageUrl()));
-                    break;
-                case Ready:
-                    result.setValue<bool>(provider->isReady());
-                    break;
-                case ProviderModel:
-                    result.setValue<QObject*>(provider->model());
-                    //qDebug() << qobject_cast<DocumentListModel*>(provider->model())->rowCount(QModelIndex());
-                    break;
-                case NeedsSetup:
-                    result.setValue<bool>(provider->needsSetup());
-                    break;
-                default:
-                    result.setValue<QString>(QLatin1String("Unknown role in DocumentProviderListModel::data"));
-                    break;
+            switch(role) {
+            case Title:
+                result.setValue<QString>(provider->title());
+                break;
+            case Description:
+                result.setValue<QString>(provider->description());
+                break;
+            case Icon:
+                result.setValue<QUrl>(provider->icon());
+                break;
+            case Count:
+                result.setValue<int>(provider->count());
+                break;
+            case Thumbnail:
+                result.setValue<QUrl>(provider->thumbnail());
+                break;
+            case Page:
+                result.setValue<QUrl>(provider->page());
+                break;
+            case SetupPageURL:
+                result.setValue<QUrl>(QUrl::fromLocalFile(provider->setupPageUrl()));
+                break;
+            case Ready:
+                result.setValue<bool>(provider->isReady());
+                break;
+            case ProviderModel:
+                result.setValue<QObject*>(provider->model());
+                //qDebug() << qobject_cast<DocumentListModel*>(provider->model())->rowCount(QModelIndex());
+                break;
+            case NeedsSetup:
+                result.setValue<bool>(provider->needsSetup());
+                break;
+            default:
+                result.setValue<QString>(QLatin1String("Unknown role in DocumentProviderListModel::data"));
+                break;
             }
         }
     }
     return result;
 }
 
-int DocumentProviderListModel::rowCount(const QModelIndex& parent) const
+int DocumentProviderListModel::rowCount(const QModelIndex &parent) const
 {
-    if(parent.isValid())
+    if (parent.isValid())
         return 0;
     return d->providers.count();
 }
 
-QHash< int, QByteArray > DocumentProviderListModel::roleNames() const
+QHash<int, QByteArray> DocumentProviderListModel::roleNames() const
 {
     return d->roles;
 }

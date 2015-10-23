@@ -28,9 +28,9 @@ class SailfishOfficePDFPlugin : public QQmlExtensionPlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QQmlExtensionInterface")
 
 public:
-    explicit SailfishOfficePDFPlugin(QObject* parent = 0);
+    explicit SailfishOfficePDFPlugin(QObject *parent = 0);
 
-    virtual void registerTypes(const char* uri);
+    virtual void registerTypes(const char *uri);
 };
 
 #endif // SAILFISHOFFICEPDFPLUGIN_H

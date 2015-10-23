@@ -65,8 +65,6 @@ public:
     // Used for cleanup only
     Poppler::Document *document;
     PDFTocModel *tocModel;
-
-
 };
 
 class PDFRenderThreadPrivate
@@ -79,8 +77,8 @@ public:
     Thread *thread;
 
     bool loadFailure;
-    Poppler::Document* document;
-    PDFTocModel* tocModel;
+    Poppler::Document *document;
+    PDFTocModel *tocModel;
 
     QMultiMap< int, QPair< QRectF, QUrl > > linkTargets;
 
@@ -88,21 +86,19 @@ public:
     {
         linkTargets.clear();
 
-        for(int i = 0; i < document->numPages(); ++i)
-        {
-            Poppler::Page* page = document->page(i);
+        for (int i = 0; i < document->numPages(); ++i) {
+            Poppler::Page *page = document->page(i);
             QList<Poppler::Link*> links = page->links();
-            for(Poppler::Link* link : links)
-            {
+            for (Poppler::Link* link : links) {
                 switch (link->linkType()) {
                 case (Poppler::Link::Browse): {
-                    Poppler::LinkBrowse* realLink = static_cast<Poppler::LinkBrowse*>(link);
+                    Poppler::LinkBrowse *realLink = static_cast<Poppler::LinkBrowse*>(link);
                     QRectF linkArea = link->linkArea();
                     linkTargets.insert( i, QPair< QRectF, QUrl >{ linkArea, realLink->url() } );
                     break;
                 }
                 case (Poppler::Link::Goto): {
-                    Poppler::LinkGoto* gotoLink = static_cast<Poppler::LinkGoto*>(link);
+                    Poppler::LinkGoto *gotoLink = static_cast<Poppler::LinkGoto*>(link);
                     // Not handling goto link to external file currently.
                     if (gotoLink->isExternal())
                         break;
@@ -193,11 +189,13 @@ bool PDFRenderThread::isLoaded() const
     QMutexLocker{ &d->thread->mutex };
     return d->document != nullptr;
 }
+
 bool PDFRenderThread::isFailed() const
 {
     QMutexLocker{ &d->thread->mutex };
     return d->loadFailure;
 }
+
 bool PDFRenderThread::isLocked() const
 {
     QMutexLocker(&d->thread->mutex);
@@ -210,11 +208,11 @@ QMultiMap< int, QPair< QRectF, QUrl > > PDFRenderThread::linkTargets() const
     return d->linkTargets;
 }
 
-void PDFRenderThread::queueJob(PDFJob* job)
+void PDFRenderThread::queueJob(PDFJob *job)
 {
     QMutexLocker locker{ &d->thread->mutex };
-    job->moveToThread( d->thread );
-    d->thread->jobQueue->enqueue( job );
+    job->moveToThread(d->thread);
+    d->thread->jobQueue->enqueue(job);
     QCoreApplication::postEvent(d->thread->jobQueue, new QEvent(Event_JobPending));
 }
 
@@ -259,7 +257,7 @@ void PDFRenderThreadQueue::processPendingJob()
     if (!t->jobQueue || count() == 0)
         return;
 
-    PDFJob* job = dequeue();
+    PDFJob *job = dequeue();
     switch(job->type()) {
     case PDFJob::LoadDocumentJob:
         d->loadFailure = false;
@@ -284,13 +282,13 @@ void PDFRenderThreadQueue::processPendingJob()
             LoadDocumentJob* dj = static_cast< LoadDocumentJob* >( job );
             delete d->document;
 
-            if(d->tocModel) {
+            if (d->tocModel) {
                 d->tocModel->deleteLater();
                 d->tocModel = nullptr;
             }
     
             d->document = dj->m_document;
-            if(d->document) {
+            if (d->document) {
                 if (!d->document->isLocked()) {
                     d->tocModel = new PDFTocModel(d->document);
                     d->rescanDocumentLinks();

@@ -32,7 +32,7 @@ class PDFRenderThread : public QObject
 {
     Q_OBJECT
 public:
-    PDFRenderThread( QObject* parent = 0 );
+    PDFRenderThread( QObject *parent = 0 );
     ~PDFRenderThread();
 
     int pageCount() const;
@@ -42,13 +42,13 @@ public:
     bool isLocked() const;
     QMultiMap< int, QPair< QRectF, QUrl > > linkTargets() const;
 
-    void queueJob( PDFJob* job );
+    void queueJob(PDFJob *job);
     void cancelRenderJob(int index);
     void prioritizeJob(int index, int size);
 
 Q_SIGNALS:
     void loadFinished();
-    void jobFinished(PDFJob* job);
+    void jobFinished(PDFJob *job);
 
 private:
     friend class PDFRenderThreadPrivate;

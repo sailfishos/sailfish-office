@@ -50,7 +50,7 @@ public:
         NeedsSetup
     };
 
-    explicit DocumentProviderListModel(QObject* parent = 0);
+    explicit DocumentProviderListModel(QObject *parent = 0);
     virtual ~DocumentProviderListModel();
 
     virtual void classBegin();
@@ -64,7 +64,7 @@ public:
     QModelIndex index(int row, int column, const QModelIndex &parent) const;
     virtual QVariant data(const QModelIndex& index, int role) const;
     virtual int rowCount(const QModelIndex& parent = QModelIndex()) const;
-    virtual QHash< int, QByteArray > roleNames() const;
+    virtual QHash<int, QByteArray> roleNames() const;
 
 Q_SIGNALS:
     void sourcesChanged();
@@ -76,7 +76,7 @@ private slots:
 
 private:
     class Private;
-    Private* d;
+    Private *d;
 };
 
 #endif // DOCUMENTPROVIDERLISTMODEL_H
