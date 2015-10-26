@@ -21,41 +21,41 @@ import Sailfish.Silica 1.0
 import Sailfish.Office.PDF 1.0 as PDF
 
 SilicaFlickable {
-    id: base;
+    id: base
 
-    contentWidth: pdfCanvas.width;
-    contentHeight: pdfCanvas.height;
+    contentWidth: pdfCanvas.width
+    contentHeight: pdfCanvas.height
 
-    property alias itemWidth: pdfCanvas.width;
-    property alias itemHeight: pdfCanvas.height;
-    property alias document: pdfCanvas.document;
+    property alias itemWidth: pdfCanvas.width
+    property alias itemHeight: pdfCanvas.height
+    property alias document: pdfCanvas.document
     property alias currentPage: pdfCanvas.currentPage
 
-    property bool scaled: pdfCanvas.width != width;
+    property bool scaled: pdfCanvas.width != width
 
-    signal clicked();
+    signal clicked()
     signal pageSizesReady()
-    signal updateSize(real newWidth, real newHeight);
+    signal updateSize(real newWidth, real newHeight)
 
     function clamp(value) {
         if (value < width) {
-            return width;
+            return width
         }
 
         if (value > width * 2.5) {
-            return width * 2.5;
+            return width * 2.5
         }
 
-        return value;
+        return value
     }
 
     function zoom(amount, center) {
-        var oldWidth = pdfCanvas.width;
+        var oldWidth = pdfCanvas.width
         var oldHeight = pdfCanvas.height
         var oldContentX = contentX
         var oldContentY = contentY
 
-        pdfCanvas.width = clamp(pdfCanvas.width * amount);
+        pdfCanvas.width = clamp(pdfCanvas.width * amount)
 
         /* One cannot use += here because changing contentX will change contentY
            to adjust to new height, so we use saved values. */
@@ -124,16 +124,16 @@ SilicaFlickable {
     onWidthChanged: adjust()
 
     PDF.Canvas {
-        id: pdfCanvas;
+        id: pdfCanvas
 
         property bool _pageSizesReady
 
-        width: base.width;
+        width: base.width
 
-        spacing: Theme.paddingLarge;
-        flickable: base;
-        linkColor: Theme.highlightColor;
-        pagePlaceholderColor: Theme.highlightColor;
+        spacing: Theme.paddingLarge
+        flickable: base
+        linkColor: Theme.highlightColor
+        pagePlaceholderColor: Theme.highlightColor
 
         onPageLayoutChanged: if (!_pageSizesReady) {
             _pageSizesReady = true
@@ -141,27 +141,29 @@ SilicaFlickable {
         }
 
         PinchArea {
-            anchors.fill: parent;
+            anchors.fill: parent
             onPinchUpdated: {
                 var newCenter = mapToItem(pdfCanvas, pinch.center.x, pinch.center.y)
-                base.zoom(1.0 + (pinch.scale - pinch.previousScale), newCenter);
+                base.zoom(1.0 + (pinch.scale - pinch.previousScale), newCenter)
             }
-            onPinchFinished: base.returnToBounds();
+            onPinchFinished: base.returnToBounds()
 
             PDF.LinkArea {
-                anchors.fill: parent;
+                anchors.fill: parent
 
-                canvas: pdfCanvas;
-                onLinkClicked: Qt.openUrlExternally(linkTarget);
+                canvas: pdfCanvas
+                onLinkClicked: Qt.openUrlExternally(linkTarget)
                 onGotoClicked: base.goToPage(page - 1, top, left,
                                              Theme.paddingLarge, Theme.paddingLarge)
-                onClicked: base.clicked();
+                onClicked: base.clicked()
             }
         }
 
         Repeater {
             id: searchDisplay
+
             property int currentIndex
+
             model: pdfCanvas.document.searchModel
             onModelChanged: moveToSearchMatch(0)
 
@@ -174,19 +176,19 @@ SilicaFlickable {
                     onPageLayoutChanged: match = pdfCanvas.fromPageToItem(page, pageRect)
                 }
 
-                opacity: 0.5;
-                color: Theme.highlightColor;
-                x: match.x - Theme.paddingSmall / 2;
-                y: match.y - Theme.paddingSmall / 4;
-                width: match.width + Theme.paddingSmall;
-                height: match.height + Theme.paddingSmall / 2;
+                opacity: 0.5
+                color: Theme.highlightColor
+                x: match.x - Theme.paddingSmall / 2
+                y: match.y - Theme.paddingSmall / 4
+                width: match.width + Theme.paddingSmall
+                height: match.height + Theme.paddingSmall / 2
             }
         }
     }
 
     children: [
-        HorizontalScrollDecorator { color: Theme.highlightDimmerColor; },
-        VerticalScrollDecorator { color: Theme.highlightDimmerColor; }
+        HorizontalScrollDecorator { color: Theme.highlightDimmerColor },
+        VerticalScrollDecorator { color: Theme.highlightDimmerColor }
     ]
 
     function goToPage(pageNumber, top, left, topSpacing, leftSpacing) {
@@ -201,7 +203,7 @@ SilicaFlickable {
             scrollX = contentWidth - width
         }
         // Adjust vertical position.
-        scrollY = rect.y + (top === undefined ? 0. : top * rect.height) - ( topSpacing !== undefined ? topSpacing : 0.);
+        scrollY = rect.y + (top === undefined ? 0. : top * rect.height) - ( topSpacing !== undefined ? topSpacing : 0.)
         if (scrollY > contentHeight - height) {
             scrollY = contentHeight - height
         }

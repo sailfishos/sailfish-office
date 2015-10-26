@@ -37,19 +37,19 @@ class DocumentListModel::Private
 public:
     Private()
     {
-        roles.insert( FileNameRole, "fileName" );
-        roles.insert( FilePathRole, "filePath" );
-        roles.insert( FileTypeRole, "fileType" );
-        roles.insert( FileSizeRole, "fileSize" );
-        roles.insert( FileReadRole, "fileRead" );
-        roles.insert( FileMimeTypeRole, "fileMimeType" );
-        roles.insert( FileDocumentClass, "fileDocumentClass" );
+        roles.insert(FileNameRole, "fileName");
+        roles.insert(FilePathRole, "filePath");
+        roles.insert(FileTypeRole, "fileType");
+        roles.insert(FileSizeRole, "fileSize");
+        roles.insert(FileReadRole, "fileRead");
+        roles.insert(FileMimeTypeRole, "fileMimeType");
+        roles.insert(FileDocumentClass, "fileDocumentClass");
     }
     QList<DocumentListModelEntry> entries;
-    QHash< int, QByteArray > roles;
+    QHash<int, QByteArray> roles;
 };
 
-DocumentListModel::DocumentListModel(QObject* parent)
+DocumentListModel::DocumentListModel(QObject *parent)
     : QAbstractListModel(parent), d(new Private)
 {
 }
@@ -58,29 +58,28 @@ DocumentListModel::~DocumentListModel()
 {
 }
 
-QVariant DocumentListModel::data(const QModelIndex& index, int role) const
+QVariant DocumentListModel::data(const QModelIndex &index, int role) const
 {
-    if( !index.isValid() || index.row() < 0 || index.row() >= d->entries.count() )
+    if (!index.isValid() || index.row() < 0 || index.row() >= d->entries.count())
         return QVariant();
     
-    switch( role )
-    {
-        case FileNameRole:
-            return d->entries.at( index.row() ).fileName;
-        case FilePathRole:
-            return d->entries.at( index.row() ).filePath;
-        case FileTypeRole:
-            return QString().append(d->entries.at( index.row() ).fileType).append(d->entries.at( index.row() ).fileRead.toString(Qt::ISODate));
-        case FileSizeRole:
-            return d->entries.at( index.row() ).fileSize;
-        case FileReadRole:
-            return d->entries.at( index.row() ).fileRead;
-        case FileMimeTypeRole:
-            return d->entries.at( index.row() ).mimeType;
-        case FileDocumentClass:
-            return d->entries.at( index.row() ).documentClass;
-        default:
-            break;
+    switch (role) {
+    case FileNameRole:
+        return d->entries.at(index.row()).fileName;
+    case FilePathRole:
+        return d->entries.at(index.row()).filePath;
+    case FileTypeRole:
+        return QString().append(d->entries.at(index.row()).fileType).append(d->entries.at(index.row()).fileRead.toString(Qt::ISODate));
+    case FileSizeRole:
+        return d->entries.at(index.row()).fileSize;
+    case FileReadRole:
+        return d->entries.at(index.row()).fileRead;
+    case FileMimeTypeRole:
+        return d->entries.at(index.row()).mimeType;
+    case FileDocumentClass:
+        return d->entries.at(index.row()).documentClass;
+    default:
+        break;
     }
 
     return QVariant();
@@ -88,20 +87,19 @@ QVariant DocumentListModel::data(const QModelIndex& index, int role) const
 
 int DocumentListModel::rowCount(const QModelIndex& parent) const
 {
-    if(parent.isValid())
+    if (parent.isValid())
         return 0;
     return d->entries.count();
 }
 
-QHash< int, QByteArray > DocumentListModel::roleNames() const
+QHash<int, QByteArray> DocumentListModel::roleNames() const
 {
     return d->roles;
 }
 
 void DocumentListModel::setAllItemsDirty(bool status)
 {
-    for(QList<DocumentListModelEntry>::iterator entry = d->entries.begin();
-        entry != d->entries.end(); entry++) {
+    for (QList<DocumentListModelEntry>::iterator entry = d->entries.begin(); entry != d->entries.end(); entry++) {
         entry->dirty = status;
     }
 }
@@ -109,9 +107,9 @@ void DocumentListModel::setAllItemsDirty(bool status)
 void DocumentListModel::addItem(QString name, QString path, QString type, int size, QDateTime lastRead, QString mimeType)
 {
     // We sometimes get duplicate entries... and that's kind of silly.
-    for(QList<DocumentListModelEntry>::iterator entry = d->entries.begin();
+    for (QList<DocumentListModelEntry>::iterator entry = d->entries.begin();
         entry != d->entries.end(); entry++) {
-        if(entry->filePath == path) {
+        if (entry->filePath == path) {
             entry->dirty = false;
             entry->fileType = type;
             entry->fileSize = size;
@@ -133,8 +131,8 @@ void DocumentListModel::addItem(QString name, QString path, QString type, int si
     entry.documentClass = static_cast<DocumentClass>(mimeTypeToDocumentClass(mimeType));
 
     int index = 0;
-    for(; index < d->entries.count(); ++index) {
-        if(d->entries.at(index).fileRead < entry.fileRead)
+    for (; index < d->entries.count(); ++index) {
+        if (d->entries.at(index).fileRead < entry.fileRead)
             break;
     }
 
@@ -145,7 +143,7 @@ void DocumentListModel::addItem(QString name, QString path, QString type, int si
 
 void DocumentListModel::removeItemsDirty()
 {
-    for (int index=0; index <  d->entries.count(); index++) {
+    for (int index=0; index < d->entries.count(); index++) {
         if (d->entries.at(index).dirty) {
             beginRemoveRows(QModelIndex(), index, index);
             d->entries.removeAt(index);
@@ -157,8 +155,7 @@ void DocumentListModel::removeItemsDirty()
 
 void DocumentListModel::removeAt(int index)
 {
-    if(index > -1 && index < d->entries.count())
-    {
+    if (index > -1 && index < d->entries.count()) {
         beginRemoveRows(QModelIndex(), index, index);
         d->entries.removeAt(index);
         endRemoveRows();
@@ -175,42 +172,33 @@ void DocumentListModel::clear()
 int DocumentListModel::mimeTypeToDocumentClass(QString mimeType) const
 {
     DocumentClass documentClass = UnknownDocument;
-    if(mimeType == QLatin1String("application/vnd.oasis.opendocument.text") ||
-       mimeType == QLatin1String("application/msword") ||
-       mimeType == QLatin1String("application/vnd.openxmlformats-officedocument.wordprocessingml.document") ||
-       mimeType == QLatin1String("application/vnd.openxmlformats-officedocument.wordprocessingml.template") ||
-       mimeType == QLatin1String("application/vnd.ms-word.document.macroEnabled.12") ||
-       mimeType == QLatin1String("application/vnd.ms-word.template.macroEnabled.12"))
-    {
+    if (mimeType == QLatin1String("application/vnd.oasis.opendocument.text")
+            || mimeType == QLatin1String("application/msword")
+            || mimeType == QLatin1String("application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+            || mimeType == QLatin1String("application/vnd.openxmlformats-officedocument.wordprocessingml.template")
+            || mimeType == QLatin1String("application/vnd.ms-word.document.macroEnabled.12")
+            || mimeType == QLatin1String("application/vnd.ms-word.template.macroEnabled.12")) {
         documentClass = TextDocument;
-    }
-    else
-    if(mimeType == QLatin1String("application/vnd.oasis.opendocument.presentation") ||
-       mimeType == QLatin1String("application/vnd.ms-powerpoint") ||
-       mimeType == QLatin1String("application/vnd.openxmlformats-officedocument.presentationml.presentation") ||
-       mimeType == QLatin1String("application/vnd.openxmlformats-officedocument.presentationml.template") ||
-       mimeType == QLatin1String("application/vnd.openxmlformats-officedocument.presentationml.slideshow") ||
-       mimeType == QLatin1String("application/vnd.ms-powerpoint.presentation.macroEnabled.12") ||
-       mimeType == QLatin1String("application/vnd.ms-powerpoint.template.macroEnabled.12") ||
-       mimeType == QLatin1String("application/vnd.ms-powerpoint.slideshow.macroEnabled.12") )
-    {
+    } else if (mimeType == QLatin1String("application/vnd.oasis.opendocument.presentation")
+               || mimeType == QLatin1String("application/vnd.ms-powerpoint")
+               || mimeType == QLatin1String("application/vnd.openxmlformats-officedocument.presentationml.presentation")
+               || mimeType == QLatin1String("application/vnd.openxmlformats-officedocument.presentationml.template")
+               || mimeType == QLatin1String("application/vnd.openxmlformats-officedocument.presentationml.slideshow")
+               || mimeType == QLatin1String("application/vnd.ms-powerpoint.presentation.macroEnabled.12")
+               || mimeType == QLatin1String("application/vnd.ms-powerpoint.template.macroEnabled.12")
+               || mimeType == QLatin1String("application/vnd.ms-powerpoint.slideshow.macroEnabled.12") ) {
         documentClass = PresentationDocument;
-    }
-    else
-    if(mimeType == QLatin1String("application/vnd.oasis.opendocument.spreadsheet") ||
-       mimeType == QLatin1String("application/vnd.ms-excel") ||
-       mimeType == QLatin1String("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") ||
-       mimeType == QLatin1String("application/vnd.openxmlformats-officedocument.spreadsheetml.template") ||
-       mimeType == QLatin1String("application/vnd.ms-excel.sheet.macroEnabled") ||
-       mimeType == QLatin1String("application/vnd.ms-excel.sheet.macroEnabled.12") ||
-       mimeType == QLatin1String("application/vnd.ms-excel.template.macroEnabled.12") )
-    {
+    } else if (mimeType == QLatin1String("application/vnd.oasis.opendocument.spreadsheet")
+               || mimeType == QLatin1String("application/vnd.ms-excel")
+               || mimeType == QLatin1String("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+               || mimeType == QLatin1String("application/vnd.openxmlformats-officedocument.spreadsheetml.template")
+               || mimeType == QLatin1String("application/vnd.ms-excel.sheet.macroEnabled")
+               || mimeType == QLatin1String("application/vnd.ms-excel.sheet.macroEnabled.12")
+               || mimeType == QLatin1String("application/vnd.ms-excel.template.macroEnabled.12") ) {
         documentClass = SpreadSheetDocument;
-    }
-    else
-    if(mimeType == QLatin1String("application/pdf"))
-    {
+    } else if (mimeType == QLatin1String("application/pdf")) {
         documentClass = PDFDocument;
     }
+
     return documentClass;
 }

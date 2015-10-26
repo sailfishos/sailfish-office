@@ -24,7 +24,7 @@ public:
     QUrl page;
 };
 
-DocumentProviderPlugin::DocumentProviderPlugin(QObject* parent)
+DocumentProviderPlugin::DocumentProviderPlugin(QObject *parent)
     : QObject(parent)
     , d(new Private)
 {
@@ -50,13 +50,13 @@ QUrl DocumentProviderPlugin::page() const
     return d->page;
 }
 
-void DocumentProviderPlugin::setPage(const QUrl& url)
+void DocumentProviderPlugin::setPage(const QUrl &url)
 {
     d->page = url;
     emit pageChanged();
 }
 
-void DocumentProviderPlugin::deleteFile(const QUrl& file)
+void DocumentProviderPlugin::deleteFile(const QUrl &file)
 {
     Q_UNUSED(file);
     qWarning("Provider does not implement file deletion.");

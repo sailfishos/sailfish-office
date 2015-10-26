@@ -40,18 +40,17 @@ public:
     ~Private() { qDeleteAll(entries); }
 
     QList<PDFTocEntry*> entries;
-    Poppler::Document* document;
+    Poppler::Document *document;
 
-    void addSynopsisChildren( QDomNode * parent, int level )
+    void addSynopsisChildren(QDomNode *parent, int level)
     {
-        if(!parent || parent->isNull())
+        if (!parent || parent->isNull())
             return;
 
         // keep track of the current listViewItem
         QDomNode n = parent->firstChild();
-        while( !n.isNull() )
-        {
-            PDFTocEntry* tocEntry = new PDFTocEntry();
+        while (!n.isNull()) {
+            PDFTocEntry *tocEntry = new PDFTocEntry();
             tocEntry->level = level;
             // convert the node to an element (sure it is)
             QDomElement e = n.toElement();
@@ -62,14 +61,13 @@ public:
             // if (!e.attribute("ExternalFileName").isNull()) item.setAttribute("ExternalFileName", e.attribute("ExternalFileName"));
             if (!e.attribute("DestinationName").isNull()) {
                 Poppler::LinkDestination *dest = document->linkDestination(e.attribute("DestinationName"));
-                if(dest) {
+                if (dest) {
                     tocEntry->pageNumber = dest->pageNumber();
                     delete dest;
                 }
                 //item.setAttribute("ViewportName", e.attribute("DestinationName"));
             }
-            if (!e.attribute("Destination").isNull())
-            {
+            if (!e.attribute("Destination").isNull()) {
                 //fillViewportFromLinkDestination( vp, Poppler::LinkDestination(e.attribute("Destination")) );
                 //item.setAttribute( "Viewport", vp.toString() );
                 Poppler::LinkDestination dest(e.attribute("Destination"));
@@ -90,12 +88,12 @@ public:
 
 };
 
-PDFTocModel::PDFTocModel(Poppler::Document* document, QObject* parent)
+PDFTocModel::PDFTocModel(Poppler::Document *document, QObject *parent)
     : QAbstractListModel(parent)
     , d(new Private)
 {
     d->document = document;
-    QDomDocument* toc = document->toc();
+    QDomDocument *toc = document->toc();
     d->addSynopsisChildren(toc, 0);
     delete toc;
 }
@@ -105,52 +103,50 @@ PDFTocModel::~PDFTocModel()
     delete d;
 }
 
-QHash< int, QByteArray > PDFTocModel::roleNames() const
+QHash<int, QByteArray> PDFTocModel::roleNames() const
 {
-    QHash< int, QByteArray > names;
+    QHash<int, QByteArray> names;
     names[Title] = "title";
     names[Level] = "level";
     names[PageNumber] = "pageNumber";
     return names;
 }
 
-QVariant PDFTocModel::data(const QModelIndex& index, int role) const
+QVariant PDFTocModel::data(const QModelIndex &index, int role) const
 {
     QVariant result;
-    if(index.isValid())
-    {
+    if (index.isValid()) {
         int row = index.row();
-        if(row > -1 && row < d->entries.count())
-        {
-            const PDFTocEntry* entry = d->entries.at(row);
+        if (row > -1 && row < d->entries.count()) {
+            const PDFTocEntry *entry = d->entries.at(row);
             switch(role)
             {
-                case Title:
-                    result.setValue<QString>(entry->title);
-                    break;
-                case Level:
-                    result.setValue<qint32>(entry->level);
-                    break;
-                case PageNumber:
-                    result.setValue<qint32>(entry->pageNumber);
-                    break;
-                default:
-                    result.setValue<QString>(QString("Unknown role: %1").arg(role));
-                    break;
+            case Title:
+                result.setValue<QString>(entry->title);
+                break;
+            case Level:
+                result.setValue<qint32>(entry->level);
+                break;
+            case PageNumber:
+                result.setValue<qint32>(entry->pageNumber);
+                break;
+            default:
+                result.setValue<QString>(QString("Unknown role: %1").arg(role));
+                break;
             }
         }
     }
     return result;
 }
 
-int PDFTocModel::rowCount(const QModelIndex& parent) const
+int PDFTocModel::rowCount(const QModelIndex &parent) const
 {
-    if(parent.isValid())
+    if (parent.isValid())
         return 0;
     return d->entries.count();
 }
 
 int PDFTocModel::count() const
 {
-  return d->entries.count();
+    return d->entries.count();
 }

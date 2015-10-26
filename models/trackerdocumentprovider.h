@@ -37,7 +37,7 @@ public:
         SpreadsheetType,
         PresentationType
     };
-    TrackerDocumentProvider(QObject* parent = 0);
+    TrackerDocumentProvider(QObject *parent = 0);
     ~TrackerDocumentProvider();
 
     virtual int count() const;
@@ -51,7 +51,7 @@ public:
     virtual void classBegin();
     virtual void componentComplete();
 
-    virtual void deleteFile(const QUrl& file) Q_DECL_OVERRIDE;
+    virtual void deleteFile(const QUrl &file) Q_DECL_OVERRIDE;
 
 public Q_SLOTS:
     void startSearch();
@@ -59,11 +59,11 @@ public Q_SLOTS:
 
 private Q_SLOTS:
     void searchFinished();
-    void trackerGraphChanged(const QString& className, const QVariantList&, const QVariantList& );
+    void trackerGraphChanged(const QString &className, const QVariantList&, const QVariantList&);
 
 private:
     class Private;
-    Private* d;
+    Private *d;
 };
 
 #endif // TRACKERDOCUMENTPROVIDER_H

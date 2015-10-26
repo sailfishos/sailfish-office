@@ -28,11 +28,11 @@ class PDFLinkArea : public QQuickItem
     Q_PROPERTY( PDFCanvas* canvas READ canvas WRITE setCanvas NOTIFY canvasChanged )
 
 public:
-    PDFLinkArea(QQuickItem* parent = 0);
+    PDFLinkArea(QQuickItem *parent = 0);
     virtual ~PDFLinkArea();
 
     PDFCanvas* canvas() const;
-    void setCanvas( PDFCanvas* newCanvas );
+    void setCanvas(PDFCanvas *newCanvas);
 
 Q_SIGNALS:
     void clicked();
@@ -43,13 +43,13 @@ Q_SIGNALS:
     void canvasChanged();
 
 protected:
-    virtual void mousePressEvent(QMouseEvent* event);
-    virtual void mouseReleaseEvent(QMouseEvent* event);
-    virtual void mouseDoubleClickEvent(QMouseEvent* event);
+    virtual void mousePressEvent(QMouseEvent *event);
+    virtual void mouseReleaseEvent(QMouseEvent *event);
+    virtual void mouseDoubleClickEvent(QMouseEvent *event);
 
 private:
     class Private;
-    Private* d;
+    Private *d;
 };
 
 #endif // LINKLAYER_H

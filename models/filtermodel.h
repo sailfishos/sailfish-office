@@ -28,7 +28,7 @@ class FilterModel : public QSortFilterProxyModel
     Q_OBJECT
     Q_PROPERTY(DocumentListModel *sourceModel READ sourceModel WRITE setSourceModel NOTIFY sourceModelChanged)
 public:
-    FilterModel(QObject* parent = 0);
+    FilterModel(QObject *parent = 0);
     ~FilterModel();
 
 public:

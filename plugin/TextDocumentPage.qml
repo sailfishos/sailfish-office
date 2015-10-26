@@ -25,74 +25,72 @@ DocumentPage {
 
     attachedPage: Component {
         TextDocumentToCPage {
-            document: doc;
+            document: doc
         }
     }
 
     Calligra.View {
-        id: v;
+        id: v
 
-        width: page.width;
-        height: page.height;
+        width: page.width
+        height: page.height
 
-        document: doc;
+        document: doc
     }
 
     SilicaFlickable {
         id: f
 
-        width: page.width;
-        height: page.height;
+        width: page.width
+        height: page.height
 
         Calligra.ViewController {
-            id: controller;
-            view: v;
-            flickable: f;
-            useZoomProxy: false;
-            maximumZoom: 5.0;
-            minimumZoomFitsWidth: true;
+            id: controller
+            view: v
+            flickable: f
+            useZoomProxy: false
+            maximumZoom: 5.0
+            minimumZoomFitsWidth: true
         }
 
         children: [
-            HorizontalScrollDecorator { color: Theme.highlightDimmerColor; },
-            VerticalScrollDecorator { color: Theme.highlightDimmerColor; }
+            HorizontalScrollDecorator { color: Theme.highlightDimmerColor },
+            VerticalScrollDecorator { color: Theme.highlightDimmerColor }
         ]
 
         PinchArea {
-            anchors.fill: parent;
+            anchors.fill: parent
 
             onPinchUpdated: {
-                var newCenter = mapToItem( f, pinch.center.x, pinch.center.y );
-                controller.zoomAroundPoint(controller.zoom * (pinch.scale - pinch.previousScale), newCenter.x, newCenter.y);
+                var newCenter = mapToItem( f, pinch.center.x, pinch.center.y )
+                controller.zoomAroundPoint(controller.zoom * (pinch.scale - pinch.previousScale), newCenter.x, newCenter.y)
             }
-            onPinchFinished: controller.zoomTimeout();
+            onPinchFinished: controller.zoomTimeout()
 
             Calligra.LinkArea {
-                anchors.fill: parent;
-                document: doc;
-                onClicked: page.open = !page.open;
-                onLinkClicked: Qt.openUrlExternally(linkTarget);
-                controllerZoom: controller.zoom;
+                anchors.fill: parent
+                document: doc
+                onClicked: page.open = !page.open
+                onLinkClicked: Qt.openUrlExternally(linkTarget)
+                controllerZoom: controller.zoom
             }
         }
     }
 
-
-
     Calligra.Document {
-        id: doc;
+        id: doc
 
-        onStatusChanged: if(status == Calligra.DocumentStatus.Loaded) controller.zoomToFitWidth(page.width);
+        onStatusChanged: if (status == Calligra.DocumentStatus.Loaded) controller.zoomToFitWidth(page.width)
     }
     
-    busy: doc.status != Calligra.DocumentStatus.Loaded;
-    source: doc.source;
-    indexCount: doc.indexCount;
+    busy: doc.status != Calligra.DocumentStatus.Loaded
+    source: doc.source
+    indexCount: doc.indexCount
 
     onStatusChanged: {
         //Delay loading the document until the page has been activated.
-        if(status == PageStatus.Active) {
-            doc.source = page.path;
+        if (status == PageStatus.Active) {
+            doc.source = page.path
         }
     }
 }

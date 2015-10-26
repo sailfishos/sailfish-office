@@ -21,58 +21,58 @@ import Sailfish.Silica 1.0
 import org.kde.calligra 1.0 as Calligra
 
 Page {
-    id: page;
+    id: page
 
-    property QtObject document;
+    property QtObject document
 
-    allowedOrientations: Orientation.All;
+    allowedOrientations: Orientation.All
 
     SilicaGridView {
-        id: grid;
+        id: grid
 
-        anchors.fill: parent;
+        anchors.fill: parent
 
-        cellWidth: page.width / 3;
-        cellHeight: cellWidth * 0.75;
+        cellWidth: page.width / 3
+        cellHeight: cellWidth * 0.75
 
-        currentIndex: page.document.currentIndex;
+        currentIndex: page.document.currentIndex
 
         //: Page with slide overview
         //% "Slides"
-        header: PageHeader { title: qsTrId( "sailfish-office-he-slide_index" ) }
+        header: PageHeader { title: qsTrId("sailfish-office-he-slide_index") }
 
         model: Calligra.ContentsModel {
-            document: page.document;
-            thumbnailSize.width: grid.cellWidth;
-            thumbnailSize.height: grid.cellHeight;
+            document: page.document
+            thumbnailSize.width: grid.cellWidth
+            thumbnailSize.height: grid.cellHeight
         }
 
         delegate: Item {
-            id: base;
-            width: GridView.view.cellWidth;
-            height: GridView.view.cellHeight;
+            id: base
+            width: GridView.view.cellWidth
+            height: GridView.view.cellHeight
 
             Rectangle {
-                anchors.fill: parent;
-                border.width: 1;
+                anchors.fill: parent
+                border.width: 1
 
                 Calligra.ImageDataItem {
-                    anchors.fill: parent;
-                    data: model.thumbnail;
+                    anchors.fill: parent
+                    data: model.thumbnail
                 }
 
                 Rectangle {
-                    anchors.centerIn: parent;
-                    width: label.width + Theme.paddingMedium;
-                    height: label.height;
-                    radius: Theme.paddingSmall;
-                    color: base.GridView.isCurrentItem ? Theme.highlightColor : Theme.secondaryHighlightColor;
+                    anchors.centerIn: parent
+                    width: label.width + Theme.paddingMedium
+                    height: label.height
+                    radius: Theme.paddingSmall
+                    color: base.GridView.isCurrentItem ? Theme.highlightColor : Theme.secondaryHighlightColor
                 }
 
                 Label {
-                    id: label;
-                    anchors.centerIn: parent;
-                    text: model.contentIndex + 1;
+                    id: label
+                    anchors.centerIn: parent
+                    text: model.contentIndex + 1
                     color: mouseArea.pressed && mouseArea.containsMouse ? Theme.highlightColor : Theme.primaryColor
                 }
 
@@ -86,10 +86,10 @@ Page {
 
             MouseArea {
                 id: mouseArea
-                anchors.fill: parent;
+                anchors.fill: parent
                 onClicked: {
-                    page.document.currentIndex = model.contentIndex;
-                    pageStack.navigateBack(PageStackAction.Animated);
+                    page.document.currentIndex = model.contentIndex
+                    pageStack.navigateBack(PageStackAction.Animated)
                 }
             }
         }

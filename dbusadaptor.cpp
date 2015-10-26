@@ -30,14 +30,11 @@ DBusAdaptor::~DBusAdaptor()
 {
 }
 
-void DBusAdaptor::openFile(const QStringList& files)
+void DBusAdaptor::openFile(const QStringList &files)
 {
-    if(files.count() > 0)
-    {
+    if (files.count() > 0) {
         QMetaObject::invokeMethod(m_view->rootObject(), "openFile", Q_ARG(QVariant, files.at(0)));
-    }
-    else
-    {
+    } else {
         QMetaObject::invokeMethod(m_view->rootObject(), "activate");
     }
 }

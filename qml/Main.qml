@@ -24,7 +24,7 @@ import Sailfish.Office.Files 1.0
 
 ApplicationWindow
 {
-    id: window;
+    id: window
 
     property Item documentItem
     property QtObject fileListModel
@@ -80,11 +80,12 @@ ApplicationWindow
         }, PageStackAction.Immediate)
         window.fileListModel = model.model
 
-        if(Qt.application.arguments.length > 1)
-            openFile(Qt.application.arguments[1]);
+        if (Qt.application.arguments.length > 1)
+            openFile(Qt.application.arguments[1])
 
         if (window.hasOwnProperty("defaultAllowedOrientations")) {
-            allowedOrientations = Qt.binding(function() { return Qt.application.active ? defaultAllowedOrientations : pageStack.currentOrientation })
+            allowedOrientations = Qt.binding(function() { return Qt.application.active ? defaultAllowedOrientations
+                                                                                       : pageStack.currentOrientation })
         }
     }
 
@@ -103,36 +104,43 @@ ApplicationWindow
         TrackerDocumentProvider {}
     }
     DocumentPages {
-        id: pages;
+        id: pages
     }
 
     FileInfo {
-        id: fileInfo;
+        id: fileInfo
     }
 
     function openFile(file) {
-        fileInfo.source = file;
+        fileInfo.source = file
 
-        if(pageStack.currentPage.path === undefined || pageStack.currentPage.path != fileInfo.fullPath)
-        {
-            switch(Calligra.Global.documentType(fileInfo.fullPath)) {
+        if (pageStack.currentPage.path === undefined || pageStack.currentPage.path != fileInfo.fullPath) {
+            switch (Calligra.Global.documentType(fileInfo.fullPath)) {
                 case Calligra.DocumentType.TextDocument:
-                    pageStack.push(pages.textDocument, { title: fileInfo.fileName, path: fileInfo.fullPath, mimeType: fileInfo.mimeType }, PageStackAction.Immediate);
+                    pageStack.push(pages.textDocument,
+                                   { title: fileInfo.fileName, path: fileInfo.fullPath, mimeType: fileInfo.mimeType },
+                                   PageStackAction.Immediate)
                     break;
                 case Calligra.DocumentType.Spreadsheet:
-                    pageStack.push(pages.spreadsheet, { title: fileInfo.fileName, path: fileInfo.fullPath, mimeType: fileInfo.mimeType }, PageStackAction.Immediate);
+                    pageStack.push(pages.spreadsheet,
+                                   { title: fileInfo.fileName, path: fileInfo.fullPath,mimeType: fileInfo.mimeType },
+                                   PageStackAction.Immediate)
                     break;
                 case Calligra.DocumentType.Presentation:
-                    pageStack.push(pages.presentation, { title: fileInfo.fileName, path: fileInfo.fullPath, mimeType: fileInfo.mimeType }, PageStackAction.Immediate);
+                    pageStack.push(pages.presentation,
+                                   { title: fileInfo.fileName, path: fileInfo.fullPath, mimeType: fileInfo.mimeType },
+                                   PageStackAction.Immediate)
                     break;
                 case Calligra.DocumentType.StaticTextDocument:
-                    pageStack.push(pages.pdf, { title: fileInfo.fileName, path: fileInfo.fullPath, mimeType: fileInfo.mimeType }, PageStackAction.Immediate);
+                    pageStack.push(pages.pdf,
+                                   { title: fileInfo.fileName, path: fileInfo.fullPath, mimeType: fileInfo.mimeType },
+                                   PageStackAction.Immediate);
                     break;
                 default:
                     console.log("Warning: Unrecognised file type for file " + fileInfo.fullPath);
                     break;
             }
         }
-        activate();
+        activate()
     }
 }

@@ -50,7 +50,7 @@ public:
 
 protected:
     friend class PDFRenderThreadQueue;
-    Poppler::Document* m_document;
+    Poppler::Document *m_document;
 
 private:
     JobType m_type;
@@ -60,7 +60,7 @@ class LoadDocumentJob : public PDFJob
 {
     Q_OBJECT
 public:
-    LoadDocumentJob( const QString& source );
+    LoadDocumentJob( const QString &source );
 
     virtual void run();
 
@@ -72,7 +72,7 @@ class UnLockDocumentJob : public PDFJob
 {
     Q_OBJECT
 public:
-    UnLockDocumentJob( const QString& password );
+    UnLockDocumentJob( const QString &password );
 
     virtual void run();
 
@@ -106,7 +106,7 @@ public:
 
     virtual void run();
 
-    QList< QSizeF > m_pageSizes;
+    QList<QSizeF> m_pageSizes;
 };
 
 class SearchDocumentJob : public PDFJob

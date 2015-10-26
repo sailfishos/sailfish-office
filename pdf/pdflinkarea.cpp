@@ -29,14 +29,14 @@ public:
         , wiggleFactor(4)
     { }
 
-    PDFCanvas* canvas;
+    PDFCanvas *canvas;
 
     bool clickInProgress;
     QPointF clickLocation;
     int wiggleFactor;
 };
 
-PDFLinkArea::PDFLinkArea(QQuickItem* parent)
+PDFLinkArea::PDFLinkArea(QQuickItem *parent)
     : QQuickItem(parent)
     , d(new Private)
 {
@@ -53,34 +53,33 @@ PDFCanvas* PDFLinkArea::canvas() const
     return d->canvas;
 }
 
-void PDFLinkArea::setCanvas(PDFCanvas* newCanvas)
+void PDFLinkArea::setCanvas(PDFCanvas *newCanvas)
 {
-    if( newCanvas != d->canvas )
-    {
+    if (newCanvas != d->canvas) {
         d->canvas = newCanvas;
         emit canvasChanged();
     }
 }
 
 
-void PDFLinkArea::mousePressEvent(QMouseEvent* event)
+void PDFLinkArea::mousePressEvent(QMouseEvent *event)
 {
     d->clickInProgress = true;
     d->clickLocation = event->pos();
 }
 
-void PDFLinkArea::mouseReleaseEvent(QMouseEvent* event)
+void PDFLinkArea::mouseReleaseEvent(QMouseEvent *event)
 {
     d->clickInProgress = false;
     // Don't activate anything if the finger has moved too far
     QRect rect((d->clickLocation - QPointF(d->wiggleFactor, d->wiggleFactor)).toPoint(), QSize(d->wiggleFactor * 2, d->wiggleFactor * 2));
-    if(!rect.contains(event->pos())) {
+    if (!rect.contains(event->pos())) {
         return;
     }
 
     QUrl url;
-    if( d->canvas )
-        url = d->canvas->urlAtPoint( event->pos() );
+    if (d->canvas)
+        url = d->canvas->urlAtPoint(event->pos());
 
     if (url.isEmpty()) {
         emit clicked();

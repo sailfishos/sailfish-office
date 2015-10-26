@@ -21,57 +21,57 @@ import Sailfish.Silica 1.0
 import org.kde.calligra 1.0 as Calligra
 
 Page {
-    id: page;
+    id: page
 
-    property QtObject document;
+    property QtObject document
 
-    allowedOrientations: Orientation.All;
+    allowedOrientations: Orientation.All
 
     SilicaListView {
-        anchors.fill: parent;
+        anchors.fill: parent
 
         //: Page with sheet selector
         //% "Sheets"
-        header: PageHeader { title: qsTrId( "sailfish-office-he-sheet_index" ) }
+        header: PageHeader { title: qsTrId("sailfish-office-he-sheet_index") }
 
         model: Calligra.ContentsModel {
-            document: page.document;
-            thumbnailSize.width: Theme.itemSizeLarge;
-            thumbnailSize.height: Theme.itemSizeLarge;
+            document: page.document
+            thumbnailSize.width: Theme.itemSizeLarge
+            thumbnailSize.height: Theme.itemSizeLarge
         }
 
         delegate: BackgroundItem {
-            id: bg;
+            id: bg
             Calligra.ImageDataItem {
-                id: thumbnail;
+                id: thumbnail
 
                 anchors {
-                    left: parent.left;
-                    verticalCenter: parent.verticalCenter;
+                    left: parent.left
+                    verticalCenter: parent.verticalCenter
                 }
 
-                width: parent.height;
-                height: parent.height;
+                width: parent.height
+                height: parent.height
 
-                data: model.thumbnail;
+                data: model.thumbnail
             }
 
             Label {
                 anchors {
-                    left: thumbnail.right;
-                    leftMargin: Theme.paddingLarge;
-                    verticalCenter: parent.verticalCenter;
+                    left: thumbnail.right
+                    leftMargin: Theme.paddingLarge
+                    verticalCenter: parent.verticalCenter
                 }
 
-                text: model.title;
+                text: model.title
                 color: (model.contentIndex == page.document.currentIndex || bg.highlighted) ? Theme.highlightColor
-                                                                                            : Theme.primaryColor;
+                                                                                            : Theme.primaryColor
                 truncationMode: TruncationMode.Fade
             }
 
             onClicked: {
-                page.document.currentIndex = model.contentIndex;
-                pageStack.navigateBack(PageStackAction.Animated);
+                page.document.currentIndex = model.contentIndex
+                pageStack.navigateBack(PageStackAction.Animated)
             }
         }
     }

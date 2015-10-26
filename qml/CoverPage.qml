@@ -87,30 +87,30 @@ CoverBackground {
         Image {
             id: previewImage
             anchors.fill: parent
-            property QtObject coverWindow;
-            property bool isGrabAvailable: typeof previewImage.grabToImage !== 'undefined';
+            property QtObject coverWindow
+            property bool isGrabAvailable: typeof previewImage.grabToImage !== 'undefined'
             function updatePreview() {
                 if (!isGrabAvailable)
-                    return;
+                    return
                 if (window.documentItem && applicationWindow.visible) {
-                    window.documentItem.grabToImage(function(result) { previewImage.source = result.url; },
-                                                             Qt.size(width, height));
+                    window.documentItem.grabToImage(function(result) { previewImage.source = result.url },
+                                                             Qt.size(width, height))
                 }
             }
             Component.onCompleted: {
                 if (isGrabAvailable)
-                    coverWindow = coverWindowAccessor.coverWindow();
+                    coverWindow = coverWindowAccessor.coverWindow()
             }
             Connections {
-                id: windowConnections;
-                target: previewImage.coverWindow;
-                onVisibilityChanged: previewImage.updatePreview();
-                ignoreUnknownSignals: true;
+                id: windowConnections
+                target: previewImage.coverWindow
+                onVisibilityChanged: previewImage.updatePreview()
+                ignoreUnknownSignals: true
             }
             Connections {
                 target: window
-                onDocumentItemChanged: { previewImage.updatePreview(); }
-                onOrientationChanged: { previewImage.updatePreview(); }
+                onDocumentItemChanged: { previewImage.updatePreview() }
+                onOrientationChanged: { previewImage.updatePreview() }
             }
         }
 
@@ -124,4 +124,3 @@ CoverBackground {
         }
     }
 }
-

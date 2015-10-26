@@ -35,7 +35,7 @@ class FileInfo : public QObject
     Q_PROPERTY(QDateTime modifiedDate READ modifiedDate NOTIFY sourceChanged)
 
 public:
-    explicit FileInfo(QObject* parent = 0);
+    explicit FileInfo(QObject *parent = 0);
     ~FileInfo();
 
     QString source() const;
@@ -47,7 +47,7 @@ public:
     QDateTime modifiedDate() const;
 
 public Q_SLOTS:
-    void setSource(const QString& source);
+    void setSource(const QString &source);
 
 Q_SIGNALS:
     void sourceChanged();

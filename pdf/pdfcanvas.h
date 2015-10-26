@@ -34,16 +34,16 @@ class PDFCanvas : public QQuickItem
     Q_PROPERTY( int currentPage READ currentPage NOTIFY currentPageChanged )
 
 public:
-    PDFCanvas(QQuickItem* parent = 0);
+    PDFCanvas(QQuickItem *parent = 0);
     ~PDFCanvas();
 
-    Q_INVOKABLE QRectF pageRectangle( int index ) const;
+    Q_INVOKABLE QRectF pageRectangle(int index) const;
 
     QQuickItem *flickable() const;
     void setFlickable(QQuickItem *f);
 
     PDFDocument* document() const;
-    void setDocument( PDFDocument* doc );
+    void setDocument(PDFDocument *doc);
 
     /**
      * Getter for property #spacing.
@@ -61,7 +61,7 @@ public:
     /**
      * Setter for property #linkColor.
      */
-    void setLinkColor( const QColor& color );
+    void setLinkColor(const QColor &color);
     /**
      * Getter for property #pagePlaceholderColor.
      */
@@ -69,7 +69,7 @@ public:
     /**
      * Setter for property #pagePlaceholderColor.
      */
-    void setPagePlaceholderColor( const QColor& color );
+    void setPagePlaceholderColor(const QColor &color);
 
     /**
      * Getter for property #currentPage.
@@ -81,7 +81,7 @@ public:
     /**
      * \return The url of the link at point or an empty url if there is no link at point.
      */
-    QUrl urlAtPoint( const QPoint& point );
+    QUrl urlAtPoint(const QPoint &point);
     /**
      * \return A rectangle in the canvas coordinates from a rectangle
      * in page coordinates. Index is the index of the page.
@@ -98,14 +98,14 @@ Q_SIGNALS:
     void pageLayoutChanged();
 
 protected:
-    virtual void geometryChanged(const QRectF& newGeometry, const QRectF& oldGeometry);
-    virtual QSGNode* updatePaintNode(QSGNode* node, UpdatePaintNodeData* );
+    virtual void geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry);
+    virtual QSGNode* updatePaintNode(QSGNode *node, UpdatePaintNodeData*);
 
 private Q_SLOTS:
-    void pageFinished( int id, QSGTexture *texture );
+    void pageFinished(int id, QSGTexture *texture);
     void documentLoaded();
     void resizeTimeout();
-    void pageSizesFinished(const QList< QSizeF >& sizes);
+    void pageSizesFinished(const QList<QSizeF> &sizes);
     void sceneGraphInvalidated();
 
 private:
