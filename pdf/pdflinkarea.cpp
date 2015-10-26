@@ -24,7 +24,7 @@ class PDFLinkArea::Private
 {
 public:
     Private()
-        : canvas{ nullptr }
+        : canvas(nullptr)
         , clickInProgress(false)
         , wiggleFactor(4)
     { }

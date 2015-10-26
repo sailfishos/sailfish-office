@@ -21,7 +21,7 @@
 #include <poppler-qt5.h>
 
 LoadDocumentJob::LoadDocumentJob(const QString &source)
-    : PDFJob{ PDFJob::LoadDocumentJob }, m_source{ source }
+    : PDFJob(PDFJob::LoadDocumentJob), m_source(source)
 {
 }
 
@@ -48,7 +48,7 @@ void UnLockDocumentJob::run()
 }
 
 RenderPageJob::RenderPageJob(int index, uint width, QQuickWindow *window)
-    : PDFJob{ PDFJob::RenderPageJob }, m_index{ index }, m_page{ 0 }, m_window{ window }, m_width{ width }
+    : PDFJob(PDFJob::RenderPageJob), m_index(index), m_page(0), m_window(window), m_width(width)
 {
 }
 

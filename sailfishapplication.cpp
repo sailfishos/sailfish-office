@@ -43,7 +43,7 @@
 
 QSharedPointer<QApplication> Sailfish::createApplication(int &argc, char **argv)
 {
-    auto app = QSharedPointer<QApplication>{new QApplication{argc, argv}};
+    auto app = QSharedPointer<QApplication>(new QApplication(argc, argv));
     //FIXME: We should be able to use a pure QGuiApplication but currently too much of
     //Calligra depends on QApplication.
     //QSharedPointer<QGuiApplication>(MDeclarativeCache::qApplication(argc, argv));
@@ -73,7 +73,7 @@ QSharedPointer<QQuickView> Sailfish::createView(const QString &file)
     view->engine()->addImportPath(CALLIGRA_QML_PLUGIN_DIR);
     view->setSource(QUrl::fromLocalFile(QML_INSTALL_DIR + file));
 
-    new DBusAdaptor{view.data()};
+    new DBusAdaptor(view.data());
 
     if (!QDBusConnection::sessionBus().registerObject("/org/sailfish/office/ui", view.data()))
         qWarning() << "Could not register /org/sailfish/office/ui D-Bus object.";

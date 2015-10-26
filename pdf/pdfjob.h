@@ -41,7 +41,7 @@ public:
         SearchDocumentJob,
     };
 
-    PDFJob( JobType type ) : m_document{ nullptr }, m_type{ type } { }
+    PDFJob(JobType type) : m_document(nullptr), m_type(type) { }
     virtual ~PDFJob() { }
 
     virtual void run() = 0;
@@ -102,7 +102,7 @@ class PageSizesJob : public PDFJob
 {
     Q_OBJECT
 public:
-    PageSizesJob() : PDFJob{ PDFJob::PageSizesJob } { }
+    PageSizesJob() : PDFJob(PDFJob::PageSizesJob) { }
 
     virtual void run();
 
