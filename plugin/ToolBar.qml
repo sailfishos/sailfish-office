@@ -22,7 +22,7 @@ import Sailfish.Silica 1.0
 PanelBackground {
     id: toolbar
 
-    property variant flickable: undefined
+    property var flickable: undefined
     property int parentHeight
     property bool hidden
     property bool autoHide: true
