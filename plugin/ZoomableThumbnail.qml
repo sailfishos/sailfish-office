@@ -24,6 +24,8 @@ SilicaFlickable {
     id: base
 
     property real maxHeight: height
+    readonly property real minWidth: base.width
+    readonly property real maxWidth: base.width * 2.5
     property alias content: thumb.data
     property bool scaled
 
@@ -42,15 +44,9 @@ SilicaFlickable {
         thumb.width *= amount
         updateTimer.restart()
 
-        if (thumb.width < d.minWidth) {
-            thumb.width = d.minWidth
-        }
+        thumb.width = Math.max(minWidth, Math.min(maxWidth, thumb.width))
 
-        if (thumb.width > d.maxWidth) {
-            thumb.width = d.maxWidth
-        }
-
-        if (Math.abs(thumb.width - d.minWidth) < 5 ) {
+        if (Math.abs(thumb.width - minWidth) < 5 ) {
             base.scaled = false
         } else {
             base.scaled = true
@@ -80,13 +76,6 @@ SilicaFlickable {
                 }
             }
         ]
-    }
-
-    QtObject {
-        id: d
-
-        property real minWidth: base.width
-        property real maxWidth: base.width * 2.5
     }
 
     Timer {
