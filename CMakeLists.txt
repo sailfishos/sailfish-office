@@ -47,7 +47,6 @@ set(sailfishoffice_QML_SRCS
     qml/SearchPageHeader.qml
     qml/FileListPage.qml
     qml/Main.qml
-    qml/StartPage.qml
 )
 
 file(GLOB plugin_QML_SRCS plugin/*.qml)
