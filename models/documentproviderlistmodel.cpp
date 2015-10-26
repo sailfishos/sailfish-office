@@ -42,6 +42,7 @@ public:
         roles[ProviderModel] = "providerModel";
         roles[NeedsSetup] = "needsSetup";
     }
+
     DocumentProviderListModel *q;
     QHash<int, QByteArray> roles;
     bool completed;

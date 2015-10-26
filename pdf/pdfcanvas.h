@@ -23,6 +23,7 @@
 #include <QtQuick/QSGTexture>
 
 class PDFDocument;
+
 class PDFCanvas : public QQuickItem
 {
     Q_OBJECT

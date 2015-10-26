@@ -22,6 +22,7 @@
 #include <QtQuick/QQuickPaintedItem>
 
 class PDFCanvas;
+
 class PDFLinkArea : public QQuickItem
 {
     Q_OBJECT

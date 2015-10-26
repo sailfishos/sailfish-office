@@ -50,7 +50,7 @@ struct PDFPage {
 class PDFCanvas::Private
 {
 public:
-    Private( PDFCanvas *qq )
+    Private(PDFCanvas *qq)
         : q{ qq }
         , pageCount{ 0 }
         , currentPage{ 1 }

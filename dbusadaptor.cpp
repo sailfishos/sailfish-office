@@ -21,7 +21,7 @@
 #include <QtQuick/QQuickView>
 #include <QtQuick/QQuickItem>
 
-DBusAdaptor::DBusAdaptor(QQuickView* view)
+DBusAdaptor::DBusAdaptor(QQuickView *view)
     : QDBusAbstractAdaptor(view), m_view{view}
 {
 }

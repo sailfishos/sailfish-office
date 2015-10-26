@@ -66,7 +66,10 @@ public:
     {
         model->setObjectName("TrackerDocumentList");
     }
-    ~Private() { model->deleteLater(); }
+
+    ~Private() {
+        model->deleteLater();
+    }
 
     DocumentListModel *model;
     QSparqlConnection *connection;
@@ -85,7 +88,8 @@ TrackerDocumentProvider::~TrackerDocumentProvider()
 }
 
 void TrackerDocumentProvider::classBegin()
-{}
+{
+}
 
 void TrackerDocumentProvider::componentComplete()
 {

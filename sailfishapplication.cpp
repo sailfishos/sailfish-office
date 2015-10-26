@@ -48,12 +48,12 @@ QSharedPointer<QApplication> Sailfish::createApplication(int &argc, char **argv)
     //Calligra depends on QApplication.
     //QSharedPointer<QGuiApplication>(MDeclarativeCache::qApplication(argc, argv));
 
-    QTranslator *engineeringEnglish = new QTranslator( app.data() );
+    QTranslator *engineeringEnglish = new QTranslator(app.data());
     if (!engineeringEnglish->load("sailfish-office_eng_en", TRANSLATION_INSTALL_DIR))
         qWarning( "Could not load engineering english translation file!");
-    QCoreApplication::installTranslator( engineeringEnglish );
+    QCoreApplication::installTranslator(engineeringEnglish);
 
-    QTranslator* translator = new QTranslator( app.data() );
+    QTranslator* translator = new QTranslator(app.data());
     if (!translator->load( QLocale::system(), "sailfish-office", "-", TRANSLATION_INSTALL_DIR))
         qWarning( ("Could not load translations for " + QLocale::system().name()).toLatin1() );
     QCoreApplication::installTranslator( translator );
@@ -63,11 +63,11 @@ QSharedPointer<QApplication> Sailfish::createApplication(int &argc, char **argv)
 
 QSharedPointer<QQuickView> Sailfish::createView(const QString &file)
 {
-    qmlRegisterType< DocumentListModel >( "Sailfish.Office.Files", 1, 0, "DocumentListModel" );
-    qmlRegisterType< DocumentProviderListModel >( "Sailfish.Office.Files", 1, 0, "DocumentProviderListModel" );
-    qmlRegisterType< TrackerDocumentProvider >( "Sailfish.Office.Files", 1, 0, "TrackerDocumentProvider" );
-    qmlRegisterType< FilterModel >( "Sailfish.Office.Files", 1, 0, "FilterModel" );
-    qmlRegisterInterface< DocumentProviderPlugin >( "DocumentProviderPlugin" );
+    qmlRegisterType<DocumentListModel>( "Sailfish.Office.Files", 1, 0, "DocumentListModel" );
+    qmlRegisterType<DocumentProviderListModel>( "Sailfish.Office.Files", 1, 0, "DocumentProviderListModel" );
+    qmlRegisterType<TrackerDocumentProvider>( "Sailfish.Office.Files", 1, 0, "TrackerDocumentProvider" );
+    qmlRegisterType<FilterModel>( "Sailfish.Office.Files", 1, 0, "FilterModel" );
+    qmlRegisterInterface<DocumentProviderPlugin>( "DocumentProviderPlugin" );
 
     QSharedPointer<QQuickView> view(MDeclarativeCache::qQuickView());
     view->engine()->addImportPath(CALLIGRA_QML_PLUGIN_DIR);
