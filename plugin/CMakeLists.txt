@@ -1,5 +1,5 @@
 set(plugin_SRCS
-    FileInfo.cpp
+    fileinfo.cpp
     sailfishofficeplugin.cpp
 )
 
