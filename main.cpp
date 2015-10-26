@@ -53,8 +53,8 @@ QSharedPointer<QApplication> createApplication(int &argc, char **argv)
 
     QTranslator *translator = new QTranslator(app.data());
     if (!translator->load(QLocale::system(), "sailfish-office", "-", TRANSLATION_INSTALL_DIR))
-        qWarning(("Could not load translations for " + QLocale::system().name()).toLatin1());
-    QCoreApplication::installTranslator( translator );
+        qWarning() << "Could not load translations for" << QLocale::system().name().toLatin1();
+    QCoreApplication::installTranslator(translator);
 
     return app;
 }
