@@ -23,7 +23,7 @@ import org.kde.calligra 1.0 as Calligra
 Page {
     id: base
 
-    property variant attachedPage
+    property var attachedPage
 
     property alias title: shareList.title
     property alias path: shareList.path

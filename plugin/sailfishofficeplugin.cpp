@@ -23,7 +23,7 @@
 #include <QTranslator>
 #include <QApplication>
 
-#include "FileInfo.h"
+#include "fileinfo.h"
 
 #include "config.h"
 

@@ -22,6 +22,7 @@
 #include <QtCore/QAbstractListModel>
 
 namespace Poppler { class Document; }
+
 class PDFTocModel : public QAbstractListModel
 {
     Q_OBJECT

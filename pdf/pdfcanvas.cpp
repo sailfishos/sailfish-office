@@ -32,10 +32,10 @@
 
 struct PDFPage {
     PDFPage()
-        : index{-1}
-        , requested{ false }
-        , rectPlaceholder{ false }
-        , texture{ nullptr }
+        : index(-1)
+        , requested(false)
+        , rectPlaceholder(false)
+        , texture(nullptr)
     { }
 
     int index;
@@ -50,15 +50,15 @@ struct PDFPage {
 class PDFCanvas::Private
 {
 public:
-    Private( PDFCanvas *qq )
-        : q{ qq }
-        , pageCount{ 0 }
-        , currentPage{ 1 }
-        , renderWidth{ 0 }
-        , document{ nullptr }
+    Private(PDFCanvas *qq)
+        : q(qq)
+        , pageCount(0)
+        , currentPage(1)
+        , renderWidth(0)
+        , document(nullptr)
         , flickable(0)
-        , resizeTimer{ nullptr }
-        , spacing{10.f}
+        , resizeTimer(nullptr)
+        , spacing(10.f)
     { }
 
     PDFCanvas *q;
@@ -98,7 +98,7 @@ public:
 };
 
 
-const float PDFCanvas::Private::wiggleFactor{ 4.f };
+const float PDFCanvas::Private::wiggleFactor(4.f);
 
 PDFCanvas::PDFCanvas(QQuickItem *parent)
     : QQuickItem(parent), d(new Private(this))

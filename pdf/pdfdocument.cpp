@@ -44,7 +44,7 @@ public:
 PDFDocument::PDFDocument(QObject *parent)
     : QObject(parent), d(new Private())
 {
-    d->thread = new PDFRenderThread{ this };
+    d->thread = new PDFRenderThread(this);
     connect( d->thread, &PDFRenderThread::loadFinished, this, &PDFDocument::documentLoaded );
     connect( d->thread, &PDFRenderThread::loadFinished, this, &PDFDocument::pageCountChanged );
     connect( d->thread, &PDFRenderThread::loadFinished, this, &PDFDocument::loadFinished );
@@ -116,7 +116,7 @@ void PDFDocument::classBegin()
 void PDFDocument::componentComplete()
 {
     if (!d->source.isEmpty()) {
-        LoadDocumentJob* job = new LoadDocumentJob{ QUrl{d->source}.toLocalFile() };
+        LoadDocumentJob* job = new LoadDocumentJob(QUrl(d->source).toLocalFile());
         d->thread->queueJob( job );
     }
 
@@ -131,7 +131,7 @@ void PDFDocument::setSource(const QString &source)
             d->source.prepend("file://");
 
         if (d->completed) {
-            LoadDocumentJob* job = new LoadDocumentJob{ QUrl{source}.toLocalFile() };
+            LoadDocumentJob* job = new LoadDocumentJob(QUrl(source).toLocalFile());
             d->thread->queueJob( job );
         }
 
@@ -153,7 +153,7 @@ void PDFDocument::requestPage(int index, int size, QQuickWindow *window )
     if (!isLoaded() || isLocked())
         return;
 
-    RenderPageJob* job = new RenderPageJob{ index, size, window };
+    RenderPageJob* job = new RenderPageJob(index, size, window);
     d->thread->queueJob( job );
 }
 
@@ -176,7 +176,7 @@ void PDFDocument::requestPageSizes()
     if (!isLoaded() || isLocked())
         return;
 
-    PageSizesJob* job = new PageSizesJob{};
+    PageSizesJob* job = new PageSizesJob;
     d->thread->queueJob( job );
 }
 

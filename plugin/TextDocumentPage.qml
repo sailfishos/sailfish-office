@@ -30,7 +30,7 @@ DocumentPage {
     }
 
     Calligra.View {
-        id: v
+        id: documentView
 
         width: page.width
         height: page.height
@@ -39,15 +39,15 @@ DocumentPage {
     }
 
     SilicaFlickable {
-        id: f
+        id: documentFlickable
 
         width: page.width
         height: page.height
 
         Calligra.ViewController {
             id: controller
-            view: v
-            flickable: f
+            view: documentView
+            flickable: documentFlickable
             useZoomProxy: false
             maximumZoom: 5.0
             minimumZoomFitsWidth: true
@@ -62,7 +62,7 @@ DocumentPage {
             anchors.fill: parent
 
             onPinchUpdated: {
-                var newCenter = mapToItem( f, pinch.center.x, pinch.center.y )
+                var newCenter = mapToItem(documentFlickable, pinch.center.x, pinch.center.y)
                 controller.zoomAroundPoint(controller.zoom * (pinch.scale - pinch.previousScale), newCenter.x, newCenter.y)
             }
             onPinchFinished: controller.zoomTimeout()

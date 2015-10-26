@@ -70,7 +70,7 @@ public:
 class PDFRenderThreadPrivate
 {
 public:
-    PDFRenderThreadPrivate() : document{ nullptr }, tocModel{ nullptr } { }
+    PDFRenderThreadPrivate() : document(nullptr), tocModel(nullptr) { }
 
     PDFRenderThread *q;
 
@@ -94,7 +94,7 @@ public:
                 case (Poppler::Link::Browse): {
                     Poppler::LinkBrowse *realLink = static_cast<Poppler::LinkBrowse*>(link);
                     QRectF linkArea = link->linkArea();
-                    linkTargets.insert( i, QPair< QRectF, QUrl >{ linkArea, realLink->url() } );
+                    linkTargets.insert(i, QPair<QRectF, QUrl>(linkArea, realLink->url()));
                     break;
                 }
                 case (Poppler::Link::Goto): {
@@ -113,7 +113,7 @@ public:
                         query.addQueryItem("top", QString::number(gotoLink->destination().top()));
                     }
                     linkURL.setQuery(query);
-                    linkTargets.insert( i, QPair< QRectF, QUrl >{ linkArea, linkURL } );
+                    linkTargets.insert(i, QPair<QRectF, QUrl>(linkArea, linkURL));
                     break;
                 }
                 default:
@@ -169,7 +169,8 @@ PDFRenderThread::~PDFRenderThread()
 
 int PDFRenderThread::pageCount() const
 {
-    QMutexLocker locker{ &d->thread->mutex };
+    QMutexLocker locker(&d->thread->mutex);
+
     if (d->document != nullptr &&
         !d->document->isLocked()) {
         return d->document->numPages();
@@ -180,19 +181,19 @@ int PDFRenderThread::pageCount() const
 
 QObject* PDFRenderThread::tocModel() const
 {
-    QMutexLocker{ &d->thread->mutex };
+    QMutexLocker(&d->thread->mutex);
     return d->tocModel;
 }
 
 bool PDFRenderThread::isLoaded() const
 {
-    QMutexLocker{ &d->thread->mutex };
+    QMutexLocker(&d->thread->mutex);
     return d->document != nullptr;
 }
 
 bool PDFRenderThread::isFailed() const
 {
-    QMutexLocker{ &d->thread->mutex };
+    QMutexLocker(&d->thread->mutex);
     return d->loadFailure;
 }
 
@@ -204,13 +205,13 @@ bool PDFRenderThread::isLocked() const
 
 QMultiMap< int, QPair< QRectF, QUrl > > PDFRenderThread::linkTargets() const
 {
-    QMutexLocker{ &d->thread->mutex };
+    QMutexLocker(&d->thread->mutex);
     return d->linkTargets;
 }
 
 void PDFRenderThread::queueJob(PDFJob *job)
 {
-    QMutexLocker locker{ &d->thread->mutex };
+    QMutexLocker locker(&d->thread->mutex);
     job->moveToThread(d->thread);
     d->thread->jobQueue->enqueue(job);
     QCoreApplication::postEvent(d->thread->jobQueue, new QEvent(Event_JobPending));
@@ -218,7 +219,7 @@ void PDFRenderThread::queueJob(PDFJob *job)
 
 void PDFRenderThread::cancelRenderJob(int index)
 {
-    QMutexLocker locker{ &d->thread->mutex };
+    QMutexLocker locker(&d->thread->mutex);
     for (QList<PDFJob *>::iterator it = d->thread->jobQueue->begin(); it != d->thread->jobQueue->end(); ) {
         PDFJob *j = *it;
         if (j->type() == PDFJob::RenderPageJob
@@ -233,7 +234,7 @@ void PDFRenderThread::cancelRenderJob(int index)
 
 void PDFRenderThread::prioritizeJob(int index, int size)
 {
-    QMutexLocker locker{ &d->thread->mutex };
+    QMutexLocker locker(&d->thread->mutex);
     for (QList<PDFJob *>::iterator it = d->thread->jobQueue->begin(); it != d->thread->jobQueue->end(); ++it) {
         PDFJob *j = *it;
         if (j->type() == PDFJob::RenderPageJob) {
@@ -253,7 +254,7 @@ void PDFRenderThreadQueue::processPendingJob()
 {
     Thread *t = qobject_cast<Thread *>(QThread::currentThread());
 
-    QMutexLocker locker{ &t->mutex };
+    QMutexLocker locker(&t->mutex);
     if (!t->jobQueue || count() == 0)
         return;
 

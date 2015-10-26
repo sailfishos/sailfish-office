@@ -32,8 +32,8 @@ namespace Poppler {
 }
 
 class PDFJob;
-class PDFDocument : public QObject, public QQmlParserStatus
 
+class PDFDocument : public QObject, public QQmlParserStatus
 {
     Q_OBJECT
     Q_PROPERTY(QString source READ source WRITE setSource NOTIFY sourceChanged)

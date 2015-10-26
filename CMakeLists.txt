@@ -35,7 +35,6 @@ add_subdirectory(pdf)
 set(sailfishoffice_SRCS
     main.cpp
     dbusadaptor.cpp
-    sailfishapplication.cpp
     models/filtermodel.cpp
     models/documentlistmodel.cpp
     models/documentproviderlistmodel.cpp
@@ -48,7 +47,6 @@ set(sailfishoffice_QML_SRCS
     qml/SearchPageHeader.qml
     qml/FileListPage.qml
     qml/Main.qml
-    qml/StartPage.qml
 )
 
 file(GLOB plugin_QML_SRCS plugin/*.qml)
