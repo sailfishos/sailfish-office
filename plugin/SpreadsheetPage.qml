@@ -34,7 +34,7 @@ DocumentPage {
     }
 
     Calligra.View {
-        id: v
+        id: documentView
 
         width: page.width
         height: page.height
@@ -44,15 +44,15 @@ DocumentPage {
 
 
     SilicaFlickable {
-        id: f
+        id: documentFlickable
 
         width: page.width
         height: page.height
 
         Calligra.ViewController {
             id: controller
-            view: v
-            flickable: f
+            view: documentView
+            flickable: documentFlickable
             useZoomProxy: false
             maximumZoom: 5.0
         }
@@ -66,7 +66,7 @@ DocumentPage {
             anchors.fill: parent
 
             onPinchUpdated: {
-                var newCenter = mapToItem( f, pinch.center.x, pinch.center.y )
+                var newCenter = mapToItem(documentFlickable, pinch.center.x, pinch.center.y)
                 controller.zoomAroundPoint(controller.zoom * (pinch.scale - pinch.previousScale), newCenter.x, newCenter.y)
             }
             onPinchFinished: controller.zoomTimeout()
@@ -93,8 +93,8 @@ DocumentPage {
 
         //Reset the position when we change sheets
         if (status == PageStatus.Activating) {
-            f.contentX = 0
-            f.contentY = 0
+            documentFlickable.contentX = 0
+            documentFlickable.contentY = 0
         }
     }
 }
