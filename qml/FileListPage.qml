@@ -26,10 +26,24 @@ Page {
 
     property alias model: filteredModel.sourceModel
     property string title
-    property string searchText
+    property string searchText: searchField.text
+    property bool searchEnabled
     property QtObject provider
 
     allowedOrientations: Orientation.All
+
+    onSearchEnabledChanged: {
+        if (pageStack.currentPage.status == PageStatus.Active) {
+            if (searchEnabled) {
+                searchField.forceActiveFocus()
+            } else {
+                searchField.focus = false
+            }
+        }
+        if (!searchEnabled) {
+            searchField.text = ""
+        }
+    }
 
     FilterModel {
         id: filteredModel
@@ -43,48 +57,99 @@ Page {
         model: filteredModel
         currentIndex: -1 // otherwise currentItem will steal focus
 
-        header: SearchPageHeader {
-            id: header
+        header: Item {
+            width: listView.width
+            height: headerContent.height
+        }
+
+        Column {
+            id: headerContent
+
+            parent: listView.headerItem
             width: parent.width
 
-            //: Application title
-            //% "Documents"
-            title: qsTrId("sailfish-office-he-apptitle")
-
-            // TODO: uncomment once there are more document sources
-            // title: page.title
-
-            Binding {
-                target: page
-                property: "searchText"
-                value: header.searchText
+            PageHeader {
+                //: Application title
+                //% "Documents"
+                title: qsTrId("sailfish-office-he-apptitle")
             }
 
-            Connections {
-                target: menuItemSearch
-                onClicked: header.enableSearch()
+            SearchField {
+                id: searchField
+
+                width: parent.width
+                opacity: page.searchEnabled ? 1.0 : 0.0
+                visible: opacity > 0
+
+                //: Document search field placeholder text
+                //% "Search documents"
+                placeholderText: qsTrId("sailfish-office-tf-search-documents")
+
+                // We prefer lowercase
+                inputMethodHints: Qt.ImhNoAutoUppercase | Qt.ImhPreferLowercase | Qt.ImhNoPredictiveText
+                EnterKey.iconSource: "image://theme/icon-m-enter-close"
+                EnterKey.onClicked: focus = false
+
+                Behavior on opacity { FadeAnimation { duration: 150 } }
+                Behavior on height {
+                    NumberAnimation {
+                        duration: 150
+                        easing.type: Easing.InOutQuad
+                    }
+                }
+                Binding {
+                    target: searchField
+                    when: !searchEnabled
+                    property: "height"
+                    value: 0
+                }
+            }
+        }
+
+        Connections {
+            target: searchField.activeFocus ? listView : null
+            ignoreUnknownSignals: true
+            onContentYChanged: {
+                if (listView.contentY > (Screen.height / 2)) {
+                    searchField.focus = false
+                }
             }
         }
 
         PullDownMenu {
-            visible: listView.count > 0
-            MenuItem {
-                id: menuItemSearch
+            id: menu
 
-                //: Search menu entry
-                //% "Search"
-                text: qsTrId("sailfish-office-me-search")
+            property bool _searchEnabled
+
+            // avoid changing text state while menu is open
+            onActiveChanged: {
+                if (active) {
+                    _searchEnabled = page.searchEnabled
+                }
+            }
+
+            MenuItem {
+                text: !menu._searchEnabled ? //% "Show search"
+                                             qsTrId("sailfish-office-me-show_search")
+                                             //% "Hide search"
+                                           : qsTrId("sailfish-office-me-hide_search")
+                onClicked: page.searchEnabled = !page.searchEnabled
             }
         }
-        
-        ViewPlaceholder {
+
+        InfoLabel {
+            parent: listView.contentItem
+            y: listView.headerItem.y + listView.headerItem.height + Theme.paddingLarge
             //: View placeholder shown when there are no documents
             //% "No documents"
             text: searchText.length == 0 ? qsTrId("sailfish-office-la-no_documents")
-                                         : //% "No document found"
+                                         : //% "No documents found"
                                            qsTrId("sailfish-office-la-not-found")
-            enabled: !listView.count
+            visible: opacity > 0
+            opacity: listView.count > 0 ? 0.0 : 1.0
+            Behavior on opacity { FadeAnimation {} }
         }
+
         delegate: ListItem {
             id: listItem
             contentHeight: Theme.itemSizeMedium
@@ -173,8 +238,9 @@ Page {
                 remorseAction(qsTrId("sailfish-office-la-deleting"), function() { page.provider.deleteFile(model.filePath) })
             }
 
-            ListView.onAdd: AddAnimation { target: listItem }
-            ListView.onRemove: RemoveAnimation { target: listItem }
+            // TODO: transitions disabled until they don't anymore confuse SilicaListView positioning. JB#33215
+            //ListView.onAdd: AddAnimation { target: listItem }
+            //ListView.onRemove: RemoveAnimation { target: listItem }
 
             menu: Component {
                 ContextMenu {
