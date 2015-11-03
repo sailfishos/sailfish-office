@@ -31,6 +31,7 @@ DocumentPage {
     busy: (!pdfDocument.loaded && !pdfDocument.failure) || pdfDocument.searching
     source: pdfDocument.source
     indexCount: pdfDocument.pageCount
+    drawerVisible: !(pdfDocument.failure || pdfDocument.locked)
 
     function savePageSettings() {
         if (!rememberPositionConfig.value) { return }
@@ -74,54 +75,26 @@ DocumentPage {
         }
     }
 
+    Binding {
+        target: base
+        property: "forwardNavigation"
+        value: false
+        when: (pdfDocument.failure || pdfDocument.locked)
+    }
+
+    Loader {
+        parent: base
+        sourceComponent: (pdfDocument.failure || pdfDocument.locked) ? placeholderComponent : null
+        anchors.verticalCenter: parent.verticalCenter
+    }
+
     PDFView {
         id: view
 
         width: base.width
         height: base.height
         document: pdfDocument
-
         onClicked: base.open = !base.open
-
-        ViewPlaceholder {
-            id: documentPlaceholder
-            enabled: pdfDocument.failure || pdfDocument.locked
-            y: (flickable ? flickable.originY : 0) + (base.height - height - (passwd.visible ? passwd.height : 0)) / 2
-            //% "Broken file"
-            text: pdfDocument.failure ? qsTrId("sailfish-office-me-broken-pdf")
-                                      : //% "Locked file"
-                                        qsTrId("sailfish-office-me-locked-pdf")
-            //% "Cannot read the PDF document"
-            hintText: pdfDocument.failure ? qsTrId("sailfish-office-me-broken-pdf-hint")
-                                          : //% "Enter password to unlock"
-                                            qsTrId("sailfish-office-me-locked-pdf-hint")
-            MouseArea {
-                anchors.fill: parent
-                onClicked: base.open = !base.open
-            }
-            TextField {
-                id: passwd
-                visible: pdfDocument.locked
-                width: parent.width - Theme.paddingLarge
-                anchors.top: parent.bottom
-                anchors.horizontalCenter: parent.horizontalCenter
-
-                //% "password"
-                label: qsTrId("sailfish-office-la-password")
-                placeholderText: label
-
-                inputMethodHints: Qt.ImhNoPredictiveText | Qt.ImhNoAutoUppercase
-                echoMode: TextInput.Password
-                EnterKey.enabled: text
-                EnterKey.onClicked: {
-                    focus = false
-                    pdfDocument.requestUnLock(text)
-                    text = ""
-                }
-
-                onFocusChanged: if (focus) base.open = false
-            }
-        }
     }
 
     ToolBar {
@@ -132,7 +105,7 @@ DocumentPage {
                 : Theme.itemSizeSmall
         parentHeight: base.height
         flickable: view
-        hidden: base.open || documentPlaceholder.enabled
+        hidden: base.open || pdfDocument.failure || pdfDocument.locked
         autoHide: search.text.length == 0 && !search.activeFocus
 
         // Toolbar contain.
@@ -220,6 +193,61 @@ DocumentPage {
     PDF.Document {
         id: pdfDocument
         source: base.path
+    }
+
+    Component {
+        id: placeholderComponent
+
+        Column {
+            width: base.width
+
+            InfoLabel {
+                text: pdfDocument.failure ? //% "Broken file"
+                                            qsTrId("sailfish-office-me-broken-pdf")
+                                          : //% "Locked file"
+                                            qsTrId("sailfish-office-me-locked-pdf")
+            }
+
+            InfoLabel {
+                font.pixelSize: Theme.fontSizeLarge
+                color: Theme.rgba(Theme.highlightColor, 0.4)
+                text: pdfDocument.failure ? //% "Cannot read the PDF document"
+                                            qsTrId("sailfish-office-me-broken-pdf-hint")
+                                          : //% "Enter password to unlock"
+                                            qsTrId("sailfish-office-me-locked-pdf-hint")
+            }
+
+            Item {
+                visible:password.visible
+                width: 1
+                height: Theme.paddingLarge
+            }
+
+            TextField {
+                id: password
+
+                visible: pdfDocument.locked
+                x: Theme.horizontalPageMargin
+                width: parent.width - 2*x
+                //% "password"
+                label: qsTrId("sailfish-office-la-password")
+                placeholderText: label
+                inputMethodHints: Qt.ImhNoPredictiveText | Qt.ImhNoAutoUppercase
+                echoMode: TextInput.Password
+                EnterKey.enabled: text
+                EnterKey.iconSource: "image://theme/icon-m-enter-accept"
+                EnterKey.onClicked: {
+                    focus = false
+                    pdfDocument.requestUnLock(text)
+                    text = ""
+                }
+
+                Component.onCompleted: {
+                    if (visible)
+                        forceActiveFocus()
+                }
+            }
+        }
     }
 
     ConfigurationValue {
