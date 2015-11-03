@@ -59,16 +59,18 @@ DocumentPage {
     }
     Connections {
         target: view
-        onPageSizesReady: if (rememberPositionConfig.value) {
-            if (!_settings) {
-                _settings = new PDFStorage.Settings(pdfDocument.source)
+        onPageSizesReady: {
+            if (rememberPositionConfig.value) {
+                if (!_settings) {
+                    _settings = new PDFStorage.Settings(pdfDocument.source)
+                }
+                var last = _settings.getLastPage()
+                if (last[3] > 0) {
+                    view.itemWidth = last[3]
+                    view.adjust()
+                }
+                view.goToPage( last[0] - 1, last[1], last[2] )
             }
-            var last = _settings.getLastPage()
-            if (last[3] > 0) {
-                view.itemWidth = last[3]
-                view.adjust()
-            }
-            view.goToPage( last[0] - 1, last[1], last[2] )
         }
     }
 

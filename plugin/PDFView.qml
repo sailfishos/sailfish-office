@@ -135,9 +135,11 @@ SilicaFlickable {
         linkColor: Theme.highlightColor
         pagePlaceholderColor: Theme.highlightColor
 
-        onPageLayoutChanged: if (!_pageSizesReady) {
-            _pageSizesReady = true
-            base.pageSizesReady()
+        onPageLayoutChanged: {
+            if (!_pageSizesReady) {
+                _pageSizesReady = true
+                base.pageSizesReady()
+            }
         }
 
         PinchArea {

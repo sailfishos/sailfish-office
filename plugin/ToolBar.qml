@@ -57,13 +57,16 @@ PanelBackground {
     }
     Connections {
         target: flickable
-        onContentYChanged:  {
-        if (!flickable.movingVertically) return
+        onContentYChanged: {
+            if (!flickable.movingVertically)
+                return
 
-        _dragUp = !autoHide || (flickable.contentY < _previousContentY)
-        if (_dragUp) autoHideTimer.restart()
+            _dragUp = !autoHide || (flickable.contentY < _previousContentY)
 
-        _previousContentY = flickable.contentY
+            if (_dragUp)
+                autoHideTimer.restart()
+
+            _previousContentY = flickable.contentY
         }
     }
 
