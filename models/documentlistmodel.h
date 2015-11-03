@@ -71,7 +71,7 @@ public:
     TagListModel* tags() const;
 
     Q_INVOKABLE int mimeTypeToDocumentClass(QString mimeType) const;
-    bool hasTagAt(int row, const QString &tag) const;
+    bool hasTag(int row, const QString &tag) const;
     Q_INVOKABLE bool hasTag(const QString &path, const QString &tag) const;
     Q_INVOKABLE void addTag(const QString &path, const QString &tag);
     Q_INVOKABLE void removeTag(const QString &path, const QString &tag);
@@ -85,6 +85,8 @@ Q_SIGNALS:
 private:
     class Private;
     const QScopedPointer<Private> d;
+
+    void notifyForPath(const QString &path);
 };
 
 #endif // DOCUMENTLISTMODEL_H

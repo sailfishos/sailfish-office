@@ -67,7 +67,7 @@ bool FilterModel::filterAcceptsRow(int source_row, const QModelIndex & source_pa
     ret = true;
     for (QSet<QString>::const_iterator it = tags.begin();
          it != tags.end() && ret; it++) {
-        ret = sourceModel()->hasTagAt(source_row, *it);
+        ret = sourceModel()->hasTag(source_row, *it);
     }
 
     return ret && QSortFilterProxyModel::filterAcceptsRow(source_row, source_parent);
