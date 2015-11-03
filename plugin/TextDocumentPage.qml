@@ -23,9 +23,18 @@ import org.kde.calligra 1.0 as Calligra
 DocumentPage {
     id: page
 
+    busy: doc.status != Calligra.DocumentStatus.Loaded
+    source: doc.source
+    indexCount: doc.indexCount
     attachedPage: Component {
         TextDocumentToCPage {
             document: doc
+        }
+    }
+    onStatusChanged: {
+        //Delay loading the document until the page has been activated.
+        if (status == PageStatus.Active) {
+            doc.source = page.path
         }
     }
 
@@ -81,16 +90,5 @@ DocumentPage {
         id: doc
 
         onStatusChanged: if (status == Calligra.DocumentStatus.Loaded) controller.zoomToFitWidth(page.width)
-    }
-    
-    busy: doc.status != Calligra.DocumentStatus.Loaded
-    source: doc.source
-    indexCount: doc.indexCount
-
-    onStatusChanged: {
-        //Delay loading the document until the page has been activated.
-        if (status == PageStatus.Active) {
-            doc.source = page.path
-        }
     }
 }

@@ -32,6 +32,8 @@ PanelBackground {
 
     anchors.top: flickable.bottom
 
+    onAutoHideChanged: if (autoHide && !autoHideTimer.running) autoHideTimer.start()
+
     states: [
         State {
             name: "visible"
@@ -65,11 +67,9 @@ PanelBackground {
         }
     }
 
-    // Auto hide toolbar
     Timer {
         id: autoHideTimer
         interval: 4000
         onTriggered: _dragUp = !autoHide
     }
-    onAutoHideChanged: if (autoHide && !autoHideTimer.running) autoHideTimer.start()
 }

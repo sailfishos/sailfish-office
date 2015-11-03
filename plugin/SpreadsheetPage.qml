@@ -23,9 +23,26 @@ import org.kde.calligra 1.0 as Calligra
 DocumentPage {
     id: page
 
+    busy: doc.status != Calligra.DocumentStatus.Loaded
+    source: doc.source
+    indexCount: doc.indexCount
+
     attachedPage: Component {
         SpreadsheetListPage {
             document: doc
+        }
+    }
+
+    onStatusChanged: {
+        //Delay loading the document until the page has been activated.
+        if (status == PageStatus.Active) {
+            doc.source = page.path
+        }
+
+        //Reset the position when we change sheets
+        if (status == PageStatus.Activating) {
+            documentFlickable.contentX = 0
+            documentFlickable.contentY = 0
         }
     }
 
@@ -78,23 +95,6 @@ DocumentPage {
                 onLinkClicked: Qt.openUrlExternally(linkTarget)
                 controllerZoom: controller.zoom
             }
-        }
-    }
-
-    busy: doc.status != Calligra.DocumentStatus.Loaded
-    source: doc.source
-    indexCount: doc.indexCount
-
-    onStatusChanged: {
-        //Delay loading the document until the page has been activated.
-        if (status == PageStatus.Active) {
-            doc.source = page.path
-        }
-
-        //Reset the position when we change sheets
-        if (status == PageStatus.Activating) {
-            documentFlickable.contentX = 0
-            documentFlickable.contentY = 0
         }
     }
 }

@@ -28,6 +28,10 @@ DocumentPage {
 
     property var _settings // Handle save and restore the view settings using PDFStorage
 
+    busy: (!pdfDocument.loaded && !pdfDocument.failure) || pdfDocument.searching
+    source: pdfDocument.source
+    indexCount: pdfDocument.pageCount
+
     function savePageSettings() {
         if (!rememberPositionConfig.value) { return }
         
@@ -215,10 +219,6 @@ DocumentPage {
         id: pdfDocument
         source: base.path
     }
-
-    busy: (!pdfDocument.loaded && !pdfDocument.failure) || pdfDocument.searching
-    source: pdfDocument.source
-    indexCount: pdfDocument.pageCount
 
     ConfigurationValue {
         id: rememberPositionConfig
