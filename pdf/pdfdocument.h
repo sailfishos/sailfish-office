@@ -39,9 +39,9 @@ class PDFDocument : public QObject, public QQmlParserStatus
     Q_PROPERTY(QString source READ source WRITE setSource NOTIFY sourceChanged)
     Q_PROPERTY(int pageCount READ pageCount NOTIFY pageCountChanged)
     Q_PROPERTY(QObject* tocModel READ tocModel NOTIFY tocModelChanged)
-    Q_PROPERTY(bool loaded READ isLoaded NOTIFY documentLoaded)
-    Q_PROPERTY(bool failure READ isFailed NOTIFY documentFailed)
-    Q_PROPERTY(bool locked READ isLocked NOTIFY documentLocked)
+    Q_PROPERTY(bool loaded READ isLoaded NOTIFY documentLoadedChanged)
+    Q_PROPERTY(bool failure READ isFailed NOTIFY documentFailedChanged)
+    Q_PROPERTY(bool locked READ isLocked NOTIFY documentLockedChanged)
     Q_PROPERTY(bool searching READ searching NOTIFY searchingChanged)
     Q_PROPERTY(QObject* searchModel READ searchModel NOTIFY searchModelChanged)
 
@@ -87,9 +87,9 @@ Q_SIGNALS:
     void searchingChanged();
     void searchModelChanged();
 
-    void documentLoaded();
-    void documentFailed();
-    void documentLocked();
+    void documentLoadedChanged();
+    void documentFailedChanged();
+    void documentLockedChanged();
     void pageFinished(int index, QSGTexture *page);
     void pageSizesFinished(const QList<QSizeF> &heights);
 
