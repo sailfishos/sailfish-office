@@ -34,7 +34,9 @@ DocumentPage {
     drawerVisible: !(pdfDocument.failure || pdfDocument.locked)
 
     function savePageSettings() {
-        if (!rememberPositionConfig.value) { return }
+        if (!rememberPositionConfig.value || pdfDocument.failure || pdfDocument.locked) {
+            return
+        }
         
         if (!_settings) {
             _settings = new PDFStorage.Settings(pdfDocument.source)
