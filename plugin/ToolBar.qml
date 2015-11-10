@@ -32,6 +32,8 @@ PanelBackground {
 
     anchors.top: flickable.bottom
 
+    onAutoHideChanged: if (autoHide && !autoHideTimer.running) autoHideTimer.start()
+
     states: [
         State {
             name: "visible"
@@ -55,21 +57,22 @@ PanelBackground {
     }
     Connections {
         target: flickable
-        onContentYChanged:  {
-        if (!flickable.movingVertically) return
+        onContentYChanged: {
+            if (!flickable.movingVertically)
+                return
 
-        _dragUp = !autoHide || (flickable.contentY < _previousContentY)
-        if (_dragUp) autoHideTimer.restart()
+            _dragUp = !autoHide || (flickable.contentY < _previousContentY)
 
-        _previousContentY = flickable.contentY
+            if (_dragUp)
+                autoHideTimer.restart()
+
+            _previousContentY = flickable.contentY
         }
     }
 
-    // Auto hide toolbar
     Timer {
         id: autoHideTimer
         interval: 4000
         onTriggered: _dragUp = !autoHide
     }
-    onAutoHideChanged: if (autoHide && !autoHideTimer.running) autoHideTimer.start()
 }

@@ -26,7 +26,7 @@ class PDFCanvas;
 class PDFLinkArea : public QQuickItem
 {
     Q_OBJECT
-    Q_PROPERTY( PDFCanvas* canvas READ canvas WRITE setCanvas NOTIFY canvasChanged )
+    Q_PROPERTY(PDFCanvas* canvas READ canvas WRITE setCanvas NOTIFY canvasChanged)
 
 public:
     PDFLinkArea(QQuickItem *parent = 0);

@@ -45,10 +45,10 @@ PDFDocument::PDFDocument(QObject *parent)
     : QObject(parent), d(new Private())
 {
     d->thread = new PDFRenderThread(this);
-    connect( d->thread, &PDFRenderThread::loadFinished, this, &PDFDocument::documentLoaded );
-    connect( d->thread, &PDFRenderThread::loadFinished, this, &PDFDocument::pageCountChanged );
-    connect( d->thread, &PDFRenderThread::loadFinished, this, &PDFDocument::loadFinished );
-    connect( d->thread, &PDFRenderThread::jobFinished, this, &PDFDocument::jobFinished );
+    connect(d->thread, &PDFRenderThread::loadFinished, this, &PDFDocument::documentLoadedChanged);
+    connect(d->thread, &PDFRenderThread::loadFinished, this, &PDFDocument::pageCountChanged);
+    connect(d->thread, &PDFRenderThread::loadFinished, this, &PDFDocument::loadFinished);
+    connect(d->thread, &PDFRenderThread::jobFinished, this, &PDFDocument::jobFinished);
 
     d->searchModel = nullptr;
 }
@@ -202,16 +202,16 @@ void PDFDocument::search(const QString &search, uint startPage)
 void PDFDocument::loadFinished()
 {
     if (d->thread->isFailed())
-        emit documentFailed();
+        emit documentFailedChanged();
     if (d->thread->isLocked())
-        emit documentLocked();
+        emit documentLockedChanged();
 }
 
-void PDFDocument::jobFinished(PDFJob* job)
+void PDFDocument::jobFinished(PDFJob *job)
 {
     switch(job->type()) {
     case PDFJob::UnLockDocumentJob: {
-        emit documentLocked();
+        emit documentLockedChanged();
         emit pageCountChanged();
         break;
     }

@@ -23,9 +23,20 @@ import org.kde.calligra 1.0 as Calligra
 DocumentPage {
     id: page
 
+    busy: doc.status != Calligra.DocumentStatus.Loaded
+    source: doc.source
+    indexCount: doc.indexCount
+
     attachedPage: Component {
         PresentationThumbnailPage {
             document: doc
+        }
+    }
+
+    onStatusChanged: {
+        //Delay loading the document until the page has been activated.
+        if (status == PageStatus.Active) {
+            doc.source = page.path
         }
     }
 
@@ -62,16 +73,5 @@ DocumentPage {
 
     Calligra.Document {
         id: doc
-    }
-    
-    busy: doc.status != Calligra.DocumentStatus.Loaded
-    source: doc.source
-    indexCount: doc.indexCount
-
-    onStatusChanged: {
-        //Delay loading the document until the page has been activated.
-        if (status == PageStatus.Active) {
-            doc.source = page.path
-        }
     }
 }

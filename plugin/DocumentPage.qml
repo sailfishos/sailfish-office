@@ -38,9 +38,10 @@ Page {
     property url source
     property int indexCount
     property bool _forceNavigation
+    property alias drawerVisible: drawer.visible
 
     allowedOrientations: Orientation.All
-    backNavigation: drawer.opened || _forceNavigation
+    backNavigation: drawer.opened || !drawer.visible || _forceNavigation
     forwardNavigation: drawer.opened || _forceNavigation
 
     function pushAttachedPage() {
