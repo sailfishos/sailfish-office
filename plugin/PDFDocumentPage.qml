@@ -93,22 +93,24 @@ DocumentPage {
     PDFView {
         id: view
 
-        width: base.width
-        height: base.height
+        anchors.fill: parent
+        anchors.bottomMargin: toolbar.offset
         document: pdfDocument
         onClicked: base.open = !base.open
+        clip: anchors.bottomMargin > 0
     }
 
     ToolBar {
         id: toolbar
+
         width: parent.width
         height: base.orientation == Orientation.Portrait || base.orientation == Orientation.InvertedPortrait
                 ? Theme.itemSizeLarge
                 : Theme.itemSizeSmall
-        parentHeight: base.height
+        anchors.top: view.bottom
         flickable: view
-        hidden: base.open || pdfDocument.failure || pdfDocument.locked
-        autoHide: search.text.length == 0 && !search.activeFocus
+        forceHidden: base.open || pdfDocument.failure || pdfDocument.locked
+        autoShowHide: search.text.length == 0 && !search.activeFocus
 
         // Toolbar contain.
         Row {
@@ -150,7 +152,13 @@ DocumentPage {
                 enabled: !pdfDocument.searching
 
                 inputMethodHints: Qt.ImhNoAutoUppercase | Qt.ImhPreferLowercase | Qt.ImhNoPredictiveText
-                EnterKey.onClicked: { focus = false; pdfDocument.search(text, view.currentPage - 1) }
+
+                EnterKey.iconSource: text != "" ? "image://theme/icon-m-enter-accept"
+                                                : "image://theme/icon-m-enter-close"
+                EnterKey.onClicked: {
+                    focus = false
+                    pdfDocument.search(text, view.currentPage - 1)
+                }
 
                 Behavior on width {
                     NumberAnimation { easing.type: Easing.InOutQuad; duration: 400 }
