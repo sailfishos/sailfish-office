@@ -2,7 +2,6 @@
 Type=Application
 NoDisplay=true
 Name=Documents
-Name[zh_CN]=文档
 X-MeeGo-Logical-Id=sailfish-office-ap-name
 X-MeeGo-Translation-Catalog=sailfish-office
 Icon=icon-launcher-office
