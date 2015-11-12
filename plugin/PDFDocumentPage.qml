@@ -32,6 +32,7 @@ DocumentPage {
     source: pdfDocument.source
     indexCount: pdfDocument.pageCount
     drawerVisible: !(pdfDocument.failure || pdfDocument.locked)
+    documentItem: view
 
     function savePageSettings() {
         if (!rememberPositionConfig.value || pdfDocument.failure || pdfDocument.locked) {
