@@ -163,7 +163,7 @@ Page {
                     verticalCenter: parent.verticalCenter
                 }
                 source: fileMimeType !== "" ? fileMimeType
-                                            : ("image://theme/icon-l-document?"
+                                            : ("image://theme/icon-m-document?"
                                                + (listItem.highlighted ? Theme.highlightColor : Theme.primaryColor))
             }
             Label {
