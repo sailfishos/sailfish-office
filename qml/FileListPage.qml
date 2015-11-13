@@ -162,15 +162,9 @@ Page {
                     leftMargin: Theme.horizontalPageMargin
                     verticalCenter: parent.verticalCenter
                 }
-                source: fileMimeType
-                states: State {
-                    when: icon.fileMimeType === ""
-                    PropertyChanges {
-                        target: icon
-                        source: "image://theme/icon-l-document?"
-                                + (listItem.highlighted ? Theme.highlightColor : Theme.primaryColor)
-                    }
-                }
+                source: fileMimeType !== "" ? fileMimeType
+                                            : ("image://theme/icon-l-document?"
+                                               + (listItem.highlighted ? Theme.highlightColor : Theme.primaryColor))
             }
             Label {
                 anchors {
