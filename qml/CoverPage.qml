@@ -41,35 +41,11 @@ CoverBackground {
         width: parent.width
         height: 7*itemHeight
 
-        delegate: Item {
+        delegate: CoverFileItem {
             width: fileListView.width
             height: fileListView.itemHeight
-            Image {
-                id: icon
-
-                property string fileMimeType: window.mimeToIcon(model.fileMimeType)
-
-                anchors {
-                    left: parent.left
-                    leftMargin: Theme.paddingLarge
-                    verticalCenter: parent.verticalCenter
-                }
-                source: fileMimeType !== "" ? fileMimeType
-                                            : "image://theme/icon-l-document"
-
-                sourceSize { width: Theme.iconSizeSmall; height: Theme.iconSizeSmall }
-            }
-            Label {
-                anchors {
-                    left: icon.right
-                    leftMargin: Theme.paddingMedium
-                    verticalCenter: parent.verticalCenter
-                    right: parent.right
-                    rightMargin: Theme.paddingLarge
-                }
-                text: model.fileName
-                truncationMode: TruncationMode.Fade
-            }
+            text: model.fileName
+            iconSource: window.mimeToIcon(model.fileMimeType)
         }
     }
 
@@ -85,8 +61,11 @@ CoverBackground {
         Image {
             id: previewImage
 
-            anchors.fill: parent
             property QtObject coverWindow
+
+            anchors.fill: parent
+            visible: window.documentItem && (!window.documentItem.hasOwnProperty("contentAvailable") ||
+                                             window.documentItem.contentAvailable)
 
             function updatePreview() {
                 if (window.documentItem && applicationWindow.visible) {
@@ -107,6 +86,18 @@ CoverBackground {
                 onDocumentItemChanged: { previewImage.updatePreview() }
                 onOrientationChanged: { previewImage.updatePreview() }
             }
+        }
+
+        // fall back to file name if content is not loaded
+        CoverFileItem {
+            visible: !previewImage.visible
+            width: parent.width
+            y: Theme.paddingLarge
+            multiLine: true
+            text: window.documentItem && window.documentItem.hasOwnProperty("title")
+                  ? window.documentItem.title : ""
+            iconSource: window.documentItem && window.documentItem.hasOwnProperty("mimeType")
+                        ? window.mimeToIcon(window.documentItem.mimeType) : ""
         }
     }
 }

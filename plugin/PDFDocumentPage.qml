@@ -94,6 +94,11 @@ DocumentPage {
     PDFView {
         id: view
 
+        // for cover state
+        property bool contentAvailable: pdfDocument.loaded && !(pdfDocument.failure || pdfDocument.locked)
+        property alias title: base.title
+        property alias mimeType: base.mimeType
+
         anchors.fill: parent
         anchors.bottomMargin: toolbar.offset
         document: pdfDocument
