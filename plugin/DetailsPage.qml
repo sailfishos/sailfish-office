@@ -19,7 +19,6 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 import Sailfish.Office 1.0
-import org.kde.calligra 1.0 as Calligra
 
 Page {
     id: page
