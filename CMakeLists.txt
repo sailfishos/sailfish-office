@@ -46,6 +46,7 @@ set(sailfishoffice_QML_SRCS
     qml/CoverPage.qml
     qml/FileListPage.qml
     qml/Main.qml
+    qml/CoverFileItem.qml
 )
 
 file(GLOB plugin_QML_SRCS plugin/*.qml)

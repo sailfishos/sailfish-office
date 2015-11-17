@@ -39,6 +39,8 @@ Page {
     property bool _forceNavigation
     property alias drawerVisible: drawer.visible
 
+    property Item documentItem: base
+
     allowedOrientations: Orientation.All
     backNavigation: drawer.opened || !drawer.visible || _forceNavigation
     forwardNavigation: drawer.opened || _forceNavigation
@@ -91,7 +93,7 @@ Page {
     onStatusChanged: {
         if (status == PageStatus.Active) {
             drawer.open = false
-            window.documentItem = drawer.foregroundItem
+            window.documentItem = documentItem
         }
     }
 

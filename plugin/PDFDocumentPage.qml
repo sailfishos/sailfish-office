@@ -32,6 +32,7 @@ DocumentPage {
     source: pdfDocument.source
     indexCount: pdfDocument.pageCount
     drawerVisible: !(pdfDocument.failure || pdfDocument.locked)
+    documentItem: view
 
     function savePageSettings() {
         if (!rememberPositionConfig.value || pdfDocument.failure || pdfDocument.locked) {
@@ -92,6 +93,11 @@ DocumentPage {
 
     PDFView {
         id: view
+
+        // for cover state
+        property bool contentAvailable: pdfDocument.loaded && !(pdfDocument.failure || pdfDocument.locked)
+        property alias title: base.title
+        property alias mimeType: base.mimeType
 
         anchors.fill: parent
         anchors.bottomMargin: toolbar.offset
