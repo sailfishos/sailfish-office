@@ -76,7 +76,7 @@ public:
 };
 
 TrackerDocumentProvider::TrackerDocumentProvider(QObject *parent)
-    : DocumentProviderPlugin(parent)
+    : DocumentProvider(parent)
     , d(new Private)
 {
 }
@@ -146,7 +146,7 @@ int TrackerDocumentProvider::count() const
 
 QString TrackerDocumentProvider::description() const
 {
-    //: Description for local device files plugin
+    //: Description for local device files provider
     //% "Files found on this device."
     return qtTrId("sailfish-office-la-localfiles_description");
 }
@@ -173,7 +173,7 @@ QUrl TrackerDocumentProvider::thumbnail() const
 
 QString TrackerDocumentProvider::title() const
 {
-    //: Title for local device files plugin
+    //: Title for local device files provider
     //% "This Device"
     return qtTrId("sailfish-office-he-localfiles_title");
 }

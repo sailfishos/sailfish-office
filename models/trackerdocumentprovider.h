@@ -19,17 +19,17 @@
 #ifndef TRACKERDOCUMENTPROVIDER_H
 #define TRACKERDOCUMENTPROVIDER_H
 
-#include "documentproviderplugin.h"
+#include "documentprovider.h"
 #include <QtCore/QFileInfo>
 #include <QtCore/QRunnable>
 #include <QtCore/QHash>
 #include <QtQml/QQmlParserStatus>
 
 class DocumentListModel;
-class TrackerDocumentProvider : public DocumentProviderPlugin, public QQmlParserStatus
+class TrackerDocumentProvider : public DocumentProvider, public QQmlParserStatus
 {
     Q_OBJECT
-    Q_INTERFACES(DocumentProviderPlugin QQmlParserStatus)
+    Q_INTERFACES(DocumentProvider QQmlParserStatus)
 
 public:
     enum DocumentType {

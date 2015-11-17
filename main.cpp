@@ -34,7 +34,7 @@
 #include "models/filtermodel.h"
 #include "models/documentlistmodel.h"
 #include "models/trackerdocumentprovider.h"
-#include "models/documentproviderplugin.h"
+#include "models/documentprovider.h"
 #include "models/documentproviderlistmodel.h"
 #include "dbusadaptor.h"
 
@@ -65,7 +65,7 @@ QSharedPointer<QQuickView> createView(const QString &file)
     qmlRegisterType<DocumentProviderListModel>("Sailfish.Office.Files", 1, 0, "DocumentProviderListModel");
     qmlRegisterType<TrackerDocumentProvider>("Sailfish.Office.Files", 1, 0, "TrackerDocumentProvider");
     qmlRegisterType<FilterModel>("Sailfish.Office.Files", 1, 0, "FilterModel");
-    qmlRegisterInterface<DocumentProviderPlugin>("DocumentProviderPlugin");
+    qmlRegisterInterface<DocumentProvider>("DocumentProvider");
 
     QSharedPointer<QQuickView> view(MDeclarativeCache::qQuickView());
     view->engine()->addImportPath(CALLIGRA_QML_PLUGIN_DIR);

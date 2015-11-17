@@ -38,7 +38,7 @@ set(sailfishoffice_SRCS
     models/filtermodel.cpp
     models/documentlistmodel.cpp
     models/documentproviderlistmodel.cpp
-    models/documentproviderplugin.cpp
+    models/documentprovider.cpp
     models/trackerdocumentprovider.cpp
 )
 

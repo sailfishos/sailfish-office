@@ -27,11 +27,11 @@ QT_BEGIN_NAMESPACE
 class QQmlComponent;
 QT_END_NAMESPACE
 
-class DocumentProviderPlugin;
+class DocumentProvider;
 class DocumentProviderListModel : public QAbstractListModel, public QQmlParserStatus
 {
     Q_OBJECT
-    Q_PROPERTY(QQmlListProperty<DocumentProviderPlugin> sources READ sources)
+    Q_PROPERTY(QQmlListProperty<DocumentProvider> sources READ sources)
     Q_PROPERTY(int count READ rowCount NOTIFY sourcesChanged)
     Q_PROPERTY(QQmlComponent *albumDelegate READ albumDelegate WRITE setAlbumDelegate NOTIFY albumDelegateChanged)
     Q_INTERFACES(QQmlParserStatus)
@@ -56,7 +56,7 @@ public:
     virtual void classBegin();
     virtual void componentComplete();
 
-    QQmlListProperty<DocumentProviderPlugin> sources();
+    QQmlListProperty<DocumentProvider> sources();
 
     QQmlComponent *albumDelegate() const;
     void setAlbumDelegate(QQmlComponent *albumDelegate);
