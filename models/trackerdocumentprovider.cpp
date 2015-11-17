@@ -18,6 +18,7 @@
 
 #include "trackerdocumentprovider.h"
 #include "documentlistmodel.h"
+
 #include <QDir>
 #include <QtCore/qthreadpool.h>
 #include <QtCore/QModelIndex>

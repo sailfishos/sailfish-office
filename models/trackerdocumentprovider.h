@@ -20,6 +20,7 @@
 #define TRACKERDOCUMENTPROVIDER_H
 
 #include "documentprovider.h"
+
 #include <QtCore/QFileInfo>
 #include <QtCore/QRunnable>
 #include <QtCore/QHash>

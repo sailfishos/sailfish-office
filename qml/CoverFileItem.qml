@@ -37,7 +37,10 @@ Item {
         source: root.iconSource !== "" ? root.iconSource
                                        : "image://theme/icon-l-document"
 
-        sourceSize { width: Theme.iconSizeSmall; height: Theme.iconSizeSmall }
+        sourceSize {
+            width: Theme.iconSizeSmall
+            height: Theme.iconSizeSmall
+        }
     }
     Label {
         id: label
