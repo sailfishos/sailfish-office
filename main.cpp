@@ -83,24 +83,6 @@ QSharedPointer<QQuickView> createView(const QString &file)
 }
 }
 
-class CoverWindowFetcher : public QObject
-{
-    Q_OBJECT
-public:
-    CoverWindowFetcher(QObject *parent)
-        : QObject(parent) {
-    }
-
-    Q_INVOKABLE QQuickWindow *coverWindow() {
-        foreach (QWindow *w, qGuiApp->allWindows()) {
-            if (QQuickWindow *qw = qobject_cast<QQuickWindow *>(w)) {
-                if (w->inherits("DeclarativeCoverWindow"))
-                    return qw;
-            }
-        }
-        return 0;
-    }
-};
 
 Q_DECL_EXPORT int main(int argc, char *argv[])
 {
@@ -114,10 +96,6 @@ Q_DECL_EXPORT int main(int argc, char *argv[])
     app->setApplicationName("Sailfish Office");
 
     auto view = createView("Main.qml");
-
-    QQmlContext *context = view->rootContext();
-    context->setContextProperty(QStringLiteral("coverWindowAccessor"), new CoverWindowFetcher(view->engine()));
-    context->setContextProperty(QStringLiteral("applicationWindow"), view.data());
 
     //% "Documents"
     Q_UNUSED(QT_TRID_NOOP("sailfish-office-ap-name"))
