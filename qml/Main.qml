@@ -27,6 +27,7 @@ ApplicationWindow
 
     property Item documentItem
     property QtObject fileListModel: trackerProvider.model
+    property Page _mainPage
 
     allowedOrientations: defaultAllowedOrientations
     _defaultLabelFormat: Text.PlainText
@@ -34,8 +35,11 @@ ApplicationWindow
     cover: Qt.resolvedUrl("CoverPage.qml")
     initialPage: Component {
         FileListPage {
+            id: fileListPage
+
             model: trackerProvider.model
             provider: trackerProvider
+            Component.onCompleted: window._mainPage = fileListPage
         }
     }
 
@@ -55,52 +59,53 @@ ApplicationWindow
     function openFile(file) {
         fileInfo.source = file
 
-        if (pageStack.currentPage.path === undefined || pageStack.currentPage.path != fileInfo.fullPath) {
-            var handler = ""
+        pageStack.pop(window._mainPage, PageStackAction.Immediate)
 
-            switch (fileInfo.mimeType) {
-            case "application/vnd.oasis.opendocument.spreadsheet":
-            case "application/x-kspread":
-            case "application/vnd.ms-excel":
-            case "text/csv":
-            case "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
-            case "application/vnd.openxmlformats-officedocument.spreadsheetml.template":
-                handler = "Sailfish.Office.SpreadsheetPage"
-                break
+        var handler = ""
 
-            case "application/vnd.oasis.opendocument.presentation":
-            case "application/vnd.oasis.opendocument.presentation-template":
-            case "application/x-kpresenter":
-            case "application/vnd.ms-powerpoint":
-            case "application/vnd.openxmlformats-officedocument.presentationml.presentation":
-            case "application/vnd.openxmlformats-officedocument.presentationml.template":
-                handler = "Sailfish.Office.PresentationPage"
-                break
+        switch (fileInfo.mimeType) {
+        case "application/vnd.oasis.opendocument.spreadsheet":
+        case "application/x-kspread":
+        case "application/vnd.ms-excel":
+        case "text/csv":
+        case "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
+        case "application/vnd.openxmlformats-officedocument.spreadsheetml.template":
+            handler = "Sailfish.Office.SpreadsheetPage"
+            break
 
-            case "application/vnd.oasis.opendocument.text-master":
-            case "application/vnd.oasis.opendocument.text":
-            case "application/vnd.oasis.opendocument.text-template":
-            case "application/msword":
-            case "application/rtf":
-            case "application/x-mswrite":
-            case "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-            case "application/vnd.openxmlformats-officedocument.wordprocessingml.template":
-            case "application/vnd.ms-works":
-                handler = "Sailfish.Office.TextDocumentPage"
-                break
+        case "application/vnd.oasis.opendocument.presentation":
+        case "application/vnd.oasis.opendocument.presentation-template":
+        case "application/x-kpresenter":
+        case "application/vnd.ms-powerpoint":
+        case "application/vnd.openxmlformats-officedocument.presentationml.presentation":
+        case "application/vnd.openxmlformats-officedocument.presentationml.template":
+            handler = "Sailfish.Office.PresentationPage"
+            break
 
-            case "application/pdf":
-                handler = "Sailfish.Office.PDFDocumentPage"
-                break
+        case "application/vnd.oasis.opendocument.text-master":
+        case "application/vnd.oasis.opendocument.text":
+        case "application/vnd.oasis.opendocument.text-template":
+        case "application/msword":
+        case "application/rtf":
+        case "application/x-mswrite":
+        case "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+        case "application/vnd.openxmlformats-officedocument.wordprocessingml.template":
+        case "application/vnd.ms-works":
+            handler = "Sailfish.Office.TextDocumentPage"
+            break
 
-            default:
-                console.log("Warning: Unrecognised file type for file " + fileInfo.fullPath)
-            }
+        case "application/pdf":
+            handler = "Sailfish.Office.PDFDocumentPage"
+            break
 
-            if (handler != "") {
-                pageStack.push(handler,
-                               { title: fileInfo.fileName, path: fileInfo.fullPath, mimeType: fileInfo.mimeType })
-            }
+        default:
+            console.log("Warning: Unrecognised file type for file " + fileInfo.fullPath)
+        }
+
+        if (handler != "") {
+            pageStack.push(handler,
+                           { title: fileInfo.fileName, path: fileInfo.fullPath, mimeType: fileInfo.mimeType },
+                           PageStackAction.Immediate)
         }
 
         activate()
