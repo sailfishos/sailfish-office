@@ -28,11 +28,6 @@ ApplicationWindow
     property Item documentItem
     property QtObject fileListModel: trackerProvider.model
 
-    Component.onCompleted: {
-        if (Qt.application.arguments.length > 1)
-            openFile(Qt.application.arguments[1])
-    }
-
     allowedOrientations: defaultAllowedOrientations
     _defaultLabelFormat: Text.PlainText
     _defaultPageOrientations: Orientation.All
@@ -107,6 +102,7 @@ ApplicationWindow
                                { title: fileInfo.fileName, path: fileInfo.fullPath, mimeType: fileInfo.mimeType })
             }
         }
+
         activate()
     }
 

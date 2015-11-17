@@ -7,5 +7,9 @@
             <annotation name="org.freedesktop.DBus.Method.NoReply" value="true" />
             <arg direction="in" type="as" name="files" />
         </method>
+        <method name="activateWindow">
+            <annotation name="org.freedesktop.DBus.Method.NoReply" value="true" />
+            <arg direction="in" type="as" name="dummy" />
+        </method>
    </interface>
 </node>

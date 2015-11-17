@@ -23,6 +23,7 @@
 #include <QQmlError>
 #include <QQmlContext>
 #include <QQmlEngine>
+#include <QQuickItem>
 #include <QDBusConnection>
 #include <QTranslator>
 #include <QLocale>
@@ -100,9 +101,26 @@ Q_DECL_EXPORT int main(int argc, char *argv[])
     //% "Documents"
     Q_UNUSED(QT_TRID_NOOP("sailfish-office-ap-name"))
 
+    bool preStart = false;
+    QString fileName;
+
+    for (int i = 1; i < argc; ++i) {
+        if (QString(argv[i]) == QStringLiteral("-prestart")) {
+            preStart = true;
+        } else if (fileName.isEmpty()) {
+            fileName = QString(argv[i]);
+        }
+    }
+
     int retn = 1;
     if (!view->errors().count() > 0) {
-        view->showFullScreen();
+        if (!fileName.isEmpty()) {
+            QVariant fileNameParameter(fileName);
+            QMetaObject::invokeMethod(view->rootObject(), "openFile", Q_ARG(QVariant, fileNameParameter));
+        } else if (!preStart) {
+            view->showFullScreen();
+        }
+
         retn = app->exec();
     }
 
