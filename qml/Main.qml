@@ -26,83 +26,31 @@ ApplicationWindow
     id: window
 
     property Item documentItem
-    property QtObject fileListModel
-
-    function mimeToIcon(fileMimeType) {
-        // TODO: move all graphics to platform theme packages
-        switch (fileMimeType) {
-        case "application/vnd.oasis.opendocument.spreadsheet":
-        case "application/x-kspread":
-        case "application/vnd.ms-excel":
-        case "text/csv":
-        case "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
-        case "application/vnd.openxmlformats-officedocument.spreadsheetml.template":
-            return "images/icon-m-mime-spreadsheet.png"
-
-        case "application/vnd.oasis.opendocument.presentation":
-        case "application/vnd.oasis.opendocument.presentation-template":
-        case "application/x-kpresenter":
-        case "application/vnd.ms-powerpoint":
-        case "application/vnd.openxmlformats-officedocument.presentationml.presentation":
-        case "application/vnd.openxmlformats-officedocument.presentationml.template":
-            return "images/icon-m-mime-presentation.png"
-
-        case "application/vnd.oasis.opendocument.text-master":
-        case "application/vnd.oasis.opendocument.text":
-        case "application/vnd.oasis.opendocument.text-template":
-        case "application/msword":
-        case "application/rtf":
-        case "application/x-mswrite":
-        case "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-        case "application/vnd.openxmlformats-officedocument.wordprocessingml.template":
-        case "application/vnd.ms-works":
-            return "images/icon-m-mime-formatted.png"
-
-        case "text/plain":
-            return "images/icon-m-mime-plaintext.png"
-
-        case "application/pdf":
-            return "images/icon-m-mime-pdf.png"
-
-        default:
-            return ""
-        }
-    }
+    property QtObject fileListModel: trackerProvider.model
 
     Component.onCompleted: {
-        // hack to get the "This device" page the initial page
-        var model = documentProviderListModel.sources[0]
-        pageStack.push((model.page != "" ? Qt.resolvedUrl(model.page)
-                                        : fileListPage),
-                       { title: model.title,
-                         model: model.model,
-                         provider: model },
-                       PageStackAction.Immediate)
-        window.fileListModel = model.model
-
         if (Qt.application.arguments.length > 1)
             openFile(Qt.application.arguments[1])
+    }
 
-        if (window.hasOwnProperty("defaultAllowedOrientations")) {
-            allowedOrientations = Qt.binding(function() { return Qt.application.active ? defaultAllowedOrientations
-                                                                                       : pageStack.currentOrientation })
+    allowedOrientations: defaultAllowedOrientations
+    _defaultLabelFormat: Text.PlainText
+    _defaultPageOrientations: Orientation.All
+    cover: Qt.resolvedUrl("CoverPage.qml")
+    initialPage: Component {
+        FileListPage {
+            model: trackerProvider.model
+            provider: trackerProvider
         }
     }
 
-    // TODO: Bind directly the "defaultAllowedOrientations" once it's available in SDK
-    allowedOrientations: Qt.application.active ? Orientation.All : pageStack.currentOrientation
-    _defaultPageOrientations: Orientation.All
-    _defaultLabelFormat: Text.PlainText
-    cover: Qt.resolvedUrl("CoverPage.qml")
-
-    Component {
-        id: fileListPage
-        FileListPage {}
-    }
-
+    /* Currently tracker is the only source for documents, so DocumentProviderListModel is unused
     DocumentProviderListModel {
         id: documentProviderListModel
-        TrackerDocumentProvider {}
+
+    }*/
+    TrackerDocumentProvider {
+        id: trackerProvider
     }
 
     FileInfo {
@@ -160,5 +108,46 @@ ApplicationWindow
             }
         }
         activate()
+    }
+
+    function mimeToIcon(fileMimeType) {
+        // TODO: move all graphics to platform theme packages
+        switch (fileMimeType) {
+        case "application/vnd.oasis.opendocument.spreadsheet":
+        case "application/x-kspread":
+        case "application/vnd.ms-excel":
+        case "text/csv":
+        case "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
+        case "application/vnd.openxmlformats-officedocument.spreadsheetml.template":
+            return "images/icon-m-mime-spreadsheet.png"
+
+        case "application/vnd.oasis.opendocument.presentation":
+        case "application/vnd.oasis.opendocument.presentation-template":
+        case "application/x-kpresenter":
+        case "application/vnd.ms-powerpoint":
+        case "application/vnd.openxmlformats-officedocument.presentationml.presentation":
+        case "application/vnd.openxmlformats-officedocument.presentationml.template":
+            return "images/icon-m-mime-presentation.png"
+
+        case "application/vnd.oasis.opendocument.text-master":
+        case "application/vnd.oasis.opendocument.text":
+        case "application/vnd.oasis.opendocument.text-template":
+        case "application/msword":
+        case "application/rtf":
+        case "application/x-mswrite":
+        case "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+        case "application/vnd.openxmlformats-officedocument.wordprocessingml.template":
+        case "application/vnd.ms-works":
+            return "images/icon-m-mime-formatted.png"
+
+        case "text/plain":
+            return "images/icon-m-mime-plaintext.png"
+
+        case "application/pdf":
+            return "images/icon-m-mime-pdf.png"
+
+        default:
+            return ""
+        }
     }
 }
