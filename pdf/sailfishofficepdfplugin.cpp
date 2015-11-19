@@ -21,6 +21,7 @@
 #include "pdfdocument.h"
 #include "pdfcanvas.h"
 #include "pdflinkarea.h"
+#include "pdfselection.h"
 
 SailfishOfficePDFPlugin::SailfishOfficePDFPlugin(QObject *parent)
     : QQmlExtensionPlugin(parent)
@@ -33,4 +34,5 @@ void SailfishOfficePDFPlugin::registerTypes(const char *uri)
     qmlRegisterType<PDFDocument>(uri, 1, 0, "Document");
     qmlRegisterType<PDFCanvas>(uri, 1, 0, "Canvas");
     qmlRegisterType<PDFLinkArea>(uri, 1, 0, "LinkArea");
+    qmlRegisterType<PDFSelection>(uri, 1, 0, "Selection");
 }
