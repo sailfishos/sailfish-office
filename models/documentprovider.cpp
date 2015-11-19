@@ -16,47 +16,47 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include "documentproviderplugin.h"
+#include "documentprovider.h"
 
-class DocumentProviderPlugin::Private {
+class DocumentProvider::Private {
 public:
     Private() {}
     QUrl page;
 };
 
-DocumentProviderPlugin::DocumentProviderPlugin(QObject *parent)
+DocumentProvider::DocumentProvider(QObject *parent)
     : QObject(parent)
     , d(new Private)
 {
 }
 
-DocumentProviderPlugin::~DocumentProviderPlugin()
+DocumentProvider::~DocumentProvider()
 {
     delete d;
 }
 
-QString DocumentProviderPlugin::setupPageUrl() const
+QString DocumentProvider::setupPageUrl() const
 {
     return QString();
 }
 
-bool DocumentProviderPlugin::needsSetup() const
+bool DocumentProvider::needsSetup() const
 {
     return false;
 }
 
-QUrl DocumentProviderPlugin::page() const
+QUrl DocumentProvider::page() const
 {
     return d->page;
 }
 
-void DocumentProviderPlugin::setPage(const QUrl &url)
+void DocumentProvider::setPage(const QUrl &url)
 {
     d->page = url;
     emit pageChanged();
 }
 
-void DocumentProviderPlugin::deleteFile(const QUrl &file)
+void DocumentProvider::deleteFile(const QUrl &file)
 {
     Q_UNUSED(file);
     qWarning("Provider does not implement file deletion.");

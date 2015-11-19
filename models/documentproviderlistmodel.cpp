@@ -17,7 +17,7 @@
  */
 
 #include "documentproviderlistmodel.h"
-#include "documentproviderplugin.h"
+#include "documentprovider.h"
 #include "documentlistmodel.h"
 
 #include <QQmlComponent>
@@ -46,10 +46,10 @@ public:
     DocumentProviderListModel *q;
     QHash<int, QByteArray> roles;
     bool completed;
-    QList<DocumentProviderPlugin*> providers;
+    QList<DocumentProvider*> providers;
     QQmlComponent* albumDelegate;
 
-    static void source_append(QQmlListProperty<DocumentProviderPlugin> *property, DocumentProviderPlugin *source)
+    static void source_append(QQmlListProperty<DocumentProvider> *property, DocumentProvider *source)
     {
         Private *d = static_cast<Private *>(property->data);
         DocumentProviderListModel *q = static_cast<DocumentProviderListModel *>(property->object);
@@ -67,19 +67,19 @@ public:
             q->updateActiveSources();
     }
 
-    static int source_count(QQmlListProperty<DocumentProviderPlugin> *property)
+    static int source_count(QQmlListProperty<DocumentProvider> *property)
     {
         Private *d = static_cast<Private *>(property->data);
         return d->providers.count();
     }
 
-    static DocumentProviderPlugin *source_at(QQmlListProperty<DocumentProviderPlugin> *property, int index)
+    static DocumentProvider *source_at(QQmlListProperty<DocumentProvider> *property, int index)
     {
         Private *d = static_cast<Private *>(property->data);
         return d->providers.at(index);
     }
 
-    static void source_clear(QQmlListProperty<DocumentProviderPlugin> *property)
+    static void source_clear(QQmlListProperty<DocumentProvider> *property)
     {
         Private *d = static_cast<Private *>(property->data);
         d->providers.clear();
@@ -111,9 +111,9 @@ void DocumentProviderListModel::componentComplete()
     // create instance and store in d->providers
 }
 
-QQmlListProperty< DocumentProviderPlugin > DocumentProviderListModel::sources()
+QQmlListProperty<DocumentProvider> DocumentProviderListModel::sources()
 {
-    return QQmlListProperty<DocumentProviderPlugin>(
+    return QQmlListProperty<DocumentProvider>(
                 this,
                 d,
                 DocumentProviderListModel::Private::source_append,
@@ -128,7 +128,7 @@ void DocumentProviderListModel::updateActiveSources()
 
 void DocumentProviderListModel::sourceInfoChanged()
 {
-    DocumentProviderPlugin* source = qobject_cast< DocumentProviderPlugin* >(sender());
+    DocumentProvider *source = qobject_cast< DocumentProvider* >(sender());
     int index = d->providers.indexOf(source);
     if (index > -1) {
         QModelIndex changedIndex = createIndex(index, 0);
@@ -159,7 +159,7 @@ QVariant DocumentProviderListModel::data(const QModelIndex &index, int role) con
     QVariant result;
     if (index.isValid()) {
         if (index.row() > -1 && index.row() < d->providers.count()) {
-            const DocumentProviderPlugin* provider = d->providers.at(index.row());
+            const DocumentProvider *provider = d->providers.at(index.row());
             switch(role) {
             case Title:
                 result.setValue<QString>(provider->title());

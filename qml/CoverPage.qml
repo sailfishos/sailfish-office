@@ -20,6 +20,12 @@ import QtQuick 2.0
 import Sailfish.Silica 1.0
 
 CoverBackground {
+    id: root
+
+    property bool update: status === Cover.Active || Qt.application.active
+
+    onUpdateChanged: previewImage.updatePreview()
+
     CoverPlaceholder {
         //: Cover placeholder shown when there are no documents
         //% "No documents"
@@ -61,25 +67,15 @@ CoverBackground {
         Image {
             id: previewImage
 
-            property QtObject coverWindow
-
             anchors.fill: parent
             visible: window.documentItem && (!window.documentItem.hasOwnProperty("contentAvailable") ||
                                              window.documentItem.contentAvailable)
 
             function updatePreview() {
-                if (window.documentItem && applicationWindow.visible) {
+                if (window.documentItem && root.update) {
                     window.documentItem.grabToImage(function(result) { previewImage.source = result.url },
                                                              Qt.size(width, height))
                 }
-            }
-            Component.onCompleted: {
-                coverWindow = coverWindowAccessor.coverWindow()
-            }
-            Connections {
-                target: previewImage.coverWindow
-                onVisibilityChanged: previewImage.updatePreview()
-                ignoreUnknownSignals: true
             }
             Connections {
                 target: window

@@ -33,6 +33,7 @@ public:
 
 public Q_SLOTS:
     Q_NOREPLY void openFile(const QStringList &files);
+    Q_NOREPLY void activateWindow(const QStringList &dummy); // parameter for .desktop activation
 
 private:
     QQuickView *m_view;

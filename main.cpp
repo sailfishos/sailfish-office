@@ -23,6 +23,7 @@
 #include <QQmlError>
 #include <QQmlContext>
 #include <QQmlEngine>
+#include <QQuickItem>
 #include <QDBusConnection>
 #include <QTranslator>
 #include <QLocale>
@@ -34,7 +35,7 @@
 #include "models/filtermodel.h"
 #include "models/documentlistmodel.h"
 #include "models/trackerdocumentprovider.h"
-#include "models/documentproviderplugin.h"
+#include "models/documentprovider.h"
 #include "models/documentproviderlistmodel.h"
 #include "dbusadaptor.h"
 
@@ -65,7 +66,7 @@ QSharedPointer<QQuickView> createView(const QString &file)
     qmlRegisterType<DocumentProviderListModel>("Sailfish.Office.Files", 1, 0, "DocumentProviderListModel");
     qmlRegisterType<TrackerDocumentProvider>("Sailfish.Office.Files", 1, 0, "TrackerDocumentProvider");
     qmlRegisterType<FilterModel>("Sailfish.Office.Files", 1, 0, "FilterModel");
-    qmlRegisterInterface<DocumentProviderPlugin>("DocumentProviderPlugin");
+    qmlRegisterInterface<DocumentProvider>("DocumentProvider");
 
     QSharedPointer<QQuickView> view(MDeclarativeCache::qQuickView());
     view->engine()->addImportPath(CALLIGRA_QML_PLUGIN_DIR);
@@ -83,24 +84,6 @@ QSharedPointer<QQuickView> createView(const QString &file)
 }
 }
 
-class CoverWindowFetcher : public QObject
-{
-    Q_OBJECT
-public:
-    CoverWindowFetcher(QObject *parent)
-        : QObject(parent) {
-    }
-
-    Q_INVOKABLE QQuickWindow *coverWindow() {
-        foreach (QWindow *w, qGuiApp->allWindows()) {
-            if (QQuickWindow *qw = qobject_cast<QQuickWindow *>(w)) {
-                if (w->inherits("DeclarativeCoverWindow"))
-                    return qw;
-            }
-        }
-        return 0;
-    }
-};
 
 Q_DECL_EXPORT int main(int argc, char *argv[])
 {
@@ -115,16 +98,29 @@ Q_DECL_EXPORT int main(int argc, char *argv[])
 
     auto view = createView("Main.qml");
 
-    QQmlContext *context = view->rootContext();
-    context->setContextProperty(QStringLiteral("coverWindowAccessor"), new CoverWindowFetcher(view->engine()));
-    context->setContextProperty(QStringLiteral("applicationWindow"), view.data());
-
     //% "Documents"
     Q_UNUSED(QT_TRID_NOOP("sailfish-office-ap-name"))
 
+    bool preStart = false;
+    QString fileName;
+
+    for (int i = 1; i < argc; ++i) {
+        if (QString(argv[i]) == QStringLiteral("-prestart")) {
+            preStart = true;
+        } else if (fileName.isEmpty()) {
+            fileName = QString(argv[i]);
+        }
+    }
+
     int retn = 1;
     if (!view->errors().count() > 0) {
-        view->showFullScreen();
+        if (!fileName.isEmpty()) {
+            QVariant fileNameParameter(fileName);
+            QMetaObject::invokeMethod(view->rootObject(), "openFile", Q_ARG(QVariant, fileNameParameter));
+        } else if (!preStart) {
+            view->showFullScreen();
+        }
+
         retn = app->exec();
     }
 

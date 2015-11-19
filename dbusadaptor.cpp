@@ -35,6 +35,12 @@ void DBusAdaptor::openFile(const QStringList &files)
     if (files.count() > 0) {
         QMetaObject::invokeMethod(m_view->rootObject(), "openFile", Q_ARG(QVariant, files.at(0)));
     } else {
-        QMetaObject::invokeMethod(m_view->rootObject(), "activate");
+        activateWindow(files);
     }
+}
+
+void DBusAdaptor::activateWindow(const QStringList &dummy)
+{
+    Q_UNUSED(dummy)
+    QMetaObject::invokeMethod(m_view->rootObject(), "activate");
 }

@@ -16,14 +16,14 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef DOCUMENTPROVIDERPLUGIN_H
-#define DOCUMENTPROVIDERPLUGIN_H
+#ifndef DOCUMENTPROVIDER_H
+#define DOCUMENTPROVIDER_H
 
 #include <QObject>
 #include <QUrl>
 #include <QtGui/QImage>
 
-class DocumentProviderPlugin : public QObject
+class DocumentProvider : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(int count READ count NOTIFY countChanged)
@@ -37,8 +37,8 @@ class DocumentProviderPlugin : public QObject
     Q_PROPERTY(bool needsSetup READ needsSetup NOTIFY needsSetupChanged)
 
 public:
-    DocumentProviderPlugin(QObject *parent = 0);
-    virtual ~DocumentProviderPlugin();
+    DocumentProvider(QObject *parent = 0);
+    virtual ~DocumentProvider();
 
     virtual int count() const = 0;
     virtual QUrl icon() const = 0;
@@ -48,7 +48,7 @@ public:
     virtual QUrl thumbnail() const = 0;
     virtual bool isReady() const = 0;
     // Reimplement this and return the name of a QML file containing the account setup
-    // for this plugin, if applicable. Otherwise a no-setup plugin will be assumed.
+    // for this provider, if applicable. Otherwise a no-setup provider will be assumed.
     virtual QString setupPageUrl() const;
     virtual bool needsSetup() const;
 
@@ -71,6 +71,7 @@ private:
     class Private;
     Private *d;
 };
-Q_DECLARE_INTERFACE(DocumentProviderPlugin, "DocumentProviderPluginInterface/1.0")
 
-#endif // DOCUMENTPROVIDERPLUGIN_H
+Q_DECLARE_INTERFACE(DocumentProvider, "DocumentProviderInterface/1.0")
+
+#endif // DOCUMENTPROVIDER_H
