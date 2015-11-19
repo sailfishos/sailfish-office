@@ -18,6 +18,7 @@
 
 #include <QApplication>
 #include <QGuiApplication>
+#include <qqmldebug.h>
 #include <QtQml>
 #include <QQuickView>
 #include <QQmlError>
@@ -89,6 +90,10 @@ Q_DECL_EXPORT int main(int argc, char *argv[])
 {
     // TODO: start using Silica booster
     QQuickWindow::setDefaultAlphaBuffer(true);
+
+    if (!qgetenv("QML_DEBUGGING_ENABLED").isEmpty()) {
+        QQmlDebuggingEnabler qmlDebuggingEnabler;
+    }
 
     auto app = createApplication(argc, argv);
     // Note, these must be said now, otherwise some plugins using QSettings
