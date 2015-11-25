@@ -247,6 +247,7 @@ void PDFCanvas::layout()
         page.requested = false; // We're cancelling all requests below
         if (d->pages.contains(i)) {
             page.texture = d->pages.value(i).texture;
+            page.rectPlaceholder = d->pages.value(i).rectPlaceholder;
         }
         d->pages.insert(i, page);
 
