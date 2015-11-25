@@ -23,17 +23,17 @@
 class PDFSearchModel::Private
 {
 public:
-    Private(const QList< QPair<int, QRectF> > &matches)
+    Private(const QList<QPair<int, QRectF> > &matches)
       : m_matches(matches)
     {
-        roles.insert( Page, "page" );
-        roles.insert( Rect, "rect" );
+        roles.insert(Page, "page");
+        roles.insert(Rect, "rect");
     }
-    const QList< QPair<int, QRectF> > &m_matches;
+    const QList<QPair<int, QRectF> > &m_matches;
     QHash<int, QByteArray> roles;
 };
 
-PDFSearchModel::PDFSearchModel(const QList< QPair<int, QRectF> > &matches, QObject *parent)
+PDFSearchModel::PDFSearchModel(const QList<QPair<int, QRectF> > &matches, QObject *parent)
   : QAbstractListModel(parent), d(new Private(matches))
 {
 }

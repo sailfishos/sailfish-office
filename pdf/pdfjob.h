@@ -60,7 +60,7 @@ class LoadDocumentJob : public PDFJob
 {
     Q_OBJECT
 public:
-    LoadDocumentJob( const QString &source );
+    LoadDocumentJob(const QString &source);
 
     virtual void run();
 
@@ -72,7 +72,7 @@ class UnLockDocumentJob : public PDFJob
 {
     Q_OBJECT
 public:
-    UnLockDocumentJob( const QString &password );
+    UnLockDocumentJob(const QString &password);
 
     virtual void run();
 
@@ -113,7 +113,7 @@ class SearchDocumentJob : public PDFJob
 {
     Q_OBJECT
 public:
-    SearchDocumentJob( const QString& search, uint page );
+    SearchDocumentJob(const QString& search, uint page);
 
     virtual void run();
 

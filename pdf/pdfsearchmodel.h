@@ -31,7 +31,7 @@ public:
         Page = Qt::UserRole + 1,
         Rect
     };
-    explicit PDFSearchModel(const QList< QPair<int, QRectF> > &matches, QObject *parent = 0);
+    explicit PDFSearchModel(const QList<QPair<int, QRectF> > &matches, QObject *parent = 0);
     virtual ~PDFSearchModel();
 
     virtual QVariant data(const QModelIndex &index, int role) const;
@@ -45,7 +45,7 @@ Q_SIGNALS:
 
 private:
     class Private;
-    const QScopedPointer< Private > d;
+    const QScopedPointer<Private> d;
 };
 
 #endif // PDFSEARCHMODEL_H

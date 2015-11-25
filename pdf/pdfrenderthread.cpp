@@ -80,7 +80,7 @@ public:
     Poppler::Document *document;
     PDFTocModel *tocModel;
 
-    QMultiMap< int, QPair< QRectF, QUrl > > linkTargets;
+    QMultiMap<int, QPair<QRectF, QUrl> > linkTargets;
 
     void rescanDocumentLinks()
     {
@@ -129,7 +129,7 @@ public:
 
 };
 
-class PDFRenderThreadQueue : public QObject, public QQueue< PDFJob* >
+class PDFRenderThreadQueue : public QObject, public QQueue<PDFJob*>
 {
 public:
     PDFRenderThreadPrivate *d;
@@ -138,8 +138,8 @@ protected:
     void processPendingJob();
 };
 
-PDFRenderThread::PDFRenderThread(QObject* parent)
-    : QObject( parent ), d( new PDFRenderThreadPrivate() )
+PDFRenderThread::PDFRenderThread(QObject *parent)
+    : QObject(parent), d(new PDFRenderThreadPrivate())
 {
     d->q = this;
     d->loadFailure = false;
@@ -203,7 +203,7 @@ bool PDFRenderThread::isLocked() const
     return (d->document != nullptr) ? d->document->isLocked() : false;
 }
 
-QMultiMap< int, QPair< QRectF, QUrl > > PDFRenderThread::linkTargets() const
+QMultiMap<int, QPair<QRectF, QUrl> > PDFRenderThread::linkTargets() const
 {
     QMutexLocker(&d->thread->mutex);
     return d->linkTargets;
@@ -280,7 +280,7 @@ void PDFRenderThreadQueue::processPendingJob()
 
     switch(job->type()) {
         case PDFJob::LoadDocumentJob: {
-            LoadDocumentJob* dj = static_cast< LoadDocumentJob* >( job );
+            LoadDocumentJob *dj = static_cast<LoadDocumentJob*>(job);
             delete d->document;
 
             if (d->tocModel) {
