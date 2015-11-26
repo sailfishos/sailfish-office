@@ -29,7 +29,7 @@
 class PDFDocument::Private
 {
 public:
-    Private() : searching(false), document( nullptr ), completed(false) { }
+    Private() : searching(false), document(nullptr), completed(false) { }
 
     PDFRenderThread *thread;
 
@@ -117,7 +117,7 @@ void PDFDocument::componentComplete()
 {
     if (!d->source.isEmpty()) {
         LoadDocumentJob* job = new LoadDocumentJob(QUrl(d->source).toLocalFile());
-        d->thread->queueJob( job );
+        d->thread->queueJob(job);
     }
 
     d->completed = true;
@@ -132,7 +132,7 @@ void PDFDocument::setSource(const QString &source)
 
         if (d->completed) {
             LoadDocumentJob* job = new LoadDocumentJob(QUrl(source).toLocalFile());
-            d->thread->queueJob( job );
+            d->thread->queueJob(job);
         }
 
         emit sourceChanged();
@@ -154,7 +154,7 @@ void PDFDocument::requestPage(int index, int size, QQuickWindow *window )
         return;
 
     RenderPageJob* job = new RenderPageJob(index, size, window);
-    d->thread->queueJob( job );
+    d->thread->queueJob(job);
 }
 
 void PDFDocument::prioritizeRequest(int index, int size)
@@ -177,7 +177,7 @@ void PDFDocument::requestPageSizes()
         return;
 
     PageSizesJob* job = new PageSizesJob;
-    d->thread->queueJob( job );
+    d->thread->queueJob(job);
 }
 
 void PDFDocument::search(const QString &search, uint startPage)

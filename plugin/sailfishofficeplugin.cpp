@@ -55,7 +55,7 @@ void SailfishOfficePlugin::registerTypes(const char *uri)
 
 void SailfishOfficePlugin::initializeEngine(QQmlEngine *engine, const char *uri)
 {
-    Q_ASSERT( uri == QLatin1String( "Sailfish.Office" ) );
+    Q_ASSERT(uri == QLatin1String("Sailfish.Office"));
 
     engine->addImportPath(CALLIGRA_QML_PLUGIN_DIR);
 

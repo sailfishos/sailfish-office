@@ -80,7 +80,8 @@ public:
             entries.append(tocEntry);
             // descend recursively and advance to the next node
             ++level;
-            if ( e.hasChildNodes() ) addSynopsisChildren( &n, level );
+            if (e.hasChildNodes())
+                addSynopsisChildren(&n, level);
             --level;
             n = n.nextSibling();
         }

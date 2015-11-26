@@ -154,7 +154,7 @@ QString TrackerDocumentProvider::description() const
 
 QUrl TrackerDocumentProvider::icon() const
 {
-    return QUrl::fromLocalFile( IMAGES_INSTALL_DIR + QLatin1String("graphic-plugin-local.png") );
+    return QUrl::fromLocalFile(IMAGES_INSTALL_DIR + QLatin1String("graphic-plugin-local.png"));
 }
 
 bool TrackerDocumentProvider::isReady() const
@@ -169,7 +169,7 @@ QObject* TrackerDocumentProvider::model() const
 
 QUrl TrackerDocumentProvider::thumbnail() const
 {
-    return QUrl::fromLocalFile( IMAGES_INSTALL_DIR + QLatin1String("graphic-plugin-local.png") );
+    return QUrl::fromLocalFile(IMAGES_INSTALL_DIR + QLatin1String("graphic-plugin-local.png"));
 }
 
 QString TrackerDocumentProvider::title() const

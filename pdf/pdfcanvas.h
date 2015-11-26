@@ -27,12 +27,12 @@ class PDFDocument;
 class PDFCanvas : public QQuickItem
 {
     Q_OBJECT
-    Q_PROPERTY( PDFDocument* document READ document WRITE setDocument NOTIFY documentChanged )
-    Q_PROPERTY( QQuickItem* flickable READ flickable WRITE setFlickable NOTIFY flickableChanged )
-    Q_PROPERTY( float spacing READ spacing WRITE setSpacing NOTIFY spacingChanged )
-    Q_PROPERTY( QColor linkColor READ linkColor WRITE setLinkColor NOTIFY linkColorChanged )
-    Q_PROPERTY( QColor pagePlaceholderColor READ pagePlaceholderColor WRITE setPagePlaceholderColor NOTIFY pagePlaceholderColorChanged )
-    Q_PROPERTY( int currentPage READ currentPage NOTIFY currentPageChanged )
+    Q_PROPERTY(PDFDocument* document READ document WRITE setDocument NOTIFY documentChanged)
+    Q_PROPERTY(QQuickItem* flickable READ flickable WRITE setFlickable NOTIFY flickableChanged)
+    Q_PROPERTY(float spacing READ spacing WRITE setSpacing NOTIFY spacingChanged)
+    Q_PROPERTY(QColor linkColor READ linkColor WRITE setLinkColor NOTIFY linkColorChanged)
+    Q_PROPERTY(QColor pagePlaceholderColor READ pagePlaceholderColor WRITE setPagePlaceholderColor NOTIFY pagePlaceholderColorChanged)
+    Q_PROPERTY(int currentPage READ currentPage NOTIFY currentPageChanged)
 
 public:
     PDFCanvas(QQuickItem *parent = 0);
@@ -114,6 +114,6 @@ private:
     Private * const d;
 };
 
-Q_DECLARE_METATYPE( PDFCanvas* )
+Q_DECLARE_METATYPE(PDFCanvas*)
 
 #endif // PDFCANVAS_H

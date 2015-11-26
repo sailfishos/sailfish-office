@@ -44,7 +44,7 @@ struct PDFPage {
     bool rectPlaceholder;
     QSGTexture *texture;
 
-    QList< QPair< QRectF, QUrl > > links;
+    QList<QPair<QRectF, QUrl> > links;
 };
 
 class PDFCanvas::Private
@@ -105,7 +105,7 @@ PDFCanvas::PDFCanvas(QQuickItem *parent)
 {
     setFlag(ItemHasContents, true);
 
-    d->resizeTimer = new QTimer{};
+    d->resizeTimer = new QTimer;
     d->resizeTimer->setInterval(500);
     d->resizeTimer->setSingleShot(true);
     connect(d->resizeTimer, &QTimer::timeout, this, &PDFCanvas::resizeTimeout);
@@ -114,7 +114,7 @@ PDFCanvas::PDFCanvas(QQuickItem *parent)
 PDFCanvas::~PDFCanvas()
 {
     for (int i = 0; i < d->pageCount; ++i) {
-        PDFPage &page = d->pages[ i ];
+        PDFPage &page = d->pages[i];
         if (page.texture) {
             delete page.texture;
             page.texture = 0;
@@ -243,10 +243,11 @@ void PDFCanvas::layout()
         PDFPage page;
         page.index = i;
         page.rect = QRectF(0, totalHeight, width(), width() * ratio);
-        page.links = links.values( i );
+        page.links = links.values(i);
         page.requested = false; // We're cancelling all requests below
         if (d->pages.contains(i)) {
-            page.texture = d->pages.value( i ).texture;
+            page.texture = d->pages.value(i).texture;
+            page.rectPlaceholder = d->pages.value(i).rectPlaceholder;
         }
         d->pages.insert(i, page);
 
@@ -269,7 +270,7 @@ void PDFCanvas::layout()
 QUrl PDFCanvas::urlAtPoint(const QPoint &point)
 {
     for (int i = 0; i < d->pageCount; ++i) {
-        const PDFPage& page = d->pages.value(i);
+        const PDFPage &page = d->pages.value(i);
         if (page.rect.contains(point)) {
             for (const QPair<QRectF, QUrl> &link : page.links) {
                 QRectF hitTarget{
@@ -300,9 +301,9 @@ QRectF PDFCanvas::fromPageToItem(int index, const QRectF &rect)
                   rect.height() * page.rect.height());
 }
 
-void PDFCanvas::pageFinished( int id, QSGTexture *texture )
+void PDFCanvas::pageFinished(int id, QSGTexture *texture)
 {
-    PDFPage& page = d->pages[ id ];
+    PDFPage &page = d->pages[id];
 
     if (page.texture)
         d->texturesToClean << page.texture;
@@ -326,7 +327,7 @@ void PDFCanvas::sceneGraphInvalidated()
     d->document->cancelPageRequest(-1);
     d->cleanTextures();
     for (int i = 0; i < d->pageCount; ++i) {
-        PDFPage &page = d->pages[ i ];
+        PDFPage &page = d->pages[i];
         if (page.texture) {
             delete page.texture;
             page.texture = 0;
@@ -336,7 +337,7 @@ void PDFCanvas::sceneGraphInvalidated()
     }
 }
 
-QSGNode* PDFCanvas::updatePaintNode(QSGNode* node, QQuickItem::UpdatePaintNodeData *)
+QSGNode* PDFCanvas::updatePaintNode(QSGNode *node, QQuickItem::UpdatePaintNodeData *)
 {
     if (d->pageCount == 0 || !d->flickable) {
         delete node;
@@ -362,9 +363,9 @@ QSGNode* PDFCanvas::updatePaintNode(QSGNode* node, QQuickItem::UpdatePaintNodeDa
         visibleArea.height() * 5,
     };
 
-    QSGNode* root = static_cast<QSGNode*>( node );
+    QSGNode *root = static_cast<QSGNode*>(node);
     if (!root) {
-        root = new QSGNode{};
+        root = new QSGNode;
     }
 
     QList<QPair<int, int> > priorityRequests;
@@ -383,7 +384,7 @@ QSGNode* PDFCanvas::updatePaintNode(QSGNode* node, QQuickItem::UpdatePaintNodeDa
                 if (page.requested && showPage) {
                     priorityRequests << QPair<int, int>(i, d->renderWidth);
                 } else if (!page.requested) {
-                    d->document->requestPage( i, d->renderWidth, window() );
+                    d->document->requestPage(i, d->renderWidth, window());
                     page.requested = true;
                 }
             }
@@ -402,7 +403,7 @@ QSGNode* PDFCanvas::updatePaintNode(QSGNode* node, QQuickItem::UpdatePaintNodeDa
 
         QSGTransformNode *t = static_cast<QSGTransformNode*>(root->childAtIndex(i));
         if (!t) {
-            t = new QSGTransformNode{};
+            t = new QSGTransformNode;
             root->appendChildNode(t);
         }
 
@@ -428,17 +429,17 @@ QSGNode* PDFCanvas::updatePaintNode(QSGNode* node, QQuickItem::UpdatePaintNodeDa
             }
             QSGSimpleTextureNode *tn = static_cast<QSGSimpleTextureNode *>(t->firstChild());
             if (!tn) {
-                tn = new QSGSimpleTextureNode{};
-                t->appendChildNode( tn );
+                tn = new QSGSimpleTextureNode;
+                t->appendChildNode(tn);
             }
 
             page.rectPlaceholder = false;
             tn->setTexture(page.texture);
-            tn->setRect( 0.f, 0.f, page.rect.size().width(), page.rect.size().height() );
+            tn->setRect(0.f, 0.f, page.rect.size().width(), page.rect.size().height());
 
             if (page.links.count() > 0) {
                 for (int l = 0; l < page.links.count(); ++l) {
-                    QRectF linkRect = page.links.value( l ).first;
+                    QRectF linkRect = page.links.value(l).first;
 
                     QSGSimpleRectNode *linkNode = static_cast< QSGSimpleRectNode* >(tn->childAtIndex(l));
                     if (!linkNode) {
@@ -459,11 +460,11 @@ QSGNode* PDFCanvas::updatePaintNode(QSGNode* node, QQuickItem::UpdatePaintNodeDa
             }
         } else if (!page.rectPlaceholder && showPage) {
             QSGSimpleRectNode *bgNode = new QSGSimpleRectNode();
-            t->appendChildNode( bgNode );
+            t->appendChildNode(bgNode);
 
             page.rectPlaceholder = true;
-            bgNode->setRect( 0., 0., page.rect.width(), page.rect.height() );
-            bgNode->setColor( d->pagePlaceholderColor );
+            bgNode->setRect(0., 0., page.rect.width(), page.rect.height());
+            bgNode->setColor(d->pagePlaceholderColor);
         } else if (!showPage) {
             page.rectPlaceholder = false;
             if (t->childCount() > 0) {

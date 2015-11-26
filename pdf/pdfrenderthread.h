@@ -32,7 +32,7 @@ class PDFRenderThread : public QObject
 {
     Q_OBJECT
 public:
-    PDFRenderThread( QObject *parent = 0 );
+    PDFRenderThread(QObject *parent = 0);
     ~PDFRenderThread();
 
     int pageCount() const;
@@ -40,7 +40,7 @@ public:
     bool isLoaded() const;
     bool isFailed() const;
     bool isLocked() const;
-    QMultiMap< int, QPair< QRectF, QUrl > > linkTargets() const;
+    QMultiMap<int, QPair<QRectF, QUrl> > linkTargets() const;
 
     void queueJob(PDFJob *job);
     void cancelRenderJob(int index);

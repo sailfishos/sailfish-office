@@ -56,8 +56,8 @@ void RenderPageJob::run()
 {
     Q_ASSERT(m_document);
 
-    Poppler::Page *page = m_document->page( m_index );
-    float scale = 72.0f * ( float(m_width) / page->pageSizeF().width() );
+    Poppler::Page *page = m_document->page(m_index);
+    float scale = 72.0f * (float(m_width) / page->pageSizeF().width());
     QImage image = page->renderToImage(scale, scale);
     // Note: assuming there's exactly one handler (PDFCanvas) to catch ownership of this when PDFDocument emits a signal with this
     m_page = m_window->createTextureFromImage(image);
