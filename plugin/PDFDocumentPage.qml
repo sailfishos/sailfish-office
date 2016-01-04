@@ -103,6 +103,11 @@ DocumentPage {
         anchors.bottomMargin: toolbar.offset
         document: pdfDocument
         onClicked: base.open = !base.open
+        onLinkClicked: {
+            base.open = false
+            contextMenuLinks.message = linkTarget
+            contextMenuLinks.opacity = 1.
+        }
         clip: anchors.bottomMargin > 0
     }
 
@@ -203,6 +208,26 @@ DocumentPage {
             Behavior on opacity {
                 FadeAnimation {}
             }
+        }
+    }
+
+    PDFContextMenu {
+        id: contextMenuLinks
+        //% "External link"
+        title: qsTrId("sailfish-office-tl-pdf-link")
+        MenuItem {
+            text: (contextMenuLinks.message.indexOf("http:") === 0
+                   || contextMenuLinks.message.indexOf("https:") === 0)
+                  //% "Open in browser"
+                  ? qsTrId("sailfish-office-me-pdf-open-browser")
+                  //% "Open in external application"
+                  : qsTrId("sailfish-office-me-pdf-open-external")
+            onClicked: Qt.openUrlExternally(contextMenuLinks.message)
+        }
+        MenuItem {
+            //% "Copy to clipboard"
+            text: qsTrId("sailfish-office-me-pdf-copy-link")
+            onClicked: Clipboard.text = contextMenuLinks.message
         }
     }
 
