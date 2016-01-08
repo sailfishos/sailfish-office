@@ -22,9 +22,17 @@ import Sailfish.Silica 1.0
 CoverBackground {
     id: root
 
-    property bool update: status === Cover.Active || Qt.application.active
-
-    onUpdateChanged: previewImage.updatePreview()
+    // While peeking both main window and cover window are visible at the
+    // same time. Thus, we can capture from main window when cover
+    // becomes visible.
+    // Note: this may change in future.
+    onVisibleChanged: {
+        if (visible) {
+            previewImage.updatePreview()
+        } else if (window.visible) {
+            previewImage.source = ""
+        }
+    }
 
     CoverPlaceholder {
         //: Cover placeholder shown when there are no documents
@@ -72,9 +80,10 @@ CoverBackground {
                                              window.documentItem.contentAvailable)
 
             function updatePreview() {
-                if (window.documentItem && root.update) {
-                    window.documentItem.grabToImage(function(result) { previewImage.source = result.url },
-                                                             Qt.size(width, height))
+                if (window.visible && window.documentItem) {
+                    window.documentItem.grabToImage(function(result) {
+                        previewImage.source = result.url
+                    }, Qt.size(width, height))
                 }
             }
             Connections {
