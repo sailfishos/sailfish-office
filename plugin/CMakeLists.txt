@@ -16,6 +16,7 @@ install(FILES
     PDFDocumentPage.qml
     PDFDocumentToCPage.qml
     PDFView.qml
+    PDFContextMenu.qml
     PDFStorage.js
     PresentationPage.qml
     PresentationThumbnailPage.qml

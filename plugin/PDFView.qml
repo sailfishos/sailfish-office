@@ -34,6 +34,7 @@ SilicaFlickable {
     property bool scaled: pdfCanvas.width != width
 
     signal clicked()
+    signal linkClicked(string linkTarget)
     signal pageSizesReady()
     signal updateSize(real newWidth, real newHeight)
 
@@ -154,7 +155,7 @@ SilicaFlickable {
                 anchors.fill: parent
 
                 canvas: pdfCanvas
-                onLinkClicked: Qt.openUrlExternally(linkTarget)
+                onLinkClicked: base.linkClicked(linkTarget)
                 onGotoClicked: base.goToPage(page - 1, top, left,
                                              Theme.paddingLarge, Theme.paddingLarge)
                 onClicked: base.clicked()
