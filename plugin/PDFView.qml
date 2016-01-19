@@ -133,6 +133,7 @@ SilicaFlickable {
 
         spacing: Theme.paddingLarge
         flickable: base
+        linkWiggle: Theme.itemSizeMedium / 2
         linkColor: Theme.highlightColor
         pagePlaceholderColor: Theme.highlightColor
 

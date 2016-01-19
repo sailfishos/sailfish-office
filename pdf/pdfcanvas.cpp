@@ -59,6 +59,7 @@ public:
         , flickable(0)
         , resizeTimer(nullptr)
         , spacing(10.f)
+        , linkWiggle(4.f)
     { }
 
     PDFCanvas *q;
@@ -76,6 +77,7 @@ public:
     QTimer *resizeTimer;
 
     float spacing;
+    float linkWiggle;
 
     QRectF visibleArea;
 
@@ -93,12 +95,8 @@ public:
             delete texture;
         texturesToClean.clear();
     }
-
-    static const float wiggleFactor;
 };
 
-
-const float PDFCanvas::Private::wiggleFactor(4.f);
 
 PDFCanvas::PDFCanvas(QQuickItem *parent)
     : QQuickItem(parent), d(new Private(this))
@@ -197,6 +195,19 @@ void PDFCanvas::setSpacing(float newValue)
     }
 }
 
+float PDFCanvas::linkWiggle() const
+{
+    return d->linkWiggle;
+}
+
+void PDFCanvas::setLinkWiggle(float newValue)
+{
+    if (newValue != d->linkWiggle) {
+        d->linkWiggle = newValue;
+        emit linkWiggleChanged();
+    }
+}
+
 QColor PDFCanvas::linkColor() const
 {
     return d->linkColor;
@@ -267,22 +278,46 @@ void PDFCanvas::layout()
     update();
 }
 
+static qreal squaredDistanceFromRect(const QRectF &rect, const QPoint &point)
+{
+    qreal dist = 0.;
+
+    if ((qreal)point.x() < rect.left()) {
+        dist += (rect.left() - (qreal)point.x()) * (rect.left() - (qreal)point.x());
+    } else if ((qreal)point.x() > rect.right()) {
+        dist += (rect.right() - (qreal)point.x()) * (rect.right() - (qreal)point.x());
+    }
+    if ((qreal)point.y() < rect.top()) {
+        dist += (rect.top() - (qreal)point.y()) * (rect.top() - (qreal)point.y());
+    } else if ((qreal)point.y() > rect.bottom()) {
+        dist += (rect.bottom() - (qreal)point.y()) * (rect.bottom() - (qreal)point.y());
+    }
+
+    return dist;
+}
+
 QUrl PDFCanvas::urlAtPoint(const QPoint &point)
 {
     for (int i = 0; i < d->pageCount; ++i) {
         const PDFPage &page = d->pages.value(i);
         if (page.rect.contains(point)) {
+            qreal squaredDistanceMin = d->linkWiggle * d->linkWiggle;
+            QUrl url;
             for (const QPair<QRectF, QUrl> &link : page.links) {
                 QRectF hitTarget{
-                    link.first.x() * page.rect.width() - Private::wiggleFactor,
-                    link.first.y() * page.rect.height() - Private::wiggleFactor + page.rect.y(),
-                    link.first.width() * page.rect.width() + Private::wiggleFactor * 2,
-                    link.first.height() * page.rect.height() + Private::wiggleFactor * 2
+                    link.first.x() * page.rect.width(),
+                    link.first.y() * page.rect.height() + page.rect.y(),
+                    link.first.width() * page.rect.width(),
+                    link.first.height() * page.rect.height()
                 };
-
-                if (hitTarget.contains(point))
-                    return link.second;
+                qreal squaredDistance = squaredDistanceFromRect(hitTarget, point);
+                
+                if (squaredDistance < squaredDistanceMin) {
+                    url = link.second;
+                    squaredDistanceMin = squaredDistance;
+                }
             }
+            return url;
         }
     }
 
