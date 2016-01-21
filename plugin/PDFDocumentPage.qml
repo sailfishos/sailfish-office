@@ -264,17 +264,12 @@ DocumentPage {
                 height: Theme.paddingLarge
             }
 
-            TextField {
+            PasswordField {
                 id: password
 
                 visible: pdfDocument.locked
                 x: Theme.horizontalPageMargin
                 width: parent.width - 2*x
-                //% "password"
-                label: qsTrId("sailfish-office-la-password")
-                placeholderText: label
-                inputMethodHints: Qt.ImhNoPredictiveText | Qt.ImhNoAutoUppercase
-                echoMode: TextInput.Password
                 EnterKey.enabled: text
                 EnterKey.iconSource: "image://theme/icon-m-enter-accept"
                 EnterKey.onClicked: {
