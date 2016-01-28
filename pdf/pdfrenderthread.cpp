@@ -90,10 +90,15 @@ public:
             Poppler::Page *page = document->page(i);
             QList<Poppler::Link*> links = page->links();
             for (Poppler::Link* link : links) {
+                // link->linkArea() may return negative heights,
+                // as mentioned in Freedesktop bug:
+                // https://bugs.freedesktop.org/show_bug.cgi?id=93900
+                // To avoid later unexpected asumption on height,
+                // link->linkArea() is normalized.
                 switch (link->linkType()) {
                 case (Poppler::Link::Browse): {
                     Poppler::LinkBrowse *realLink = static_cast<Poppler::LinkBrowse*>(link);
-                    QRectF linkArea = link->linkArea();
+                    QRectF linkArea = link->linkArea().normalized();
                     linkTargets.insert(i, QPair<QRectF, QUrl>(linkArea, realLink->url()));
                     break;
                 }
@@ -102,7 +107,7 @@ public:
                     // Not handling goto link to external file currently.
                     if (gotoLink->isExternal())
                         break;
-                    QRectF linkArea = link->linkArea();
+                    QRectF linkArea = link->linkArea().normalized();
                     QUrl linkURL = QUrl("");
                     QUrlQuery query = QUrlQuery();
                     query.addQueryItem("page", QString::number(gotoLink->destination().pageNumber()));
