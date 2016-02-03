@@ -22,6 +22,7 @@
 #include "pdfcanvas.h"
 #include "pdflinkarea.h"
 #include "pdfselection.h"
+#include "pdfannotation.h"
 
 SailfishOfficePDFPlugin::SailfishOfficePDFPlugin(QObject *parent)
     : QQmlExtensionPlugin(parent)
@@ -35,4 +36,8 @@ void SailfishOfficePDFPlugin::registerTypes(const char *uri)
     qmlRegisterType<PDFCanvas>(uri, 1, 0, "Canvas");
     qmlRegisterType<PDFLinkArea>(uri, 1, 0, "LinkArea");
     qmlRegisterType<PDFSelection>(uri, 1, 0, "Selection");
+    qmlRegisterType<PDFAnnotation>(uri, 1, 0, "Annotation");
+    qmlRegisterType<PDFTextAnnotation>(uri, 1, 0, "TextAnnotation");
+    qmlRegisterType<PDFCaretAnnotation>(uri, 1, 0, "CaretAnnotation");
+    qmlRegisterType<PDFHighlightAnnotation>(uri, 1, 0, "HighlightAnnotation");
 }
