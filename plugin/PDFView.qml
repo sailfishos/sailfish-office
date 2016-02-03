@@ -32,6 +32,7 @@ SilicaFlickable {
     property alias currentPage: pdfCanvas.currentPage
 
     property bool scaled: pdfCanvas.width != width
+    property QtObject _feedbackEffect
 
     signal clicked()
     signal linkClicked(string linkTarget)
@@ -113,9 +114,30 @@ SilicaFlickable {
             NumberAnimation { id: scaleOut; property: "scale"; duration: 200; to: 1.; easing.type: Easing.InOutCubic }
         }
     }
+    NumberAnimation {
+        id: dragOffset
+        duration: 200
+        easing.type: Easing.InOutCubic
+        target: base
+        property: "contentY"
+    }
 
     // Ensure proper zooming level when device is rotated.
     onWidthChanged: adjust()
+    Component.onCompleted: {
+        // Avoid hard dependency to feedback
+        _feedbackEffect = Qt.createQmlObject("import QtQuick 2.0; import QtFeedback 5.0; ThemeEffect { effect: ThemeEffect.PressWeak }",
+                                             base, 'ThemeEffect')
+        if (_feedbackEffect && !_feedbackEffect.supported) {
+            _feedbackEffect = null
+        }
+    }
+
+    PDF.Selection {
+        id: selection
+        canvas: pdfCanvas
+        wiggle: Theme.itemSizeSmall / 2
+    }
 
     PDF.Canvas {
         id: pdfCanvas
@@ -152,7 +174,14 @@ SilicaFlickable {
                 onLinkClicked: base.linkClicked(linkTarget)
                 onGotoClicked: base.goToPage(page - 1, top, left,
                                              Theme.paddingLarge, Theme.paddingLarge)
-                onClicked: base.clicked()
+                onClicked: {
+                    if (selection.text.length > 0) {
+                        selection.unselect()
+                    } else {
+                        base.clicked()
+                    }
+                }
+                onLongPress: selection.selectAt(pressAt)
             }
         }
 
@@ -179,6 +208,23 @@ SilicaFlickable {
                 y: match.y - Theme.paddingSmall / 4
                 width: match.width + Theme.paddingSmall
                 height: match.height + Theme.paddingSmall / 2
+            }
+        }
+
+        PDFSelectionView {
+            id: selectionView
+            model: selection
+            startAttachX: 0
+            stopAttachX: base.width
+            onVisibleChanged: if (visible && _feedbackEffect) _feedbackEffect.play()
+            onDraggingChanged: {
+                if (dragging) {
+                    dragOffset.to = base.contentY + Theme.itemSizeSmall
+                    dragOffset.start()
+                } else {
+                    dragOffset.to = base.contentY - Theme.itemSizeSmall
+                    dragOffset.start()
+                }
             }
         }
     }
