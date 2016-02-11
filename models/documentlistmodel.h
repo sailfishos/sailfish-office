@@ -23,6 +23,7 @@
 #include <qdatetime.h>
 
 #include "tagsthread.h"
+#include "trackertagprovider.h"
 #include "taglistmodel.h"
 
 class DocumentListModelPrivate;
@@ -76,8 +77,9 @@ public:
     Q_INVOKABLE void addTag(const QString &path, const QString &tag);
     Q_INVOKABLE void removeTag(const QString &path, const QString &tag);
 
-public Q_SLOTS:
+private Q_SLOTS:
     void jobFinished(TagsThreadJob* job);
+    void tagLoaded(const QString &path, const QList<QString> &tags);
 
 Q_SIGNALS:
     void tagsChanged();

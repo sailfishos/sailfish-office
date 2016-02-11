@@ -49,6 +49,7 @@ public:
     QList<DocumentListModelEntry> entries;
     QHash<int, QByteArray> roles;
     TagsThread *tagsThread; // To delegate tag storage with SQL backend.
+    TrackerTagProvider trackerTag;
     TagListModel tagsModel; // A QML list of all tags.
     QHash<QString, QSet<QString>> tags; // The association tag <-> [set of filenames]
 };
@@ -56,13 +57,16 @@ public:
 DocumentListModel::DocumentListModel(QObject *parent)
     : QAbstractListModel(parent), d(new Private)
 {
-    d->tagsThread = new TagsThread( this );
-    connect( d->tagsThread, &TagsThread::jobFinished, this, &DocumentListModel::jobFinished );
+    // d->tagsThread = new TagsThread(this);
+    // connect(d->tagsThread, &TagsThread::jobFinished,
+    //         this, &DocumentListModel::jobFinished);
+    connect(&d->trackerTag, &TrackerTagProvider::tagLoaded,
+            this, &DocumentListModel::tagLoaded);
 }
 
 DocumentListModel::~DocumentListModel()
 {
-    delete d->tagsThread;
+    // delete d->tagsThread;
 }
 
 QVariant DocumentListModel::data(const QModelIndex &index, int role) const
@@ -121,9 +125,10 @@ void DocumentListModel::addTag(const QString &path, const QString &tag)
         return; // This path has already this tag.
 
     files.insert(path);
-    TagsThreadJob *job = new TagsThreadJob(path, TagsThreadJob::TaskAddTags);
-    job->tags.append(tag);
-    d->tagsThread->queueJob(job);
+    // TagsThreadJob *job = new TagsThreadJob(path, TagsThreadJob::TaskAddTags);
+    // job->tags.append(tag);
+    // d->tagsThread->queueJob(job);
+    d->trackerTag.addTag(path, tag);
     d->tagsModel.addItem(tag);
     notifyForPath(path);
 }
@@ -136,9 +141,10 @@ void DocumentListModel::removeTag(const QString &path, const QString &tag)
     files.remove(path);
     if (files.empty())
         d->tags.remove(tag);
-    TagsThreadJob *job = new TagsThreadJob(path, TagsThreadJob::TaskRemoveTags);
-    job->tags.append(tag);
-    d->tagsThread->queueJob(job);
+    // TagsThreadJob *job = new TagsThreadJob(path, TagsThreadJob::TaskRemoveTags);
+    // job->tags.append(tag);
+    // d->tagsThread->queueJob(job);
+    d->trackerTag.removeTag(path, tag);
     d->tagsModel.removeItem(tag);
     notifyForPath(path);
 }
@@ -191,7 +197,8 @@ void DocumentListModel::addItem(QString name, QString path, QString type, int si
     entry.fileRead = lastRead;
     entry.mimeType = mimeType;
     entry.documentClass = static_cast<DocumentClass>(mimeTypeToDocumentClass(mimeType));
-    d->tagsThread->queueJob(new TagsThreadJob(path, TagsThreadJob::TaskLoadTags));
+    d->trackerTag.loadTags(path);
+    //d->tagsThread->queueJob(new TagsThreadJob(path, TagsThreadJob::TaskLoadTags));
 
     int index = 0;
     for (; index < d->entries.count(); ++index) {
@@ -217,7 +224,7 @@ void DocumentListModel::removeItemsDirty()
 void DocumentListModel::removeAt(int index)
 {
     if (index > -1 && index < d->entries.count()) {
-        d->tagsThread->cancelJobsForPath(d->entries.at(index).filePath);
+        // d->tagsThread->cancelJobsForPath(d->entries.at(index).filePath);
         beginRemoveRows(QModelIndex(), index, index);
         d->entries.removeAt(index);
         endRemoveRows();
@@ -226,7 +233,7 @@ void DocumentListModel::removeAt(int index)
 
 void DocumentListModel::clear()
 {
-    d->tagsThread->cancelAllJobs();
+    // d->tagsThread->cancelAllJobs();
     beginResetModel();
     d->entries.clear();
     endResetModel();
@@ -244,6 +251,17 @@ void DocumentListModel::jobFinished(TagsThreadJob *job)
         notifyForPath(job->path);
     }
     job->deleteLater();
+}
+
+void DocumentListModel::tagLoaded(const QString &path, const QList<QString> &tags)
+{
+    for (QList<QString>::const_iterator tag = tags.begin();
+         tag != tags.end(); tag++) {
+        QSet<QString> &files = d->tags[*tag];
+        files.insert(path);
+        d->tagsModel.addItem(*tag);
+    }
+    notifyForPath(path);
 }
 
 int DocumentListModel::mimeTypeToDocumentClass(QString mimeType) const
