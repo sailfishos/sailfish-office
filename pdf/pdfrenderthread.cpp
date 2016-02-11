@@ -25,6 +25,7 @@
 #include <QDebug>
 #include <QCoreApplication>
 #include <QUrlQuery>
+#include <QSaveFile>
 
 #include "pdfjob.h"
 #include "pdftocmodel.h"
@@ -112,6 +113,7 @@ public:
         QThread::exec();
         // Delete pending search that may use document.
         delete searchThread;
+        autoSaveTo();
         delete document;
         delete tocModel;
         deleteLater();
@@ -129,9 +131,13 @@ public:
     QMutex mutex;
 
     // Used for cleanup only
+    QString autoSaveFilename;
     Poppler::Document *document;
     PDFTocModel *tocModel;
     SearchThread *searchThread;
+
+private:
+    void autoSaveTo();
 };
 
 class PDFRenderThreadPrivate
@@ -149,6 +155,10 @@ public:
                 delete j->second;
             }
         }
+        for (QMap<int, QList<Poppler::Annotation*> >::iterator i = annotations.begin();
+             i != annotations.end(); i++) {
+            qDeleteAll(i.value());
+        }
     }
 
 
@@ -163,6 +173,7 @@ public:
 
     QMultiMap<int, QPair<QRectF, QUrl> > linkTargets;
     QMap<int, QList<QPair <QRectF, Poppler::TextBox*> > > textBoxes;
+    QMap<int, QList<Poppler::Annotation*> > annotations;
 
     void rescanDocumentLinks()
     {
@@ -233,6 +244,21 @@ public:
         }
         textBoxes.insert(i, lst);
         delete page;
+    }
+    void retrieveAnnotations(int i) {
+        if (i < 0 || i >= document->numPages()) {
+            return;
+        }
+        if (annotations.contains(i))
+            qDeleteAll(annotations.take(i));
+        Poppler::Page* page = document->page(i);
+        QList<Poppler::Annotation*> annotationsAt = page->annotations();
+        // Add all revisions of every annotation we just retrieved.
+        int nFirstLevel = annotationsAt.size();
+        for (int j = 0; j < nFirstLevel; j++)
+            annotationsAt += annotationsAt[j]->revisions();
+        annotations.insert(i, annotationsAt);
+        delete(page);
     }
 };
 
@@ -323,6 +349,58 @@ QList<QPair<QRectF, Poppler::TextBox*> > PDFRenderThread::textBoxesAtPage(int pa
     if (!d->textBoxes.contains(page))
         d->retrieveTextBoxes(page);
     return d->textBoxes[page];
+}
+
+void PDFRenderThread::addAnnotation(Poppler::Annotation *annotation, int pageIndex,
+                                    bool normalizeSize)
+{
+    QMutexLocker(&d->thread->mutex);
+    if (!d->document)
+        return;
+    Poppler::Page *page = d->document->page(pageIndex);
+    if (normalizeSize) {
+        QSizeF pSize = page->pageSizeF();
+        QRectF bounds = annotation->boundary();
+        bounds.setWidth(bounds.width() / pSize.width());
+        bounds.setHeight(bounds.height() / pSize.height());
+        annotation->setBoundary(bounds);
+    }
+    page->addAnnotation(annotation);
+    delete page;
+    // annotation cannot be added to d->annotations of this page
+    // since the caller is the owner of the object.
+    if (d->annotations.contains(pageIndex))
+        d->retrieveAnnotations(pageIndex);
+    emit pageModified(pageIndex);
+}
+
+QList<Poppler::Annotation*> PDFRenderThread::annotations(int pageIndex) const
+{
+    QMutexLocker(&d->thread->mutex);
+    if (!d->document)
+        return QList<Poppler::Annotation*>();
+    if (!d->annotations.contains(pageIndex))
+        d->retrieveAnnotations(pageIndex);
+    return d->annotations[pageIndex];
+}
+
+void PDFRenderThread::removeAnnotation(Poppler::Annotation *annotation, int pageIndex)
+{
+    QMutexLocker(&d->thread->mutex);
+    if (!d->document)
+        return;
+    if (d->annotations.contains(pageIndex))
+        d->annotations[pageIndex].removeOne(annotation);
+    Poppler::Page *page = d->document->page(pageIndex);
+    page->removeAnnotation(annotation);
+    delete page;
+    emit pageModified(pageIndex);
+}
+
+void PDFRenderThread::setAutoSaveName(const QString &filename)
+{
+    QMutexLocker(&d->thread->mutex);
+    d->thread->autoSaveFilename = filename;
 }
 
 void PDFRenderThread::queueJob(PDFJob *job)
@@ -457,6 +535,29 @@ bool PDFRenderThreadQueue::event(QEvent *e)
         return true;
     }
     return QObject::event(e);
+}
+
+void Thread::autoSaveTo()
+{
+    QMutexLocker locker(&mutex);
+
+    if (autoSaveFilename.isEmpty())
+        return;
+
+    Q_ASSERT(document);
+
+    QSaveFile destination(autoSaveFilename);
+
+    Poppler::PDFConverter *converter = document->pdfConverter();
+    converter->setOutputDevice(&destination);
+    converter->setPDFOptions(Poppler::PDFConverter::PDFOption::WithChanges);
+    bool success = converter->convert();
+    delete converter;
+
+    if (success)
+        destination.commit();
+    else
+        qWarning() << QStringLiteral("PDF exportation failure to '%1' (error code %2)").arg(autoSaveFilename).arg(int(converter->lastError()));
 }
 
 #include "pdfrenderthread.moc"

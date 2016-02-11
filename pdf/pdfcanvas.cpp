@@ -177,6 +177,7 @@ void PDFCanvas::setDocument(PDFDocument *doc)
         connect(d->document, &PDFDocument::pageFinished, this, &PDFCanvas::pageFinished);
         connect(d->document, &PDFDocument::pageSizesFinished, this, &PDFCanvas::pageSizesFinished);
         connect(d->document, &PDFDocument::documentLockedChanged, this, &PDFCanvas::documentLoaded);
+        connect(d->document, &PDFDocument::pageModified, this, &PDFCanvas::pageModified);
 
         if (d->document->isLoaded())
             documentLoaded();
@@ -370,6 +371,21 @@ QPointF PDFCanvas::fromPageToItem(int index, const QPointF &point) const
     const PDFPage &page = d->pages.value(index);
     return QPointF(point.x() * page.rect.width() + page.rect.x(),
                    point.y() * page.rect.height() + page.rect.y());
+}
+
+void PDFCanvas::pageModified(int id)
+{
+    PDFPage &page = d->pages[id];
+
+    if (page.texture) {
+      d->texturesToClean << page.texture;
+      page.texture = 0;
+    }
+    if (page.requested) {
+      d->document->cancelPageRequest(id);
+      page.requested = false;
+    }
+    update();
 }
 
 void PDFCanvas::pageFinished(int id, int pageRenderWidth,
@@ -583,6 +599,9 @@ QSGNode* PDFCanvas::updatePaintNode(QSGNode *node, QQuickItem::UpdatePaintNodeDa
 
                     rn = static_cast<QSGSimpleRectNode*>(rn->nextSibling());
                 }
+            } else {
+                delete t->firstChild();
+                t->removeAllChildNodes();
             }
         } else {
             delete t->firstChild();

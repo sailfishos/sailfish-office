@@ -121,6 +121,7 @@ protected:
     virtual QSGNode* updatePaintNode(QSGNode *node, UpdatePaintNodeData*);
 
 private Q_SLOTS:
+    void pageModified(int id);
     void pageFinished(int id, int pageRenderWidth,
                       QRect subpart, QSGTexture *texture);
     void documentLoaded();

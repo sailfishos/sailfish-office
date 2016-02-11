@@ -29,7 +29,7 @@
 class PDFDocument::Private
 {
 public:
-    Private() : searching(false), completed(false) { }
+    Private() : searching(false), completed(false), modified(false) { }
 
     PDFRenderThread *thread;
 
@@ -37,7 +37,9 @@ public:
     PDFSearchModel *searchModel;
 
     QString source;
+    QString autoSavePath;
     bool completed;
+    bool modified;
 };
 
 PDFDocument::PDFDocument(QObject *parent)
@@ -49,6 +51,7 @@ PDFDocument::PDFDocument(QObject *parent)
     connect(d->thread, &PDFRenderThread::loadFinished, this, &PDFDocument::loadFinished);
     connect(d->thread, &PDFRenderThread::jobFinished, this, &PDFDocument::jobFinished);
     connect(d->thread, &PDFRenderThread::searchFinished, this, &PDFDocument::searchFinished);
+    connect(d->thread, &PDFRenderThread::pageModified, this, &PDFDocument::onPageModified);
 
     d->searchModel = nullptr;
 }
@@ -63,6 +66,11 @@ PDFDocument::~PDFDocument()
 QString PDFDocument::source() const
 {
     return d->source;
+}
+
+QString PDFDocument::autoSavePath() const
+{
+    return d->autoSavePath;
 }
 
 int PDFDocument::pageCount() const
@@ -104,6 +112,11 @@ bool PDFDocument::isLocked() const
     return d->thread->isLocked();
 }
 
+bool PDFDocument::isModified() const
+{
+    return d->modified;
+}
+
 PDFDocument::LinkMap PDFDocument::linkTargets() const
 {
     return d->thread->linkTargets();
@@ -142,6 +155,46 @@ void PDFDocument::setSource(const QString &source)
 
         emit sourceChanged();
     }
+}
+
+void PDFDocument::setAutoSavePath(const QString &filename)
+{
+    if (d->autoSavePath != filename) {
+        d->autoSavePath = filename;
+        if (filename.startsWith("/"))
+            d->autoSavePath.prepend("file://");
+
+        emit autoSavePathChanged();
+
+        if (d->modified)
+            d->thread->setAutoSaveName(QUrl(d->autoSavePath).toLocalFile());
+    }
+}
+
+void PDFDocument::addAnnotation(Poppler::Annotation *annotation, int pageIndex,
+                                bool normalizeSize)
+{
+    d->thread->addAnnotation(annotation, pageIndex, normalizeSize);
+}
+
+QList<Poppler::Annotation*> PDFDocument::annotations(int page) const
+{
+    return d->thread->annotations(page);
+}
+
+void PDFDocument::removeAnnotation(Poppler::Annotation *annotation, int pageIndex)
+{
+    d->thread->removeAnnotation(annotation, pageIndex);
+}
+
+void PDFDocument::setDocumentModified()
+{
+    if (d->modified)
+        return;
+
+    d->modified = true;
+    if (!d->autoSavePath.isEmpty())
+        d->thread->setAutoSaveName(QUrl(d->autoSavePath).toLocalFile());
 }
 
 void PDFDocument::requestUnLock(const QString &password)
@@ -225,6 +278,12 @@ void PDFDocument::loadFinished()
         emit documentFailedChanged();
     if (d->thread->isLocked())
         emit documentLockedChanged();
+}
+
+void PDFDocument::onPageModified(int page)
+{
+    setDocumentModified();
+    emit pageModified(page);
 }
 
 void PDFDocument::jobFinished(PDFJob *job)
