@@ -133,24 +133,22 @@ DocumentPage {
                 NumberAnimation { easing.type: Easing.InOutQuad; duration: 400 }
             }
 
-            Item {
+            IconButton {
+                id: pageCount
                 anchors.verticalCenter: parent.verticalCenter
-                width: pageCount.width
-                height: pageCount.height
-                Row {
-                    id: pageCount
-                    Image {
-                        source: "image://theme/icon-m-document"
-                        anchors.verticalCenter: parent.verticalCenter
-                    }
-                    Label {
-                        anchors.verticalCenter: parent.verticalCenter
-                        text: view.currentPage + " / " + view.document.pageCount
-                    }
-                }
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: base.pushAttachedPage()
+                width: icon.width + pageLabel.width
+                height: parent.height
+                icon.source: "image://theme/icon-m-document" + (highlighted ? "?" + Theme.highlightColor : "")
+                icon.anchors.centerIn: undefined
+                icon.anchors.left: pageCount.left
+                icon.anchors.verticalCenter: pageCount.verticalCenter
+                onClicked: base.pushAttachedPage()
+                Label {
+                    id: pageLabel
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.right: parent.right
+                    color: pageCount.highlighted ? Theme.highlightColor : Theme.primaryColor
+                    text: view.currentPage + " / " + view.document.pageCount
                 }
             }
             SearchField {
