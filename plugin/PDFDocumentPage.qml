@@ -154,8 +154,9 @@ DocumentPage {
             SearchField {
                 id: search
                 width: activeFocus ? toolbar.width
-                                   : toolbar.width - pageCount.width - (pdfDocument.searchModel
-                                                                        ? searchPrev.width + searchNext.width : 0)
+                                   : toolbar.width - pageCount.width
+                                     - (searchPrev.visible ? searchPrev.width : 0)
+                                     - (searchNext.visible ? searchNext.width : 0)
                 anchors.verticalCenter: parent.verticalCenter
 
                 enabled: !pdfDocument.searching
@@ -177,14 +178,14 @@ DocumentPage {
                 id: searchPrev
                 anchors.verticalCenter: parent.verticalCenter
                 icon.source: "image://theme/icon-m-left"
-                enabled: pdfDocument.searchModel && pdfDocument.searchModel.count > 0
+                visible: pdfDocument.searchModel && pdfDocument.searchModel.count > 0
                 onClicked: view.prevSearchMatch()
             }
             IconButton {
                 id: searchNext
                 anchors.verticalCenter: parent.verticalCenter
                 icon.source: "image://theme/icon-m-right"
-                enabled: pdfDocument.searchModel && pdfDocument.searchModel.count > 0
+                visible: pdfDocument.searchModel && pdfDocument.searchModel.count > 0
                 onClicked: view.nextSearchMatch()
             }
         }
