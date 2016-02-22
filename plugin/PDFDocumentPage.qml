@@ -133,31 +133,30 @@ DocumentPage {
                 NumberAnimation { easing.type: Easing.InOutQuad; duration: 400 }
             }
 
-            Item {
+            IconButton {
+                id: pageCount
                 anchors.verticalCenter: parent.verticalCenter
-                width: pageCount.width
-                height: pageCount.height
-                Row {
-                    id: pageCount
-                    Image {
-                        source: "image://theme/icon-m-document"
-                        anchors.verticalCenter: parent.verticalCenter
-                    }
-                    Label {
-                        anchors.verticalCenter: parent.verticalCenter
-                        text: view.currentPage + " / " + view.document.pageCount
-                    }
-                }
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: base.pushAttachedPage()
+                width: icon.width + pageLabel.width
+                height: parent.height
+                icon.source: "image://theme/icon-m-document" + (highlighted ? "?" + Theme.highlightColor : "")
+                icon.anchors.centerIn: undefined
+                icon.anchors.left: pageCount.left
+                icon.anchors.verticalCenter: pageCount.verticalCenter
+                onClicked: base.pushAttachedPage()
+                Label {
+                    id: pageLabel
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.right: parent.right
+                    color: pageCount.highlighted ? Theme.highlightColor : Theme.primaryColor
+                    text: view.currentPage + " / " + view.document.pageCount
                 }
             }
             SearchField {
                 id: search
                 width: activeFocus ? toolbar.width
-                                   : toolbar.width - pageCount.width - (pdfDocument.searchModel
-                                                                        ? searchPrev.width + searchNext.width : 0)
+                                   : toolbar.width - pageCount.width
+                                     - (searchPrev.visible ? searchPrev.width : 0)
+                                     - (searchNext.visible ? searchNext.width : 0)
                 anchors.verticalCenter: parent.verticalCenter
 
                 enabled: !pdfDocument.searching
@@ -179,14 +178,14 @@ DocumentPage {
                 id: searchPrev
                 anchors.verticalCenter: parent.verticalCenter
                 icon.source: "image://theme/icon-m-left"
-                enabled: pdfDocument.searchModel && pdfDocument.searchModel.count > 0
+                visible: pdfDocument.searchModel && pdfDocument.searchModel.count > 0
                 onClicked: view.prevSearchMatch()
             }
             IconButton {
                 id: searchNext
                 anchors.verticalCenter: parent.verticalCenter
                 icon.source: "image://theme/icon-m-right"
-                enabled: pdfDocument.searchModel && pdfDocument.searchModel.count > 0
+                visible: pdfDocument.searchModel && pdfDocument.searchModel.count > 0
                 onClicked: view.nextSearchMatch()
             }
         }
