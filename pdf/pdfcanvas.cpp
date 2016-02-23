@@ -113,10 +113,8 @@ PDFCanvas::~PDFCanvas()
 {
     for (int i = 0; i < d->pageCount; ++i) {
         PDFPage &page = d->pages[i];
-        if (page.texture) {
-            delete page.texture;
-            page.texture = 0;
-        }
+        delete page.texture;
+        page.texture = 0;
     }
 
     delete d->resizeTimer;
@@ -494,7 +492,7 @@ QSGNode* PDFCanvas::updatePaintNode(QSGNode *node, QQuickItem::UpdatePaintNodeDa
                 }
             }
         } else if (!page.rectPlaceholder && showPage) {
-            QSGSimpleRectNode *bgNode = new QSGSimpleRectNode();
+            QSGSimpleRectNode *bgNode = new QSGSimpleRectNode;
             t->appendChildNode(bgNode);
 
             page.rectPlaceholder = true;

@@ -139,12 +139,12 @@ protected:
 };
 
 PDFRenderThread::PDFRenderThread(QObject *parent)
-    : QObject(parent), d(new PDFRenderThreadPrivate())
+    : QObject(parent), d(new PDFRenderThreadPrivate)
 {
     d->q = this;
     d->loadFailure = false;
-    d->thread = new Thread();
-    d->thread->jobQueue = new PDFRenderThreadQueue();
+    d->thread = new Thread;
+    d->thread->jobQueue = new PDFRenderThreadQueue;
     d->thread->jobQueue->d = d;
     d->thread->start();
     d->thread->jobQueue->moveToThread(d->thread);
