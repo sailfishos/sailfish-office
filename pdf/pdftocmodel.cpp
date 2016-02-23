@@ -50,7 +50,7 @@ public:
         // keep track of the current listViewItem
         QDomNode n = parent->firstChild();
         while (!n.isNull()) {
-            PDFTocEntry *tocEntry = new PDFTocEntry();
+            PDFTocEntry *tocEntry = new PDFTocEntry;
             tocEntry->level = level;
             // convert the node to an element (sure it is)
             QDomElement e = n.toElement();

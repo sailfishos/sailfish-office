@@ -29,20 +29,19 @@
 class PDFDocument::Private
 {
 public:
-    Private() : searching(false), document(nullptr), completed(false) { }
+    Private() : searching(false), completed(false) { }
 
     PDFRenderThread *thread;
 
     bool searching;
     PDFSearchModel *searchModel;
 
-    Poppler::Document *document;
     QString source;
     bool completed;
 };
 
 PDFDocument::PDFDocument(QObject *parent)
-    : QObject(parent), d(new Private())
+    : QObject(parent), d(new Private)
 {
     d->thread = new PDFRenderThread(this);
     connect(d->thread, &PDFRenderThread::loadFinished, this, &PDFDocument::documentLoadedChanged);
@@ -227,8 +226,7 @@ void PDFDocument::jobFinished(PDFJob *job)
     }
     case PDFJob::SearchDocumentJob: {
         SearchDocumentJob* j = static_cast<SearchDocumentJob*>(job);
-        if (d->searchModel)
-            delete d->searchModel;
+        delete d->searchModel;
         d->searchModel = new PDFSearchModel(j->m_matches);
         emit searchModelChanged();
         d->searching = false;
