@@ -25,6 +25,7 @@ Page {
 
     property url source
     property int indexCount
+    property string mimeType
 
     FileInfo {
         id: info
@@ -77,20 +78,38 @@ Page {
 
             DetailItem {
                 label: {
-                    switch(Calligra.Global.documentType(page.source)) {
-                        case Calligra.DocumentType.TextDocument:
-                            //: Page count of the text document
-                            //% "Page Count"
-                            return qsTrId("sailfish-office-la-pagecount")
-                        case Calligra.DocumentType.Spreadsheet:
+                    switch(page.mimeType) {
+                        case "application/vnd.oasis.opendocument.spreadsheet":
+                        case "application/x-kspread":
+                        case "application/vnd.ms-excel":
+                        case "text/csv":
+                        case "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
+                        case "application/vnd.openxmlformats-officedocument.spreadsheetml.template":
                             //: Sheet count of the spreadsheet
                             //% "Sheets"
                             return qsTrId("sailfish-office-la-sheetcount")
-                        case Calligra.DocumentType.Presentation:
+                        case "application/vnd.oasis.opendocument.presentation":
+                        case "application/vnd.oasis.opendocument.presentation-template":
+                        case "application/x-kpresenter":
+                        case "application/vnd.ms-powerpoint":
+                        case "application/vnd.openxmlformats-officedocument.presentationml.presentation":
+                        case "application/vnd.openxmlformats-officedocument.presentationml.template":
                             //: Slide count detail of the presentation
                             //% "Slides"
                             return qsTrId("sailfish-office-la-slidecount")
-                        case Calligra.DocumentType.StaticTextDocument:
+                        case "application/vnd.oasis.opendocument.text-master":
+                        case "application/vnd.oasis.opendocument.text":
+                        case "application/vnd.oasis.opendocument.text-template":
+                        case "application/msword":
+                        case "application/rtf":
+                        case "application/x-mswrite":
+                        case "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+                        case "application/vnd.openxmlformats-officedocument.wordprocessingml.template":
+                        case "application/vnd.ms-works":
+                            //: Page count of the text document
+                            //% "Page Count"
+                            return qsTrId("sailfish-office-la-pagecount")
+                        case "application/pdf":
                             //: Page count of the text document
                             //% "Page Count"
                             return qsTrId("sailfish-office-la-pagecount")
