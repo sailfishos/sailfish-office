@@ -19,69 +19,63 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 
-Item {
+Rectangle {
     id: root
 
-    property bool press
+    property alias attachX: translationMove.from
     property point handle
-    property alias attachX: appearingMove.from
+    property bool dragged
+    property real dragHeight
 
-    signal dragged(point at)
-
-    width: Theme.itemSizeSmall
+    x: handle.x - width / 2
+    y: handle.y - height / 2
+    opacity: 0.5
+    color: Theme.highlightDimmerColor
+    width: Math.round(Theme.iconSizeSmall / 4) * 2 // ensure even number
     height: width
+    radius: width / 2
 
-    NumberAnimation {
-        id: appearingMove
-        duration: 200
-        easing.type: Easing.InOutCubic
-        target: root
-        property: "x"
-        to: root.handle.x - root.width / 2
+    states: State {
+        when: dragged
+        name: "dragged"
+        PropertyChanges {
+            target: root
+            width: Theme.paddingSmall / 2
+            height: dragHeight
+            radius: 0
+        }
     }
+
+    transitions: Transition {
+        to: "dragged"
+        reversible: true
+        SequentialAnimation {
+            NumberAnimation { property: "width"; duration: 100 }
+            PropertyAction { property: "radius" }
+            NumberAnimation { property: "height"; duration: 100 }
+        }
+    }
+
+    ParallelAnimation {
+        id: appearingMove
+        FadeAnimation {
+            target: root
+            from: 0
+            to: 0.5
+        }
+        NumberAnimation {
+            id: translationMove
+            duration: 200
+            easing.type: Easing.InOutQuad
+            target: root
+            property: "x"
+            to: root.x
+        }
+    }
+
     onVisibleChanged: {
         if (visible) {
             appearingMove.start()
         }
-    }
-
-    Binding {
-        target: root
-        property: "x"
-        value: root.handle.x - root.width / 2
-        when: !mouseArea.drag.active
-    }
-    Binding {
-        target: root
-        property: "y"
-        value: root.handle.y - root.height / 2
-        when: !mouseArea.drag.active
-    }
-    onXChanged: {
-        if (mouseArea.drag.active) {
-            root.dragged(Qt.point(x + width / 2, y + height / 2))
-        }
-    }
-    onYChanged: {
-        if (mouseArea.drag.active) {
-            root.dragged(Qt.point(x + width / 2, y + height / 2))
-        }
-    }
-    MouseArea {
-        id: mouseArea
-        anchors.fill: parent
-        enabled: root.visible
-        preventStealing: true
-        onPressed: root.press = true
-        onReleased: root.press = false
-        drag.target: parent
-    }
-    Rectangle {
-        anchors.centerIn: parent
-        opacity: 0.5
-        color: Theme.highlightDimmerColor
-        width: Theme.paddingMedium
-        height: width
-        radius: width / 2
     }
 }

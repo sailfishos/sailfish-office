@@ -115,7 +115,8 @@ SilicaFlickable {
         }
     }
     NumberAnimation {
-        id: dragOffset
+        id: selectionOffset
+        property real start
         duration: 200
         easing.type: Easing.InOutCubic
         target: base
@@ -135,8 +136,39 @@ SilicaFlickable {
 
     PDF.Selection {
         id: selection
+        
+        property bool dragging: drag1.pressed || drag2.pressed
+        property bool selected: count > 0
+
         canvas: pdfCanvas
         wiggle: Theme.itemSizeSmall / 2
+        
+        onDraggingChanged: {
+            if (dragging) {
+                if (!selectionOffset.running)
+                    selectionOffset.start = base.contentY
+
+                // Limit offset when being at the bottom of the view.
+                selectionOffset.to = selectionOffset.start +
+                    Math.min(Theme.itemSizeSmall,
+                             Math.max(0, base.itemHeight - base.height - base.contentY))
+                // Limit offset when being at the top of screen
+                selectionOffset.to =
+                    Math.max(base.contentY,
+                             Math.min(selectionOffset.to,
+                                      (drag1.pressed ? handle1.y : handle2.y)
+                                      - Theme.itemSizeSmall / 2)
+                            )
+            } else {
+                selectionOffset.to = selectionOffset.start
+            }
+            selectionOffset.restart()
+            
+            // Copy selection to clipboard when dragging finishes
+            if (!dragging) Clipboard.text = text
+        }
+        // Copy selection to clipboard on first selection
+        onSelectedChanged: if (selected) Clipboard.text = text
     }
 
     PDF.Canvas {
@@ -212,20 +244,25 @@ SilicaFlickable {
         }
 
         PDFSelectionView {
-            id: selectionView
             model: selection
-            startAttachX: 0
-            stopAttachX: base.width
+            flickable: base
+            dragHandle1: drag1.pressed
+            dragHandle2: drag2.pressed
             onVisibleChanged: if (visible && _feedbackEffect) _feedbackEffect.play()
-            onDraggingChanged: {
-                if (dragging) {
-                    dragOffset.to = base.contentY + Theme.itemSizeSmall
-                    dragOffset.start()
-                } else {
-                    dragOffset.to = base.contentY - Theme.itemSizeSmall
-                    dragOffset.start()
-                }
-            }
+        }
+        PDFSelectionDrag {
+            id: drag1
+            visible: selection.selected
+            flickable: base
+            handle: selection.handle1
+            onDragged: selection.handle1 = at
+        }
+        PDFSelectionDrag {
+            id: drag2
+            visible: selection.selected
+            flickable: base
+            handle: selection.handle2
+            onDragged: selection.handle2 = at
         }
     }
 

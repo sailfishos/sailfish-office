@@ -22,15 +22,11 @@ import Sailfish.Silica 1.0
 Repeater {
     id: root
 
-    property alias startAttachX: handle1.attachX
-    property alias stopAttachX: handle2.attachX
-    property bool dragging: handle1.press || handle2.press
+    property Item flickable
+    property alias dragHandle1: handle1.dragged
+    property alias dragHandle2: handle2.dragged
 
     visible: (model !== undefined && model.count > 0)
-
-    /* Copy text to clipboard on first selection and when stop dragging. */
-    onVisibleChanged: if (visible) Clipboard.text = model.text
-    onDraggingChanged: if (!dragging) Clipboard.text = model.text
 
     delegate: Rectangle {
         opacity: 0.5
@@ -44,13 +40,19 @@ Repeater {
     children: [
         PDFSelectionHandle {
             id: handle1
+            attachX: root.flickable !== undefined
+                     ? flickable.contentX
+                     : handle.x - Theme.itemSizeExtraLarge
             handle: root.model.handle1
-            onDragged: root.model.handle1 = at
-        }
-        , PDFSelectionHandle {
+            dragHeight: root.model.handle1Height
+        },
+        PDFSelectionHandle {
             id: handle2
+            attachX: root.flickable !== undefined
+                     ? flickable.contentX + flickable.width
+                     : handle.x + Theme.itemSizeExtraLarge
             handle: root.model.handle2
-            onDragged: root.model.handle2 = at
+            dragHeight: root.model.handle2Height
         }
     ]
 }
