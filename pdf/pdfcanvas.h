@@ -22,6 +22,8 @@
 #include <QtQuick/QQuickItem>
 #include <QtQuick/QSGTexture>
 
+#include <poppler-qt5.h>
+
 class PDFDocument;
 
 class PDFCanvas : public QQuickItem
@@ -90,6 +92,7 @@ public:
      */
     QPair<QUrl, ReducedBox> urlAtPoint(const QPointF &point) const;
     QPair<int, QRectF> pageAtPoint(const QPointF &point) const;
+    QPair<Poppler::Annotation*, ReducedBox> annotationAtPoint(const QPointF &point) const;
     /**
      * \return A rectangle in the canvas coordinates from a rectangle
      * in page coordinates. Index is the index of the page.

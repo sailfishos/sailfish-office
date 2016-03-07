@@ -37,6 +37,7 @@ SilicaFlickable {
 
     signal clicked()
     signal linkClicked(string linkTarget, Item hook)
+    signal selectionClicked(variant selection, Item hook)
     signal pageSizesReady()
     signal updateSize(real newWidth, real newHeight)
 
@@ -138,7 +139,7 @@ SilicaFlickable {
     }
 
     PDF.Selection {
-        id: selection
+        id: pdfSelection
         
         property bool dragging: drag1.pressed || drag2.pressed
         property bool selected: count > 0
@@ -214,16 +215,13 @@ SilicaFlickable {
                 }
 
                 canvas: pdfCanvas
+                selection: pdfSelection
+
                 onLinkClicked: base.linkClicked(linkTarget, contextHook)
                 onGotoClicked: base.goToPage(page - 1, top, left,
                                              Theme.paddingLarge, Theme.paddingLarge)
-                onClicked: {
-                    if (selection.text.length > 0) {
-                        selection.unselect()
-                    } else {
-                        base.clicked()
-                    }
-                }
+                onSelectionClicked: base.selectionClicked(selection, contextHook)
+                onClicked: base.clicked()
                 onLongPress: selection.selectAt(pressAt)
             }
         }
@@ -267,7 +265,7 @@ SilicaFlickable {
         }
 
         PDFSelectionView {
-            model: selection
+            model: pdfSelection
             flickable: base
             dragHandle1: drag1.pressed
             dragHandle2: drag2.pressed
@@ -275,17 +273,17 @@ SilicaFlickable {
         }
         PDFSelectionDrag {
             id: drag1
-            visible: selection.selected
+            visible: pdfSelection.selected
             flickable: base
-            handle: selection.handle1
-            onDragged: selection.handle1 = at
+            handle: pdfSelection.handle1
+            onDragged: pdfSelection.handle1 = at
         }
         PDFSelectionDrag {
             id: drag2
-            visible: selection.selected
+            visible: pdfSelection.selected
             flickable: base
-            handle: selection.handle2
-            onDragged: selection.handle2 = at
+            handle: pdfSelection.handle2
+            onDragged: pdfSelection.handle2 = at
         }
         ContextMenuHook { id: contextHook }
     }

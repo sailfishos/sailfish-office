@@ -380,6 +380,57 @@ QPair<QUrl, PDFCanvas::ReducedBox> PDFCanvas::urlAtPoint(const QPointF &point) c
     return QPair<QUrl, PDFCanvas::ReducedBox>();
 }
 
+QPair<Poppler::Annotation*, PDFCanvas::ReducedBox> PDFCanvas::annotationAtPoint(const QPointF &point) const
+{
+    for (int i = 0; i < d->pageCount; ++i) {
+        const PDFPage &page = d->pages.value(i);
+        if (page.rect.contains(point)) {
+            qreal squaredDistanceMin = d->linkWiggle * d->linkWiggle;
+            Poppler::Annotation *result = nullptr;
+            QRectF at;
+            for (Poppler::Annotation *annotation : d->document->annotations(i)) {
+                switch (annotation->subType()) {
+                case (Poppler::Annotation::ALink):
+                    // Ignore link annotation for the moment since
+                    // real link are reported as annotation also.
+                    break;
+                case (Poppler::Annotation::AHighlight): {
+                    QList<Poppler::HighlightAnnotation::Quad> quads =
+                        static_cast<Poppler::HighlightAnnotation*>(annotation)->highlightQuads();
+                    for (QList<Poppler::HighlightAnnotation::Quad>::iterator quad = quads.begin();
+                         quad != quads.end(); quad++) {
+                        // Assuming rectangular quad...
+                        qreal squaredDistance =
+                            squaredDistanceFromRect(page.rect, QRectF(quad->points[0], quad->points[2]), point);
+                
+                        if (squaredDistance < squaredDistanceMin) {
+                            result = annotation;
+                            at = QRectF(quad->points[0], quad->points[2]);
+                            squaredDistanceMin = squaredDistance;
+                        }
+                    }
+                    break;
+                }
+                default: {
+                    qreal squaredDistance =
+                        squaredDistanceFromRect(page.rect, annotation->boundary(), point);
+                
+                    if (squaredDistance < squaredDistanceMin) {
+                        result = annotation;
+                        at = annotation->boundary();
+                        squaredDistanceMin = squaredDistance;
+                    }
+                    break;
+                }
+                }
+            }
+            return QPair<Poppler::Annotation*, PDFCanvas::ReducedBox>{result, {i, at}};
+        }
+    }
+
+    return QPair<Poppler::Annotation*, PDFCanvas::ReducedBox>();
+}
+
 QRectF PDFCanvas::fromPageToItem(int index, const QRectF &rect) const
 {
     if (index < 0 || index >= d->pageCount)
