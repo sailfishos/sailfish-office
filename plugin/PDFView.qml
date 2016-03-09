@@ -39,15 +39,8 @@ SilicaFlickable {
     signal updateSize(real newWidth, real newHeight)
 
     function clamp(value) {
-        if (value < width) {
-            return width
-        }
-
-        if (value > width * 2.5) {
-            return width * 2.5
-        }
-
-        return value
+        var maximumZoom = Math.min(Screen.height, Screen.width) * 2.5
+        return Math.max(width, Math.min(value, maximumZoom))
     }
 
     function zoom(amount, center) {
