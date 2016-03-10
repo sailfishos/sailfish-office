@@ -201,6 +201,7 @@ SilicaFlickable {
             onPinchFinished: base.returnToBounds()
 
             PDF.LinkArea {
+                id: linkArea
                 anchors.fill: parent
 
                 canvas: pdfCanvas
@@ -216,6 +217,18 @@ SilicaFlickable {
                 }
                 onLongPress: selection.selectAt(pressAt)
             }
+        }
+
+        Rectangle {
+            x: linkArea.clickedBox.x
+            y: linkArea.clickedBox.y
+            width: linkArea.clickedBox.width
+            height: linkArea.clickedBox.height
+            radius: Theme.paddingSmall
+            color: Theme.highlightColor
+            opacity: 0.75
+            visible: width > 0
+            Behavior on opacity { FadeAnimation { duration: 100 } }
         }
 
         Repeater {

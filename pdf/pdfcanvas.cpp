@@ -298,7 +298,7 @@ void PDFCanvas::layout()
 
 qreal PDFCanvas::squaredDistanceFromRect(const QRectF &pageRect,
                                          const QRectF &reducedCoordRect,
-                                         const QPointF &point)
+                                         const QPointF &point) const
 {
     qreal dist = 0.;
     QRectF rect {
@@ -322,27 +322,29 @@ qreal PDFCanvas::squaredDistanceFromRect(const QRectF &pageRect,
     return dist;
 }
 
-QUrl PDFCanvas::urlAtPoint(const QPointF &point)
+QPair<QUrl, PDFCanvas::ReducedBox> PDFCanvas::urlAtPoint(const QPointF &point) const
 {
     for (int i = 0; i < d->pageCount; ++i) {
         const PDFPage &page = d->pages.value(i);
         if (page.rect.contains(point)) {
             qreal squaredDistanceMin = d->linkWiggle * d->linkWiggle;
             QUrl url;
+            QRectF at;
             for (const QPair<QRectF, QUrl> &link : page.links) {
                 qreal squaredDistance =
                     squaredDistanceFromRect(page.rect, link.first, point);
                 
                 if (squaredDistance < squaredDistanceMin) {
                     url = link.second;
+                    at = link.first;
                     squaredDistanceMin = squaredDistance;
                 }
             }
-            return url;
+            return QPair<QUrl, PDFCanvas::ReducedBox> {url, {i, at}};
         }
     }
 
-    return QUrl();
+    return QPair<QUrl, PDFCanvas::ReducedBox>();
 }
 
 QRectF PDFCanvas::fromPageToItem(int index, const QRectF &rect) const

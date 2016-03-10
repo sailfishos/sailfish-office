@@ -39,6 +39,8 @@ public:
     PDFCanvas(QQuickItem *parent = 0);
     ~PDFCanvas();
 
+    typedef QPair<int, QRectF> ReducedBox;
+
     Q_INVOKABLE QRectF pageRectangle(int index) const;
 
     QQuickItem *flickable() const;
@@ -86,7 +88,7 @@ public:
     /**
      * \return The url of the link at point or an empty url if there is no link at point.
      */
-    QUrl urlAtPoint(const QPointF &point);
+    QPair<QUrl, ReducedBox> urlAtPoint(const QPointF &point) const;
     QPair<int, QRectF> pageAtPoint(const QPointF &point) const;
     /**
      * \return A rectangle in the canvas coordinates from a rectangle
@@ -102,7 +104,7 @@ public:
      */
     qreal squaredDistanceFromRect(const QRectF &pageRect,
                                   const QRectF &reducedCoordRect,
-                                  const QPointF &point);
+                                  const QPointF &point) const;
 
 Q_SIGNALS:
     void documentChanged();
