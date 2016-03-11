@@ -32,6 +32,7 @@ SilicaFlickable {
     property alias currentPage: pdfCanvas.currentPage
 
     property bool scaled: pdfCanvas.width != width
+    property QtObject _feedbackEffect
 
     signal clicked()
     signal linkClicked(string linkTarget)
@@ -113,9 +114,62 @@ SilicaFlickable {
             NumberAnimation { id: scaleOut; property: "scale"; duration: 200; to: 1.; easing.type: Easing.InOutCubic }
         }
     }
+    NumberAnimation {
+        id: selectionOffset
+        property real start
+        duration: 200
+        easing.type: Easing.InOutCubic
+        target: base
+        property: "contentY"
+    }
 
     // Ensure proper zooming level when device is rotated.
     onWidthChanged: adjust()
+    Component.onCompleted: {
+        // Avoid hard dependency to feedback
+        _feedbackEffect = Qt.createQmlObject("import QtQuick 2.0; import QtFeedback 5.0; ThemeEffect { effect: ThemeEffect.PressWeak }",
+                                             base, 'ThemeEffect')
+        if (_feedbackEffect && !_feedbackEffect.supported) {
+            _feedbackEffect = null
+        }
+    }
+
+    PDF.Selection {
+        id: selection
+        
+        property bool dragging: drag1.pressed || drag2.pressed
+        property bool selected: count > 0
+
+        canvas: pdfCanvas
+        wiggle: Theme.itemSizeSmall / 2
+        
+        onDraggingChanged: {
+            if (dragging) {
+                if (!selectionOffset.running)
+                    selectionOffset.start = base.contentY
+
+                // Limit offset when being at the bottom of the view.
+                selectionOffset.to = selectionOffset.start +
+                    Math.min(Theme.itemSizeSmall,
+                             Math.max(0, base.itemHeight - base.height - base.contentY))
+                // Limit offset when being at the top of screen
+                selectionOffset.to =
+                    Math.max(base.contentY,
+                             Math.min(selectionOffset.to,
+                                      (drag1.pressed ? handle1.y : handle2.y)
+                                      - Theme.itemSizeSmall / 2)
+                            )
+            } else {
+                selectionOffset.to = selectionOffset.start
+            }
+            selectionOffset.restart()
+            
+            // Copy selection to clipboard when dragging finishes
+            if (!dragging) Clipboard.text = text
+        }
+        // Copy selection to clipboard on first selection
+        onSelectedChanged: if (selected) Clipboard.text = text
+    }
 
     PDF.Canvas {
         id: pdfCanvas
@@ -152,7 +206,14 @@ SilicaFlickable {
                 onLinkClicked: base.linkClicked(linkTarget)
                 onGotoClicked: base.goToPage(page - 1, top, left,
                                              Theme.paddingLarge, Theme.paddingLarge)
-                onClicked: base.clicked()
+                onClicked: {
+                    if (selection.text.length > 0) {
+                        selection.unselect()
+                    } else {
+                        base.clicked()
+                    }
+                }
+                onLongPress: selection.selectAt(pressAt)
             }
         }
 
@@ -180,6 +241,28 @@ SilicaFlickable {
                 width: match.width + Theme.paddingSmall
                 height: match.height + Theme.paddingSmall / 2
             }
+        }
+
+        PDFSelectionView {
+            model: selection
+            flickable: base
+            dragHandle1: drag1.pressed
+            dragHandle2: drag2.pressed
+            onVisibleChanged: if (visible && _feedbackEffect) _feedbackEffect.play()
+        }
+        PDFSelectionDrag {
+            id: drag1
+            visible: selection.selected
+            flickable: base
+            handle: selection.handle1
+            onDragged: selection.handle1 = at
+        }
+        PDFSelectionDrag {
+            id: drag2
+            visible: selection.selected
+            flickable: base
+            handle: selection.handle2
+            onDragged: selection.handle2 = at
         }
     }
 

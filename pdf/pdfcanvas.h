@@ -86,12 +86,23 @@ public:
     /**
      * \return The url of the link at point or an empty url if there is no link at point.
      */
-    QUrl urlAtPoint(const QPoint &point);
+    QUrl urlAtPoint(const QPointF &point);
+    QPair<int, QRectF> pageAtPoint(const QPointF &point) const;
     /**
      * \return A rectangle in the canvas coordinates from a rectangle
      * in page coordinates. Index is the index of the page.
      */
-    Q_INVOKABLE QRectF fromPageToItem(int index, const QRectF &rect);
+    Q_INVOKABLE QRectF fromPageToItem(int index, const QRectF &rect) const;
+    Q_INVOKABLE QPointF fromPageToItem(int index, const QPointF &point) const;
+    /**
+     * Provide a distance measure from @point to a rectangle given by @reducedCoordRect.
+     * @point is given in PDFCanvas coordinates, while @reducedCoordRect is in
+     * reduced coordinates and will be converted to PDFCanvas coordinates thanks
+     * to @pageRect. @pageRect can be obtained by calling pageAtPoint().
+     */
+    qreal squaredDistanceFromRect(const QRectF &pageRect,
+                                  const QRectF &reducedCoordRect,
+                                  const QPointF &point);
 
 Q_SIGNALS:
     void documentChanged();

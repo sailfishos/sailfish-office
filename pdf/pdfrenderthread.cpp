@@ -26,8 +26,6 @@
 #include <QCoreApplication>
 #include <QUrlQuery>
 
-#include <poppler-qt5.h>
-
 #include "pdfjob.h"
 #include "pdftocmodel.h"
 
@@ -71,6 +69,18 @@ class PDFRenderThreadPrivate
 {
 public:
     PDFRenderThreadPrivate() : document(nullptr), tocModel(nullptr) { }
+    ~PDFRenderThreadPrivate()
+    {
+        for (QMap<int, QList<QPair<QRectF, Poppler::TextBox*> > >::iterator i =
+                 textBoxes.begin();
+             i != textBoxes.end(); i++) {
+            for (QList<QPair<QRectF, Poppler::TextBox*> >::iterator j = i.value().begin();
+                 j != i.value().end(); j++) {
+                delete j->second;
+            }
+        }
+    }
+
 
     PDFRenderThread *q;
 
@@ -81,6 +91,7 @@ public:
     PDFTocModel *tocModel;
 
     QMultiMap<int, QPair<QRectF, QUrl> > linkTargets;
+    QMap<int, QList<QPair <QRectF, Poppler::TextBox*> > > textBoxes;
 
     void rescanDocumentLinks()
     {
@@ -131,7 +142,27 @@ public:
             delete page;
         }
     }
-
+    void retrieveTextBoxes(int i)
+    {
+        if (i < 0 || i >= document->numPages()) {
+            return;
+        }
+        Poppler::Page* page = document->page(i);
+        QList<Poppler::TextBox*> plst = page->textList();
+        QList<QPair<QRectF, Poppler::TextBox*> > lst;
+        for (QList<Poppler::TextBox*>::const_iterator box = plst.begin();
+             box != plst.end(); box++) {
+            QSizeF psize = page->pageSize();
+            QRectF bbox = (*box)->boundingBox();
+            QRectF rect{ bbox.x() / psize.width(),
+                    bbox.y() / psize.height(),
+                    bbox.width() / psize.width(),
+                    bbox.height() / psize.height()};
+            lst.append(QPair<QRectF, Poppler::TextBox*>{rect, *box});
+        }
+        textBoxes.insert(i, lst);
+        delete page;
+    }
 };
 
 class PDFRenderThreadQueue : public QObject, public QQueue<PDFJob*>
@@ -212,6 +243,14 @@ QMultiMap<int, QPair<QRectF, QUrl> > PDFRenderThread::linkTargets() const
 {
     QMutexLocker(&d->thread->mutex);
     return d->linkTargets;
+}
+
+QList<QPair<QRectF, Poppler::TextBox*> > PDFRenderThread::textBoxesAtPage(int page)
+{
+    QMutexLocker(&d->thread->mutex);
+    if (!d->textBoxes.contains(page))
+        d->retrieveTextBoxes(page);
+    return d->textBoxes[page];
 }
 
 void PDFRenderThread::queueJob(PDFJob *job)

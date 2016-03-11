@@ -16,6 +16,9 @@ install(FILES
     PDFDocumentPage.qml
     PDFDocumentToCPage.qml
     PDFView.qml
+    PDFSelectionView.qml
+    PDFSelectionHandle.qml
+    PDFSelectionDrag.qml
     PDFContextMenu.qml
     PDFStorage.js
     PresentationPage.qml

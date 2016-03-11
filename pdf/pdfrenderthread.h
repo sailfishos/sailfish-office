@@ -24,6 +24,8 @@
 #include <QtCore/QMultiMap>
 #include <QtGui/QImage>
 
+#include <poppler-qt5.h>
+
 class QSize;
 class PDFJob;
 class PDFRenderThreadPrivate;
@@ -41,6 +43,7 @@ public:
     bool isFailed() const;
     bool isLocked() const;
     QMultiMap<int, QPair<QRectF, QUrl> > linkTargets() const;
+    QList<QPair<QRectF, Poppler::TextBox*> > textBoxesAtPage(int page);
 
     void queueJob(PDFJob *job);
     void cancelRenderJob(int index);

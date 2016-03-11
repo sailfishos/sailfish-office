@@ -40,13 +40,19 @@ Q_SIGNALS:
     void doubleClicked();
     void linkClicked(QUrl linkTarget);
     void gotoClicked(int page, qreal top, qreal left);
+    void longPress(QPointF pressAt);
 
     void canvasChanged();
 
 protected:
     virtual void mousePressEvent(QMouseEvent *event);
+    virtual void mouseMoveEvent(QMouseEvent *event);
     virtual void mouseReleaseEvent(QMouseEvent *event);
     virtual void mouseDoubleClickEvent(QMouseEvent *event);
+    virtual void mouseUngrabEvent();
+
+private Q_SLOTS:
+    void pressTimeout();
 
 private:
     class Private;
