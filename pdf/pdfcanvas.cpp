@@ -18,6 +18,7 @@
 
 #include "pdfcanvas.h"
 
+#include <QtMath>
 #include <QtCore/QTimer>
 #include <QtCore/QPointer>
 #include <QtGui/QPainter>
@@ -34,14 +35,17 @@ struct PDFPage {
     PDFPage()
         : index(-1)
         , requested(false)
-        , rectPlaceholder(false)
+        , renderWidth(0)
         , texture(nullptr)
     { }
 
     int index;
     QRectF rect;
+
     bool requested;
-    bool rectPlaceholder;
+
+    int renderWidth;
+    QRect textureArea;
     QSGTexture *texture;
 
     QList<QPair<QRectF, QUrl> > links;
@@ -89,6 +93,14 @@ public:
     QList<QSGTexture *> texturesToClean;
     QPointer<QQuickWindow> connectedWindow;
 
+    void cleanPageTexturesLater(PDFPage &page)
+    {
+        if (page.texture) {
+            texturesToClean << page.texture;
+            page.texture = nullptr;
+        }
+    }
+
     void cleanTextures()
     {
         foreach (QSGTexture *texture, texturesToClean)
@@ -114,7 +126,7 @@ PDFCanvas::~PDFCanvas()
     for (int i = 0; i < d->pageCount; ++i) {
         PDFPage &page = d->pages[i];
         delete page.texture;
-        page.texture = 0;
+        page.texture = nullptr;
     }
 
     delete d->resizeTimer;
@@ -135,6 +147,7 @@ void PDFCanvas::setFlickable(QQuickItem *f)
         d->flickable = f;
         connect(d->flickable, SIGNAL(contentXChanged()), this, SLOT(update()));
         connect(d->flickable, SIGNAL(contentYChanged()), this, SLOT(update()));
+        connect(d->flickable, SIGNAL(widthChanged()), this, SLOT(update()));
 
         emit flickableChanged();
     }
@@ -256,8 +269,9 @@ void PDFCanvas::layout()
         page.links = links.values(i);
         page.requested = false; // We're cancelling all requests below
         if (d->pages.contains(i)) {
+            page.renderWidth = d->pages.value(i).renderWidth;
+            page.textureArea = d->pages.value(i).textureArea;
             page.texture = d->pages.value(i).texture;
-            page.rectPlaceholder = d->pages.value(i).rectPlaceholder;
         }
         d->pages.insert(i, page);
 
@@ -348,12 +362,15 @@ QPointF PDFCanvas::fromPageToItem(int index, const QPointF &point) const
                    point.y() * page.rect.height() + page.rect.y());
 }
 
-void PDFCanvas::pageFinished(int id, QSGTexture *texture)
+void PDFCanvas::pageFinished(int id, int pageRenderWidth,
+                             QRect subpart, QSGTexture *texture)
 {
     PDFPage &page = d->pages[id];
 
-    if (page.texture)
-        d->texturesToClean << page.texture;
+    d->cleanPageTexturesLater(page);
+
+    page.renderWidth = pageRenderWidth;
+    page.textureArea = subpart;
     page.texture = texture;
     page.requested = false;
 
@@ -375,12 +392,9 @@ void PDFCanvas::sceneGraphInvalidated()
     d->cleanTextures();
     for (int i = 0; i < d->pageCount; ++i) {
         PDFPage &page = d->pages[i];
-        if (page.texture) {
-            delete page.texture;
-            page.texture = 0;
-        }
+        delete page.texture;
+        page.texture = nullptr;
         page.requested = false;
-        page.rectPlaceholder = false;
     }
 }
 
@@ -409,13 +423,19 @@ QSGNode* PDFCanvas::updatePaintNode(QSGNode *node, QQuickItem::UpdatePaintNodeDa
         visibleArea.width() * 5,
         visibleArea.height() * 5,
     };
+    QRect textureLimit = {
+        0, 0,
+        2.5 * qMin(window()->width(), window()->height()),
+        2.5 * qMin(window()->width(), window()->height())
+    };
+    float renderingRatio = float(d->renderWidth) / width();
 
     QSGNode *root = static_cast<QSGNode*>(node);
     if (!root) {
         root = new QSGNode;
     }
 
-    QList<QPair<int, int> > priorityRequests;
+    QList<QPair<int, QPair<int, QRect> > > priorityRequests;
     int currentPage = d->currentPage;
     qreal maxVisibleArea = 0.;
 
@@ -425,21 +445,43 @@ QSGNode* PDFCanvas::updatePaintNode(QSGNode *node, QQuickItem::UpdatePaintNodeDa
         bool loadPage = page.rect.intersects(loadedArea);
         bool showPage = page.rect.intersects(visibleArea);
 
-        if (loadPage) {
-            if ((!page.texture)
-                || (page.texture && page.texture->textureSize().width() != d->renderWidth)) {
-                if (page.requested && showPage) {
-                    priorityRequests << QPair<int, int>(i, d->renderWidth);
-                } else if (!page.requested) {
-                    d->document->requestPage(i, d->renderWidth, window());
-                    page.requested = true;
-                }
+        // Current rendering in pixels is done with a width of
+        // d->renderWidth which can be different than actual width()
+        // when zooming.
+        QRect pageRect = {
+            0, 0, d->renderWidth, int(page.rect.height() * renderingRatio)
+        };
+        QRect showableArea = {
+            int(renderingRatio * (visibleArea.x() - float(window()->width() / 4.) - page.rect.x())),
+            int(renderingRatio * (visibleArea.y() - float(window()->height() / 4.) - page.rect.y())),
+            int(renderingRatio * (visibleArea.width() + float(window()->width() / 2.))),
+            int(renderingRatio * (visibleArea.height() + float(window()->height() / 2.)))
+        };
+        showableArea = showableArea.intersected(pageRect);
+        // Limit showableArea with textureLimit to avoid looping request
+        // for something too big.
+        textureLimit.moveCenter(showableArea.center());
+        showableArea = showableArea.intersected(textureLimit);
+
+        if (showPage && (page.texture == nullptr
+                         || page.renderWidth != d->renderWidth
+                         || (page.renderWidth == int(width()) &&
+                             !page.textureArea.contains(showableArea)))) {
+            if (!page.requested) {
+                d->document->requestPage(i, d->renderWidth, window(), textureLimit);
+                page.requested = true;
             }
-        } else {
-            if (page.texture) {
-                d->texturesToClean << page.texture;
-                page.texture = 0;
+            priorityRequests << QPair<int, QPair<int, QRect> >(i, QPair<int, QRect>(d->renderWidth, textureLimit));
+        } else if (loadPage && !showPage
+                   && !page.requested && (page.renderWidth != d->renderWidth)) {
+            textureLimit.moveTo(0, 0);
+            // We preload full page only if they can fit into texture.
+            if (textureLimit.contains(pageRect)) {
+                d->document->requestPage(i, d->renderWidth, window());
+                page.requested = true;
             }
+        } else if (!loadPage) {
+            d->cleanPageTexturesLater(page);
 
             // Scrolled beyond where this page is needed, skip it.
             if (page.requested) {
@@ -469,63 +511,74 @@ QSGNode* PDFCanvas::updatePaintNode(QSGNode *node, QQuickItem::UpdatePaintNodeDa
             }
         }
 
-        if (page.texture && showPage) {
-            if (page.rectPlaceholder) {
-                delete t->firstChild();
-                t->removeAllChildNodes();
+        if (showPage) {
+            // Node hierachy:
+            // t
+            // |-bg
+            // |  |-tn
+            // |  |-n
+            // |  | |- link1
+            // |  | |- link2...
+            QSGSimpleRectNode *bg = static_cast<QSGSimpleRectNode*>(t->firstChild());
+            if (!bg) {
+                bg = new QSGSimpleRectNode;
+                bg->setColor(d->pagePlaceholderColor);
+                t->appendChildNode(bg);
             }
-            QSGSimpleTextureNode *tn = static_cast<QSGSimpleTextureNode *>(t->firstChild());
-            if (!tn) {
-                tn = new QSGSimpleTextureNode;
-                t->appendChildNode(tn);
-            }
+            bg->setRect(0., 0., page.rect.width(), page.rect.height());
 
-            page.rectPlaceholder = false;
-            tn->setTexture(page.texture);
-            tn->setRect(0.f, 0.f, page.rect.size().width(), page.rect.size().height());
+            if (page.texture) {
+                QSGSimpleTextureNode *tn = static_cast<QSGSimpleTextureNode *>(bg->firstChild());
+                if (!tn) {
+                    tn = new QSGSimpleTextureNode;
+                    bg->appendChildNode(tn);
+                }
+                tn->setTexture(page.texture);
+                if (int(width()) == page.renderWidth) {
+                    tn->setRect(page.textureArea);
+                } else {
+                    float ratio = width() / page.renderWidth;
+                    tn->setRect(int(ratio * page.textureArea.x()),
+                                int(ratio * page.textureArea.y()),
+                                qCeil(ratio * page.textureArea.width()),
+                                qCeil(ratio * page.textureArea.height()));
+                }
 
-            if (page.links.count() > 0) {
+                QSGNode *n = tn->nextSibling();
+                if (!n) {
+                    n = new QSGNode;
+                    bg->appendChildNode(n);
+                }
+                QSGSimpleRectNode *rn = static_cast<QSGSimpleRectNode*>(n->firstChild());
                 for (int l = 0; l < page.links.count(); ++l) {
-                    QRectF linkRect = page.links.value(l).first;
-
-                    QSGSimpleRectNode *linkNode = static_cast< QSGSimpleRectNode* >(tn->childAtIndex(l));
-                    if (!linkNode) {
-                        linkNode = new QSGSimpleRectNode;
-                        tn->appendChildNode(linkNode);
+                    if (!rn) {
+                        rn = new QSGSimpleRectNode;
+                        n->appendChildNode(rn);
                     }
-
+                    QRectF linkRect = page.links.value(l).first;
                     QRectF targetRect{
                         linkRect.x() * page.rect.width(),
                         linkRect.y() * page.rect.height(),
                         linkRect.width() * page.rect.width(),
                         linkRect.height() * page.rect.height()
                     };
+                    rn->setRect(targetRect);
+                    rn->setColor(d->linkColor);
 
-                    linkNode->setRect(targetRect);
-                    linkNode->setColor(d->linkColor);
+                    rn = static_cast<QSGSimpleRectNode*>(rn->nextSibling());
                 }
             }
-        } else if (!page.rectPlaceholder && showPage) {
-            QSGSimpleRectNode *bgNode = new QSGSimpleRectNode;
-            t->appendChildNode(bgNode);
-
-            page.rectPlaceholder = true;
-            bgNode->setRect(0., 0., page.rect.width(), page.rect.height());
-            bgNode->setColor(d->pagePlaceholderColor);
-        } else if (!showPage) {
-            page.rectPlaceholder = false;
-            if (t->childCount() > 0) {
-                delete t->firstChild();
-                t->removeAllChildNodes();
-            }
+        } else {
+            delete t->firstChild();
+            t->removeAllChildNodes();
         }
     }
 
     // prioritize in reverse order so we end up with a final priority list which is
     // ordered by increasing page number.
-    for (int i=priorityRequests.size() - 1; i >= 0; --i) {
-        const QPair<int, int> &pr = priorityRequests.at(i);
-        d->document->prioritizeRequest(pr.first, pr.second);
+    for (int i = priorityRequests.size() - 1; i >= 0; --i) {
+        const QPair<int, QPair<int, QRect> > &pr = priorityRequests.at(i);
+        d->document->prioritizeRequest(pr.first, pr.second.first, pr.second.second);
     }
 
     d->cleanTextures();
