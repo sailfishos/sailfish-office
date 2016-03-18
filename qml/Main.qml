@@ -112,24 +112,31 @@ ApplicationWindow
     }
 
     function mimeToIcon(fileMimeType) {
-        // TODO: move all graphics to platform theme packages
+        var iconType = "other"
         switch (fileMimeType) {
+        case "text/plain":
+        case "text/x-vnote":
+            iconType = "note"
+            break
+        case "application/pdf":
+            iconType = "pdf"
+            break
         case "application/vnd.oasis.opendocument.spreadsheet":
         case "application/x-kspread":
         case "application/vnd.ms-excel":
         case "text/csv":
         case "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
         case "application/vnd.openxmlformats-officedocument.spreadsheetml.template":
-            return "images/icon-m-mime-spreadsheet.png"
-
+            iconType = "spreadsheet"
+            break
         case "application/vnd.oasis.opendocument.presentation":
         case "application/vnd.oasis.opendocument.presentation-template":
         case "application/x-kpresenter":
         case "application/vnd.ms-powerpoint":
         case "application/vnd.openxmlformats-officedocument.presentationml.presentation":
         case "application/vnd.openxmlformats-officedocument.presentationml.template":
-            return "images/icon-m-mime-presentation.png"
-
+            iconType = "presentation"
+            break
         case "application/vnd.oasis.opendocument.text-master":
         case "application/vnd.oasis.opendocument.text":
         case "application/vnd.oasis.opendocument.text-template":
@@ -139,16 +146,9 @@ ApplicationWindow
         case "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
         case "application/vnd.openxmlformats-officedocument.wordprocessingml.template":
         case "application/vnd.ms-works":
-            return "images/icon-m-mime-formatted.png"
-
-        case "text/plain":
-            return "images/icon-m-mime-plaintext.png"
-
-        case "application/pdf":
-            return "images/icon-m-mime-pdf.png"
-
-        default:
-            return ""
+            iconType = "formatted"
+            break
         }
+        return "image://theme/icon-m-file-" + iconType
     }
 }

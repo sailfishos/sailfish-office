@@ -156,53 +156,47 @@ Page {
 
             Image {
                 id: icon
-                property string fileMimeType: window.mimeToIcon(model.fileMimeType)
                 anchors {
                     left: parent.left
                     leftMargin: Theme.horizontalPageMargin
                     verticalCenter: parent.verticalCenter
                 }
-                source: fileMimeType !== "" ? fileMimeType
-                                            : ("image://theme/icon-m-document?"
-                                               + (listItem.highlighted ? Theme.highlightColor : Theme.primaryColor))
+                source: window.mimeToIcon(model.fileMimeType) + (highlighted ? "?" + Theme.highlightColor : "")
             }
-            Label {
+            Column {
                 anchors {
                     left: icon.right
                     leftMargin: Theme.paddingMedium
                     right: parent.right
                     rightMargin: Theme.horizontalPageMargin
-                    bottom: icon.verticalCenter
+                    verticalCenter: parent.verticalCenter
                 }
-                color: listItem.highlighted ? Theme.highlightColor : Theme.primaryColor
-                text: searchText.length > 0 ? Theme.highlightText(model.fileName, searchText, Theme.highlightColor)
-                                            : model.fileName
-                textFormat: searchText.length > 0 ? Text.StyledText : Text.PlainText
-                font.pixelSize: Theme.fontSizeMedium
-                truncationMode: TruncationMode.Fade
-            }
-            Label {
-                anchors {
-                    left: icon.right
-                    leftMargin: Theme.paddingMedium
-                    top: icon.verticalCenter
+                Label {
+                    id: label
+                    width: parent.width
+                    color: listItem.highlighted ? Theme.highlightColor : Theme.primaryColor
+                    text: searchText.length > 0 ? Theme.highlightText(model.fileName, searchText, Theme.highlightColor)
+                                                : model.fileName
+                    textFormat: searchText.length > 0 ? Text.StyledText : Text.PlainText
+                    font.pixelSize: Theme.fontSizeMedium
+                    truncationMode: TruncationMode.Fade
                 }
-                text: Format.formatFileSize(model.fileSize)
-
-                font.pixelSize: Theme.fontSizeExtraSmall
-                color: listItem.highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
-            }
-            Label {
-                anchors {
-                    right: parent.right
-                    rightMargin: Theme.horizontalPageMargin
-                    top: icon.verticalCenter
+                Item {
+                    width: parent.width
+                    height: sizeLabel.height
+                    Label {
+                        id: sizeLabel
+                        text: Format.formatFileSize(model.fileSize)
+                        font.pixelSize: Theme.fontSizeExtraSmall
+                        color: listItem.highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
+                    }
+                    Label {
+                        anchors.right: parent.right
+                        text: Format.formatDate(model.fileRead, Format.Timepoint)
+                        font.pixelSize: Theme.fontSizeExtraSmall
+                        color: listItem.highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
+                    }
                 }
-
-                text: Format.formatDate(model.fileRead, Format.Timepoint)
-
-                font.pixelSize: Theme.fontSizeExtraSmall
-                color: listItem.highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
             }
 
             onClicked: {
