@@ -23,6 +23,7 @@ Requires: mapplauncherd >= 4.1.17
 #Requires: qt5-qtqml-import-webkitplugin
 Requires: nemo-qml-plugin-configuration-qt5
 Requires:  %{name}-all-translations
+Requires: jolla-theme >= 0.7.52
 
 %package ts-devel
 Summary: Translation source for %{name}

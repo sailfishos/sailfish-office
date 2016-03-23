@@ -75,13 +75,3 @@ install(FILES ${CMAKE_BINARY_DIR}/sailfish-office.ts DESTINATION ${CMAKE_INSTALL
 install(FILES org.sailfish.office.service DESTINATION ${CMAKE_INSTALL_PREFIX}/share/dbus-1/services)
 install(FILES org.sailfish.office.xml DESTINATION ${CMAKE_INSTALL_PREFIX}/share/dbus-1/interfaces)
 
-install(FILES
-    images/graphic-plugin-local.png
-    images/graphic-plugin-network.png
-    images/icon-m-mime-formatted.png
-    images/icon-m-mime-pdf.png
-    images/icon-m-mime-spreadsheet.png
-    images/icon-m-mime-presentation.png
-    images/icon-m-mime-plaintext.png
-    DESTINATION ${CMAKE_INSTALL_PREFIX}/share/sailfish-office/images/
-)
