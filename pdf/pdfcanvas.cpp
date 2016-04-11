@@ -56,6 +56,7 @@ class PDFCanvas::Private
 public:
     Private(PDFCanvas *qq)
         : q(qq)
+        , pageSizeRequested(false)
         , pageCount(0)
         , currentPage(1)
         , renderWidth(0)
@@ -69,6 +70,7 @@ public:
     PDFCanvas *q;
 
     QHash<int, PDFPage> pages;
+    bool pageSizeRequested;
 
     int pageCount;
     int currentPage;
@@ -252,7 +254,10 @@ void PDFCanvas::setPagePlaceholderColor(const QColor &color)
 void PDFCanvas::layout()
 {
     if (d->pageSizes.count() == 0) {
-        d->document->requestPageSizes();
+        if (d->document->isLoaded() && !d->pageSizeRequested) {
+            d->document->requestPageSizes();
+            d->pageSizeRequested = true;
+        }
         return;
     }
 
@@ -425,8 +430,8 @@ QSGNode* PDFCanvas::updatePaintNode(QSGNode *node, QQuickItem::UpdatePaintNodeDa
     };
     QRect textureLimit = {
         0, 0,
-        2.5 * qMin(window()->width(), window()->height()),
-        2.5 * qMin(window()->width(), window()->height())
+        int(2.5 * qMin(window()->width(), window()->height())),
+        int(2.5 * qMin(window()->width(), window()->height()))
     };
     float renderingRatio = float(d->renderWidth) / width();
 
@@ -608,6 +613,7 @@ void PDFCanvas::resizeTimeout()
 void PDFCanvas::pageSizesFinished(const QList<QSizeF> &sizes)
 {
     d->pageSizes = sizes;
+    d->pageSizeRequested = false;
     layout();
 }
 
