@@ -71,8 +71,8 @@ public:
 public Q_SLOTS:
     void setSource(const QString &source);
     void requestUnLock(const QString &password);
-    void requestPage(int index, int size, QQuickWindow *window);
-    void prioritizeRequest(int index, int size);
+    void requestPage(int index, int size, QQuickWindow *window, QRect subpart = QRect());
+    void prioritizeRequest(int index, int size, QRect subpart = QRect());
     void cancelPageRequest(int index);
     void requestPageSizes();
     void search(const QString &search, uint startPage = 0);
@@ -89,7 +89,7 @@ Q_SIGNALS:
     void documentLoadedChanged();
     void documentFailedChanged();
     void documentLockedChanged();
-    void pageFinished(int index, QSGTexture *page);
+    void pageFinished(int index, int resolution, QRect subpart, QSGTexture *page);
     void pageSizesFinished(const QList<QSizeF> &heights);
 
 private:

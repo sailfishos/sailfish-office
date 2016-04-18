@@ -18,6 +18,7 @@
 
 #include "pdfjob.h"
 
+#include <QtMath>
 #include <poppler-qt5.h>
 
 LoadDocumentJob::LoadDocumentJob(const QString &source)
@@ -47,8 +48,8 @@ void UnLockDocumentJob::run()
         m_document->unlock(m_password.toUtf8(), m_password.toUtf8());
 }
 
-RenderPageJob::RenderPageJob(int index, uint width, QQuickWindow *window)
-    : PDFJob(PDFJob::RenderPageJob), m_index(index), m_page(0), m_window(window), m_width(width)
+RenderPageJob::RenderPageJob(int index, uint width, QQuickWindow *window, QRect subpart)
+    : PDFJob(PDFJob::RenderPageJob), m_index(index), m_subpart(subpart), m_page(0), m_window(window), m_width(width)
 {
 }
 
@@ -57,8 +58,20 @@ void RenderPageJob::run()
     Q_ASSERT(m_document);
 
     Poppler::Page *page = m_document->page(m_index);
-    float scale = 72.0f * (float(m_width) / page->pageSizeF().width());
-    QImage image = page->renderToImage(scale, scale);
+    QSizeF size = page->pageSizeF();
+    float scale = 72.0f * (float(m_width) / size.width());
+
+    QImage image;
+    if (m_subpart.isEmpty()) {
+        image = page->renderToImage(scale, scale);
+        m_subpart.setCoords(0, 0, image.width(), image.height());
+    } else {
+        QRect pageRect = {0, 0, (int)m_width, qCeil(size.height() / size.width() * m_width)};
+        m_subpart = m_subpart.intersected(pageRect);
+
+        image = page->renderToImage(scale, scale, m_subpart.x(), m_subpart.y(),
+                                    m_subpart.width(), m_subpart.height());
+    }
     // Note: assuming there's exactly one handler (PDFCanvas) to catch ownership of this when PDFDocument emits a signal with this
     m_page = m_window->createTextureFromImage(image);
     delete page;

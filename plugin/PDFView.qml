@@ -19,6 +19,7 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 import Sailfish.Office.PDF 1.0 as PDF
+import org.nemomobile.configuration 1.0
 
 SilicaFlickable {
     id: base
@@ -40,7 +41,7 @@ SilicaFlickable {
     signal updateSize(real newWidth, real newHeight)
 
     function clamp(value) {
-        var maximumZoom = Math.min(Screen.height, Screen.width) * 2.5
+        var maximumZoom = Math.min(Screen.height, Screen.width) * maxZoomLevelConfig.value
         return Math.max(width, Math.min(value, maximumZoom))
     }
 
@@ -270,6 +271,13 @@ SilicaFlickable {
         HorizontalScrollDecorator { color: Theme.highlightDimmerColor },
         VerticalScrollDecorator { color: Theme.highlightDimmerColor }
     ]
+
+    ConfigurationValue {
+        id: maxZoomLevelConfig
+
+        key: "/apps/sailfish-office/settings/maxZoomLevel"
+        defaultValue: 10.
+    }
 
     function goToPage(pageNumber, top, left, topSpacing, leftSpacing) {
         var rect = pdfCanvas.pageRectangle( pageNumber )

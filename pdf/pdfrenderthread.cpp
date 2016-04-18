@@ -276,20 +276,22 @@ void PDFRenderThread::cancelRenderJob(int index)
     }
 }
 
-void PDFRenderThread::prioritizeJob(int index, int size)
+void PDFRenderThread::prioritizeRenderJob(int index, int size, QRect subpart)
 {
     QMutexLocker locker(&d->thread->mutex);
     for (QList<PDFJob *>::iterator it = d->thread->jobQueue->begin(); it != d->thread->jobQueue->end(); ++it) {
         PDFJob *j = *it;
-        if (j->type() == PDFJob::RenderPageJob) {
+        if (j->type() == PDFJob::RenderPageJob &&
+            static_cast<RenderPageJob *>(j)->m_index == index) {
             RenderPageJob *rj = static_cast<RenderPageJob *>(j);
-            if (rj->m_index == index && rj->renderWidth() == size) {
-                if (it != d->thread->jobQueue->begin()) { // If it is already at the front, just abort..
-                    d->thread->jobQueue->erase(it);
-                    d->thread->jobQueue->push_front(j);
-                }
-                return;
+            // Update if necessary before prioritize.
+            rj->changeRenderWidth(size);
+            rj->m_subpart = subpart;
+            if (it != d->thread->jobQueue->begin()) { // If it is already at the front, just abort..
+                d->thread->jobQueue->erase(it);
+                d->thread->jobQueue->push_front(j);
             }
+            return;
         }
     }
 }

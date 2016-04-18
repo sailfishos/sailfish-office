@@ -47,7 +47,7 @@ public:
 
     void queueJob(PDFJob *job);
     void cancelRenderJob(int index);
-    void prioritizeJob(int index, int size);
+    void prioritizeRenderJob(int index, int size, QRect subpart);
 
 Q_SIGNALS:
     void loadFinished();
