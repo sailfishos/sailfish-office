@@ -456,28 +456,34 @@ QSGNode* PDFCanvas::updatePaintNode(QSGNode *node, QQuickItem::UpdatePaintNodeDa
         QRect pageRect = {
             0, 0, d->renderWidth, int(page.rect.height() * renderingRatio)
         };
-        QRect showableArea = {
-            int(renderingRatio * (visibleArea.x() - float(window()->width() / 4.) - page.rect.x())),
-            int(renderingRatio * (visibleArea.y() - float(window()->height() / 4.) - page.rect.y())),
-            int(renderingRatio * (visibleArea.width() + float(window()->width() / 2.))),
-            int(renderingRatio * (visibleArea.height() + float(window()->height() / 2.)))
-        };
-        showableArea = showableArea.intersected(pageRect);
-        // Limit showableArea with textureLimit to avoid looping request
-        // for something too big.
-        textureLimit.moveCenter(showableArea.center());
-        showableArea = showableArea.intersected(textureLimit);
 
-        if (showPage && (page.texture == nullptr
-                         || page.renderWidth != d->renderWidth
-                         || (page.renderWidth == int(width()) &&
-                             !page.textureArea.contains(showableArea)))) {
-            if (!page.requested) {
-                d->document->requestPage(i, d->renderWidth, window(), textureLimit);
-                page.requested = true;
+        if (showPage) {
+            textureLimit.moveTo(0, 0);
+            bool fullPageFit = textureLimit.contains(pageRect);
+            QRect showableArea = {
+                int(renderingRatio * (visibleArea.x() - float(window()->width() / 4.) - page.rect.x())),
+                int(renderingRatio * (visibleArea.y() - float(window()->height() / 4.) - page.rect.y())),
+                int(renderingRatio * (visibleArea.width() + float(window()->width() / 2.))),
+                int(renderingRatio * (visibleArea.height() + float(window()->height() / 2.)))
+            };
+            showableArea = showableArea.intersected(pageRect);
+            // Limit showableArea with textureLimit to avoid looping request
+            // for something too big.
+            textureLimit.moveCenter(showableArea.center());
+            showableArea = showableArea.intersected(textureLimit);
+
+            if (page.texture == nullptr
+                || page.renderWidth != d->renderWidth
+                || (page.renderWidth == int(width()) &&
+                    !page.textureArea.contains(showableArea))) {
+                QRect request = (fullPageFit) ? QRect() : textureLimit;
+                if (!page.requested) {
+                    d->document->requestPage(i, d->renderWidth, window(), request);
+                    page.requested = true;
+                }
+                priorityRequests << QPair<int, QPair<int, QRect> >(i, QPair<int, QRect>(d->renderWidth, request));
             }
-            priorityRequests << QPair<int, QPair<int, QRect> >(i, QPair<int, QRect>(d->renderWidth, textureLimit));
-        } else if (loadPage && !showPage
+        } else if (loadPage
                    && !page.requested && (page.renderWidth != d->renderWidth)) {
             textureLimit.moveTo(0, 0);
             // We preload full page only if they can fit into texture.
