@@ -267,51 +267,85 @@ void PDFSelection::Private::textBoxAtPoint(const QPointF &point, Position positi
         }
         break;
     }
-    case PDFSelection::Private::Before: {
+    case PDFSelection::Private::Before:
         // Find the last box index in pageIndex that is before @point,
         // including at @point. If none is found in this page, returns
         // the last box of the previous page.
-        QPointF reducedCoordPoint {point.x() / at.second.width(),
-                (point.y() - at.second.y()) / at.second.height()};
-        for (PDFDocument::TextList::const_iterator box = boxes.begin();
-             box != boxes.end(); box++) {
-            /* Stop counting boxes up as soon as a box after reducedCoordPoint is found. */
-            if (box->first.y() > reducedCoordPoint.y() ||
-                (box->first.y() + box->first.height() > reducedCoordPoint.y() &&
-                 box->first.x() > reducedCoordPoint.x())) {
-                if (*boxIndex == -1) {
-                    *pageIndex -= 1;
-                    if (*pageIndex >= 0)
-                        *boxIndex = canvas->document()->textBoxesAtPage(*pageIndex).length() - 1;
-                }
-                return;
-            }
-            *boxIndex += 1;
-        }
-        *boxIndex = boxes.length() - 1;
-        break;
-    }
     case PDFSelection::Private::After: {
         // Find the first box index in pageIndex that is after @point,
         // including at @point. If none is found in this page, returns
         // the first box of the next page.
         QPointF reducedCoordPoint {point.x() / at.second.width(),
                 (point.y() - at.second.y()) / at.second.height()};
-        *boxIndex = 0;
+        
+        int index = 0;
+        PDFSelection::Private::Position previousBoxPosition = PDFSelection::Private::Before;
+        QRectF previousBox {0, -1, 1, 1};
+        qreal closestSquaredDistance = 2.;
+        int boxAfterIndex = boxes.length();
         for (PDFDocument::TextList::const_iterator box = boxes.begin();
              box != boxes.end(); box++) {
-            /* Stop counting boxes down as soon as a box after reducedCoordPoint is found. */
-            if (box->first.y() > reducedCoordPoint.y() ||
-                (box->first.y() + box->first.height() > reducedCoordPoint.y() &&
-                 box->first.x() + box->first.width() > reducedCoordPoint.x())) {
-                return;
+            PDFSelection::Private::Position currentBoxPosition =
+                (box->first.bottom() < reducedCoordPoint.y()
+                 || (box->first.top() < reducedCoordPoint.y()
+                     && box->first.left() < reducedCoordPoint.x()))
+                ? PDFSelection::Private::Before
+                : PDFSelection::Private::After;
+            if (previousBox.contains(reducedCoordPoint))
+                currentBoxPosition = PDFSelection::Private::After;
+            // Find a transition in the list of boxes. A transition is
+            // when the current box switch from being before the given point
+            // to being after.
+            if (previousBoxPosition == PDFSelection::Private::Before &&
+                currentBoxPosition == PDFSelection::Private::After) {
+                // The actual transition that will be kept is the closest
+                // to the given point.
+                QPointF boxCenter = previousBox.center();
+                qreal squaredDistance =
+                    (boxCenter.x() - reducedCoordPoint.x()) *
+                    (boxCenter.x() - reducedCoordPoint.x()) +
+                    (boxCenter.y() - reducedCoordPoint.y()) *
+                    (boxCenter.y() - reducedCoordPoint.y());
+                if (squaredDistance < closestSquaredDistance) {
+                    boxAfterIndex = index;
+                    closestSquaredDistance = squaredDistance;
+                }
+                boxCenter = box->first.center();
+                squaredDistance =
+                    (boxCenter.x() - reducedCoordPoint.x()) *
+                    (boxCenter.x() - reducedCoordPoint.x()) +
+                    (boxCenter.y() - reducedCoordPoint.y()) *
+                    (boxCenter.y() - reducedCoordPoint.y());
+                if (squaredDistance < closestSquaredDistance) {
+                    boxAfterIndex = index;
+                    closestSquaredDistance = squaredDistance;
+                }
             }
-            *boxIndex += 1;
+            previousBoxPosition = currentBoxPosition;
+            previousBox = box->first;
+            index += 1;
         }
-        *pageIndex += 1;
-        if (*pageIndex >= canvas->document()->pageCount())
-            *pageIndex = -1;
-        *boxIndex = 0;
+        // After the for loop, boxAfterIndex is in [0; boxes.length()].
+        // Assign *boxIndex according to argument position and value of boxAfterIndex.
+        if (position == PDFSelection::Private::Before
+            || (position == PDFSelection::Private::After
+                && boxAfterIndex > 0
+                && boxes[boxAfterIndex - 1].first.contains(reducedCoordPoint))) {
+            *boxIndex = boxAfterIndex - 1;
+        } else {
+            *boxIndex = boxAfterIndex;
+        }
+        // Adjust *pageIndex and *boxIndex for specific boundary conditions.
+        if (*boxIndex < 0) {
+            *pageIndex -= 1;
+            if (*pageIndex >= 0)
+                *boxIndex = canvas->document()->textBoxesAtPage(*pageIndex).length() - 1;
+        } else if (*boxIndex == boxes.length()) {
+            *pageIndex += 1;
+            if (*pageIndex >= canvas->document()->pageCount())
+                *pageIndex = -1;
+            *boxIndex = 0;
+        }
         break;
     }
     default:
