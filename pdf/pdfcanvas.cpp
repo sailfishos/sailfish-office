@@ -254,7 +254,7 @@ void PDFCanvas::setPagePlaceholderColor(const QColor &color)
 void PDFCanvas::layout()
 {
     if (d->pageSizes.count() == 0) {
-        if (d->document->isLoaded() && !d->pageSizeRequested) {
+        if (d->document->isLoaded() && d->pageCount > 0 && !d->pageSizeRequested) {
             d->document->requestPageSizes();
             d->pageSizeRequested = true;
         }

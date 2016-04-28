@@ -335,7 +335,7 @@ void PDFRenderThreadQueue::processPendingJob()
             }
     
             d->document = dj->m_document;
-            if (d->document) {
+            if (d->document && d->document->numPages() > 0) {
                 if (!d->document->isLocked()) {
                     d->tocModel = new PDFTocModel(d->document);
                     d->rescanDocumentLinks();
