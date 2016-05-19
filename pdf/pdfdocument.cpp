@@ -206,12 +206,13 @@ void PDFDocument::requestUnLock(const QString &password)
     d->thread->queueJob(job);
 }
 
-void PDFDocument::requestPage(int index, int size, QQuickWindow *window, QRect subpart)
+void PDFDocument::requestPage(int index, int size, QQuickWindow *window,
+                              QRect subpart, int extraData)
 {
     if (!isLoaded() || isLocked())
         return;
 
-    RenderPageJob* job = new RenderPageJob(index, size, window, subpart);
+    RenderPageJob* job = new RenderPageJob(index, size, window, subpart, extraData);
     d->thread->queueJob(job);
 }
 
@@ -280,10 +281,10 @@ void PDFDocument::loadFinished()
         emit documentLockedChanged();
 }
 
-void PDFDocument::onPageModified(int page)
+void PDFDocument::onPageModified(int page, const QRectF &subpart)
 {
     setDocumentModified();
-    emit pageModified(page);
+    emit pageModified(page, subpart);
 }
 
 void PDFDocument::jobFinished(PDFJob *job)
@@ -296,7 +297,8 @@ void PDFDocument::jobFinished(PDFJob *job)
     }
     case PDFJob::RenderPageJob: {
         RenderPageJob* j = static_cast<RenderPageJob*>(job);
-        emit pageFinished(j->m_index, j->renderWidth(), j->m_subpart, j->m_page);
+        emit pageFinished(j->m_index, j->renderWidth(), j->m_subpart,
+                          j->m_page, j->m_extraData);
         break;
     }
     case PDFJob::PageSizesJob: {

@@ -371,7 +371,7 @@ void PDFRenderThread::addAnnotation(Poppler::Annotation *annotation, int pageInd
     // since the caller is the owner of the object.
     if (d->annotations.contains(pageIndex))
         d->retrieveAnnotations(pageIndex);
-    emit pageModified(pageIndex);
+    emit pageModified(pageIndex, annotation->boundary());
 }
 
 QList<Poppler::Annotation*> PDFRenderThread::annotations(int pageIndex) const
@@ -394,7 +394,7 @@ void PDFRenderThread::removeAnnotation(Poppler::Annotation *annotation, int page
     Poppler::Page *page = d->document->page(pageIndex);
     page->removeAnnotation(annotation);
     delete page;
-    emit pageModified(pageIndex);
+    emit pageModified(pageIndex, annotation->boundary());
 }
 
 void PDFRenderThread::setAutoSaveName(const QString &filename)

@@ -60,7 +60,7 @@ public:
 
 Q_SIGNALS:
     void loadFinished();
-    void pageModified(int page);
+    void pageModified(int page, const QRectF &subpart);
     void jobFinished(PDFJob *job);
     void searchFinished(const QList<QPair<int, QRectF>> &matches);
 

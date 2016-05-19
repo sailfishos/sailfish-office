@@ -306,7 +306,7 @@ void PDFHighlightAnnotation::setStyle(PDFHighlightAnnotation::HighlightType valu
     emit styleChanged();
     
     if (d->m_document != nullptr && d->m_page >= 0)
-        d->m_document->onPageModified(d->m_page);
+        d->m_document->onPageModified(d->m_page, d->m_annotation->boundary());
 }
 
 void PDFHighlightAnnotation::attach(PDFDocument *document, PDFSelection *selection)

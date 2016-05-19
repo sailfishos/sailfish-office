@@ -84,13 +84,15 @@ class RenderPageJob : public PDFJob
 {
     Q_OBJECT
 public:
-    RenderPageJob(int index, uint width, QQuickWindow *window, QRect  subpart = QRect());
+    RenderPageJob(int index, uint width, QQuickWindow *window,
+                  QRect  subpart = QRect(), int extraData = 0);
 
     virtual void run();
 
     int m_index;
     QRect m_subpart;
     QSGTexture *m_page;
+    int m_extraData;
 
     int renderWidth() const { return m_width; }
     void changeRenderWidth(int width) { m_width = width; }

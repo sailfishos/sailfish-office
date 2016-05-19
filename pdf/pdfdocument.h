@@ -83,7 +83,8 @@ public Q_SLOTS:
     void setSource(const QString &source);
     void setAutoSavePath(const QString &filename);
     void requestUnLock(const QString &password);
-    void requestPage(int index, int size, QQuickWindow *window, QRect subpart = QRect());
+    void requestPage(int index, int size, QQuickWindow *window,
+                     QRect subpart = QRect(), int extraData = 0);
     void prioritizeRequest(int index, int size, QRect subpart = QRect());
     void cancelPageRequest(int index);
     void requestPageSizes();
@@ -92,7 +93,7 @@ public Q_SLOTS:
     void searchFinished(const QList<QPair<int, QRectF>> &matches);
     void loadFinished();
     void jobFinished(PDFJob *job);
-    void onPageModified(int page);
+    void onPageModified(int page, const QRectF &subpart);
 
 Q_SIGNALS:
     void sourceChanged();
@@ -101,13 +102,14 @@ Q_SIGNALS:
     void tocModelChanged();
     void searchingChanged();
     void searchModelChanged();
-    void pageModified(int index);
+    void pageModified(int index, const QRectF &subpart);
 
     void documentLoadedChanged();
     void documentFailedChanged();
     void documentLockedChanged();
     void documentModifiedChanged();
-    void pageFinished(int index, int resolution, QRect subpart, QSGTexture *page);
+    void pageFinished(int index, int resolution, QRect subpart,
+                      QSGTexture *page, int extraData);
     void pageSizesFinished(const QList<QSizeF> &heights);
 
 private:
