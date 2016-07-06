@@ -4,7 +4,7 @@ Name=Documents
 X-MeeGo-Logical-Id=sailfish-office-ap-name
 X-MeeGo-Translation-Catalog=sailfish-office
 Icon=icon-launcher-office
-Exec=invoker -t qt5 -s /usr/bin/sailfish-office %U
+Exec=invoker -s --type=silica-qt5 /usr/bin/sailfish-office %U
 Comment=Document Viewer
 X-Maemo-Service=org.sailfish.office
 X-Maemo-Object-Path=/org/sailfish/office/ui
