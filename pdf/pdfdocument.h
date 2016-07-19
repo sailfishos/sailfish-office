@@ -76,6 +76,7 @@ public Q_SLOTS:
     void cancelPageRequest(int index);
     void requestPageSizes();
     void search(const QString &search, uint startPage = 0);
+    void searchFinished(const QList<QPair<int, QRectF>> &matches);
     void loadFinished();
     void jobFinished(PDFJob *job);
 

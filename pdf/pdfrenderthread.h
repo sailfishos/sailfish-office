@@ -44,6 +44,7 @@ public:
     bool isLocked() const;
     QMultiMap<int, QPair<QRectF, QUrl> > linkTargets() const;
     QList<QPair<QRectF, Poppler::TextBox*> > textBoxesAtPage(int page);
+    void search(const QString &search, uint startPage);
 
     void queueJob(PDFJob *job);
     void cancelRenderJob(int index);
@@ -52,7 +53,11 @@ public:
 Q_SIGNALS:
     void loadFinished();
     void jobFinished(PDFJob *job);
+    void searchFinished(const QList<QPair<int, QRectF>> &matches);
 
+private Q_SLOTS:
+    void onSearchFinished();
+    
 private:
     friend class PDFRenderThreadPrivate;
 

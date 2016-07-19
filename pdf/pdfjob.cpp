@@ -87,39 +87,3 @@ void PageSizesJob::run()
         delete page;
     }
 }
-
-SearchDocumentJob::SearchDocumentJob(const QString &search, uint page)
-  : PDFJob(PDFJob::SearchDocumentJob), m_search(search), startPage(page)
-{
-}
-
-void SearchDocumentJob::run()
-{
-    Q_ASSERT(m_document);
-
-    for (int i = 0; i < m_document->numPages(); ++i) {
-        int ipage = (startPage + i) % m_document->numPages();
-        Poppler::Page *page = m_document->page(ipage);
-    
-        double sLeft, sTop, sRight, sBottom;
-        float scaleW = 1.f / page->pageSizeF().width();
-        float scaleH = 1.f / page->pageSizeF().height();
-        bool found;
-        found = page->search(m_search, sLeft, sTop, sRight, sBottom,
-                             Poppler::Page::FromTop,
-                             Poppler::Page::IgnoreCase);
-        while (found) {
-            QRectF result;
-            result.setLeft(sLeft * scaleW);
-            result.setTop(sTop * scaleH);
-            result.setRight(sRight * scaleW);
-            result.setBottom(sBottom * scaleH);
-            m_matches.append(QPair<int, QRectF>(ipage, result));
-            found = page->search(m_search, sLeft, sTop, sRight, sBottom,
-                                 Poppler::Page::NextResult,
-                                 Poppler::Page::IgnoreCase);
-        }
-
-        delete page;
-    }
-}
