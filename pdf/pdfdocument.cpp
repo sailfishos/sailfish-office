@@ -200,7 +200,23 @@ void PDFDocument::search(const QString &search, uint startPage)
         d->searching = true;
         emit searchingChanged();
         d->thread->search(search, startPage);
+    } else {
+        cancelSearch();
     }
+}
+
+void PDFDocument::cancelSearch()
+{
+    if (d->searchModel != nullptr) {
+        delete d->searchModel;
+        d->searchModel = nullptr;
+        emit searchModelChanged();
+    }
+    if (d->searching) {
+        d->searching = false;
+        emit searchingChanged();
+    }
+    d->thread->cancelSearch();
 }
 
 void PDFDocument::loadFinished()

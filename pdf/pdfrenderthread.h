@@ -45,6 +45,7 @@ public:
     QMultiMap<int, QPair<QRectF, QUrl> > linkTargets() const;
     QList<QPair<QRectF, Poppler::TextBox*> > textBoxesAtPage(int page);
     void search(const QString &search, uint startPage);
+    void cancelSearch();
 
     void queueJob(PDFJob *job);
     void cancelRenderJob(int index);

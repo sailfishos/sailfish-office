@@ -159,7 +159,11 @@ DocumentPage {
                                      - (searchNext.visible ? searchNext.width : 0)
                 anchors.verticalCenter: parent.verticalCenter
 
-                enabled: !pdfDocument.searching
+                onFocusChanged: {
+                    if (focus && pdfDocument.searching) {
+                        pdfDocument.cancelSearch()
+                    }
+                }
 
                 inputMethodHints: Qt.ImhNoAutoUppercase | Qt.ImhPreferLowercase | Qt.ImhNoPredictiveText
 

@@ -43,6 +43,7 @@ public:
     }
     ~SearchThread()
     {
+        requestInterruption();
         wait();
     }
 
@@ -50,8 +51,8 @@ public:
 
     void start(const QString& search, uint startPage = 0)
     {
-        if (isRunning())
-            return;
+        requestInterruption();
+        wait();
 
         m_search = search;
         m_startPage = startPage;
@@ -60,7 +61,7 @@ public:
 
     void run() {
         m_matches.clear();
-        for (int i = 0; i < m_document->numPages(); ++i) {
+        for (int i = 0; i < m_document->numPages() && !isInterruptionRequested(); ++i) {
             int ipage = (m_startPage + i) % m_document->numPages();
             Poppler::Page *page = m_document->page(ipage);
 
@@ -85,7 +86,12 @@ public:
 
             delete page;
         }
+        if (!isInterruptionRequested())
+            emit searchFinished();
     }
+
+signals:
+    void searchFinished();
 
 private:
     Poppler::Document *m_document;
@@ -366,7 +372,7 @@ void PDFRenderThread::search(const QString &search, uint startPage)
 {
     if (!d->searchThread) {
         d->searchThread = new SearchThread(d->document);
-        connect(d->searchThread, &QThread::finished,
+        connect(d->searchThread, &SearchThread::searchFinished,
                 this, &PDFRenderThread::onSearchFinished);
     }
 
@@ -376,6 +382,14 @@ void PDFRenderThread::search(const QString &search, uint startPage)
 void PDFRenderThread::onSearchFinished()
 {
     emit searchFinished(d->searchThread->m_matches);
+}
+
+void PDFRenderThread::cancelSearch()
+{
+    if (!d->searchThread)
+        return;
+
+    d->searchThread->requestInterruption();
 }
 
 void PDFRenderThreadQueue::processPendingJob()
