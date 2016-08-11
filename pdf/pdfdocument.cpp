@@ -48,6 +48,7 @@ PDFDocument::PDFDocument(QObject *parent)
     connect(d->thread, &PDFRenderThread::loadFinished, this, &PDFDocument::pageCountChanged);
     connect(d->thread, &PDFRenderThread::loadFinished, this, &PDFDocument::loadFinished);
     connect(d->thread, &PDFRenderThread::jobFinished, this, &PDFDocument::jobFinished);
+    connect(d->thread, &PDFRenderThread::searchFinished, this, &PDFDocument::searchFinished);
 
     d->searchModel = nullptr;
 }
@@ -198,9 +199,24 @@ void PDFDocument::search(const QString &search, uint startPage)
     if (search.length() > 0) {
         d->searching = true;
         emit searchingChanged();
-        SearchDocumentJob* job = new SearchDocumentJob(search, startPage);
-        d->thread->queueJob(job);
+        d->thread->search(search, startPage);
+    } else {
+        cancelSearch();
     }
+}
+
+void PDFDocument::cancelSearch()
+{
+    if (d->searchModel != nullptr) {
+        delete d->searchModel;
+        d->searchModel = nullptr;
+        emit searchModelChanged();
+    }
+    if (d->searching) {
+        d->searching = false;
+        emit searchingChanged();
+    }
+    d->thread->cancelSearch();
 }
 
 void PDFDocument::loadFinished()
@@ -229,18 +245,18 @@ void PDFDocument::jobFinished(PDFJob *job)
         emit pageSizesFinished(j->m_pageSizes);
         break;
     }
-    case PDFJob::SearchDocumentJob: {
-        SearchDocumentJob* j = static_cast<SearchDocumentJob*>(job);
-        delete d->searchModel;
-        d->searchModel = new PDFSearchModel(j->m_matches);
-        emit searchModelChanged();
-        d->searching = false;
-        emit searchingChanged();
-        break;
-    }
     default:
         break;
     }
 
     job->deleteLater();
+}
+
+void PDFDocument::searchFinished(const QList<QPair<int, QRectF>> &matches)
+{
+    delete d->searchModel;
+    d->searchModel = new PDFSearchModel(matches);
+    emit searchModelChanged();
+    d->searching = false;
+    emit searchingChanged();
 }

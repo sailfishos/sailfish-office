@@ -33,6 +33,72 @@ class PDFRenderThreadQueue;
 
 const QEvent::Type Event_JobPending = QEvent::Type(QEvent::User + 1);
 
+class SearchThread: public QThread
+{
+    Q_OBJECT
+public:
+    SearchThread(Poppler::Document *document, QObject *parent = 0)
+        : QThread(parent), m_document(document)
+    {
+    }
+    ~SearchThread()
+    {
+        requestInterruption();
+        wait();
+    }
+
+    QList<QPair<int, QRectF>> m_matches;
+
+    void start(const QString& search, uint startPage = 0)
+    {
+        requestInterruption();
+        wait();
+
+        m_search = search;
+        m_startPage = startPage;
+        QThread::start();
+    }
+
+    void run() {
+        m_matches.clear();
+        for (int i = 0; i < m_document->numPages() && !isInterruptionRequested(); ++i) {
+            int ipage = (m_startPage + i) % m_document->numPages();
+            Poppler::Page *page = m_document->page(ipage);
+
+            double sLeft, sTop, sRight, sBottom;
+            float scaleW = 1.f / page->pageSizeF().width();
+            float scaleH = 1.f / page->pageSizeF().height();
+            bool found;
+            found = page->search(m_search, sLeft, sTop, sRight, sBottom,
+                                 Poppler::Page::FromTop,
+                                 Poppler::Page::IgnoreCase);
+            while (found) {
+                QRectF result;
+                result.setLeft(sLeft * scaleW);
+                result.setTop(sTop * scaleH);
+                result.setRight(sRight * scaleW);
+                result.setBottom(sBottom * scaleH);
+                m_matches.append(QPair<int, QRectF>(ipage, result));
+                found = page->search(m_search, sLeft, sTop, sRight, sBottom,
+                                     Poppler::Page::NextResult,
+                                     Poppler::Page::IgnoreCase);
+            }
+
+            delete page;
+        }
+        if (!isInterruptionRequested())
+            emit searchFinished();
+    }
+
+signals:
+    void searchFinished();
+
+private:
+    Poppler::Document *m_document;
+    QString m_search;
+    uint m_startPage;
+};
+
 class Thread : public QThread
 {
     Q_OBJECT
@@ -44,6 +110,8 @@ public:
 
     void run() {
         QThread::exec();
+        // Delete pending search that may use document.
+        delete searchThread;
         delete document;
         delete tocModel;
         deleteLater();
@@ -63,12 +131,14 @@ public:
     // Used for cleanup only
     Poppler::Document *document;
     PDFTocModel *tocModel;
+    SearchThread *searchThread;
 };
 
 class PDFRenderThreadPrivate
 {
 public:
-    PDFRenderThreadPrivate() : document(nullptr), tocModel(nullptr) { }
+    PDFRenderThreadPrivate()
+        : searchThread(nullptr), document(nullptr), tocModel(nullptr) { }
     ~PDFRenderThreadPrivate()
     {
         for (QMap<int, QList<QPair<QRectF, Poppler::TextBox*> > >::iterator i =
@@ -85,6 +155,7 @@ public:
     PDFRenderThread *q;
 
     Thread *thread;
+    SearchThread *searchThread;
 
     bool loadFailure;
     Poppler::Document *document;
@@ -195,6 +266,7 @@ PDFRenderThread::~PDFRenderThread()
     d->thread->mutex.lock();
     d->thread->document = d->document;
     d->thread->tocModel = d->tocModel;
+    d->thread->searchThread = d->searchThread;
     d->thread->jobQueue->deleteLater();
     d->thread->jobQueue = 0;
     d->thread->mutex.unlock();
@@ -294,6 +366,30 @@ void PDFRenderThread::prioritizeRenderJob(int index, int size, QRect subpart)
             return;
         }
     }
+}
+
+void PDFRenderThread::search(const QString &search, uint startPage)
+{
+    if (!d->searchThread) {
+        d->searchThread = new SearchThread(d->document);
+        connect(d->searchThread, &SearchThread::searchFinished,
+                this, &PDFRenderThread::onSearchFinished);
+    }
+
+    d->searchThread->start(search, startPage);
+}
+
+void PDFRenderThread::onSearchFinished()
+{
+    emit searchFinished(d->searchThread->m_matches);
+}
+
+void PDFRenderThread::cancelSearch()
+{
+    if (!d->searchThread)
+        return;
+
+    d->searchThread->requestInterruption();
 }
 
 void PDFRenderThreadQueue::processPendingJob()
