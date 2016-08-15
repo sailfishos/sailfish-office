@@ -127,7 +127,7 @@ PDFCanvas::~PDFCanvas()
 {
     for (int i = 0; i < d->pageCount; ++i) {
         PDFPage &page = d->pages[i];
-        delete page.texture;
+        page.texture->deleteLater();
         page.texture = nullptr;
     }
 
