@@ -126,6 +126,7 @@ DocumentPage {
         // Toolbar contain.
         Row {
             id: row
+            property real itemWidth: toolbar.width / children.length
             height: parent.height
             x: search.activeFocus ? -pageCount.width : 0
 
@@ -133,23 +134,17 @@ DocumentPage {
                 NumberAnimation { easing.type: Easing.InOutQuad; duration: 400 }
             }
 
-            IconButton {
+            BackgroundItem {
                 id: pageCount
-                anchors.verticalCenter: parent.verticalCenter
-                width: icon.width + pageLabel.width
+                width: row.itemWidth
                 height: parent.height
-                icon.source: "image://theme/icon-m-document" + (highlighted ? "?" + Theme.highlightColor : "")
-                icon.anchors.centerIn: undefined
-                icon.anchors.left: pageCount.left
-                icon.anchors.verticalCenter: pageCount.verticalCenter
-                onClicked: base.pushAttachedPage()
                 Label {
                     id: pageLabel
-                    anchors.verticalCenter: parent.verticalCenter
-                    anchors.right: parent.right
+                    anchors.centerIn: parent
                     color: pageCount.highlighted ? Theme.highlightColor : Theme.primaryColor
-                    text: view.currentPage + " / " + view.document.pageCount
+                    text: view.currentPage + " | " + view.document.pageCount
                 }
+                onClicked: base.pushAttachedPage()
             }
             SearchField {
                 id: search
