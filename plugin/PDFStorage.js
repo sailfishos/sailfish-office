@@ -26,12 +26,12 @@ var Settings = function(file) {
 function createTableLastViewSettings(tx) {
     /* Currently store the last page, may be altered later to store
        zoom level or page position. */
-    tx.executeSql('CREATE TABLE IF NOT EXISTS LastViewSettings(
-                    file TEXT   NOT NULL,
-                    page INT    NOT NULL,
-                    top  REAL           ,
-                    left REAL           ,
-                    width INT CHECK(width > 0))');
+    tx.executeSql("CREATE TABLE IF NOT EXISTS LastViewSettings("
+                  + "file TEXT   NOT NULL,"
+                  + "page INT    NOT NULL,"
+                  + "top  REAL           ,"
+                  + "left REAL           ,"
+                  + "width INT CHECK(width > 0))");
     tx.executeSql('CREATE UNIQUE INDEX IF NOT EXISTS idx_file ON LastViewSettings(file)');
 }
 
