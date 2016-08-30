@@ -42,28 +42,31 @@ import Sailfish.Silica 1.0
 BackgroundItem {
     id: root
 
-    property alias iconized: searchField.iconized
-    property alias modelCount: searchField.modelCount
+    property bool iconized: true
+    property int modelCount: -1
     property real iconizedWidth
+
+    property real _margin: Math.max((iconizedWidth - searchIcon.width) / 2., 0.)
 
     signal requestSearch(string text)
     signal requestPreviousMatch()
     signal requestNextMatch()
     signal requestCancel()
 
-    onClicked: searchField.iconized = false
+    onClicked: iconized = false
+    onIconizedChanged: if (!iconized) searchField.forceActiveFocus()
 
     states: [State {
                  name: "extended"
-                 when: !searchField.iconized
+                 when: !root.iconized
                  PropertyChanges {
-                     target: searchField
-                     _margin: 0.
+                     target: root
+                     _margin: Theme.horizontalPageMargin
                  }
              },
              State {
                  name: "iconized"
-                 when: searchField.iconized
+                 when: root.iconized
                  PropertyChanges {
                      target: root
                      width: iconizedWidth
@@ -78,26 +81,35 @@ BackgroundItem {
     }
     highlighted: down || searchIcon.down
 
+    IconButton {
+        id: searchIcon
+        anchors {
+            left: parent.left
+            leftMargin: _margin
+        }
+        width: icon.width
+        height: parent.height
+        icon.source: "image://theme/icon-m-search"
+        highlighted: down || root.down || searchField.activeFocus
+
+        onClicked: {
+            root.iconized = false
+            searchField.forceActiveFocus()
+        }
+    }
+
     TextField {
         id: searchField
 
-        property bool iconized: true
-        property int modelCount: -1
+        property string _searchText
 
-        property real _prevNextWidth: modelCount > 0 ? (Theme.itemSizeSmall + Theme.paddingMedium)*2 : 0.
-        implicitWidth: !iconized ? _editor.implicitWidth + Theme.paddingSmall
-                                   + Theme.itemSizeSmall*2  // width of two icons
-                                   + _prevNextWidth // width of prev / next icons
-                                 : Theme.itemSizeSmall
         height: Math.max(Theme.itemSizeMedium, _editor.height + Theme.paddingMedium + Theme.paddingSmall)
 
-        property real _margin: Math.max((root.iconizedWidth - Theme.itemSizeSmall) / 2., 0.)
         anchors {
             verticalCenter: parent.verticalCenter
-            left: parent.left
+            left: searchIcon.right
             right: parent.right
-            leftMargin: _margin
-            rightMargin: _margin
+            rightMargin: Theme.horizontalPageMargin
         }
 
         focusOutBehavior: FocusBehavior.ClearPageFocus
@@ -106,31 +118,39 @@ BackgroundItem {
             family: Theme.fontFamilyHeading
         }
 
-        textLeftMargin: Theme.itemSizeSmall + Theme.paddingMedium + Theme.horizontalPageMargin - Theme.paddingLarge
-        textRightMargin: Theme.itemSizeSmall + Theme.paddingMedium + Theme.horizontalPageMargin - Theme.paddingLarge + _prevNextWidth
+        textRightMargin: clearButton.width
+            + (searchPrev.visible ? searchPrev.width + Theme.paddingLarge : 0.)
+            + (searchNext.visible ? searchNext.width + Theme.paddingLarge : 0.)
         textTopMargin: labelVisible ? Theme.paddingSmall : (height/2 - _editor.implicitHeight/2)
-        labelVisible: modelCount > 0 && !searchField._editor.activeFocus
-        Binding on label {
-            target: searchField
-            //% "%n item(s) found"
-            value: qsTrId("sailfish-office-lb-%n-matches", modelCount)
-            when: modelCount > 0
-        }
 
-        onModelCountChanged: if (modelCount == 0) text = "" // Allow the placeholder
-        // to be visible for no results.
-        onIconizedChanged: if (!iconized) _editor.forceActiveFocus()
+        labelVisible: root.modelCount > 0 && !searchField.activeFocus
+        //% "%n item(s) found"
+        label: qsTrId("sailfish-office-lb-%n-matches", root.modelCount)
 
-        //: Placeholder text of SearchField
-        placeholderText: (modelCount == 0)
+        placeholderText: (root.modelCount == 0 && !activeFocus)
             //% "No result"
             ? qsTrId("sailfish-office-search-no-result")
             //% "Search on document"
             : qsTrId("sailfish-office-search-document")
-        onFocusChanged: {
-            if (focus) {
+
+        Connections {
+            target: root
+            onModelCountChanged: if (modelCount == 0) {
+                searchField.text = "" // Allow the placeholder
+                searchField._searchText = ""
+            }
+        }
+
+        onActiveFocusChanged: {
+            if (activeFocus) {
                 cursorPosition = text.length
-                searchField.iconized = false
+            } else {
+                if (text != _searchText) {
+                    text = _searchText
+                }
+                if (!text) {
+                    root.iconized = true
+                }
             }
         }
 
@@ -138,35 +158,27 @@ BackgroundItem {
         EnterKey.iconSource: text != "" ? "image://theme/icon-m-enter-accept"
                                         : "image://theme/icon-m-enter-close"
         EnterKey.onClicked: {
-            focus = false
             if (text != "") {
+                _searchText = text
                 root.requestSearch(text)
             } else {
-                iconized = true
+                root.iconized = true
             }
+            focus = false
         }
 
         background: null
 
+        visible: !root.iconized && opacity > 0.
+
+        opacity: root._margin == Theme.horizontalPageMargin ? 1. : 0.
+        Behavior on opacity { FadeAnimation {} }
+
         Item {
-            parent: searchField // avoid TextBase contentItem auto-parenting
-            anchors.fill: parent
+            parent: searchField
+            anchors.right: parent.right
 
-            IconButton {
-                id: searchIcon
-                x: searchField.textLeftMargin - width - Theme.paddingSmall
-                width: icon.width
-                height: parent.height
-                icon.source: "image://theme/icon-m-search"
-                highlighted: down || root.down || searchField._editor.activeFocus
-
-                enabled: searchField.enabled
-
-                onClicked: {
-                    searchField.iconized = false
-                    searchField._editor.forceActiveFocus()
-                }
-            }
+            height: parent.height
 
             IconButton {
                 id: searchPrev
@@ -178,10 +190,9 @@ BackgroundItem {
                 height: parent.height
                 icon.source: "image://theme/icon-m-left"
 
-                enabled: searchField.enabled
-                visible: !iconized && opacity > 0.
+                visible: opacity > 0.
 
-                opacity: modelCount > 0 && !searchField._editor.activeFocus ? 1 : 0
+                opacity: root.modelCount > 0 && !searchField.activeFocus ? 1 : 0
                 Behavior on opacity { FadeAnimation {} }
 
                 onClicked: root.requestPreviousMatch()
@@ -197,10 +208,9 @@ BackgroundItem {
                 height: parent.height
                 icon.source: "image://theme/icon-m-right"
 
-                enabled: searchField.enabled
-                visible: !iconized && opacity > 0.
+                visible: opacity > 0.
 
-                opacity: modelCount > 0 && !searchField._editor.activeFocus ? 1 : 0
+                opacity: root.modelCount > 0 && !searchField.activeFocus ? 1 : 0
                 Behavior on opacity { FadeAnimation {} }
 
                 onClicked: root.requestNextMatch()
@@ -208,31 +218,24 @@ BackgroundItem {
 
             IconButton {
                 id: clearButton
-                anchors {
-                    right: parent.right
-                    rightMargin: Theme.horizontalPageMargin
-                }
+                anchors.right: parent.right
+
                 width: icon.width
                 height: parent.height
                 icon.source: "image://theme/icon-m-clear"
 
-                enabled: searchField.enabled
-                visible: !iconized && opacity > 0.
-
-                opacity: searchField.width > 2 * Theme.itemSizeSmall ? 1. : 0.
-                Behavior on opacity { FadeAnimation {} }
-
                 onClicked: {
                     // Cancel any pending search.
                     root.requestCancel()
-                    if (!searchField._editor.activeFocus || searchField.text == "") {
+                    searchField._searchText = ""
+                    if (!searchField.activeFocus || searchField.text == "") {
                         // Close case.
-                        searchField.iconized = true
+                        root.iconized = true
                         searchField.focus = false
                     } else {
                         // Clear case.
                         searchField.text = ""
-                        searchField._editor.forceActiveFocus()
+                        searchField.forceActiveFocus()
                     }
                 }
             }
