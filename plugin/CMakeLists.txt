@@ -28,6 +28,7 @@ install(FILES
     TextDocumentPage.qml
     TextDocumentToCPage.qml
     ZoomableThumbnail.qml
+    SearchBarItem.qml
     ToolBar.qml
     DetailsPage.qml
     DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/qt5/qml/Sailfish/Office

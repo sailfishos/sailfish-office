@@ -31,10 +31,14 @@ PanelBackground {
     property int _previousContentY
 
     onAutoShowHideChanged: {
-        if (autoShowHide && _active) {
-            autoHideTimer.start()
+        if (autoShowHide) {
+            if (_active) {
+                autoHideTimer.start()
+            }
         } else {
             autoHideTimer.stop()
+            // Keep a transiting toolbar visible.
+            _active = (offset > 0)
         }
     }
 

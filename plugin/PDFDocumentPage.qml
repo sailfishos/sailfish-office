@@ -121,95 +121,41 @@ DocumentPage {
         anchors.top: view.bottom
         flickable: view
         forceHidden: base.open || pdfDocument.failure || pdfDocument.locked
-        autoShowHide: search.text.length == 0 && !search.activeFocus
+        autoShowHide: !row.active
 
         // Toolbar contain.
         Row {
             id: row
+            property bool active: pageCount.highlighted
+                                  || search.highlighted
+                                  || !search.iconized
+            property real itemWidth: toolbar.width / children.length
             height: parent.height
-            x: search.activeFocus ? -pageCount.width : 0
 
-            Behavior on x {
-                NumberAnimation { easing.type: Easing.InOutQuad; duration: 400 }
-            }
-
-            IconButton {
-                id: pageCount
-                anchors.verticalCenter: parent.verticalCenter
-                width: icon.width + pageLabel.width
+            SearchBarItem {
+                id: search
+                width: toolbar.width
+                iconizedWidth: row.itemWidth
                 height: parent.height
-                icon.source: "image://theme/icon-m-document" + (highlighted ? "?" + Theme.highlightColor : "")
-                icon.anchors.centerIn: undefined
-                icon.anchors.left: pageCount.left
-                icon.anchors.verticalCenter: pageCount.verticalCenter
-                onClicked: base.pushAttachedPage()
+
+                modelCount: pdfDocument.searchModel ? pdfDocument.searchModel.count : -1
+
+                onRequestSearch: pdfDocument.search(text, view.currentPage - 1)
+                onRequestPreviousMatch: view.prevSearchMatch()
+                onRequestNextMatch: view.nextSearchMatch()
+                onRequestCancel: pdfDocument.cancelSearch()
+            }
+            BackgroundItem {
+                id: pageCount
+                width: row.itemWidth
+                height: parent.height
                 Label {
                     id: pageLabel
-                    anchors.verticalCenter: parent.verticalCenter
-                    anchors.right: parent.right
+                    anchors.centerIn: parent
                     color: pageCount.highlighted ? Theme.highlightColor : Theme.primaryColor
-                    text: view.currentPage + " / " + view.document.pageCount
+                    text: view.currentPage + " | " + view.document.pageCount
                 }
-            }
-            SearchField {
-                id: search
-                width: activeFocus ? toolbar.width
-                                   : toolbar.width - pageCount.width
-                                     - (searchPrev.visible ? searchPrev.width : 0)
-                                     - (searchNext.visible ? searchNext.width : 0)
-                anchors.verticalCenter: parent.verticalCenter
-
-                onFocusChanged: {
-                    if (focus && pdfDocument.searching) {
-                        pdfDocument.cancelSearch()
-                    }
-                }
-
-                inputMethodHints: Qt.ImhNoAutoUppercase | Qt.ImhPreferLowercase | Qt.ImhNoPredictiveText
-
-                EnterKey.iconSource: text != "" ? "image://theme/icon-m-enter-accept"
-                                                : "image://theme/icon-m-enter-close"
-                EnterKey.onClicked: {
-                    focus = false
-                    pdfDocument.search(text, view.currentPage - 1)
-                }
-
-                Behavior on width {
-                    NumberAnimation { easing.type: Easing.InOutQuad; duration: 400 }
-                }
-            }
-            IconButton {
-                id: searchPrev
-                anchors.verticalCenter: parent.verticalCenter
-                icon.source: "image://theme/icon-m-left"
-                visible: pdfDocument.searchModel && pdfDocument.searchModel.count > 0
-                onClicked: view.prevSearchMatch()
-            }
-            IconButton {
-                id: searchNext
-                anchors.verticalCenter: parent.verticalCenter
-                icon.source: "image://theme/icon-m-right"
-                visible: pdfDocument.searchModel && pdfDocument.searchModel.count > 0
-                onClicked: view.nextSearchMatch()
-            }
-        }
-        // Additional information
-        Label {
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.bottom: parent.bottom
-            
-            opacity: pdfDocument.searchModel && !search.activeFocus ? 1. : 0.
-            visible: opacity > 0.
-            text: pdfDocument.searchModel && pdfDocument.searchModel.count > 0
-                  ? //% "%n item(s) found"
-                    qsTrId("sailfish-office-lb-%n-matches", pdfDocument.searchModel.count)
-                  : //% "no matching found"
-                    qsTrId("sailfish-office-lb-no-matches")
-            font.pixelSize: Theme.fontSizeSmall
-            color: Theme.secondaryHighlightColor
-
-            Behavior on opacity {
-                FadeAnimation {}
+                onClicked: base.pushAttachedPage()
             }
         }
     }
