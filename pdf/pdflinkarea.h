@@ -27,16 +27,22 @@ class PDFLinkArea : public QQuickItem
 {
     Q_OBJECT
     Q_PROPERTY(PDFCanvas* canvas READ canvas WRITE setCanvas NOTIFY canvasChanged)
+    Q_PROPERTY(bool pressed READ pressed NOTIFY pressedChanged)
+    Q_PROPERTY(QRectF clickedBox READ clickedBox NOTIFY clickedBoxChanged)
 
 public:
     PDFLinkArea(QQuickItem *parent = 0);
     virtual ~PDFLinkArea();
 
     PDFCanvas* canvas() const;
+    bool pressed() const;
+    QRectF clickedBox() const;
     void setCanvas(PDFCanvas *newCanvas);
 
 Q_SIGNALS:
-    void clicked();
+    void pressedChanged();
+    void clickedBoxChanged();
+    void clicked(QPointF clickAt);
     void doubleClicked();
     void linkClicked(QUrl linkTarget);
     void gotoClicked(int page, qreal top, qreal left);
@@ -53,6 +59,7 @@ protected:
 
 private Q_SLOTS:
     void pressTimeout();
+    void onPageLayoutChanged();
 
 private:
     class Private;

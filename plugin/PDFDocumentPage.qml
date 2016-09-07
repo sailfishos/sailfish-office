@@ -105,8 +105,8 @@ DocumentPage {
         onClicked: base.open = !base.open
         onLinkClicked: {
             base.open = false
-            contextMenuLinks.message = linkTarget
-            contextMenuLinks.opacity = 1.
+            contextMenuLinks.url = linkTarget
+            hook.showMenu(contextMenuLinks)
         }
         clip: anchors.bottomMargin > 0
     }
@@ -160,23 +160,32 @@ DocumentPage {
         }
     }
 
-    PDFContextMenu {
+    ContextMenu {
         id: contextMenuLinks
-        //% "External link"
-        title: qsTrId("sailfish-office-tl-pdf-link")
+        property alias url: linkTarget.text
+
+        InfoLabel {
+            id: linkTarget
+            font.pixelSize: Theme.fontSizeSmall
+            wrapMode: Text.Wrap
+            elide: Text.ElideRight
+            maximumLineCount: 4
+            color: Theme.highlightColor
+            opacity: .6
+        }
         MenuItem {
-            text: (contextMenuLinks.message.indexOf("http:") === 0
-                   || contextMenuLinks.message.indexOf("https:") === 0)
+            text: (contextMenuLinks.url.indexOf("http:") === 0
+                   || contextMenuLinks.url.indexOf("https:") === 0)
                   //% "Open in browser"
                   ? qsTrId("sailfish-office-me-pdf-open-browser")
                   //% "Open in external application"
                   : qsTrId("sailfish-office-me-pdf-open-external")
-            onClicked: Qt.openUrlExternally(contextMenuLinks.message)
+            onClicked: Qt.openUrlExternally(contextMenuLinks.url)
         }
         MenuItem {
             //% "Copy to clipboard"
             text: qsTrId("sailfish-office-me-pdf-copy-link")
-            onClicked: Clipboard.text = contextMenuLinks.message
+            onClicked: Clipboard.text = contextMenuLinks.url
         }
     }
 

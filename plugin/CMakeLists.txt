@@ -11,6 +11,7 @@ install(TARGETS sailfishofficeplugin DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/qt5
 
 install(FILES
     qmldir
+    ContextMenuHook.qml
     DocumentPage.qml
     DocumentsSharingList.qml
     PDFDocumentPage.qml
@@ -19,7 +20,6 @@ install(FILES
     PDFSelectionView.qml
     PDFSelectionHandle.qml
     PDFSelectionDrag.qml
-    PDFContextMenu.qml
     PDFStorage.js
     PresentationPage.qml
     PresentationThumbnailPage.qml

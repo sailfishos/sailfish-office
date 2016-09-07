@@ -36,7 +36,7 @@ SilicaFlickable {
     property QtObject _feedbackEffect
 
     signal clicked()
-    signal linkClicked(string linkTarget)
+    signal linkClicked(string linkTarget, Item hook)
     signal pageSizesReady()
     signal updateSize(real newWidth, real newHeight)
 
@@ -68,7 +68,9 @@ SilicaFlickable {
         pdfCanvas.width = scaled ? clamp(pdfCanvas.width) : width
 
         contentX = oldContentX * pdfCanvas.width / oldWidth
-        contentY = oldContentY * pdfCanvas.height / oldHeight
+        if (!contextHook.active) {
+            contentY = oldContentY * pdfCanvas.height / oldHeight
+        }
     }
 
     function moveToSearchMatch(index) {
@@ -201,10 +203,18 @@ SilicaFlickable {
             onPinchFinished: base.returnToBounds()
 
             PDF.LinkArea {
+                id: linkArea
                 anchors.fill: parent
 
+                onClickedBoxChanged: {
+                    if (clickedBox.width > 0) {
+                        contextHook.y = clickedBox.y
+                        contextHook.hookHeight = clickedBox.height
+                    }
+                }
+
                 canvas: pdfCanvas
-                onLinkClicked: base.linkClicked(linkTarget)
+                onLinkClicked: base.linkClicked(linkTarget, contextHook)
                 onGotoClicked: base.goToPage(page - 1, top, left,
                                              Theme.paddingLarge, Theme.paddingLarge)
                 onClicked: {
@@ -216,6 +226,18 @@ SilicaFlickable {
                 }
                 onLongPress: selection.selectAt(pressAt)
             }
+        }
+
+        Rectangle {
+            x: linkArea.clickedBox.x
+            y: linkArea.clickedBox.y
+            width: linkArea.clickedBox.width
+            height: linkArea.clickedBox.height
+            radius: Theme.paddingSmall
+            color: Theme.highlightColor
+            opacity: linkArea.pressed ? 0.75 : 0.
+            visible: opacity > 0.
+            Behavior on opacity { FadeAnimation { duration: 100 } }
         }
 
         Repeater {
@@ -265,6 +287,7 @@ SilicaFlickable {
             handle: selection.handle2
             onDragged: selection.handle2 = at
         }
+        ContextMenuHook { id: contextHook }
     }
 
     children: [
