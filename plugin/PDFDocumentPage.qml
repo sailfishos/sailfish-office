@@ -108,6 +108,19 @@ DocumentPage {
             contextMenuLinks.url = linkTarget
             hook.showMenu(contextMenuLinks)
         }
+        onAnnotationClicked: {
+            base.open = false
+            switch (annotation.type) {
+            case PDF.Annotation.Highlight:
+                contextMenuHighlight.annotation = annotation
+                hook.showMenu(contextMenuHighlight)
+                break
+            case PDF.Annotation.Caret:
+            case PDF.Annotation.Text:
+                break
+            default:
+            }
+        }
         clip: anchors.bottomMargin > 0
     }
 
@@ -123,12 +136,19 @@ DocumentPage {
         forceHidden: base.open || pdfDocument.failure || pdfDocument.locked
         autoShowHide: !row.active
 
+        Connections {
+            target: view.selection
+            onSelectedChanged: if (view.selection.selected) toolbar.show()
+        }
+
         // Toolbar contain.
         Row {
             id: row
             property bool active: pageCount.highlighted
                                   || search.highlighted
                                   || !search.iconized
+                                  || highlightButton.highlighted
+                                  || view.selection.selected
             property real itemWidth: toolbar.width / children.length
             height: parent.height
 
@@ -144,6 +164,40 @@ DocumentPage {
                 onRequestPreviousMatch: view.prevSearchMatch()
                 onRequestNextMatch: view.nextSearchMatch()
                 onRequestCancel: pdfDocument.cancelSearch()
+            }
+            BackgroundItem {
+                id: highlightTool
+                property bool selectForHighlight
+
+                function highlightSelection() {
+                    var anno = highlightComponent.createObject(highlightTool)
+                    anno.attach(pdfDocument, view.selection)
+                    view.selection.unselect()
+                    toolbar.hide()
+                    selectForHighlight = false
+                }
+
+                width: row.itemWidth
+                height: parent.height
+                highlighted: pressed || highlightButton.pressed
+                onClicked: {
+                    if (view.selection.selected) {
+                        highlightTool.highlightSelection()
+                    } else {
+                        selectForHighlight = !selectForHighlight
+                    }
+                }
+                IconButton {
+                    anchors.centerIn: parent
+                    id: highlightButton
+                    highlighted: pressed || highlightTool.pressed || highlightTool.selectForHighlight
+                    icon.source: "image://theme/icon-m-edit"
+                    onClicked: highlightTool.clicked(mouse)
+                }
+                Component {
+                    id: highlightComponent
+                    PDF.HighlightAnnotation { }
+                }
             }
             BackgroundItem {
                 id: pageCount
@@ -189,9 +243,140 @@ DocumentPage {
         }
     }
 
+    ContextMenu {
+        id: contextMenuHighlight
+        property variant annotation
+
+        function edit() {
+            var edit = pageStack.push(Qt.resolvedUrl("PDFAnnotationEdit.qml"),
+                                      {"annotation": contextMenuHighlight.annotation})
+            edit.remove.connect(function() {
+                pageStack.pop()
+                contextMenuHighlight.remove()
+            })
+        }
+        function remove() {
+            //% "Delete annotation"
+            deleteRemorse.execute(qsTrId("sailfish-office-re-delete-annotation"),
+                                  function() {
+                                      contextMenuHighlight.annotation.remove()
+                                  })                    
+        }
+
+        InfoLabel {
+            id: infoContents
+            visible: infoContents.text != ""
+            width: parent.width
+            anchors.topMargin: Theme.paddingSmall
+            height: implicitHeight + 2 * Theme.paddingSmall
+            font.pixelSize: Theme.fontSizeSmall
+            wrapMode: Text.Wrap
+            elide: Text.ElideRight
+            maximumLineCount: 2
+            color: Theme.highlightColor
+            opacity: .6
+            text: {
+                if (contextMenuHighlight.annotation !== null
+                    && contextMenuHighlight.annotation !== undefined
+                    && contextMenuHighlight.annotation.contents != "") {
+                    return (contextMenuHighlight.annotation.author != ""
+                            ? "(" + contextMenuHighlight.annotation.author + ") " : "")
+                    + contextMenuHighlight.annotation.contents
+                } else {
+                    return ""
+                }
+            }
+        }
+        Row {
+            height: Theme.itemSizeExtraSmall
+            Repeater {
+                id: colors
+                model: ["#db431c", "#ffff00", "#8afa72", "#00ffff",
+                        "#3828f9", "#a328c7", "#ffffff", "#989898",
+                        "#000000"]
+                delegate: Rectangle {
+                    width: contextMenuHighlight.width / colors.model.length
+                    height: parent.height
+                    color: modelData
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: {
+                            contextMenuHighlight.hide()
+                            contextMenuHighlight.annotation.color = color
+                        }
+                    }
+                }
+            }
+        }
+        Row {
+            height: Theme.itemSizeExtraSmall
+            Repeater {
+                id: styles
+                model: [{"style": PDF.HighlightAnnotation.Highlight,
+                         "label": "abc"},
+                        {"style": PDF.HighlightAnnotation.Squiggly,
+                         "label": "a̰b̰c̰"},
+                        {"style": PDF.HighlightAnnotation.Underline,
+                         "label": "<span style=\"text-decoration:underline\">abc</span>"},
+                        {"style": PDF.HighlightAnnotation.StrikeOut,
+                         "label": "<span style=\"text-decoration:line-through\">abc</span>"}]
+                delegate: BackgroundItem {
+                    id: bgStyle
+                    width: contextMenuHighlight.width / styles.model.length
+                    height: parent.height
+                    onClicked: {
+                        contextMenuHighlight.hide()
+                        contextMenuHighlight.annotation.style = modelData["style"]
+                    }
+                    Label {
+                        anchors.centerIn: parent
+                        text: modelData["label"]
+                        textFormat: Text.RichText
+                        color: bgStyle.highlighted
+                               || (contextMenuHighlight.annotation !== undefined
+                                   && contextMenuHighlight.aannotation !== null
+                                   && contextMenuHighlight.annotation.style == modelData["style"])
+                               ? Theme.highlightColor : Theme.primaryColor
+                        Rectangle {
+                            visible: modelData["style"] == PDF.HighlightAnnotation.Highlight
+                            anchors.fill: parent
+                            color: bgStyle.highlighted ? Theme.highlightColor : Theme.primaryColor
+                            opacity: 0.4
+                            z: -1
+                        }
+                    }
+                }
+            }
+        }
+        MenuItem {
+            visible: contextMenuHighlight.annotation !== undefined
+                     && contextMenuHighlight.annotation !== null
+            text: contextMenuHighlight.annotation !== undefined
+                  && contextMenuHighlight.annotation !== null
+                  && contextMenuHighlight.annotation.contents == ""
+                  //% "Add a comment"
+                  ? qsTrId("sailfish-office-me-pdf-hl-anno-comment")
+                  //% "Edit the comment"
+                  : qsTrId("sailfish-office-me-pdf-hl-anno-comment-edit")
+            onClicked: {
+                if (contextMenuHighlight.annotation.contents == "") {
+                    contextMenuHighlight.create(contextMenuHighlight.annotation)
+                } else {
+                    contextMenuHighlight.edit(contextMenuHighlight.annotation)
+                }
+            }
+        }
+        MenuItem {
+            //% "Clear"
+            text: qsTrId("sailfish-office-me-pdf-hl-anno-clear")
+            onClicked: contextMenuHighlight.remove()
+        }
+    }
+
     PDF.Document {
         id: pdfDocument
         source: base.path
+        autoSavePath: base.path
     }
 
     Component {
