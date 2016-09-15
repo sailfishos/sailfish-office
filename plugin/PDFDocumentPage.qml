@@ -20,6 +20,7 @@ import QtQuick 2.0
 import Sailfish.Silica 1.0
 import Sailfish.Office.PDF 1.0 as PDF
 import org.nemomobile.configuration 1.0
+import org.nemomobile.notifications 1.0
 import QtQuick.LocalStorage 2.0
 import "PDFStorage.js" as PDFStorage
 
@@ -139,9 +140,7 @@ DocumentPage {
         }
         onLongPress: {
             base.open = false
-            contextMenuText.pageId = page
-            contextMenuText.pageTop = top
-            contextMenuText.pageLeft = left
+            contextMenuText.at = pressAt
             contextMenuText.annotation = null
             hook.showMenu(contextMenuText)
         }
@@ -152,7 +151,8 @@ DocumentPage {
         id: toolbar
 
         width: parent.width
-        height: base.orientation == Orientation.Portrait || base.orientation == Orientation.InvertedPortrait
+        height: base.orientation == Orientation.Portrait
+                || base.orientation == Orientation.InvertedPortrait
                 ? Theme.itemSizeLarge
                 : Theme.itemSizeSmall
         anchors.top: view.bottom
@@ -163,6 +163,21 @@ DocumentPage {
         Connections {
             target: view.selection
             onSelectedChanged: if (view.selection.selected) toolbar.show()
+        }
+
+        Notification {
+            id: notice
+            property bool published
+            function show(info) {
+                previewSummary = info
+                if (published) close()
+                publish()
+                published = true
+            }
+            function hide() {
+                if (published) close()
+                published = false
+            }
         }
 
         // Toolbar contain.
@@ -179,8 +194,10 @@ DocumentPage {
             height: parent.height
 
             function toggle(item) {
+                notice.hide()
+                view.selection.unselect()
                 if (row.activeItem === item) {
-                    row.activeItem = undefined
+                    row.activeItem = null
                 } else {
                     row.activeItem = item
                 }
@@ -202,12 +219,19 @@ DocumentPage {
             }
             BackgroundItem {
                 id: textTool
-                property bool selectForText
+                property bool first: true
 
                 width: row.itemWidth
                 height: parent.height
                 highlighted: pressed || textButton.pressed
-                onClicked: row.toggle(textTool)
+                onClicked: {
+                    row.toggle(textTool)
+                    if (textTool.first) {
+                        //% "Tap where you want to add a note"
+                        notice.show(qsTrId("sailfish-office-la-notice-anno-text"))
+                        textTool.first = false
+                    }
+                }
                 IconButton {
                     id: textButton
                     anchors.centerIn: parent
@@ -215,23 +239,55 @@ DocumentPage {
                     icon.source: "image://theme/icon-m-notifications"
                     onClicked: textTool.clicked(mouse)
                 }
+                MouseArea {
+                    parent: row.activeItem === textTool ? view : null
+                    anchors.fill: parent
+                    onClicked: {
+                        var annotation = textComponent.createObject(contextMenuText)
+                        var pt = Qt.point(view.contentX + mouse.x,
+                                          view.contentY + mouse.y)
+                        pdfDocument.create(annotation,
+                                           function() {
+                                               var at = view.getPositionAt(pt)
+                                               annotation.attachAt(pdfDocument,
+                                                                   at[0], at[2], at[1])
+                                           })
+                        row.toggle(textTool)
+                    }
+                }
             }
             BackgroundItem {
                 id: highlightTool
-                property bool selectForHighlight
+                property bool first: true
 
                 function highlightSelection() {
                     var anno = highlightComponent.createObject(highlightTool)
                     anno.attach(pdfDocument, view.selection)
-                    view.selection.unselect()
                     toolbar.hide()
-                    selectForHighlight = false
                 }
 
                 width: row.itemWidth
                 height: parent.height
                 highlighted: pressed || highlightButton.pressed
-                onClicked: row.toggle(highlightTool)
+                onClicked: {
+                    if (view.selection.selected) {
+                        highlightSelection()
+                        view.selection.unselect()
+                        return
+                    }
+                    row.toggle(highlightTool)
+                    if (highlightTool.first) {
+                        //% "Tap and move your finger over the area"
+                        notice.show(qsTrId("sailfish-office-la-notice-anno-highlight"))
+                        highlightTool.first = false
+                    }
+                }
+
+                Component {
+                    id: highlightComponent
+                    PDF.HighlightAnnotation { }
+                }
+
                 IconButton {
                     id: highlightButton
                     anchors.centerIn: parent
@@ -239,9 +295,32 @@ DocumentPage {
                     icon.source: "image://theme/icon-m-edit"
                     onClicked: highlightTool.clicked(mouse)
                 }
-                Component {
-                    id: highlightComponent
-                    PDF.HighlightAnnotation { }
+                MouseArea {
+                    parent: row.activeItem === highlightTool ? view : null
+                    anchors.fill: parent
+                    preventStealing: true
+                    onPressed: {
+                        view.selection.selectAt(Qt.point(view.contentX + mouse.x,
+                                                         view.contentY + mouse.y))
+                    }
+                    onPositionChanged: {
+                        if (view.selection.count < 1) {
+                            view.selection.selectAt(Qt.point(view.contentX + mouse.x,
+                                                             view.contentY + mouse.y))
+                        } else {
+                            view.selection.handle2 = Qt.point(view.contentX + mouse.x,
+                                                              view.contentY + mouse.y)
+                        }
+                    }
+                    onReleased: {
+                        if (view.selection.selected) highlightTool.highlightSelection()
+                        row.toggle(highlightTool)
+                    }
+                    Binding {
+                        target: view
+                        property: "selectionDraggable"
+                        value: row.activeItem !== highlightTool
+                    }
                 }
             }
             BackgroundItem {
@@ -294,9 +373,7 @@ DocumentPage {
     ContextMenu {
         id: contextMenuText
         property variant annotation
-        property int pageId
-        property real pageTop
-        property real pageLeft
+        property point at
 
         MenuItem {
             visible: contextMenuText.annotation === undefined
@@ -308,7 +385,8 @@ DocumentPage {
                 annotation.color = "#202020"
                 pdfDocument.create(annotation,
                                    function() {
-                                       annotation.attachAt(pdfDocument, contextMenuText.pageId, contextMenuText.pageLeft, contextMenuText.pageTop)
+                                       var at = view.getPositionAt(contextMenuText.at)
+                                       annotation.attachAt(pdfDocument, at[0], at[2], at[1])
                                    })
             }
         }

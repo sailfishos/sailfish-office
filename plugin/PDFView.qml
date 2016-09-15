@@ -32,6 +32,7 @@ SilicaFlickable {
     property alias document: pdfCanvas.document
     property alias currentPage: pdfCanvas.currentPage
     property alias selection: pdfSelection
+    property alias selectionDraggable: selectionView.draggable
 
     property bool scaled: pdfCanvas.width != width
     property QtObject _feedbackEffect
@@ -275,6 +276,7 @@ SilicaFlickable {
         }
 
         PDFSelectionView {
+            id: selectionView
             model: pdfSelection
             flickable: base
             dragHandle1: drag1.pressed
@@ -283,14 +285,14 @@ SilicaFlickable {
         }
         PDFSelectionDrag {
             id: drag1
-            visible: pdfSelection.selected
+            visible: pdfSelection.selected && selectionView.draggable
             flickable: base
             handle: pdfSelection.handle1
             onDragged: pdfSelection.handle1 = at
         }
         PDFSelectionDrag {
             id: drag2
-            visible: pdfSelection.selected
+            visible: pdfSelection.selected && selectionView.draggable
             flickable: base
             handle: pdfSelection.handle2
             onDragged: pdfSelection.handle2 = at
@@ -339,6 +341,18 @@ SilicaFlickable {
         }
         var top  = (contentY - rect.y) / rect.height
         var left = (contentX - rect.x) / rect.width
+        return [i, top, left]
+    }
+    function getPositionAt(at) {
+        // Find the page that contains at
+        var i = Math.max(0, currentPage - 2)
+        var rect = pdfCanvas.pageRectangle( i )
+        while ((rect.y + rect.height) < at.y
+               && i < pdfCanvas.document.pageCount) {
+            rect = pdfCanvas.pageRectangle( ++i )
+        }
+        var top  = Math.max(0, at.y - rect.y) / rect.height
+        var left = (at.x - rect.x) / rect.width
         return [i, top, left]
     }
 }
