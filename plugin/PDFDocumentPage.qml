@@ -117,11 +117,35 @@ DocumentPage {
                 break
             case PDF.Annotation.Caret:
             case PDF.Annotation.Text:
+                pdfDocument.edit(annotation)
                 break
             default:
             }
         }
-        clip: anchors.bottomMargin > 0
+        onAnnotationLongPress: {
+            base.open = false
+            switch (annotation.type) {
+            case PDF.Annotation.Highlight:
+                contextMenuHighlight.annotation = annotation
+                hook.showMenu(contextMenuHighlight)
+                break
+            case PDF.Annotation.Caret:
+            case PDF.Annotation.Text:
+                contextMenuText.annotation = annotation
+                hook.showMenu(contextMenuText)
+                break
+            default:
+            }
+        }
+        onLongPress: {
+            base.open = false
+            contextMenuText.pageId = page
+            contextMenuText.pageTop = top
+            contextMenuText.pageLeft = left
+            contextMenuText.annotation = null
+            hook.showMenu(contextMenuText)
+        }
+        clip: anchors.bottomMargin > 0 || base.status !== PageStatus.Active
     }
 
     ToolBar {
@@ -147,10 +171,20 @@ DocumentPage {
             property bool active: pageCount.highlighted
                                   || search.highlighted
                                   || !search.iconized
+                                  || textButton.highlighted
                                   || highlightButton.highlighted
                                   || view.selection.selected
+            property Item activeItem
             property real itemWidth: toolbar.width / children.length
             height: parent.height
+
+            function toggle(item) {
+                if (row.activeItem === item) {
+                    row.activeItem = undefined
+                } else {
+                    row.activeItem = item
+                }
+            }
 
             SearchBarItem {
                 id: search
@@ -164,6 +198,23 @@ DocumentPage {
                 onRequestPreviousMatch: view.prevSearchMatch()
                 onRequestNextMatch: view.nextSearchMatch()
                 onRequestCancel: pdfDocument.cancelSearch()
+                onClicked: row.toggle(search)
+            }
+            BackgroundItem {
+                id: textTool
+                property bool selectForText
+
+                width: row.itemWidth
+                height: parent.height
+                highlighted: pressed || textButton.pressed
+                onClicked: row.toggle(textTool)
+                IconButton {
+                    id: textButton
+                    anchors.centerIn: parent
+                    highlighted: pressed || textTool.pressed || row.activeItem === textTool
+                    icon.source: "image://theme/icon-m-notifications"
+                    onClicked: textTool.clicked(mouse)
+                }
             }
             BackgroundItem {
                 id: highlightTool
@@ -180,17 +231,11 @@ DocumentPage {
                 width: row.itemWidth
                 height: parent.height
                 highlighted: pressed || highlightButton.pressed
-                onClicked: {
-                    if (view.selection.selected) {
-                        highlightTool.highlightSelection()
-                    } else {
-                        selectForHighlight = !selectForHighlight
-                    }
-                }
+                onClicked: row.toggle(highlightTool)
                 IconButton {
-                    anchors.centerIn: parent
                     id: highlightButton
-                    highlighted: pressed || highlightTool.pressed || highlightTool.selectForHighlight
+                    anchors.centerIn: parent
+                    highlighted: pressed || highlightTool.pressed || row.activeItem === highlightTool
                     icon.source: "image://theme/icon-m-edit"
                     onClicked: highlightTool.clicked(mouse)
                 }
@@ -209,7 +254,10 @@ DocumentPage {
                     color: pageCount.highlighted ? Theme.highlightColor : Theme.primaryColor
                     text: view.currentPage + " | " + view.document.pageCount
                 }
-                onClicked: base.pushAttachedPage()
+                onClicked: {
+                    row.toggle(pageCount)
+                    base.pushAttachedPage()
+                }
             }
         }
     }
@@ -244,24 +292,49 @@ DocumentPage {
     }
 
     ContextMenu {
+        id: contextMenuText
+        property variant annotation
+        property int pageId
+        property real pageTop
+        property real pageLeft
+
+        MenuItem {
+            visible: contextMenuText.annotation === undefined
+                     || contextMenuText.annotation === null
+            //% "Add note"
+            text: qsTrId("sailfish-office-me-pdf-txt-anno-add")
+            onClicked: {
+                var annotation = textComponent.createObject(contextMenuText)
+                annotation.color = "#202020"
+                pdfDocument.create(annotation,
+                                   function() {
+                                       annotation.attachAt(pdfDocument, contextMenuText.pageId, contextMenuText.pageLeft, contextMenuText.pageTop)
+                                   })
+            }
+        }
+        MenuItem {
+            visible: contextMenuText.annotation !== undefined
+                     && contextMenuText.annotation !== null
+            //% "Edit"
+            text: qsTrId("sailfish-office-me-pdf-txt-anno-edit")
+            onClicked: pdfDocument.edit(contextMenuText.annotation)
+        }
+        MenuItem {
+            visible: contextMenuText.annotation !== undefined
+                     && contextMenuText.annotation !== null
+            //% "Delete"
+            text: qsTrId("sailfish-office-me-pdf-txt-anno-clear")
+            onClicked: contextMenuText.annotation.remove()
+        }
+        Component {
+            id: textComponent
+            PDF.TextAnnotation { }
+        }
+    }
+
+    ContextMenu {
         id: contextMenuHighlight
         property variant annotation
-
-        function edit() {
-            var edit = pageStack.push(Qt.resolvedUrl("PDFAnnotationEdit.qml"),
-                                      {"annotation": contextMenuHighlight.annotation})
-            edit.remove.connect(function() {
-                pageStack.pop()
-                contextMenuHighlight.remove()
-            })
-        }
-        function remove() {
-            //% "Delete annotation"
-            deleteRemorse.execute(qsTrId("sailfish-office-re-delete-annotation"),
-                                  function() {
-                                      contextMenuHighlight.annotation.remove()
-                                  })                    
-        }
 
         InfoLabel {
             id: infoContents
@@ -360,16 +433,16 @@ DocumentPage {
                   : qsTrId("sailfish-office-me-pdf-hl-anno-comment-edit")
             onClicked: {
                 if (contextMenuHighlight.annotation.contents == "") {
-                    contextMenuHighlight.create(contextMenuHighlight.annotation)
+                    pdfDocument.create(contextMenuHighlight.annotation)
                 } else {
-                    contextMenuHighlight.edit(contextMenuHighlight.annotation)
+                    pdfDocument.edit(contextMenuHighlight.annotation)
                 }
             }
         }
         MenuItem {
             //% "Clear"
             text: qsTrId("sailfish-office-me-pdf-hl-anno-clear")
-            onClicked: contextMenuHighlight.remove()
+            onClicked: contextMenuHighlight.annotation.remove()
         }
     }
 
@@ -377,6 +450,25 @@ DocumentPage {
         id: pdfDocument
         source: base.path
         autoSavePath: base.path
+
+        function create(annotation, callback) {
+            var isText = (annotation.type == PDF.Annotation.Text
+                          || annotation.type == PDF.Annotation.Caret)
+            var dialog = pageStack.push(Qt.resolvedUrl("PDFAnnotationNew.qml"),
+                                        {"isTextAnnotation": isText})
+            dialog.accepted.connect(function() {
+                annotation.contents = dialog.text
+            })
+            if (callback !== undefined) dialog.accepted.connect(callback)
+        }
+        function edit(annotation) {
+            var edit = pageStack.push(Qt.resolvedUrl("PDFAnnotationEdit.qml"),
+                                      {"annotation": annotation})
+            edit.remove.connect(function() {
+                pageStack.pop()
+                annotation.remove()
+            })
+        }
     }
 
     Component {

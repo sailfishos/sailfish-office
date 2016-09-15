@@ -14,6 +14,8 @@ install(FILES
     ContextMenuHook.qml
     DocumentPage.qml
     DocumentsSharingList.qml
+    PDFAnnotationEdit.qml
+    PDFAnnotationNew.qml
     PDFDocumentPage.qml
     PDFDocumentToCPage.qml
     PDFView.qml

@@ -40,6 +40,8 @@ SilicaFlickable {
     signal linkClicked(string linkTarget, Item hook)
     signal selectionClicked(variant selection, Item hook)
     signal annotationClicked(variant annotation, Item hook)
+    signal annotationLongPress(variant annotation, Item hook)
+    signal longPress(point pressAt, Item hook)
     signal pageSizesReady()
     signal updateSize(real newWidth, real newHeight)
 
@@ -225,7 +227,12 @@ SilicaFlickable {
                 onSelectionClicked: base.selectionClicked(selection, contextHook)
                 onAnnotationClicked: base.annotationClicked(annotation, contextHook)
                 onClicked: base.clicked()
-                onLongPress: selection.selectAt(pressAt)
+                onAnnotationLongPress: base.annotationLongPress(annotation, contextHook)
+                onLongPress: {
+                    contextHook.y = pressAt.y
+                    contextHook.hookHeight = Theme.itemSizeSmall / 2
+                    base.longPress(pressAt, contextHook)
+                }
             }
         }
 
