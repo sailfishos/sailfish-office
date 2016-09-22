@@ -158,6 +158,9 @@ DocumentPage {
         anchors.top: view.bottom
         flickable: view
         forceHidden: base.open || pdfDocument.failure || pdfDocument.locked
+                     || contextMenuLinks.active
+                     || contextMenuHighlight.active
+                     || contextMenuText.active
         autoShowHide: !row.active
 
         Connections {

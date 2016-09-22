@@ -55,6 +55,14 @@ PanelBackground {
         }
     }
 
+    onForceHiddenChanged: {
+        // Avoid showing back the toolbar when forceHidden becomes false again.
+        if (forceHidden && autoShowHide) {
+            _active = false
+            autoHideTimer.stop()
+        }
+    }
+
     Behavior on offset { NumberAnimation { duration: 400; easing.type: Easing.InOutQuad } }
 
     Connections {
