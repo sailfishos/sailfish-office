@@ -265,6 +265,8 @@ DocumentPage {
 
                 function highlightSelection() {
                     var anno = highlightComponent.createObject(highlightTool)
+                    anno.color = highlightColorConfig.value
+                    anno.style = highlightStyleConfig.toEnum(highlightStyleConfig.value)
                     anno.attach(pdfDocument, view.selection)
                     toolbar.hide()
                 }
@@ -457,6 +459,7 @@ DocumentPage {
                         onClicked: {
                             contextMenuHighlight.hide()
                             contextMenuHighlight.annotation.color = color
+                            highlightColorConfig.value = modelData
                         }
                     }
                 }
@@ -481,6 +484,7 @@ DocumentPage {
                     onClicked: {
                         contextMenuHighlight.hide()
                         contextMenuHighlight.annotation.style = modelData["style"]
+                        highlightStyleConfig.value = highlightStyleConfig.fromEnum(modelData["style"])
                     }
                     Label {
                         anchors.centerIn: parent
@@ -607,6 +611,44 @@ DocumentPage {
         
         key: "/apps/sailfish-office/settings/rememberPosition"
         defaultValue: true
+    }
+    ConfigurationValue {
+       id: highlightColorConfig
+       key: "/apps/sailfish-office/settings/highlightColor"
+       defaultValue: "#ffff00"
+    }
+    ConfigurationValue {
+       id: highlightStyleConfig
+       key: "/apps/sailfish-office/settings/highlightStyle"
+       defaultValue: "highlight"
+       
+       function toEnum(configVal) {
+           if (configVal == "highlight") {
+               return PDF.HighlightAnnotation.Highlight
+           } else if (configVal == "squiggly") {
+               return PDF.HighlightAnnotation.Squiggly
+           } else if (configVal == "underline") {
+               return PDF.HighlightAnnotation.Underline
+           } else if (configVal == "strike") {
+               return PDF.HighlightAnnotation.StrikeOut
+           } else {
+               return PDF.HighlightAnnotation.Highlight
+           }
+       }
+       function fromEnum(enumVal) {
+            switch (enumVal) {
+            case PDF.HighlightAnnotation.Highlight:
+                return "highlight"
+            case PDF.HighlightAnnotation.Squiggly:
+                return "squiggly"
+            case PDF.HighlightAnnotation.Underline:
+                return "underline"
+            case PDF.HighlightAnnotation.StrikeOut:
+                return "strike"
+            default:
+                return "highlight"
+            }
+       }
     }
 
     Timer {
