@@ -431,14 +431,14 @@ void PDFRenderThreadQueue::processPendingJob()
             }
     
             d->document = dj->m_document;
-            if (d->document && d->document->numPages() > 0) {
-                if (!d->document->isLocked()) {
-                    d->tocModel = new PDFTocModel(d->document);
-                    d->rescanDocumentLinks();
-                }
-            } else {
+
+            if (!d->document || (!d->document->isLocked() && d->document->numPages() == 0)) {
                 d->loadFailure = true;
+            } else if (!d->document->isLocked()) {
+                d->tocModel = new PDFTocModel(d->document);
+                d->rescanDocumentLinks();
             }
+
             job->deleteLater();
             emit d->q->loadFinished();
             break;
