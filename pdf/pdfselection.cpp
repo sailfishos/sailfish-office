@@ -28,6 +28,7 @@ public:
         , boxIndexStart(-1)
         , pageIndexStop(-1)
         , boxIndexStop(-1)
+        , handleReversed(false)
         , wiggle(4.)
     {
     }
