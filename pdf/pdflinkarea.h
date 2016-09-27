@@ -47,6 +47,8 @@ public:
 Q_SIGNALS:
     void pressedChanged();
     void clickedBoxChanged();
+    void positionChanged(QPointF at);
+    void released();
     void clicked(QPointF clickAt);
     void doubleClicked();
     void linkClicked(QUrl linkTarget);

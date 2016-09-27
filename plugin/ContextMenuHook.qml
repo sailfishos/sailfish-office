@@ -30,13 +30,13 @@ Item {
     property real _flickableContentHeight
     property bool _opened: _menu ? _menu._open : false
 
-    property variant _menu
+    property var _menu
 
     // Used to emulate the MouseArea that trigger a ContextMenu
     property bool pressed: true
     property bool preventStealing
-    signal positionChanged()
-    signal released()
+    signal positionChanged(point mouse)
+    signal released(bool mouse)
 
     function showMenu(menu) {
         _menu = menu

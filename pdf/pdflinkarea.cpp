@@ -168,6 +168,7 @@ void PDFLinkArea::mousePressEvent(QMouseEvent *event)
 
 void PDFLinkArea::mouseMoveEvent(QMouseEvent *event)
 {
+    emit positionChanged(QPointF(event->pos()));
     // Don't activate anything if the finger has moved too far
     QRect rect((d->clickLocation - QPointF(d->wiggleFactor, d->wiggleFactor)).toPoint(),
                QSize(d->wiggleFactor * 2, d->wiggleFactor * 2));
@@ -212,6 +213,8 @@ void PDFLinkArea::mouseReleaseEvent(QMouseEvent *event)
 {
     d->pressed = false;
     emit pressedChanged();
+
+    emit released();
 
     // Don't activate click if the longPress already fired.
     if (!d->pressTimer.isActive())

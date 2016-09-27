@@ -297,7 +297,17 @@ SilicaFlickable {
             handle: pdfSelection.handle2
             onDragged: pdfSelection.handle2 = at
         }
-        ContextMenuHook { id: contextHook }
+        ContextMenuHook {
+            id: contextHook
+            Connections {
+                target: linkArea
+                onPositionChanged: if (contextHook.active) {
+                    var local = linkArea.mapToItem(contextHook, at.x, at.y)
+                    contextHook.positionChanged(Qt.point(local.x, local.y))
+                }
+                onReleased: if (contextHook.active) contextHook.released(true)
+            }
+        }
     }
 
     children: [
