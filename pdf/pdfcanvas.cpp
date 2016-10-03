@@ -127,8 +127,11 @@ PDFCanvas::~PDFCanvas()
 {
     for (int i = 0; i < d->pageCount; ++i) {
         PDFPage &page = d->pages[i];
-        page.texture->deleteLater();
-        page.texture = nullptr;
+
+        if (page.texture) {
+            page.texture->deleteLater();
+            page.texture = nullptr;
+        }
     }
 
     delete d->resizeTimer;
