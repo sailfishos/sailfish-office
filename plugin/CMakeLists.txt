@@ -16,6 +16,9 @@ install(FILES
     DocumentsSharingList.qml
     PDFAnnotationEdit.qml
     PDFAnnotationNew.qml
+    PDFContextMenuHighlight.qml
+    PDFContextMenuLinks.qml
+    PDFContextMenuText.qml
     PDFDocumentPage.qml
     PDFDocumentToCPage.qml
     PDFView.qml

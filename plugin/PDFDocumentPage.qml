@@ -28,6 +28,9 @@ DocumentPage {
     id: base
 
     property var _settings // Handle save and restore the view settings using PDFStorage
+    property ContextMenu contextMenuLinks
+    property ContextMenu contextMenuText
+    property ContextMenu contextMenuHighlight
 
     busy: (!pdfDocument.loaded && !pdfDocument.failure) || pdfDocument.searching
     source: pdfDocument.source
@@ -106,6 +109,9 @@ DocumentPage {
         onClicked: base.open = !base.open
         onLinkClicked: {
             base.open = false
+            if (!contextMenuLinks) {
+                contextMenuLinks = contextMenuLinksComponent.createObject(base)
+            }
             contextMenuLinks.url = linkTarget
             hook.showMenu(contextMenuLinks)
         }
@@ -113,6 +119,9 @@ DocumentPage {
             base.open = false
             switch (annotation.type) {
             case PDF.Annotation.Highlight:
+                if (!contextMenuHighlight) {
+                    contextMenuHighlight = contextMenuHighlightComponent.createObject(base)
+                }
                 contextMenuHighlight.annotation = annotation
                 hook.showMenu(contextMenuHighlight)
                 break
@@ -127,11 +136,17 @@ DocumentPage {
             base.open = false
             switch (annotation.type) {
             case PDF.Annotation.Highlight:
+                if (!contextMenuHighlight) {
+                    contextMenuHighlight = contextMenuHighlightComponent.createObject(base)
+                }
                 contextMenuHighlight.annotation = annotation
                 hook.showMenu(contextMenuHighlight)
                 break
             case PDF.Annotation.Caret:
             case PDF.Annotation.Text:
+                if (!contextMenuText) {
+                    contextMenuText = contextMenuTextComponent.createObject(base)
+                }
                 contextMenuText.annotation = annotation
                 hook.showMenu(contextMenuText)
                 break
@@ -140,6 +155,9 @@ DocumentPage {
         }
         onLongPress: {
             base.open = false
+            if (!contextMenuText) {
+                contextMenuText = contextMenuTextComponent.createObject(base)
+            }
             contextMenuText.at = pressAt
             contextMenuText.annotation = null
             hook.showMenu(contextMenuText)
@@ -150,6 +168,8 @@ DocumentPage {
     ToolBar {
         id: toolbar
 
+        property Notification notice
+
         width: parent.width
         height: base.orientation == Orientation.Portrait
                 || base.orientation == Orientation.InvertedPortrait
@@ -158,28 +178,37 @@ DocumentPage {
         anchors.top: view.bottom
         flickable: view
         forceHidden: base.open || pdfDocument.failure || pdfDocument.locked
-                     || contextMenuLinks.active
-                     || contextMenuHighlight.active
-                     || contextMenuText.active
+                     || (contextMenuLinks && contextMenuLinks.active)
+                     || (contextMenuHighlight && contextMenuHighlight.active)
+                     || (contextMenuText && contextMenuText.active)
         autoShowHide: !row.active
+
+        function noticeShow(message) {
+            if (!notice) {
+                notice = noticeComponent.createObject(toolbar)
+            }
+            notice.show(message)
+        }
 
         Connections {
             target: view.selection
             onSelectedChanged: if (view.selection.selected) toolbar.show()
         }
 
-        Notification {
-            id: notice
-            property bool published
-            function show(info) {
-                previewSummary = info
-                if (published) close()
-                publish()
-                published = true
-            }
-            function hide() {
-                if (published) close()
-                published = false
+        Component {
+            id: noticeComponent
+            Notification {
+                property bool published
+                function show(info) {
+                    previewSummary = info
+                    if (published) close()
+                    publish()
+                    published = true
+                }
+                function hide() {
+                    if (published) close()
+                    published = false
+                }
             }
         }
 
@@ -197,7 +226,7 @@ DocumentPage {
             height: parent.height
 
             function toggle(item) {
-                notice.hide()
+                if (toolbar.notice) toolbar.notice.hide()
                 view.selection.unselect()
                 if (row.activeItem === item) {
                     row.activeItem = null
@@ -231,7 +260,7 @@ DocumentPage {
                     row.toggle(textTool)
                     if (textTool.first) {
                         //% "Tap where you want to add a note"
-                        notice.show(qsTrId("sailfish-office-la-notice-anno-text"))
+                        toolbar.noticeShow(qsTrId("sailfish-office-la-notice-anno-text"))
                         textTool.first = false
                     }
                 }
@@ -246,7 +275,7 @@ DocumentPage {
                     parent: row.activeItem === textTool ? view : null
                     anchors.fill: parent
                     onClicked: {
-                        var annotation = textComponent.createObject(contextMenuText)
+                        var annotation = textComponent.createObject(textTool)
                         var pt = Qt.point(view.contentX + mouse.x,
                                           view.contentY + mouse.y)
                         pdfDocument.create(annotation,
@@ -256,6 +285,10 @@ DocumentPage {
                                                                    at[0], at[2], at[1])
                                            })
                         row.toggle(textTool)
+                    }
+                    Component {
+                        id: textComponent
+                        PDF.TextAnnotation { }
                     }
                 }
             }
@@ -283,7 +316,7 @@ DocumentPage {
                     row.toggle(highlightTool)
                     if (highlightTool.first) {
                         //% "Tap and move your finger over the area"
-                        notice.show(qsTrId("sailfish-office-la-notice-anno-highlight"))
+                        toolbar.noticeShow(qsTrId("sailfish-office-la-notice-anno-highlight"))
                         highlightTool.first = false
                     }
                 }
@@ -343,191 +376,6 @@ DocumentPage {
                     base.pushAttachedPage()
                 }
             }
-        }
-    }
-
-    ContextMenu {
-        id: contextMenuLinks
-        property alias url: linkTarget.text
-
-        InfoLabel {
-            id: linkTarget
-            font.pixelSize: Theme.fontSizeSmall
-            wrapMode: Text.Wrap
-            elide: Text.ElideRight
-            maximumLineCount: 4
-            color: Theme.highlightColor
-            opacity: .6
-        }
-        MenuItem {
-            text: (contextMenuLinks.url.indexOf("http:") === 0
-                   || contextMenuLinks.url.indexOf("https:") === 0)
-                  //% "Open in browser"
-                  ? qsTrId("sailfish-office-me-pdf-open-browser")
-                  //% "Open in external application"
-                  : qsTrId("sailfish-office-me-pdf-open-external")
-            onClicked: Qt.openUrlExternally(contextMenuLinks.url)
-        }
-        MenuItem {
-            //% "Copy to clipboard"
-            text: qsTrId("sailfish-office-me-pdf-copy-link")
-            onClicked: Clipboard.text = contextMenuLinks.url
-        }
-    }
-
-    ContextMenu {
-        id: contextMenuText
-        property variant annotation
-        property point at
-
-        MenuItem {
-            visible: contextMenuText.annotation === undefined
-                     || contextMenuText.annotation === null
-            //% "Add note"
-            text: qsTrId("sailfish-office-me-pdf-txt-anno-add")
-            onClicked: {
-                var annotation = textComponent.createObject(contextMenuText)
-                annotation.color = "#202020"
-                pdfDocument.create(annotation,
-                                   function() {
-                                       var at = view.getPositionAt(contextMenuText.at)
-                                       annotation.attachAt(pdfDocument, at[0], at[2], at[1])
-                                   })
-            }
-        }
-        MenuItem {
-            visible: contextMenuText.annotation !== undefined
-                     && contextMenuText.annotation !== null
-            //% "Edit"
-            text: qsTrId("sailfish-office-me-pdf-txt-anno-edit")
-            onClicked: pdfDocument.edit(contextMenuText.annotation)
-        }
-        MenuItem {
-            visible: contextMenuText.annotation !== undefined
-                     && contextMenuText.annotation !== null
-            //% "Delete"
-            text: qsTrId("sailfish-office-me-pdf-txt-anno-clear")
-            onClicked: contextMenuText.annotation.remove()
-        }
-        Component {
-            id: textComponent
-            PDF.TextAnnotation { }
-        }
-    }
-
-    ContextMenu {
-        id: contextMenuHighlight
-        property variant annotation
-
-        InfoLabel {
-            id: infoContents
-            visible: infoContents.text != ""
-            width: parent.width
-            anchors.topMargin: Theme.paddingSmall
-            height: implicitHeight + 2 * Theme.paddingSmall
-            font.pixelSize: Theme.fontSizeSmall
-            wrapMode: Text.Wrap
-            elide: Text.ElideRight
-            maximumLineCount: 2
-            color: Theme.highlightColor
-            opacity: .6
-            text: {
-                if (contextMenuHighlight.annotation !== null
-                    && contextMenuHighlight.annotation !== undefined
-                    && contextMenuHighlight.annotation.contents != "") {
-                    return (contextMenuHighlight.annotation.author != ""
-                            ? "(" + contextMenuHighlight.annotation.author + ") " : "")
-                    + contextMenuHighlight.annotation.contents
-                } else {
-                    return ""
-                }
-            }
-        }
-        Row {
-            height: Theme.itemSizeExtraSmall
-            Repeater {
-                id: colors
-                model: ["#db431c", "#ffff00", "#8afa72", "#00ffff",
-                        "#3828f9", "#a328c7", "#ffffff", "#989898",
-                        "#000000"]
-                delegate: Rectangle {
-                    width: contextMenuHighlight.width / colors.model.length
-                    height: parent.height
-                    color: modelData
-                    MouseArea {
-                        anchors.fill: parent
-                        onClicked: {
-                            contextMenuHighlight.hide()
-                            contextMenuHighlight.annotation.color = color
-                            highlightColorConfig.value = modelData
-                        }
-                    }
-                }
-            }
-        }
-        Row {
-            height: Theme.itemSizeExtraSmall
-            Repeater {
-                id: styles
-                model: [{"style": PDF.HighlightAnnotation.Highlight,
-                         "label": "abc"},
-                        {"style": PDF.HighlightAnnotation.Squiggly,
-                         "label": "a̰b̰c̰"},
-                        {"style": PDF.HighlightAnnotation.Underline,
-                         "label": "<span style=\"text-decoration:underline\">abc</span>"},
-                        {"style": PDF.HighlightAnnotation.StrikeOut,
-                         "label": "<span style=\"text-decoration:line-through\">abc</span>"}]
-                delegate: BackgroundItem {
-                    id: bgStyle
-                    width: contextMenuHighlight.width / styles.model.length
-                    height: parent.height
-                    onClicked: {
-                        contextMenuHighlight.hide()
-                        contextMenuHighlight.annotation.style = modelData["style"]
-                        highlightStyleConfig.value = highlightStyleConfig.fromEnum(modelData["style"])
-                    }
-                    Label {
-                        anchors.centerIn: parent
-                        text: modelData["label"]
-                        textFormat: Text.RichText
-                        color: bgStyle.highlighted
-                               || (contextMenuHighlight.annotation !== undefined
-                                   && contextMenuHighlight.aannotation !== null
-                                   && contextMenuHighlight.annotation.style == modelData["style"])
-                               ? Theme.highlightColor : Theme.primaryColor
-                        Rectangle {
-                            visible: modelData["style"] == PDF.HighlightAnnotation.Highlight
-                            anchors.fill: parent
-                            color: bgStyle.highlighted ? Theme.highlightColor : Theme.primaryColor
-                            opacity: 0.4
-                            z: -1
-                        }
-                    }
-                }
-            }
-        }
-        MenuItem {
-            visible: contextMenuHighlight.annotation !== undefined
-                     && contextMenuHighlight.annotation !== null
-            text: contextMenuHighlight.annotation !== undefined
-                  && contextMenuHighlight.annotation !== null
-                  && contextMenuHighlight.annotation.contents == ""
-                  //% "Add a comment"
-                  ? qsTrId("sailfish-office-me-pdf-hl-anno-comment")
-                  //% "Edit the comment"
-                  : qsTrId("sailfish-office-me-pdf-hl-anno-comment-edit")
-            onClicked: {
-                if (contextMenuHighlight.annotation.contents == "") {
-                    pdfDocument.create(contextMenuHighlight.annotation)
-                } else {
-                    pdfDocument.edit(contextMenuHighlight.annotation)
-                }
-            }
-        }
-        MenuItem {
-            //% "Clear"
-            text: qsTrId("sailfish-office-me-pdf-hl-anno-clear")
-            onClicked: contextMenuHighlight.annotation.remove()
         }
     }
 
@@ -604,6 +452,21 @@ DocumentPage {
                 }
             }
         }
+    }
+
+    Component {
+        id: contextMenuLinksComponent
+        PDFContextMenuLinks { }
+    }
+
+    Component {
+        id: contextMenuTextComponent
+        PDFContextMenuText { }
+    }
+
+    Component {
+        id: contextMenuHighlightComponent
+        PDFContextMenuHighlight { }
     }
 
     ConfigurationValue {
