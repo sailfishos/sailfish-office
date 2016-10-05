@@ -45,21 +45,28 @@ CoverBackground {
     ListView {
         id: fileListView
 
-        property real itemHeight: Theme.iconSizeSmall + Theme.paddingSmall*2
-
+        property int itemHeight: height/maxItemCount
+        property int maxItemCount: Math.round(height/(dummy.height + Theme.paddingSmall))
         clip: true
         interactive: false
         model: window.fileListModel
         visible: window.documentItem === null
-        y: Theme.paddingLarge
-        width: parent.width
-        height: 7*itemHeight
+        anchors {
+            fill: parent
+            topMargin: Theme.paddingLarge
+            bottomMargin: Theme.paddingLarge
+        }
 
         delegate: CoverFileItem {
             width: fileListView.width
             height: fileListView.itemHeight
             text: model.fileName
             iconSource: window.mimeToIcon(model.fileMimeType)
+        }
+        Label {
+            id: dummy
+            visible: false
+            text: "Dummy"
         }
     }
 
