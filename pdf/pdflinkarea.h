@@ -20,8 +20,10 @@
 #define LINKLAYER_H
 
 #include <QtQuick/QQuickPaintedItem>
+#include "pdfannotation.h"
 
 class PDFCanvas;
+class PDFSelection;
 
 class PDFLinkArea : public QQuickItem
 {
@@ -29,6 +31,7 @@ class PDFLinkArea : public QQuickItem
     Q_PROPERTY(PDFCanvas* canvas READ canvas WRITE setCanvas NOTIFY canvasChanged)
     Q_PROPERTY(bool pressed READ pressed NOTIFY pressedChanged)
     Q_PROPERTY(QRectF clickedBox READ clickedBox NOTIFY clickedBoxChanged)
+    Q_PROPERTY(PDFSelection* selection READ selection WRITE setSelection NOTIFY selectionChanged)
 
 public:
     PDFLinkArea(QQuickItem *parent = 0);
@@ -38,17 +41,25 @@ public:
     bool pressed() const;
     QRectF clickedBox() const;
     void setCanvas(PDFCanvas *newCanvas);
+    PDFSelection* selection() const;
+    void setSelection(PDFSelection *newSelection);
 
 Q_SIGNALS:
     void pressedChanged();
     void clickedBoxChanged();
+    void positionChanged(QPointF at);
+    void released();
     void clicked(QPointF clickAt);
     void doubleClicked();
     void linkClicked(QUrl linkTarget);
     void gotoClicked(int page, qreal top, qreal left);
+    void selectionClicked();
+    void annotationClicked(PDFAnnotation *annotation);
+    void annotationLongPress(PDFAnnotation *annotation);
     void longPress(QPointF pressAt);
 
     void canvasChanged();
+    void selectionChanged();
 
 protected:
     virtual void mousePressEvent(QMouseEvent *event);
@@ -64,6 +75,8 @@ private Q_SLOTS:
 private:
     class Private;
     Private *d;
+
+    PDFAnnotation* newProxyForAnnotation();
 };
 
 #endif // LINKLAYER_H

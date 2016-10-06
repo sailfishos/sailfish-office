@@ -31,12 +31,18 @@ SilicaFlickable {
     property alias itemHeight: pdfCanvas.height
     property alias document: pdfCanvas.document
     property alias currentPage: pdfCanvas.currentPage
+    property alias selection: pdfSelection
+    property alias selectionDraggable: selectionView.draggable
 
     property bool scaled: pdfCanvas.width != width
     property QtObject _feedbackEffect
 
     signal clicked()
     signal linkClicked(string linkTarget, Item hook)
+    signal selectionClicked(variant selection, Item hook)
+    signal annotationClicked(variant annotation, Item hook)
+    signal annotationLongPress(variant annotation, Item hook)
+    signal longPress(point pressAt, Item hook)
     signal pageSizesReady()
     signal updateSize(real newWidth, real newHeight)
 
@@ -138,7 +144,7 @@ SilicaFlickable {
     }
 
     PDF.Selection {
-        id: selection
+        id: pdfSelection
         
         property bool dragging: drag1.pressed || drag2.pressed
         property bool selected: count > 0
@@ -214,17 +220,20 @@ SilicaFlickable {
                 }
 
                 canvas: pdfCanvas
+                selection: pdfSelection
+
                 onLinkClicked: base.linkClicked(linkTarget, contextHook)
                 onGotoClicked: base.goToPage(page - 1, top, left,
                                              Theme.paddingLarge, Theme.paddingLarge)
-                onClicked: {
-                    if (selection.text.length > 0) {
-                        selection.unselect()
-                    } else {
-                        base.clicked()
-                    }
+                onSelectionClicked: base.selectionClicked(selection, contextHook)
+                onAnnotationClicked: base.annotationClicked(annotation, contextHook)
+                onClicked: base.clicked()
+                onAnnotationLongPress: base.annotationLongPress(annotation, contextHook)
+                onLongPress: {
+                    contextHook.y = pressAt.y
+                    contextHook.hookHeight = Theme.itemSizeSmall / 2
+                    base.longPress(pressAt, contextHook)
                 }
-                onLongPress: selection.selectAt(pressAt)
             }
         }
 
@@ -267,7 +276,8 @@ SilicaFlickable {
         }
 
         PDFSelectionView {
-            model: selection
+            id: selectionView
+            model: pdfSelection
             flickable: base
             dragHandle1: drag1.pressed
             dragHandle2: drag2.pressed
@@ -275,19 +285,29 @@ SilicaFlickable {
         }
         PDFSelectionDrag {
             id: drag1
-            visible: selection.selected
+            visible: pdfSelection.selected && selectionView.draggable
             flickable: base
-            handle: selection.handle1
-            onDragged: selection.handle1 = at
+            handle: pdfSelection.handle1
+            onDragged: pdfSelection.handle1 = at
         }
         PDFSelectionDrag {
             id: drag2
-            visible: selection.selected
+            visible: pdfSelection.selected && selectionView.draggable
             flickable: base
-            handle: selection.handle2
-            onDragged: selection.handle2 = at
+            handle: pdfSelection.handle2
+            onDragged: pdfSelection.handle2 = at
         }
-        ContextMenuHook { id: contextHook }
+        ContextMenuHook {
+            id: contextHook
+            Connections {
+                target: linkArea
+                onPositionChanged: if (contextHook.active) {
+                    var local = linkArea.mapToItem(contextHook, at.x, at.y)
+                    contextHook.positionChanged(Qt.point(local.x, local.y))
+                }
+                onReleased: if (contextHook.active) contextHook.released(true)
+            }
+        }
     }
 
     children: [
@@ -331,6 +351,18 @@ SilicaFlickable {
         }
         var top  = (contentY - rect.y) / rect.height
         var left = (contentX - rect.x) / rect.width
+        return [i, top, left]
+    }
+    function getPositionAt(at) {
+        // Find the page that contains at
+        var i = Math.max(0, currentPage - 2)
+        var rect = pdfCanvas.pageRectangle( i )
+        while ((rect.y + rect.height) < at.y
+               && i < pdfCanvas.document.pageCount) {
+            rect = pdfCanvas.pageRectangle( ++i )
+        }
+        var top  = Math.max(0, at.y - rect.y) / rect.height
+        var left = (at.x - rect.x) / rect.width
         return [i, top, left]
     }
 }

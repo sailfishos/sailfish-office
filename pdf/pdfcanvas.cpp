@@ -31,6 +31,8 @@
 #include "pdfrenderthread.h"
 #include "pdfdocument.h"
 
+typedef QPair<QRect, QSGTexture*> Patch;
+
 struct PDFPage {
     PDFPage()
         : index(-1)
@@ -45,8 +47,11 @@ struct PDFPage {
     bool requested;
 
     int renderWidth;
+
     QRect textureArea;
     QSGTexture *texture;
+
+    QList<Patch> patches;
 
     QList<QPair<QRectF, QUrl> > links;
 };
@@ -66,6 +71,11 @@ public:
         , spacing(10.f)
         , linkWiggle(4.f)
     { }
+
+    enum TextureType{
+        RootTexture,
+        PatchTexture
+    };
 
     PDFCanvas *q;
 
@@ -101,6 +111,11 @@ public:
             texturesToClean << page.texture;
             page.texture = nullptr;
         }
+        for (QList<Patch>::iterator it = page.patches.begin();
+             it != page.patches.end(); it++) {
+            texturesToClean << it->second;
+        }
+        page.patches.clear();
     }
 
     void cleanTextures()
@@ -108,6 +123,27 @@ public:
         foreach (QSGTexture *texture, texturesToClean)
             delete texture;
         texturesToClean.clear();
+    }
+
+    void deleteAllTextures() {
+        // Delete textures that are not stored anymore in any pages.
+        cleanTextures();
+        // Delete textures currently stored by pages.
+        for (int i = 0; i < pageCount; ++i) {
+            PDFPage &page = pages[i];
+
+            if (page.texture) {
+                page.texture->deleteLater();
+                page.texture = nullptr;
+            }
+            for (QList<Patch>::iterator it = page.patches.begin();
+                 it != page.patches.end(); it++) {
+                if (it->second)
+                    it->second->deleteLater();
+            }
+            page.patches.clear();
+            page.requested = false;
+        }
     }
 };
 
@@ -125,15 +161,7 @@ PDFCanvas::PDFCanvas(QQuickItem *parent)
 
 PDFCanvas::~PDFCanvas()
 {
-    for (int i = 0; i < d->pageCount; ++i) {
-        PDFPage &page = d->pages[i];
-
-        if (page.texture) {
-            page.texture->deleteLater();
-            page.texture = nullptr;
-        }
-    }
-
+    d->deleteAllTextures();
     delete d->resizeTimer;
     delete d;
 }
@@ -177,6 +205,7 @@ void PDFCanvas::setDocument(PDFDocument *doc)
         connect(d->document, &PDFDocument::pageFinished, this, &PDFCanvas::pageFinished);
         connect(d->document, &PDFDocument::pageSizesFinished, this, &PDFCanvas::pageSizesFinished);
         connect(d->document, &PDFDocument::documentLockedChanged, this, &PDFCanvas::documentLoaded);
+        connect(d->document, &PDFDocument::pageModified, this, &PDFCanvas::pageModified);
 
         if (d->document->isLoaded())
             documentLoaded();
@@ -280,6 +309,7 @@ void PDFCanvas::layout()
             page.renderWidth = d->pages.value(i).renderWidth;
             page.textureArea = d->pages.value(i).textureArea;
             page.texture = d->pages.value(i).texture;
+            page.patches = d->pages.value(i).patches;
         }
         d->pages.insert(i, page);
 
@@ -350,6 +380,57 @@ QPair<QUrl, PDFCanvas::ReducedBox> PDFCanvas::urlAtPoint(const QPointF &point) c
     return QPair<QUrl, PDFCanvas::ReducedBox>();
 }
 
+QPair<Poppler::Annotation*, PDFCanvas::ReducedBox> PDFCanvas::annotationAtPoint(const QPointF &point) const
+{
+    for (int i = 0; i < d->pageCount; ++i) {
+        const PDFPage &page = d->pages.value(i);
+        if (page.rect.contains(point)) {
+            qreal squaredDistanceMin = d->linkWiggle * d->linkWiggle;
+            Poppler::Annotation *result = nullptr;
+            QRectF at;
+            for (Poppler::Annotation *annotation : d->document->annotations(i)) {
+                switch (annotation->subType()) {
+                case (Poppler::Annotation::ALink):
+                    // Ignore link annotation for the moment since
+                    // real link are reported as annotation also.
+                    break;
+                case (Poppler::Annotation::AHighlight): {
+                    QList<Poppler::HighlightAnnotation::Quad> quads =
+                        static_cast<Poppler::HighlightAnnotation*>(annotation)->highlightQuads();
+                    for (QList<Poppler::HighlightAnnotation::Quad>::iterator quad = quads.begin();
+                         quad != quads.end(); quad++) {
+                        // Assuming rectangular quad...
+                        qreal squaredDistance =
+                            squaredDistanceFromRect(page.rect, QRectF(quad->points[0], quad->points[2]), point);
+                
+                        if (squaredDistance < squaredDistanceMin) {
+                            result = annotation;
+                            at = QRectF(quad->points[0], quad->points[2]);
+                            squaredDistanceMin = squaredDistance;
+                        }
+                    }
+                    break;
+                }
+                default: {
+                    qreal squaredDistance =
+                        squaredDistanceFromRect(page.rect, annotation->boundary(), point);
+                
+                    if (squaredDistance < squaredDistanceMin) {
+                        result = annotation;
+                        at = annotation->boundary();
+                        squaredDistanceMin = squaredDistance;
+                    }
+                    break;
+                }
+                }
+            }
+            return QPair<Poppler::Annotation*, PDFCanvas::ReducedBox>{result, {i, at}};
+        }
+    }
+
+    return QPair<Poppler::Annotation*, PDFCanvas::ReducedBox>();
+}
+
 QRectF PDFCanvas::fromPageToItem(int index, const QRectF &rect) const
 {
     if (index < 0 || index >= d->pageCount)
@@ -372,17 +453,51 @@ QPointF PDFCanvas::fromPageToItem(int index, const QPointF &point) const
                    point.y() * page.rect.height() + page.rect.y());
 }
 
-void PDFCanvas::pageFinished(int id, int pageRenderWidth,
-                             QRect subpart, QSGTexture *texture)
+void PDFCanvas::pageModified(int id, const QRectF &subpart)
 {
     PDFPage &page = d->pages[id];
 
-    d->cleanPageTexturesLater(page);
+    if (subpart.isEmpty()) {
+        // Ask for a full page redraw in update by deleting
+        // the current texture of the page.
+        if (page.texture) {
+            d->texturesToClean << page.texture;
+            page.texture = 0;
+        }
+        if (page.requested) {
+            d->document->cancelPageRequest(id);
+            page.requested = false;
+        }
+        update();
+    } else {
+        int buf = 10;
+        // Ask only for a patch on this page.
+        QRect request(int(subpart.x() * page.rect.width()) - buf,
+                      int(subpart.y() * page.rect.height()) - buf,
+                      qCeil(subpart.width() * page.rect.width()) + buf * 2,
+                      qCeil(subpart.height() * page.rect.height()) + buf * 2);
+        d->document->requestPage(id, d->renderWidth, window(),
+                                 request, PDFCanvas::Private::PatchTexture);
+    }
+}
 
-    page.renderWidth = pageRenderWidth;
-    page.textureArea = subpart;
-    page.texture = texture;
-    page.requested = false;
+void PDFCanvas::pageFinished(int id, int pageRenderWidth,
+                             QRect subpart, QSGTexture *texture, int extraData)
+{
+    PDFPage &page = d->pages[id];
+
+    if (PDFCanvas::Private::TextureType(extraData) == PDFCanvas::Private::RootTexture) {
+        d->cleanPageTexturesLater(page);
+
+        page.renderWidth = pageRenderWidth;
+        page.textureArea = subpart;
+        page.texture = texture;
+        page.requested = false;
+    } else if (pageRenderWidth == page.renderWidth) {
+        page.patches.append(Patch(subpart, texture));
+    } else {
+        delete texture;
+    }
 
     update();
 }
@@ -399,12 +514,21 @@ void PDFCanvas::geometryChanged(const QRectF &newGeometry, const QRectF &oldGeom
 void PDFCanvas::sceneGraphInvalidated()
 {
     d->document->cancelPageRequest(-1);
-    d->cleanTextures();
-    for (int i = 0; i < d->pageCount; ++i) {
-        PDFPage &page = d->pages[i];
-        delete page.texture;
-        page.texture = nullptr;
-        page.requested = false;
+    d->deleteAllTextures();
+}
+
+static void putTexture(QSGSimpleTextureNode *tn, float pageWidth, int renderWidth,
+                       QRect textureArea, QSGTexture *texture)
+{
+    tn->setTexture(texture);
+    if (int(pageWidth) == renderWidth) {
+        tn->setRect(textureArea);
+    } else {
+        float ratio = pageWidth / renderWidth;
+        tn->setRect(int(ratio * textureArea.x()),
+                    int(ratio * textureArea.y()),
+                    qCeil(ratio * textureArea.width()),
+                    qCeil(ratio * textureArea.height()));
     }
 }
 
@@ -483,7 +607,8 @@ QSGNode* PDFCanvas::updatePaintNode(QSGNode *node, QQuickItem::UpdatePaintNodeDa
                     !page.textureArea.contains(showableArea))) {
                 QRect request = (fullPageFit) ? QRect() : textureLimit;
                 if (!page.requested) {
-                    d->document->requestPage(i, d->renderWidth, window(), request);
+                    d->document->requestPage(i, d->renderWidth, window(),
+                                             request, PDFCanvas::Private::RootTexture);
                     page.requested = true;
                 }
                 priorityRequests << QPair<int, QPair<int, QRect> >(i, QPair<int, QRect>(d->renderWidth, request));
@@ -493,7 +618,8 @@ QSGNode* PDFCanvas::updatePaintNode(QSGNode *node, QQuickItem::UpdatePaintNodeDa
             textureLimit.moveTo(0, 0);
             // We preload full page only if they can fit into texture.
             if (textureLimit.contains(pageRect)) {
-                d->document->requestPage(i, d->renderWidth, window());
+                d->document->requestPage(i, d->renderWidth, window(),
+                                         QRect(), PDFCanvas::Private::RootTexture);
                 page.requested = true;
             }
         } else if (!loadPage) {
@@ -509,6 +635,7 @@ QSGNode* PDFCanvas::updatePaintNode(QSGNode *node, QQuickItem::UpdatePaintNodeDa
         QSGTransformNode *t = static_cast<QSGTransformNode*>(root->childAtIndex(i));
         if (!t) {
             t = new QSGTransformNode;
+            t->setFlag(QSGNode::OwnedByParent);
             root->appendChildNode(t);
         }
 
@@ -532,12 +659,14 @@ QSGNode* PDFCanvas::updatePaintNode(QSGNode *node, QQuickItem::UpdatePaintNodeDa
             // t
             // |-bg
             // |  |-tn
+            // |  | |- patch1...
             // |  |-n
             // |  | |- link1
             // |  | |- link2...
             QSGSimpleRectNode *bg = static_cast<QSGSimpleRectNode*>(t->firstChild());
             if (!bg) {
                 bg = new QSGSimpleRectNode;
+                bg->setFlag(QSGNode::OwnedByParent);
                 bg->setColor(d->pagePlaceholderColor);
                 t->appendChildNode(bg);
             }
@@ -547,28 +676,42 @@ QSGNode* PDFCanvas::updatePaintNode(QSGNode *node, QQuickItem::UpdatePaintNodeDa
                 QSGSimpleTextureNode *tn = static_cast<QSGSimpleTextureNode *>(bg->firstChild());
                 if (!tn) {
                     tn = new QSGSimpleTextureNode;
+                    tn->setFlag(QSGNode::OwnedByParent);
                     bg->appendChildNode(tn);
                 }
-                tn->setTexture(page.texture);
-                if (int(width()) == page.renderWidth) {
-                    tn->setRect(page.textureArea);
+                putTexture(tn, width(), page.renderWidth, page.textureArea, page.texture);
+
+                if (!page.patches.empty()) {
+                    QSGSimpleTextureNode *ptn = static_cast<QSGSimpleTextureNode*>(tn->firstChild());
+                    for (QList<Patch>::iterator it = page.patches.begin();
+                         it != page.patches.end(); it++) {
+                        if (!ptn) {
+                            ptn = new QSGSimpleTextureNode;
+                            ptn->setFlag(QSGNode::OwnedByParent);
+                            tn->appendChildNode(ptn);
+                        }
+                        
+                        putTexture(ptn, width(), page.renderWidth, it->first, it->second);
+
+                        ptn = static_cast<QSGSimpleTextureNode*>(ptn->nextSibling());
+                    }
                 } else {
-                    float ratio = width() / page.renderWidth;
-                    tn->setRect(int(ratio * page.textureArea.x()),
-                                int(ratio * page.textureArea.y()),
-                                qCeil(ratio * page.textureArea.width()),
-                                qCeil(ratio * page.textureArea.height()));
+                    // Delete all previously registered patches.
+                    for (QSGNode *child = tn->firstChild(); child; child = tn->firstChild())
+                        delete child;
                 }
 
                 QSGNode *n = tn->nextSibling();
                 if (!n) {
                     n = new QSGNode;
+                    n->setFlag(QSGNode::OwnedByParent);
                     bg->appendChildNode(n);
                 }
                 QSGSimpleRectNode *rn = static_cast<QSGSimpleRectNode*>(n->firstChild());
                 for (int l = 0; l < page.links.count(); ++l) {
                     if (!rn) {
                         rn = new QSGSimpleRectNode;
+                        rn->setFlag(QSGNode::OwnedByParent);
                         n->appendChildNode(rn);
                     }
                     QRectF linkRect = page.links.value(l).first;
@@ -583,10 +726,12 @@ QSGNode* PDFCanvas::updatePaintNode(QSGNode *node, QQuickItem::UpdatePaintNodeDa
 
                     rn = static_cast<QSGSimpleRectNode*>(rn->nextSibling());
                 }
+            } else {
+                delete bg->firstChild(); // delete the texture root here.
+                delete bg->firstChild(); // delete the link root here.
             }
         } else {
             delete t->firstChild();
-            t->removeAllChildNodes();
         }
     }
 

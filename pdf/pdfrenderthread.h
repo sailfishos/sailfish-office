@@ -47,12 +47,20 @@ public:
     void search(const QString &search, uint startPage);
     void cancelSearch();
 
+    void addAnnotation(Poppler::Annotation *annotation, int pageIndex,
+                       bool normalizeSize);
+    QList<Poppler::Annotation*> annotations(int pageIndex) const;
+    void removeAnnotation(Poppler::Annotation *annotation, int pageIndex);
+
+    void setAutoSaveName(const QString &filename);
+
     void queueJob(PDFJob *job);
     void cancelRenderJob(int index);
     void prioritizeRenderJob(int index, int size, QRect subpart);
 
 Q_SIGNALS:
     void loadFinished();
+    void pageModified(int page, const QRectF &subpart);
     void jobFinished(PDFJob *job);
     void searchFinished(const QList<QPair<int, QRectF>> &matches);
 

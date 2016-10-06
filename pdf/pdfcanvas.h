@@ -22,6 +22,8 @@
 #include <QtQuick/QQuickItem>
 #include <QtQuick/QSGTexture>
 
+#include <poppler-qt5.h>
+
 class PDFDocument;
 
 class PDFCanvas : public QQuickItem
@@ -90,6 +92,7 @@ public:
      */
     QPair<QUrl, ReducedBox> urlAtPoint(const QPointF &point) const;
     QPair<int, QRectF> pageAtPoint(const QPointF &point) const;
+    QPair<Poppler::Annotation*, ReducedBox> annotationAtPoint(const QPointF &point) const;
     /**
      * \return A rectangle in the canvas coordinates from a rectangle
      * in page coordinates. Index is the index of the page.
@@ -121,8 +124,9 @@ protected:
     virtual QSGNode* updatePaintNode(QSGNode *node, UpdatePaintNodeData*);
 
 private Q_SLOTS:
+    void pageModified(int id, const QRectF &subpart);
     void pageFinished(int id, int pageRenderWidth,
-                      QRect subpart, QSGTexture *texture);
+                      QRect subpart, QSGTexture *texture, int extraData);
     void documentLoaded();
     void resizeTimeout();
     void pageSizesFinished(const QList<QSizeF> &sizes);

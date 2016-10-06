@@ -48,8 +48,9 @@ void UnLockDocumentJob::run()
         m_document->unlock(m_password.toUtf8(), m_password.toUtf8());
 }
 
-RenderPageJob::RenderPageJob(int index, uint width, QQuickWindow *window, QRect subpart)
-    : PDFJob(PDFJob::RenderPageJob), m_index(index), m_subpart(subpart), m_page(0), m_window(window), m_width(width)
+RenderPageJob::RenderPageJob(int index, uint width, QQuickWindow *window,
+                             QRect subpart, int extraData)
+    : PDFJob(PDFJob::RenderPageJob), m_index(index), m_subpart(subpart), m_page(0), m_extraData(extraData), m_window(window), m_width(width)
 {
 }
 
@@ -66,7 +67,7 @@ void RenderPageJob::run()
         image = page->renderToImage(scale, scale);
         m_subpart.setCoords(0, 0, image.width(), image.height());
     } else {
-        QRect pageRect = {0, 0, (int)m_width, qCeil(size.height() / size.width() * m_width)};
+        QRect pageRect = {0, 0, int(m_width), qCeil(size.height() / size.width() * m_width)};
         m_subpart = m_subpart.intersected(pageRect);
 
         image = page->renderToImage(scale, scale, m_subpart.x(), m_subpart.y(),

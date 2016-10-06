@@ -12,6 +12,7 @@ set(pdfplugin_SRCS
     pdflinkarea.cpp
     pdfsearchmodel.cpp
     pdfselection.cpp
+    pdfannotation.cpp
 )
 
 add_library(sailfishofficepdfplugin MODULE ${pdfplugin_SRCS})

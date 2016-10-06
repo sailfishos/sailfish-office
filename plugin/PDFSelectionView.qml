@@ -23,6 +23,7 @@ Repeater {
     id: root
 
     property Item flickable
+    property bool draggable: true
     property alias dragHandle1: handle1.dragged
     property alias dragHandle2: handle2.dragged
 
@@ -40,6 +41,7 @@ Repeater {
     children: [
         PDFSelectionHandle {
             id: handle1
+            visible: root.draggable
             attachX: root.flickable !== undefined
                      ? flickable.contentX
                      : handle.x - Theme.itemSizeExtraLarge
@@ -48,6 +50,7 @@ Repeater {
         },
         PDFSelectionHandle {
             id: handle2
+            visible: root.draggable
             attachX: root.flickable !== undefined
                      ? flickable.contentX + flickable.width
                      : handle.x + Theme.itemSizeExtraLarge

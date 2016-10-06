@@ -515,7 +515,7 @@ void PDFSelection::setHandle2(const QPointF &point)
         setStop(point);
 }
 
-void PDFSelection::selectAt(const QPointF &point)
+bool PDFSelection::selectAt(const QPointF &point)
 {
     if (d->pageIndexStart >= 0 && d->boxIndexStart >= 0
         && d->pageIndexStop >= 0 && d->boxIndexStop >= 0) {
@@ -525,7 +525,7 @@ void PDFSelection::selectAt(const QPointF &point)
     int pageIndex, boxIndex;
     d->textBoxAtPoint(point, PDFSelection::Private::At, &pageIndex, &boxIndex);
     if (pageIndex < 0 || boxIndex < 0)
-        return;
+        return false;
 
     const PDFDocument::TextList &boxes = d->canvas->document()->textBoxesAtPage(pageIndex);
     QRectF box = boxes[boxIndex].first;
@@ -546,6 +546,8 @@ void PDFSelection::selectAt(const QPointF &point)
 
     emit countChanged();
     emit textChanged();
+
+    return true;
 }
 
 void PDFSelection::unselect()
@@ -568,6 +570,34 @@ void PDFSelection::onLayoutChanged()
     emit handle2Changed();
     emit dataChanged(createIndex(0, 0), createIndex(nselection - 1, 0),
                      QVector<int>{Rect});
+}
+
+bool PDFSelection::selectionAtPoint(const QPointF &point) const
+{
+    if (d->pageIndexStart < 0 || d->pageIndexStop < 0
+        || d->boxIndexStart < 0 || d->boxIndexStop < 0) {
+        return false;
+    }
+
+    if (!d->canvas)
+        return false;
+    PDFDocument *doc = d->canvas->document();
+    if (!doc)
+        return false;
+    
+    QPair<int, QRectF> at = d->canvas->pageAtPoint(point);
+    if (at.first < 0)
+        return false;
+    QPointF reducedCoordPoint {point.x() / at.second.width(),
+            (point.y() - at.second.y()) / at.second.height()};
+    const PDFDocument::TextList &boxes = doc->textBoxesAtPage(at.first);
+    for (int i = ((at.first == d->pageIndexStart) ? d->boxIndexStart : 0);
+         i < ((at.first == d->pageIndexStop) ? d->boxIndexStop + 1 : boxes.length());
+         i++) {
+        if (boxes.value(i).first.contains(reducedCoordPoint))
+            return true;
+    }
+    return false;
 }
 
 QString PDFSelection::text() const

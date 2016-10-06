@@ -60,8 +60,13 @@ public:
      * If there is no word at point, the selection is invalidated (ie. count is set to
      * zero).
      */
-    Q_INVOKABLE void selectAt(const QPointF &point);
+    Q_INVOKABLE bool selectAt(const QPointF &point);
     Q_INVOKABLE void unselect();
+
+    /**
+     * Check if point is inside selection.
+     */
+    bool selectionAtPoint(const QPointF &point) const;
 
     /**
      * Return a point for the start handle of the selection in canvas coordinates.

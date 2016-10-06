@@ -93,7 +93,7 @@ BackgroundItem {
         highlighted: down || root.down || searchField.activeFocus
 
         onClicked: {
-            root.iconized = false
+            root.clicked(mouse)
             searchField.forceActiveFocus()
         }
     }

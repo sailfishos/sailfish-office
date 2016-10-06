@@ -18,6 +18,7 @@
 
 #include "pdflinkarea.h"
 #include "pdfcanvas.h"
+#include "pdfselection.h"
 #include <QUrlQuery>
 #include <QTimer>
 
@@ -26,10 +27,15 @@ class PDFLinkArea::Private
 public:
     Private()
         : canvas(nullptr)
+        , selection(nullptr)
         , wiggleFactor(4)
+        , pressed(false)
+        , annotation(nullptr)
+        , clickOnSelection(false)
     { }
 
     PDFCanvas *canvas;
+    PDFSelection *selection;
 
     QPointF clickLocation;
     int wiggleFactor;
@@ -37,7 +43,10 @@ public:
     QTimer pressTimer;
     bool pressed;
     PDFCanvas::ReducedBox pressedBox;
+
     QUrl link;
+    Poppler::Annotation *annotation;
+    bool clickOnSelection;
 };
 
 PDFLinkArea::PDFLinkArea(QQuickItem *parent)
@@ -80,6 +89,19 @@ bool PDFLinkArea::pressed() const
     return d->pressed;
 }
 
+PDFSelection* PDFLinkArea::selection() const
+{
+    return d->selection;
+}
+
+void PDFLinkArea::setSelection(PDFSelection *newSelection)
+{
+    if (newSelection != d->selection) {
+        d->selection = newSelection;
+        emit selectionChanged();
+    }
+}
+
 QRectF PDFLinkArea::clickedBox() const
 {
     if (d->canvas && !d->pressedBox.second.isEmpty())
@@ -101,26 +123,52 @@ void PDFLinkArea::mousePressEvent(QMouseEvent *event)
     // Nullify all handles.
     d->pressedBox.second = QRectF();
     d->link.clear();
+    d->annotation = nullptr;
+    d->clickOnSelection = false;
 
     d->clickLocation = event->pos();
     d->pressTimer.start();
 
     if (!d->canvas)
         return;
+    
+    // Click action logic in order.
+    // - click on selection;
+    // - unselect if selection is set;
+    // - click on annotation;
+    // - click on link;
+    // - click.
+
+    if (d->selection)
+        d->clickOnSelection = d->selection->selectionAtPoint(d->clickLocation);
+    if (d->clickOnSelection || (d->selection && d->selection->count() > 0))
+        return;
+
+    QPair<Poppler::Annotation *, PDFCanvas::ReducedBox> annotationAt =
+        d->canvas->annotationAtPoint(d->clickLocation);
+    d->annotation = annotationAt.first;
+    if (annotationAt.first != nullptr) {
+        d->pressedBox = annotationAt.second;
+        d->pressed = true;
+        emit pressedChanged();
+        emit clickedBoxChanged();
+        return;
+    }
 
     QPair<QUrl, PDFCanvas::ReducedBox> urlAt = d->canvas->urlAtPoint(d->clickLocation);
     d->link = urlAt.first;
     if (!d->link.isEmpty()) {
         d->pressedBox = urlAt.second;
+        d->pressed = true;
+        emit pressedChanged();
+        emit clickedBoxChanged();
+        return;
     }
-    
-    d->pressed = true;
-    emit pressedChanged();
-    emit clickedBoxChanged();
 }
 
 void PDFLinkArea::mouseMoveEvent(QMouseEvent *event)
 {
+    emit positionChanged(QPointF(event->pos()));
     // Don't activate anything if the finger has moved too far
     QRect rect((d->clickLocation - QPointF(d->wiggleFactor, d->wiggleFactor)).toPoint(),
                QSize(d->wiggleFactor * 2, d->wiggleFactor * 2));
@@ -132,10 +180,41 @@ void PDFLinkArea::mouseMoveEvent(QMouseEvent *event)
     }
 }
 
+PDFAnnotation* PDFLinkArea::newProxyForAnnotation()
+{
+    // proxy will be child of this object to avoid memory leak.
+    // Todo: transfer ownership to QML, if possible. Before that,
+    //       all created proxy objects will be alive up to the moment
+    //       the document object is released.
+    switch (d->annotation->subType()) {
+    case Poppler::Annotation::SubType::AText: {
+        return new PDFTextAnnotation
+            (static_cast<Poppler::TextAnnotation*>(d->annotation),
+             d->canvas->document(), d->pressedBox.first, this);
+    }
+    case Poppler::Annotation::SubType::ACaret: {
+        return new PDFCaretAnnotation
+            (static_cast<Poppler::CaretAnnotation*>(d->annotation),
+             d->canvas->document(), d->pressedBox.first, this);
+    }
+    case Poppler::Annotation::SubType::AHighlight: {
+        return new PDFHighlightAnnotation
+            (static_cast<Poppler::HighlightAnnotation*>(d->annotation),
+             d->canvas->document(), d->pressedBox.first, this);
+    }
+    default: {
+        return new PDFAnnotation
+            (d->annotation, d->canvas->document(), d->pressedBox.first, this);
+    }
+    }
+}
+
 void PDFLinkArea::mouseReleaseEvent(QMouseEvent *event)
 {
     d->pressed = false;
     emit pressedChanged();
+
+    emit released();
 
     // Don't activate click if the longPress already fired.
     if (!d->pressTimer.isActive())
@@ -148,8 +227,21 @@ void PDFLinkArea::mouseReleaseEvent(QMouseEvent *event)
     if (!rect.contains(event->pos()))
         return;
 
+    // Click action logic in order.
+    // - click on selection;
+    // - unselect if selection is set;
+    // - click on annotation;
+    // - click on link;
+    // - click.
+
     if (!d->canvas) {
         emit clicked(d->clickLocation);
+    } else if (d->clickOnSelection) {
+        emit selectionClicked();
+    } else if (d->selection && d->selection->count() > 0) {
+        d->selection->unselect();
+    } else if (d->annotation != nullptr) {
+        emit annotationClicked(newProxyForAnnotation());
     } else if (d->link.isEmpty()) {
         emit clicked(d->clickLocation);
     } else if (d->link.isRelative() && d->link.hasQuery()) {
@@ -183,5 +275,15 @@ void PDFLinkArea::mouseUngrabEvent()
 
 void PDFLinkArea::pressTimeout()
 {
-    emit longPress(d->clickLocation);
+    if (!d->canvas)
+        return;
+
+    if (d->annotation) {
+        emit annotationLongPress(newProxyForAnnotation());
+    } else if (d->selection && d->selection->selectAt(d->clickLocation)) {
+        return;
+    } else {
+        // Generic longPress.
+        emit longPress(d->clickLocation);
+    }
 }
