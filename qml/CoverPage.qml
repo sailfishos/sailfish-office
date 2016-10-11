@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import QtQuick 2.0
+import QtQuick 2.4
 import Sailfish.Silica 1.0
 
 CoverBackground {
@@ -46,7 +46,7 @@ CoverBackground {
         id: fileListView
 
         property int itemHeight: height/maxItemCount
-        property int maxItemCount: Math.round(height/(dummy.height + Theme.paddingSmall))
+        property int maxItemCount: Math.round(height/(fontMetrics.height + Theme.paddingSmall))
         clip: true
         interactive: false
         model: window.fileListModel
@@ -63,10 +63,9 @@ CoverBackground {
             text: model.fileName
             iconSource: window.mimeToIcon(model.fileMimeType)
         }
-        Label {
-            id: dummy
-            visible: false
-            text: "Dummy"
+        FontMetrics {
+            id: fontMetrics
+            font.pixelSize: Theme.fontSizeMedium
         }
     }
 
