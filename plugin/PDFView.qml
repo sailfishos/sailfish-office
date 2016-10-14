@@ -33,9 +33,14 @@ SilicaFlickable {
     property alias currentPage: pdfCanvas.currentPage
     property alias selection: pdfSelection
     property alias selectionDraggable: selectionView.draggable
+    property bool canMoveBack: (_contentYAtGotoLink >= 0)
 
     property bool scaled: pdfCanvas.width != width
     property QtObject _feedbackEffect
+
+    property int _pageAtLinkTarget
+    property real _contentXAtGotoLink: -1.
+    property real _contentYAtGotoLink: -1.
 
     signal clicked()
     signal linkClicked(string linkTarget, Item hook)
@@ -63,6 +68,9 @@ SilicaFlickable {
            to adjust to new height, so we use saved values. */
         contentX = oldContentX + (center.x * pdfCanvas.width / oldWidth) - center.x
         contentY = oldContentY + (center.y * pdfCanvas.height / oldHeight) - center.y
+
+        _contentXAtGotoLink = -1.
+        _contentYAtGotoLink = -1.
     }
 
     function adjust() {
@@ -112,6 +120,24 @@ SilicaFlickable {
         }
     }
 
+    function scrollTo(pt) {
+        scrollX.to = pt.x
+        scrollY.to = pt.y
+        scrollAnimation.start()
+    }
+
+    function moveBack() {
+        if (!canMoveBack) {
+            return
+        }
+
+        scrollTo(Qt.point(_contentXAtGotoLink, _contentYAtGotoLink))
+
+        _pageAtLinkTarget = 0
+        _contentXAtGotoLink = -1.
+        _contentYAtGotoLink = -1.
+    }
+
     SequentialAnimation {
         id: focusSearchMatch
         ParallelAnimation {
@@ -122,6 +148,11 @@ SilicaFlickable {
             NumberAnimation { id: scaleIn; property: "scale"; duration: 200; to: 3.; easing.type: Easing.InOutCubic }
             NumberAnimation { id: scaleOut; property: "scale"; duration: 200; to: 1.; easing.type: Easing.InOutCubic }
         }
+    }
+    ParallelAnimation {
+        id: scrollAnimation
+        NumberAnimation { id: scrollX; target: base; property: "contentX"; duration: 400; easing.type: Easing.InOutCubic }
+        NumberAnimation { id: scrollY; target: base; property: "contentY"; duration: 400; easing.type: Easing.InOutCubic }
     }
     NumberAnimation {
         id: selectionOffset
@@ -200,6 +231,19 @@ SilicaFlickable {
             }
         }
 
+        onCurrentPageChanged: {
+            // If the document is moved than more than one page
+            // the back move is cancelled.
+            if (_pageAtLinkTarget > 0
+                && !scrollAnimation.running
+                && (currentPage > _pageAtLinkTarget + 1
+                    || currentPage < _pageAtLinkTarget - 1)) {
+                _pageAtLinkTarget = 0
+                _contentXAtGotoLink = -1.
+                _contentYAtGotoLink = -1.
+            }
+        }
+
         PinchArea {
             anchors.fill: parent
             onPinchUpdated: {
@@ -223,8 +267,14 @@ SilicaFlickable {
                 selection: pdfSelection
 
                 onLinkClicked: base.linkClicked(linkTarget, contextHook)
-                onGotoClicked: base.goToPage(page - 1, top, left,
-                                             Theme.paddingLarge, Theme.paddingLarge)
+                onGotoClicked: {
+                    var pt = base.contentAt(page - 1, top, left,
+                                            Theme.paddingLarge, Theme.paddingLarge)
+                    _pageAtLinkTarget = page
+                    _contentXAtGotoLink = base.contentX
+                    _contentYAtGotoLink = base.contentY
+                    scrollTo(pt, page)
+                }
                 onSelectionClicked: base.selectionClicked(selection, contextHook)
                 onAnnotationClicked: base.annotationClicked(annotation, contextHook)
                 onClicked: base.clicked()
@@ -322,7 +372,7 @@ SilicaFlickable {
         defaultValue: 10.
     }
 
-    function goToPage(pageNumber, top, left, topSpacing, leftSpacing) {
+    function contentAt(pageNumber, top, left, topSpacing, leftSpacing) {
         var rect = pdfCanvas.pageRectangle( pageNumber )
         var scrollX, scrollY
         // Adjust horizontal position if required.
@@ -338,8 +388,12 @@ SilicaFlickable {
         if (scrollY > contentHeight - height) {
             scrollY = contentHeight - height
         }
-        contentX = Math.max(0, scrollX)
-        contentY = Math.max(0, scrollY)
+        return Qt.point(Math.max(0, scrollX), Math.max(0, scrollY))
+    }
+    function goToPage(pageNumber, top, left, topSpacing, leftSpacing) {
+        var pt = contentAt(pageNumber, top, left, topSpacing, leftSpacing)
+        contentX = pt.x
+        contentY = pt.y
     }
     // This function is the inverse of goToPage(), returning (pageNumber, top, left).
     function getPagePosition() {
