@@ -368,6 +368,8 @@ DocumentPage {
                 Label {
                     id: pageLabel
                     anchors.centerIn: parent
+                    width: Math.min(parent.width - Theme.paddingSmall, implicitWidth)
+                    fontSizeMode: Text.HorizontalFit
                     color: pageCount.highlighted ? Theme.highlightColor : Theme.primaryColor
                     text: view.currentPage + " | " + view.document.pageCount
                 }
