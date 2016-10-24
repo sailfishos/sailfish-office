@@ -222,7 +222,8 @@ DocumentPage {
                                   || highlightButton.highlighted
                                   || view.selection.selected
             property Item activeItem
-            property real itemWidth: toolbar.width / children.length
+            property real itemWidth: Math.max(toolbar.width - pageCount.width, 0)
+                                     / (children.length - 1)
             height: parent.height
 
             function toggle(item) {
@@ -363,7 +364,9 @@ DocumentPage {
             }
             BackgroundItem {
                 id: pageCount
-                width: row.itemWidth
+                width: screen.sizeCategory <= Screen.Medium
+                       ? Math.max(toolbar.width / row.children.length, Screen.width / 4)
+                       : toolbar.width / row.children.length
                 height: parent.height
                 Label {
                     id: pageLabel
