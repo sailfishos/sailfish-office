@@ -30,7 +30,8 @@ SilicaFlickable {
     property alias itemWidth: pdfCanvas.width
     property alias itemHeight: pdfCanvas.height
     property alias document: pdfCanvas.document
-    property alias currentPage: pdfCanvas.currentPage
+    property int currentPage: !quickScrollAnimation.running
+                              ? pdfCanvas.currentPage : quickScrollAnimation.pageTo
     property alias selection: pdfSelection
     property alias selectionDraggable: selectionView.draggable
     property bool canMoveBack: (_contentYAtGotoLink >= 0)
@@ -39,6 +40,7 @@ SilicaFlickable {
     property QtObject _feedbackEffect
 
     property int _pageAtLinkTarget
+    property int _pageAtGotoLink
     property real _contentXAtGotoLink: -1.
     property real _contentYAtGotoLink: -1.
 
@@ -120,10 +122,27 @@ SilicaFlickable {
         }
     }
 
-    function scrollTo(pt) {
-        scrollX.to = pt.x
-        scrollY.to = pt.y
-        scrollAnimation.start()
+    function scrollTo(pt, pageId) {
+        if ((pt.y < base.contentY + base.height && pt.y > base.contentY - base.height)
+            && (pt.x < base.contentX + base.width && pt.x > base.contentX - base.width)) {
+            scrollX.to = pt.x
+            scrollY.to = pt.y
+            scrollAnimation.start()
+        } else {
+            var deltaY = pt.y - base.contentY
+            if (deltaY < 0) {
+                deltaY = Math.max(deltaY / 2., -base.height / 2.)
+            } else {
+                deltaY = Math.min(deltaY / 2., base.height / 2.)
+            }
+            leaveX.to = (base.contentX + pt.x) / 2
+            leaveY.to = base.contentY + deltaY
+            returnX.to = pt.x
+            returnY.from = pt.y - deltaY
+            returnY.to = pt.y
+            quickScrollAnimation.pageTo = pageId
+            quickScrollAnimation.start()
+        }
     }
 
     function moveBack() {
@@ -131,7 +150,7 @@ SilicaFlickable {
             return
         }
 
-        scrollTo(Qt.point(_contentXAtGotoLink, _contentYAtGotoLink))
+        scrollTo(Qt.point(_contentXAtGotoLink, _contentYAtGotoLink), _pageAtGotoLink)
 
         _pageAtLinkTarget = 0
         _contentXAtGotoLink = -1.
@@ -151,8 +170,23 @@ SilicaFlickable {
     }
     ParallelAnimation {
         id: scrollAnimation
-        NumberAnimation { id: scrollX; target: base; property: "contentX"; duration: 400; easing.type: Easing.InOutCubic }
-        NumberAnimation { id: scrollY; target: base; property: "contentY"; duration: 400; easing.type: Easing.InOutCubic }
+        NumberAnimation { id: scrollX; target: base; property: "contentX"; duration: 300; easing.type: Easing.InOutQuad }
+        NumberAnimation { id: scrollY; target: base; property: "contentY"; duration: 300; easing.type: Easing.InOutQuad }
+    }
+    SequentialAnimation {
+        id: quickScrollAnimation
+        property int pageTo
+        ParallelAnimation {
+            NumberAnimation { id: leaveX; target: base; property: "contentX"; duration: 300; easing.type: Easing.InQuad }
+            NumberAnimation { id: leaveY; target: base; property: "contentY"; duration: 300; easing.type: Easing.InQuad }
+            NumberAnimation { target: base; property: "opacity"; duration: 300; to: 0.; easing.type: Easing.InQuad }
+        }
+        PauseAnimation { duration: 100 }
+        ParallelAnimation {
+            NumberAnimation { id: returnX; target: base; property: "contentX"; duration: 300; easing.type: Easing.OutQuad }
+            NumberAnimation { id: returnY; target: base; property: "contentY"; duration: 300; easing.type: Easing.OutQuad }
+            NumberAnimation { target: base; property: "opacity"; duration: 300; to: 1.; easing.type: Easing.OutQuad }
+        }
     }
     NumberAnimation {
         id: selectionOffset
@@ -236,6 +270,7 @@ SilicaFlickable {
             // the back move is cancelled.
             if (_pageAtLinkTarget > 0
                 && !scrollAnimation.running
+                && !quickScrollAnimation.running
                 && (currentPage > _pageAtLinkTarget + 1
                     || currentPage < _pageAtLinkTarget - 1)) {
                 _pageAtLinkTarget = 0
@@ -271,6 +306,7 @@ SilicaFlickable {
                     var pt = base.contentAt(page - 1, top, left,
                                             Theme.paddingLarge, Theme.paddingLarge)
                     _pageAtLinkTarget = page
+                    _pageAtGotoLink = pdfCanvas.currentPage
                     _contentXAtGotoLink = base.contentX
                     _contentYAtGotoLink = base.contentY
                     scrollTo(pt, page)
