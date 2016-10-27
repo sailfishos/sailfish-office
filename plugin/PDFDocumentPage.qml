@@ -106,6 +106,7 @@ DocumentPage {
         anchors.fill: parent
         anchors.bottomMargin: toolbar.offset
         document: pdfDocument
+        onCanMoveBackChanged: if (canMoveBack) toolbar.show()
         onClicked: base.open = !base.open
         onLinkClicked: {
             base.open = false
@@ -216,13 +217,16 @@ DocumentPage {
         Row {
             id: row
             property bool active: pageCount.highlighted
+                                  || linkBack.visible
                                   || search.highlighted
                                   || !search.iconized
                                   || textButton.highlighted
                                   || highlightButton.highlighted
                                   || view.selection.selected
             property Item activeItem
-            property real itemWidth: toolbar.width / children.length
+            property int nVisibleChildren: children.length - (linkBack.visible ? 0 : 1)
+            property real itemWidth: Math.max(toolbar.width - pageCount.width, 0)
+                                     / (nVisibleChildren - 1)
             height: parent.height
 
             function toggle(item) {
@@ -362,8 +366,31 @@ DocumentPage {
                 }
             }
             BackgroundItem {
-                id: pageCount
+                id: linkBack
                 width: row.itemWidth
+                height: parent.height
+                highlighted: pressed || backButton.pressed
+                opacity: view.canMoveBack ? 1. : 0.
+                visible: opacity > 0
+                Behavior on opacity { FadeAnimation{ duration: 400 } }
+                IconButton {
+                    id: backButton
+                    anchors.centerIn: parent
+                    highlighted: pressed || linkBack.pressed
+                    icon.source: "image://theme/icon-m-back"
+                    onClicked: linkBack.clicked(mouse)
+                }
+                onClicked: {
+                    row.toggle(linkBack)
+                    view.moveBack()
+                    toolbar.hide()
+                }
+            }
+            BackgroundItem {
+                id: pageCount
+                width: screen.sizeCategory <= Screen.Medium
+                       ? Math.max(toolbar.width / row.nVisibleChildren, Screen.width / 4)
+                       : toolbar.width / row.nVisibleChildren
                 height: parent.height
                 Label {
                     id: pageLabel
