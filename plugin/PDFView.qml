@@ -293,8 +293,7 @@ SilicaFlickable {
 
                 onClickedBoxChanged: {
                     if (clickedBox.width > 0) {
-                        contextHook.y = clickedBox.y
-                        contextHook.hookHeight = clickedBox.height
+                        contextHook.setTarget(clickedBox.y, clickedBox.height)
                     }
                 }
 
@@ -316,8 +315,7 @@ SilicaFlickable {
                 onClicked: base.clicked()
                 onAnnotationLongPress: base.annotationLongPress(annotation, contextHook)
                 onLongPress: {
-                    contextHook.y = pressAt.y
-                    contextHook.hookHeight = Theme.itemSizeSmall / 2
+                    contextHook.setTarget(pressAt.y, Theme.itemSizeSmall / 2)
                     base.longPress(pressAt, contextHook)
                 }
             }
