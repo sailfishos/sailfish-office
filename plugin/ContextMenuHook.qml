@@ -23,13 +23,13 @@ Item {
     id: hook
 
     property bool active: _menu ? _menu.active : false
-    property int hookHeight
     property alias backgroundColor: background.color
     property alias backgroundOpacity: background.opacity
 
     property real _flickableContentHeight
     property bool _opened: _menu ? _menu._open : false
 
+    property int _hookHeight
     property var _menu
 
     // Used to emulate the MouseArea that trigger a ContextMenu
@@ -37,6 +37,11 @@ Item {
     property bool preventStealing
     signal positionChanged(point mouse)
     signal released(bool mouse)
+
+    function setTarget(targetY, targetHeight) {
+        y = targetY
+        _hookHeight = targetHeight
+    }
 
     function showMenu(menu) {
         _menu = menu
@@ -56,7 +61,10 @@ Item {
             // out of screen.
             _menu._flickable.contentY =
                 Math.max(_menu._flickableContentYAtOpen,
-                         hook.y + hookHeight + Theme.paddingSmall - _menu._flickable.height)
+                         hook.y + _hookHeight + Theme.paddingSmall - _menu._flickable.height)
+            // Reset menu flickable after menu is closed to avoid initialisation
+            // issues next time showMenu() is called.
+            _menu._flickable = null
         }
     }
     Connections {
@@ -71,7 +79,7 @@ Item {
 
     width: _menu && _menu._flickable ? _menu._flickable.width : 0
     x:  _menu && _menu._flickable ? _menu._flickable.contentX : 0
-    height: hookHeight + (_menu ? Theme.paddingSmall + _menu.height : 0.)
+    height: _hookHeight + (_menu ? Theme.paddingSmall + _menu.height : 0.)
 
     Rectangle {
         id: background
