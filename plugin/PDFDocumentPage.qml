@@ -272,7 +272,8 @@ DocumentPage {
                     id: textButton
                     anchors.centerIn: parent
                     highlighted: pressed || textTool.pressed || row.activeItem === textTool
-                    icon.source: "image://theme/icon-m-notifications"
+                    icon.source: row.activeItem === textTool ? "image://theme/icon-m-annotation-selected"
+                                                             : "image://theme/icon-m-annotation"
                     onClicked: textTool.clicked(mouse)
                 }
                 MouseArea {
@@ -334,7 +335,8 @@ DocumentPage {
                     id: highlightButton
                     anchors.centerIn: parent
                     highlighted: pressed || highlightTool.pressed || row.activeItem === highlightTool
-                    icon.source: "image://theme/icon-m-edit"
+                    icon.source: row.activeItem === highlightTool ? "image://theme/icon-m-edit-selected"
+                                                                  : "image://theme/icon-m-edit"
                     onClicked: highlightTool.clicked(mouse)
                 }
                 MouseArea {
