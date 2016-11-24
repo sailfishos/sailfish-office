@@ -447,7 +447,16 @@ void PDFRenderThreadQueue::processPendingJob()
     case PDFJob::LoadDocumentJob:
         d->loadFailure = false;
         break;
+    case PDFJob::UnLockDocumentJob:
+        job->m_document = d->document;
+        break;
     default:
+        // Avoid treating rendering jobs of a locked document
+        // because of a race condition when reusing pdfcanvas.cpp
+        // with the same PdfDocument instance while changing the actual
+        // PDF it is working on.
+        if (d->document->isLocked())
+            return;
         job->m_document = d->document;
         break;
     }

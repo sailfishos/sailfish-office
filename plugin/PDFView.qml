@@ -36,6 +36,9 @@ SilicaFlickable {
     property alias selectionDraggable: selectionView.draggable
     property bool canMoveBack: (_contentYAtGotoLink >= 0)
 
+    // Accessor currently used for testing purposes.
+    property bool scrolling: scrollAnimation.running || quickScrollAnimation.running
+
     property bool scaled: pdfCanvas.width != width
     property QtObject _feedbackEffect
 
@@ -97,12 +100,8 @@ SilicaFlickable {
         _searchIndex = index
         
         var match = searchDisplay.itemAt(index)
-        var cX = match.x + match.width / 2. - width / 2.
-        cX = Math.max(0, Math.min(cX, pdfCanvas.width - width))
-        var cY = match.y + match.height / 2. - height / 2.
-        cY = Math.max(0, Math.min(cY, pdfCanvas.height - height))
-
-        scrollTo(Qt.point(cX, cY), match.page, match)
+        scrollTo(Qt.point(match.x + match.width / 2. - width / 2.,
+                          match.y + match.height / 2. - height / 2.), match.page, match)
     }
 
     function nextSearchMatch() {
@@ -122,24 +121,27 @@ SilicaFlickable {
     }
 
     function scrollTo(pt, pageId, focusItem) {
+        // Ensure that pt can be reached.
+        var ctX = Math.max(0, Math.min(contentWidth - width, pt.x))
+        var ctY = Math.max(0, Math.min(contentHeight - height, pt.y))
         if ((pt.y < base.contentY + base.height && pt.y > base.contentY - base.height)
             && (pt.x < base.contentX + base.width && pt.x > base.contentX - base.width)) {
-            scrollX.to = pt.x
-            scrollY.to = pt.y
+            scrollX.to = ctX
+            scrollY.to = ctY
             scrollAnimation.focusItem = (focusItem !== undefined) ? focusItem : null
             scrollAnimation.start()
         } else {
-            var deltaY = pt.y - base.contentY
+            var deltaY = ctY - base.contentY
             if (deltaY < 0) {
                 deltaY = Math.max(deltaY / 2., -base.height / 2.)
             } else {
                 deltaY = Math.min(deltaY / 2., base.height / 2.)
             }
-            leaveX.to = (base.contentX + pt.x) / 2
+            leaveX.to = (base.contentX + ctX) / 2
             leaveY.to = base.contentY + deltaY
-            returnX.to = pt.x
-            returnY.from = pt.y - deltaY
-            returnY.to = pt.y
+            returnX.to = ctX
+            returnY.from = ctY - deltaY
+            returnY.to = ctY
             quickScrollAnimation.pageTo = pageId
             quickScrollAnimation.focusItem = (focusItem !== undefined) ? focusItem : null
             quickScrollAnimation.start()
@@ -439,20 +441,14 @@ SilicaFlickable {
         if (left !== undefined && left >= 0.) {
             scrollX = rect.x + left * rect.width - ( leftSpacing !== undefined ? leftSpacing : 0.)
         }
-        if (scrollX > contentWidth - width) {
-            scrollX = contentWidth - width
-        }
         // Adjust vertical position.
         scrollY = rect.y + (top === undefined ? 0. : top * rect.height) - ( topSpacing !== undefined ? topSpacing : 0.)
-        if (scrollY > contentHeight - height) {
-            scrollY = contentHeight - height
-        }
-        return Qt.point(Math.max(0, scrollX), Math.max(0, scrollY))
+        return Qt.point(scrollX, scrollY)
     }
     function goToPage(pageNumber, top, left, topSpacing, leftSpacing) {
         var pt = contentAt(pageNumber, top, left, topSpacing, leftSpacing)
-        contentX = pt.x
-        contentY = pt.y
+        contentX = Math.max(0, Math.min(contentWidth - width, pt.x))
+        contentY = Math.max(0, Math.min(contentHeight - height, pt.y))
     }
     // This function is the inverse of goToPage(), returning (pageNumber, top, left).
     function getPagePosition() {

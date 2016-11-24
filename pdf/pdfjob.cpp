@@ -20,6 +20,7 @@
 
 #include <QtMath>
 #include <QUrlQuery>
+#include <QDebug>
 #include <poppler-qt5.h>
 
 LoadDocumentJob::LoadDocumentJob(const QString &source)
@@ -114,6 +115,15 @@ RenderPageJob::RenderPageJob(int index, uint width, QQuickWindow *window,
 void RenderPageJob::run()
 {
     Q_ASSERT(m_document);
+
+    if (m_document->isLocked()) {
+        qWarning() << QStringLiteral("Rendering of a locked document.");
+        return;
+    }
+    if (m_index >= m_document->numPages()) {
+        qWarning() << QStringLiteral("Rendering of page %1 in a doument with %2 pages.").arg(m_index).arg(m_document->numPages());
+        return;
+    }
 
     Poppler::Page *page = m_document->page(m_index);
     QSizeF size = page->pageSizeF();

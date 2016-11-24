@@ -76,3 +76,7 @@ install(FILES org.sailfish.office.service DESTINATION ${CMAKE_INSTALL_PREFIX}/sh
 install(FILES org.sailfish.office.xml DESTINATION ${CMAKE_INSTALL_PREFIX}/share/dbus-1/interfaces)
 install(FILES sailfish-office.privileges DESTINATION ${CMAKE_INSTALL_PREFIX}/share/mapplauncherd/privileges.d)
 
+install(FILES tests/tst_PDFDocumentPage.qml DESTINATION /opt/tests/sailfish-office)
+install(FILES tests/data/broken.pdf DESTINATION /opt/tests/sailfish-office/data)
+install(FILES tests/data/protected.pdf DESTINATION /opt/tests/sailfish-office/data)
+install(FILES tests/data/sample.pdf DESTINATION /opt/tests/sailfish-office/data)
