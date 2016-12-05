@@ -12,6 +12,7 @@ find_package(Qt5Gui REQUIRED)
 find_package(Qt5DBus REQUIRED)
 find_package(Qt5LinguistTools REQUIRED)
 find_package(QtSparql REQUIRED)
+find_package(Qt5Sql REQUIRED)
 find_package(Booster REQUIRED)
 
 include(cmake/QtTranslationWithID.cmake)
@@ -36,6 +37,9 @@ set(sailfishoffice_SRCS
     main.cpp
     dbusadaptor.cpp
     models/filtermodel.cpp
+    models/tagsthread.cpp
+    models/trackertagprovider.cpp
+    models/taglistmodel.cpp
     models/documentlistmodel.cpp
     models/documentproviderlistmodel.cpp
     models/documentprovider.cpp
@@ -44,6 +48,8 @@ set(sailfishoffice_SRCS
 
 set(sailfishoffice_QML_SRCS
     qml/CoverPage.qml
+    qml/Tag.qml
+    qml/TagsSelector.qml
     qml/FileListPage.qml
     qml/Main.qml
     qml/CoverFileItem.qml
@@ -60,7 +66,7 @@ set(sailfishoffice_TS_SRCS
 create_translation(engen_qm_file ${CMAKE_BINARY_DIR}/sailfish-office.ts ${sailfishoffice_TS_SRCS})
 
 add_executable(sailfish-office ${sailfishoffice_SRCS} ${engen_qm_file})
-qt5_use_modules(sailfish-office Widgets Quick DBus)
+qt5_use_modules(sailfish-office Widgets Quick DBus Sql)
 target_link_libraries(sailfish-office stdc++ ${QT_LIBRARIES} ${BOOSTER_LIBRARY} ${QTSPARQL_LIBRARY})
 
 install(TARGETS sailfish-office DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)

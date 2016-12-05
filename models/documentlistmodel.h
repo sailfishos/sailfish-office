@@ -22,11 +22,16 @@
 #include <QAbstractListModel>
 #include <qdatetime.h>
 
+#include "tagsthread.h"
+#include "trackertagprovider.h"
+#include "taglistmodel.h"
+
 class DocumentListModelPrivate;
 
 class DocumentListModel : public QAbstractListModel
 {
     Q_OBJECT
+    Q_PROPERTY(TagListModel* tags READ tags NOTIFY tagsChanged)
 public:
     enum DocumentClass {
         UnknownDocument,
@@ -64,11 +69,26 @@ public:
     void removeAt(int index);
     void clear();
 
+    TagListModel* tags() const;
+
     Q_INVOKABLE int mimeTypeToDocumentClass(QString mimeType) const;
+    bool hasTag(int row, const QString &tag) const;
+    Q_INVOKABLE bool hasTag(const QString &path, const QString &tag) const;
+    Q_INVOKABLE void addTag(const QString &path, const QString &tag);
+    Q_INVOKABLE void removeTag(const QString &path, const QString &tag);
+
+private Q_SLOTS:
+    void jobFinished(TagsThreadJob* job);
+    void tagLoaded(const QString &path, const QList<QString> &tags);
+
+Q_SIGNALS:
+    void tagsChanged();
 
 private:
     class Private;
     const QScopedPointer<Private> d;
+
+    void notifyForPath(const QString &path);
 };
 
 #endif // DOCUMENTLISTMODEL_H

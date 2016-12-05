@@ -104,6 +104,41 @@ Page {
                     value: 0
                 }
             }
+
+            Flow {
+                width: parent.width - 2 * Theme.horizontalPageMargin
+                anchors.horizontalCenter: parent.horizontalCenter
+                opacity: filteredModel.tagFiltered ? 1.0 : 0.0
+                visible: opacity > 0
+
+                spacing: Theme.paddingMedium
+
+                Label {
+                    //% "Filtered by: "
+                    text: qsTrId("sailfish-office-lbl-tag-filter")
+                    color: Theme.secondaryHighlightColor
+                    font.pixelSize: Theme.fontSizeSmall
+                }
+
+                Repeater {
+                    id: tags
+                    delegate: Tag {
+                        id: tagDelegate
+
+                        enabled: false
+                        tag: model.label
+                        fontSize: Theme.fontSizeSmall
+                        visible: selected
+                        Connections {
+                            target: filteredModel
+                            onTagFilteringChanged: selected = filteredModel.hasTag(model.label)
+                        }
+                    }
+                    model: page.model.tags
+                }
+
+                Behavior on opacity { FadeAnimation { duration: 150 } }
+            }
         }
 
         Connections {
@@ -129,6 +164,17 @@ Page {
             }
 
             MenuItem {
+                //: Tag filter menu entry
+                //% "Filter by tags"
+                text: qsTrId("sailfish-office-me-tag-filter")
+                enabled: page.model.tags.count > 0
+                onClicked: pageStack.push("TagsSelector.qml", {
+                    //% "Filtering tags"
+                    title: qsTrId("sailfish-office-he-filtering-tags"),
+                    model: page.model.tags,
+                    highlight: filteredModel })
+            }
+            MenuItem {
                 text: !menu._searchEnabled ? //% "Show search"
                                              qsTrId("sailfish-office-me-show_search")
                                              //% "Hide search"
@@ -141,10 +187,11 @@ Page {
             parent: listView.contentItem
             y: listView.headerItem.y + listView.headerItem.height + Theme.paddingLarge
             //: View placeholder shown when there are no documents
-            //% "No documents"
-            text: searchText.length == 0 ? qsTrId("sailfish-office-la-no_documents")
-                                         : //% "No documents found"
-                                           qsTrId("sailfish-office-la-not-found")
+            text: (searchText.length == 0 && !filteredModel.tagFiltered) ?
+                  //% "No documents"
+                  qsTrId("sailfish-office-la-no_documents")
+                  : //% "No documents found"
+                  qsTrId("sailfish-office-la-not-found")
             visible: opacity > 0
             opacity: listView.count > 0 ? 0.0 : 1.0
             Behavior on opacity { FadeAnimation {} }
@@ -243,6 +290,25 @@ Page {
                         text: qsTrId("sailfish-office-me-delete")
                         onClicked: {
                             listItem.deleteFile()
+                        }
+                    }
+                    MenuItem {
+                        //% "Manage tags"
+                        text: qsTrId("sailfish-office-me-tags")
+                        onClicked: {
+                            var Doc = function(model, path) {
+                                this.model = model
+                                this.path = path
+                                this.hasTag = function(tag) { return this.model.hasTag(this.path, tag) }
+                                this.addTag = function(tag) { this.model.addTag(this.path, tag) }
+                                this.removeTag = function(tag) { this.model.removeTag(this.path, tag) }
+                            }
+                            pageStack.push("TagsSelector.qml", {
+                                //% "Manage tags"
+                                title: qsTrId("sailfish-office-he-manage-tags"),
+                                editing: true,
+                                model: page.model.tags,
+                                highlight: new Doc(page.model, model.filePath) })
                         }
                     }
                 }
