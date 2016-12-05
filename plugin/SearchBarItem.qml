@@ -114,7 +114,9 @@ BackgroundItem {
 
         focusOutBehavior: FocusBehavior.ClearPageFocus
         font {
-            pixelSize: Theme.fontSizeLarge
+            // visible label doesn't leave much room. match count might go away if heavy full-document search is replaced
+            // with more incremental approach, so should be good for now
+            pixelSize: labelVisible ? Theme.fontSizeMediumBase : Theme.fontSizeLarge
             family: Theme.fontFamilyHeading
         }
 
