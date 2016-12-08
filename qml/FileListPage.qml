@@ -67,8 +67,16 @@ Page {
 
             parent: listView.headerItem
             width: parent.width
+            height: pageHeader.height + (searchEnabled ? searchField.height : 0)
+            Behavior on height {
+                NumberAnimation {
+                    duration: 150
+                    easing.type: Easing.InOutQuad
+                }
+            }
 
             PageHeader {
+                id: pageHeader
                 //: Application title
                 //% "Documents"
                 title: qsTrId("sailfish-office-he-apptitle")
@@ -91,18 +99,6 @@ Page {
                 EnterKey.onClicked: focus = false
 
                 Behavior on opacity { FadeAnimation { duration: 150 } }
-                Behavior on height {
-                    NumberAnimation {
-                        duration: 150
-                        easing.type: Easing.InOutQuad
-                    }
-                }
-                Binding {
-                    target: searchField
-                    when: !searchEnabled
-                    property: "height"
-                    value: 0
-                }
             }
         }
 
