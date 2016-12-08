@@ -135,14 +135,14 @@ Page {
 
         InfoLabel {
             parent: listView.contentItem
-            y: listView.headerItem.y + listView.headerItem.height + Theme.paddingLarge
+            y: listView.headerItem.y + pageHeader.height + searchField.height + (page.isPortrait ? Theme.itemSizeMedium : Theme.paddingLarge)
             //: View placeholder shown when there are no documents
             //% "No documents"
-            text: searchText.length == 0 ? qsTrId("sailfish-office-la-no_documents")
+            text: page.provider.count == 0 ? qsTrId("sailfish-office-la-no_documents")
                                          : //% "No documents found"
                                            qsTrId("sailfish-office-la-not-found")
             visible: opacity > 0
-            opacity: listView.count > 0 ? 0.0 : 1.0
+            opacity: (page.provider.ready && page.provider.count == 0) || (searchText.length > 0 && listView.count == 0) ? 1.0 : 0.0
             Behavior on opacity { FadeAnimation {} }
         }
 
