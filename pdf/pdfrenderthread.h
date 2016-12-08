@@ -62,10 +62,11 @@ Q_SIGNALS:
     void loadFinished();
     void pageModified(int page, const QRectF &subpart);
     void jobFinished(PDFJob *job);
-    void searchFinished(const QList<QPair<int, QRectF>> &matches);
+    void searchFinished();
+    void searchProgress(float fraction, const QList<QPair<int, QRectF>> &newMatches);
 
 private Q_SLOTS:
-    void onSearchFinished();
+    void onSearchProgress(float fraction, uint beginIndex, uint nNewMatches);
     
 private:
     friend class PDFRenderThreadPrivate;

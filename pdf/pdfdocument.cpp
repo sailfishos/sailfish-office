@@ -29,7 +29,13 @@
 class PDFDocument::Private
 {
 public:
-    Private() : searching(false), completed(false), modified(false) { }
+    Private()
+        : searching(false)
+        , searchModel(nullptr)
+        , completed(false)
+        , modified(false)
+    {
+    }
 
     PDFRenderThread *thread;
 
@@ -50,10 +56,9 @@ PDFDocument::PDFDocument(QObject *parent)
     connect(d->thread, &PDFRenderThread::loadFinished, this, &PDFDocument::pageCountChanged);
     connect(d->thread, &PDFRenderThread::loadFinished, this, &PDFDocument::loadFinished);
     connect(d->thread, &PDFRenderThread::jobFinished, this, &PDFDocument::jobFinished);
-    connect(d->thread, &PDFRenderThread::searchFinished, this, &PDFDocument::searchFinished);
+    connect(d->thread, &PDFRenderThread::searchFinished, this, &PDFDocument::onSearchFinished);
+    connect(d->thread, &PDFRenderThread::searchProgress, this, &PDFDocument::onSearchProgress);
     connect(d->thread, &PDFRenderThread::pageModified, this, &PDFDocument::onPageModified);
-
-    d->searchModel = nullptr;
 }
 
 PDFDocument::~PDFDocument()
@@ -244,13 +249,16 @@ void PDFDocument::search(const QString &search, uint startPage)
     if (!isLoaded() || isLocked())
         return;
 
-    if (d->searchModel != nullptr) {
+    if (search.length() > 0) {
         delete d->searchModel;
+        // Ensure that QML is updated in the repeater displaying
+        // the search results, even in case the later 'new' allocates
+        // a new object on the same address.
         d->searchModel = nullptr;
         emit searchModelChanged();
-    }
+        d->searchModel = new PDFSearchModel;
+        emit searchModelChanged();
 
-    if (search.length() > 0) {
         d->searching = true;
         emit searchingChanged();
         d->thread->search(search, startPage);
@@ -259,9 +267,9 @@ void PDFDocument::search(const QString &search, uint startPage)
     }
 }
 
-void PDFDocument::cancelSearch()
+void PDFDocument::cancelSearch(bool resetModel)
 {
-    if (d->searchModel != nullptr) {
+    if (resetModel && d->searchModel != nullptr) {
         delete d->searchModel;
         d->searchModel = nullptr;
         emit searchModelChanged();
@@ -313,11 +321,16 @@ void PDFDocument::jobFinished(PDFJob *job)
     job->deleteLater();
 }
 
-void PDFDocument::searchFinished(const QList<QPair<int, QRectF>> &matches)
+void PDFDocument::onSearchFinished()
 {
-    delete d->searchModel;
-    d->searchModel = new PDFSearchModel(matches);
-    emit searchModelChanged();
     d->searching = false;
     emit searchingChanged();
+}
+
+void PDFDocument::onSearchProgress(float fraction, const QList<QPair<int, QRectF>> &matches)
+{
+    if (!d->searchModel)
+        return;
+
+    d->searchModel->addMatches(fraction, matches);
 }

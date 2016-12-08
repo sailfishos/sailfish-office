@@ -23,18 +23,19 @@
 class PDFSearchModel::Private
 {
 public:
-    Private(const QList<QPair<int, QRectF> > &matches)
-      : m_matches(matches)
+    Private()
+      : m_fraction(0.f)
     {
         roles.insert(Page, "page");
         roles.insert(Rect, "rect");
     }
-    const QList<QPair<int, QRectF> > &m_matches;
+    QList<QPair<int, QRectF> > m_matches;
     QHash<int, QByteArray> roles;
+    float m_fraction;
 };
 
-PDFSearchModel::PDFSearchModel(const QList<QPair<int, QRectF> > &matches, QObject *parent)
-  : QAbstractListModel(parent), d(new Private(matches))
+PDFSearchModel::PDFSearchModel(QObject *parent)
+  : QAbstractListModel(parent), d(new Private)
 {
 }
 
@@ -81,4 +82,23 @@ int PDFSearchModel::rowCount(const QModelIndex& parent) const
 int PDFSearchModel::count() const
 {
     return d->m_matches.count();
+}
+
+float PDFSearchModel::fraction() const
+{
+    return d->m_fraction;
+}
+
+void PDFSearchModel::addMatches(float fraction, const QList<QPair<int, QRectF> > &matches)
+{
+    if (!matches.empty()) {
+        beginInsertRows(QModelIndex(), d->m_matches.count(),
+                        d->m_matches.count() + matches.count() - 1);
+        d->m_matches.append(matches);
+        endInsertRows();
+        emit countChanged();
+    }
+
+    d->m_fraction = fraction;
+    emit fractionChanged();
 }

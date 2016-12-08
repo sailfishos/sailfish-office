@@ -62,6 +62,7 @@ public:
 
     void run() {
         m_matches.clear();
+        m_prevSearchSize = 0;
         for (int i = 0; i < m_document->numPages() && !isInterruptionRequested(); ++i) {
             int ipage = (m_startPage + i) % m_document->numPages();
             Poppler::Page *page = m_document->page(ipage);
@@ -86,6 +87,14 @@ public:
             }
 
             delete page;
+
+            if ((i + 1) % 3 == 0 || i + 1 == m_document->numPages()) {
+                emit searchProgress((m_document->numPages() > 1)
+                                    ? float(i) / float(m_document->numPages() - 1)
+                                    : 1.f,
+                                    m_prevSearchSize, m_matches.size() - m_prevSearchSize);
+                m_prevSearchSize = m_matches.size();
+            }
         }
         if (!isInterruptionRequested())
             emit searchFinished();
@@ -93,11 +102,12 @@ public:
 
 signals:
     void searchFinished();
+    void searchProgress(float fraction, uint beginIndex, uint nNewMatches);
 
 private:
     Poppler::Document *m_document;
     QString m_search;
-    uint m_startPage;
+    uint m_startPage, m_prevSearchSize;
 };
 
 class Thread : public QThread
@@ -451,15 +461,17 @@ void PDFRenderThread::search(const QString &search, uint startPage)
     if (!d->searchThread) {
         d->searchThread = new SearchThread(d->document);
         connect(d->searchThread, &SearchThread::searchFinished,
-                this, &PDFRenderThread::onSearchFinished);
+                this, &PDFRenderThread::searchFinished);
+        connect(d->searchThread, &SearchThread::searchProgress,
+                this, &PDFRenderThread::onSearchProgress);
     }
 
     d->searchThread->start(search, startPage);
 }
 
-void PDFRenderThread::onSearchFinished()
+void PDFRenderThread::onSearchProgress(float fraction, uint indexBegin, uint nNewMatches)
 {
-    emit searchFinished(d->searchThread->m_matches);
+    emit searchProgress(fraction, d->searchThread->m_matches.mid(indexBegin, nNewMatches));
 }
 
 void PDFRenderThread::cancelSearch()

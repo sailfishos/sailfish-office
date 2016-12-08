@@ -44,6 +44,8 @@ SilicaFlickable {
     property real _contentXAtGotoLink: -1.
     property real _contentYAtGotoLink: -1.
 
+    property int _searchIndex
+
     signal clicked()
     signal linkClicked(string linkTarget, Item hook)
     signal selectionClicked(variant selection, Item hook)
@@ -92,7 +94,7 @@ SilicaFlickable {
     function moveToSearchMatch(index) {
         if (index < 0 || index >= searchDisplay.count) return
 
-        searchDisplay.currentIndex = index
+        _searchIndex = index
         
         var match = searchDisplay.itemAt(index)
         var cX = match.x + match.width / 2. - width / 2.
@@ -104,18 +106,18 @@ SilicaFlickable {
     }
 
     function nextSearchMatch() {
-        if (searchDisplay.currentIndex + 1 >= searchDisplay.count) {
+        if (_searchIndex + 1 >= searchDisplay.count) {
             moveToSearchMatch(0)
         } else {
-            moveToSearchMatch(searchDisplay.currentIndex + 1)
+            moveToSearchMatch(_searchIndex + 1)
         }
     }
 
     function prevSearchMatch() {
-        if (searchDisplay.currentIndex < 1) {
+        if (_searchIndex < 1) {
             moveToSearchMatch(searchDisplay.count - 1)
         } else {
-            moveToSearchMatch(searchDisplay.currentIndex - 1)
+            moveToSearchMatch(_searchIndex - 1)
         }
     }
 
@@ -215,6 +217,22 @@ SilicaFlickable {
                                              base, 'ThemeEffect')
         if (_feedbackEffect && !_feedbackEffect.supported) {
             _feedbackEffect = null
+        }
+    }
+
+    Connections {
+        target: document
+        onSearchModelChanged: moveToFirstMatch.done = false
+    }
+    Connections {
+        id: moveToFirstMatch
+        property bool done
+        target: document.searchModel
+        onCountChanged: {
+            if (done) return
+            
+            moveToSearchMatch(0)
+            done = true
         }
     }
 
@@ -346,10 +364,7 @@ SilicaFlickable {
         Repeater {
             id: searchDisplay
 
-            property int currentIndex
-
             model: pdfCanvas.document.searchModel
-            onModelChanged: moveToSearchMatch(0)
 
             delegate: Rectangle {
                 property int page: model.page

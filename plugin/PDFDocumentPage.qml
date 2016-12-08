@@ -245,12 +245,14 @@ DocumentPage {
                 iconizedWidth: row.itemWidth
                 height: parent.height
 
-                modelCount: pdfDocument.searchModel ? pdfDocument.searchModel.count : -1
+                searching: pdfDocument.searching
+                searchProgress: pdfDocument.searchModel ? pdfDocument.searchModel.fraction : 0.
+                matchCount: pdfDocument.searchModel ? pdfDocument.searchModel.count : -1
 
                 onRequestSearch: pdfDocument.search(text, view.currentPage - 1)
                 onRequestPreviousMatch: view.prevSearchMatch()
                 onRequestNextMatch: view.nextSearchMatch()
-                onRequestCancel: pdfDocument.cancelSearch()
+                onRequestCancel: pdfDocument.cancelSearch(!pdfDocument.searching)
                 onClicked: row.toggle(search)
             }
             BackgroundItem {
