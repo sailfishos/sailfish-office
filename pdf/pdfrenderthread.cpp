@@ -24,7 +24,6 @@
 #include <QMutex>
 #include <QDebug>
 #include <QCoreApplication>
-#include <QUrlQuery>
 #include <QSaveFile>
 
 #include "pdfjob.h"
@@ -175,55 +174,6 @@ public:
     QMap<int, QList<QPair <QRectF, Poppler::TextBox*> > > textBoxes;
     QMap<int, QList<Poppler::Annotation*> > annotations;
 
-    void rescanDocumentLinks()
-    {
-        linkTargets.clear();
-
-        for (int i = 0; i < document->numPages(); ++i) {
-            Poppler::Page *page = document->page(i);
-            QList<Poppler::Link*> links = page->links();
-            for (Poppler::Link* link : links) {
-                // link->linkArea() may return negative heights,
-                // as mentioned in Freedesktop bug:
-                // https://bugs.freedesktop.org/show_bug.cgi?id=93900
-                // To avoid later unexpected asumption on height,
-                // link->linkArea() is normalized.
-                switch (link->linkType()) {
-                case (Poppler::Link::Browse): {
-                    Poppler::LinkBrowse *realLink = static_cast<Poppler::LinkBrowse*>(link);
-                    QRectF linkArea = link->linkArea().normalized();
-                    linkTargets.insert(i, QPair<QRectF, QUrl>(linkArea, realLink->url()));
-                    break;
-                }
-                case (Poppler::Link::Goto): {
-                    Poppler::LinkGoto *gotoLink = static_cast<Poppler::LinkGoto*>(link);
-                    // Not handling goto link to external file currently.
-                    if (gotoLink->isExternal())
-                        break;
-                    QRectF linkArea = link->linkArea().normalized();
-                    QUrl linkURL = QUrl("");
-                    QUrlQuery query = QUrlQuery();
-                    query.addQueryItem("page", QString::number(gotoLink->destination().pageNumber()));
-                    if (gotoLink->destination().isChangeLeft()) {
-                        query.addQueryItem("left", QString::number(gotoLink->destination().left()));
-                    }
-                    if (gotoLink->destination().isChangeTop()) {
-                        query.addQueryItem("top", QString::number(gotoLink->destination().top()));
-                    }
-                    linkURL.setQuery(query);
-                    linkTargets.insert(i, QPair<QRectF, QUrl>(linkArea, linkURL));
-                    break;
-                }
-                default:
-                    break;
-                }
-
-            }
-
-            qDeleteAll(links);
-            delete page;
-        }
-    }
     void retrieveTextBoxes(int i)
     {
         if (i < 0 || i >= document->numPages()) {
@@ -514,7 +464,6 @@ void PDFRenderThreadQueue::processPendingJob()
                 d->loadFailure = true;
             } else if (!d->document->isLocked()) {
                 d->tocModel = new PDFTocModel(d->document);
-                d->rescanDocumentLinks();
             }
 
             job->deleteLater();

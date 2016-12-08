@@ -39,6 +39,7 @@ struct PDFPage {
         , requested(false)
         , renderWidth(0)
         , texture(nullptr)
+        , linksLoaded(false)
     { }
 
     int index;
@@ -53,7 +54,8 @@ struct PDFPage {
 
     QList<Patch> patches;
 
-    QList<QPair<QRectF, QUrl> > links;
+    bool linksLoaded;
+    PDFDocument::LinkList links;
 };
 
 class PDFCanvas::Private
@@ -202,6 +204,7 @@ void PDFCanvas::setDocument(PDFDocument *doc)
         d->document = doc;
 
         connect(d->document, &PDFDocument::documentLoadedChanged, this, &PDFCanvas::documentLoaded);
+        connect(d->document, &PDFDocument::linksFinished, this, &PDFCanvas::linksFinished);
         connect(d->document, &PDFDocument::pageFinished, this, &PDFCanvas::pageFinished);
         connect(d->document, &PDFDocument::pageSizesFinished, this, &PDFCanvas::pageSizesFinished);
         connect(d->document, &PDFDocument::documentLockedChanged, this, &PDFCanvas::documentLoaded);
@@ -293,8 +296,6 @@ void PDFCanvas::layout()
         return;
     }
 
-    PDFDocument::LinkMap links = d->document->linkTargets();
-
     float totalHeight = 0.f;
     for (int i = 0; i < d->pageCount; ++i) {
         QSizeF unscaledSize = d->pageSizes.at(i);
@@ -303,13 +304,13 @@ void PDFCanvas::layout()
         PDFPage page;
         page.index = i;
         page.rect = QRectF(0, totalHeight, width(), width() * ratio);
-        page.links = links.values(i);
         page.requested = false; // We're cancelling all requests below
         if (d->pages.contains(i)) {
             page.renderWidth = d->pages.value(i).renderWidth;
             page.textureArea = d->pages.value(i).textureArea;
             page.texture = d->pages.value(i).texture;
             page.patches = d->pages.value(i).patches;
+            page.links = d->pages.value(i).links;
         }
         d->pages.insert(i, page);
 
@@ -453,6 +454,16 @@ QPointF PDFCanvas::fromPageToItem(int index, const QPointF &point) const
                    point.y() * page.rect.height() + page.rect.y());
 }
 
+void PDFCanvas::linksFinished(int id, const QList<QPair<QRectF, QUrl> > &links)
+{
+    PDFPage &page = d->pages[id];
+
+    page.linksLoaded = true;
+    page.links = links;
+    if (!page.links.isEmpty())
+        update();
+}
+
 void PDFCanvas::pageModified(int id, const QRectF &subpart)
 {
     PDFPage &page = d->pages[id];
@@ -587,6 +598,9 @@ QSGNode* PDFCanvas::updatePaintNode(QSGNode *node, QQuickItem::UpdatePaintNodeDa
         };
 
         if (showPage) {
+            if (!page.linksLoaded)
+                d->document->requestLinksAtPage(i);
+
             textureLimit.moveTo(0, 0);
             bool fullPageFit = textureLimit.contains(pageRect);
             QRect showableArea = {

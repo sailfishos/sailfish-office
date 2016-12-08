@@ -51,7 +51,7 @@ public:
     ~PDFDocument();
 
 public:
-    typedef QMultiMap<int, QPair<QRectF, QUrl> > LinkMap;
+    typedef QList<QPair<QRectF, QUrl> > LinkList;
     typedef QList<QPair<QRectF, Poppler::TextBox*> > TextList;
 
     QString source() const;
@@ -61,7 +61,6 @@ public:
     bool searching() const;
     QObject* searchModel() const;
     
-    LinkMap linkTargets() const;
     TextList textBoxesAtPage(int page);
 
     bool isLoaded() const;
@@ -83,6 +82,7 @@ public Q_SLOTS:
     void setSource(const QString &source);
     void setAutoSavePath(const QString &filename);
     void requestUnLock(const QString &password);
+    void requestLinksAtPage(int page);
     void requestPage(int index, int size, QQuickWindow *window,
                      QRect subpart = QRect(), int extraData = 0);
     void prioritizeRequest(int index, int size, QRect subpart = QRect());
@@ -108,6 +108,7 @@ Q_SIGNALS:
     void documentFailedChanged();
     void documentLockedChanged();
     void documentModifiedChanged();
+    void linksFinished(int page, const LinkList &links);
     void pageFinished(int index, int resolution, QRect subpart,
                       QSGTexture *page, int extraData);
     void pageSizesFinished(const QList<QSizeF> &heights);

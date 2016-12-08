@@ -117,11 +117,6 @@ bool PDFDocument::isModified() const
     return d->modified;
 }
 
-PDFDocument::LinkMap PDFDocument::linkTargets() const
-{
-    return d->thread->linkTargets();
-}
-
 PDFDocument::TextList PDFDocument::textBoxesAtPage(int page)
 {
     return d->thread->textBoxesAtPage(page);
@@ -203,6 +198,15 @@ void PDFDocument::requestUnLock(const QString &password)
         return;
 
     UnLockDocumentJob* job = new UnLockDocumentJob(password);
+    d->thread->queueJob(job);
+}
+
+void PDFDocument::requestLinksAtPage(int page)
+{
+    if (!isLoaded() || isLocked())
+        return;
+
+    LinksJob* job = new LinksJob(page);
     d->thread->queueJob(job);
 }
 
@@ -293,6 +297,11 @@ void PDFDocument::jobFinished(PDFJob *job)
     case PDFJob::UnLockDocumentJob: {
         emit documentLockedChanged();
         emit pageCountChanged();
+        break;
+    }
+    case PDFJob::LinksJob: {
+        LinksJob* j = static_cast<LinksJob*>(job);
+        emit linksFinished(j->m_page, j->m_links);
         break;
     }
     case PDFJob::RenderPageJob: {

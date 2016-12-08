@@ -19,6 +19,7 @@
 #include "pdfjob.h"
 
 #include <QtMath>
+#include <QUrlQuery>
 #include <poppler-qt5.h>
 
 LoadDocumentJob::LoadDocumentJob(const QString &source)
@@ -46,6 +47,62 @@ void UnLockDocumentJob::run()
 
     if (m_document->isLocked())
         m_document->unlock(m_password.toUtf8(), m_password.toUtf8());
+}
+
+LinksJob::LinksJob(int page)
+    : PDFJob(PDFJob::LinksJob), m_page(page)
+{
+}
+
+void LinksJob::run()
+{
+    Q_ASSERT(m_document);
+
+    if (m_document->isLocked() || m_page < 0 || m_page >= m_document->numPages())
+        return;
+
+    Poppler::Page *page = m_document->page(m_page);
+    QList<Poppler::Link*> links = page->links();
+    for (Poppler::Link* link : links) {
+        // link->linkArea() may return negative heights,
+        // as mentioned in Freedesktop bug:
+        // https://bugs.freedesktop.org/show_bug.cgi?id=93900
+        // To avoid later unexpected asumption on height,
+        // link->linkArea() is normalized.
+        switch (link->linkType()) {
+        case (Poppler::Link::Browse): {
+            Poppler::LinkBrowse *realLink = static_cast<Poppler::LinkBrowse*>(link);
+            QRectF linkArea = link->linkArea().normalized();
+            m_links.append(QPair<QRectF, QUrl>(linkArea, realLink->url()));
+            break;
+        }
+        case (Poppler::Link::Goto): {
+            Poppler::LinkGoto *gotoLink = static_cast<Poppler::LinkGoto*>(link);
+            // Not handling goto link to external file currently.
+            if (gotoLink->isExternal())
+                break;
+            QRectF linkArea = link->linkArea().normalized();
+            QUrl linkURL = QUrl("");
+            QUrlQuery query = QUrlQuery();
+            query.addQueryItem("page", QString::number(gotoLink->destination().pageNumber()));
+            if (gotoLink->destination().isChangeLeft()) {
+                query.addQueryItem("left", QString::number(gotoLink->destination().left()));
+            }
+            if (gotoLink->destination().isChangeTop()) {
+                query.addQueryItem("top", QString::number(gotoLink->destination().top()));
+            }
+            linkURL.setQuery(query);
+            m_links.append(QPair<QRectF, QUrl>(linkArea, linkURL));
+            break;
+        }
+        default:
+            break;
+        }
+
+    }
+
+    qDeleteAll(links);
+    delete page;
 }
 
 RenderPageJob::RenderPageJob(int index, uint width, QQuickWindow *window,
