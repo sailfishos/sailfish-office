@@ -20,6 +20,7 @@
 
 #include <poppler-qt5.h>
 #include <QDebug>
+#include <QThread>
 
 struct PDFTocEntry
 {
@@ -32,15 +33,29 @@ struct PDFTocEntry
     int pageNumber;
 };
 
-class PDFTocModel::Private
+class TocThread: public QThread
 {
+    Q_OBJECT
 public:
-    Private()
-    {}
-    ~Private() { qDeleteAll(entries); }
+    TocThread(Poppler::Document *document, QObject *parent = 0)
+        : QThread(parent), m_document(document)
+    {
+    }
+    ~TocThread()
+    {
+        wait();
+        qDeleteAll(entries);
+    }
 
     QList<PDFTocEntry*> entries;
-    Poppler::Document *document;
+
+    void run()
+    {
+        QDomDocument *toc = m_document->toc();
+        addSynopsisChildren(toc, 0);
+        delete toc;
+        emit tocAvailable();
+    }
 
     void addSynopsisChildren(QDomNode *parent, int level)
     {
@@ -60,7 +75,7 @@ public:
             // Not doing this for now, but leave it in here as a note to self
             // if (!e.attribute("ExternalFileName").isNull()) item.setAttribute("ExternalFileName", e.attribute("ExternalFileName"));
             if (!e.attribute("DestinationName").isNull()) {
-                Poppler::LinkDestination *dest = document->linkDestination(e.attribute("DestinationName"));
+                Poppler::LinkDestination *dest = m_document->linkDestination(e.attribute("DestinationName"));
                 if (dest) {
                     tocEntry->pageNumber = dest->pageNumber();
                     delete dest;
@@ -87,16 +102,32 @@ public:
         }
     }
 
+signals:
+    void tocAvailable();
+
+private:
+    Poppler::Document *m_document;
+};
+
+class PDFTocModel::Private
+{
+public:
+    Private(Poppler::Document *doc)
+        : document(doc)
+        , tocReady(false)
+        , tocThread(nullptr)
+    {}
+    ~Private() { delete tocThread; }
+
+    Poppler::Document *document;
+    bool tocReady;
+    TocThread *tocThread;
 };
 
 PDFTocModel::PDFTocModel(Poppler::Document *document, QObject *parent)
     : QAbstractListModel(parent)
-    , d(new Private)
+    , d(new Private(document))
 {
-    d->document = document;
-    QDomDocument *toc = document->toc();
-    d->addSynopsisChildren(toc, 0);
-    delete toc;
 }
 
 PDFTocModel::~PDFTocModel()
@@ -116,10 +147,10 @@ QHash<int, QByteArray> PDFTocModel::roleNames() const
 QVariant PDFTocModel::data(const QModelIndex &index, int role) const
 {
     QVariant result;
-    if (index.isValid()) {
+    if (index.isValid() && d->tocReady) {
         int row = index.row();
-        if (row > -1 && row < d->entries.count()) {
-            const PDFTocEntry *entry = d->entries.at(row);
+        if (row > -1 && row < d->tocThread->entries.count()) {
+            const PDFTocEntry *entry = d->tocThread->entries.at(row);
             switch(role)
             {
             case Title:
@@ -142,12 +173,40 @@ QVariant PDFTocModel::data(const QModelIndex &index, int role) const
 
 int PDFTocModel::rowCount(const QModelIndex &parent) const
 {
-    if (parent.isValid())
+    if (parent.isValid() || !d->tocReady)
         return 0;
-    return d->entries.count();
+    return d->tocThread->entries.count();
 }
 
 int PDFTocModel::count() const
 {
-    return d->entries.count();
+    return (d->tocReady) ? d->tocThread->entries.count() : 0;
 }
+
+bool PDFTocModel::ready() const
+{
+    return d->tocReady;
+}
+
+void PDFTocModel::requestToc()
+{
+    if (d->tocThread)
+        return;
+
+    d->tocThread = new TocThread(d->document);
+    d->tocThread->start();
+    connect(d->tocThread, &TocThread::tocAvailable,
+            this, &PDFTocModel::onTocAvailable);
+}
+
+void PDFTocModel::onTocAvailable()
+{
+    d->tocReady = true;
+    emit readyChanged();
+
+    beginInsertRows(QModelIndex(), 0, d->tocThread->entries.count() - 1);
+    endInsertRows();
+    emit countChanged();
+}
+
+#include "pdftocmodel.moc"

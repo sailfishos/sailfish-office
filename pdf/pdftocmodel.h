@@ -27,6 +27,7 @@ class PDFTocModel : public QAbstractListModel
 {
     Q_OBJECT
     Q_PROPERTY(int count READ count NOTIFY countChanged)
+    Q_PROPERTY(bool ready READ ready NOTIFY readyChanged)
 
 public:
     enum PDFTocModelRoles {
@@ -42,9 +43,16 @@ public:
     virtual QHash<int, QByteArray> roleNames() const;
 
     int count() const;
+    bool ready() const;
+
+    Q_INVOKABLE void requestToc();
 
 Q_SIGNALS:
     void countChanged();
+    void readyChanged();
+
+private Q_SLOTS:
+    void onTocAvailable();
 
 private:
     class Private;
