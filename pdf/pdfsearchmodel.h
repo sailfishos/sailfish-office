@@ -25,13 +25,14 @@ class PDFSearchModel : public QAbstractListModel
 {
     Q_OBJECT
     Q_PROPERTY(int count READ count NOTIFY countChanged)
+    Q_PROPERTY(float fraction READ fraction NOTIFY fractionChanged)
 
 public:
     enum PDFSearchModelRoles {
         Page = Qt::UserRole + 1,
         Rect
     };
-    explicit PDFSearchModel(const QList<QPair<int, QRectF> > &matches, QObject *parent = 0);
+    explicit PDFSearchModel(QObject *parent = 0);
     virtual ~PDFSearchModel();
 
     virtual QVariant data(const QModelIndex &index, int role) const;
@@ -39,9 +40,12 @@ public:
     virtual QHash<int, QByteArray> roleNames() const;
 
     int count() const;
+    float fraction() const;
+    void addMatches(float fraction, const QList<QPair<int, QRectF> > &matches);
 
 Q_SIGNALS:
     void countChanged();
+    void fractionChanged();
 
 private:
     class Private;
