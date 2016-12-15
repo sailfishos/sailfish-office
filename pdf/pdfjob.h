@@ -36,6 +36,7 @@ public:
     enum JobType {
         LoadDocumentJob,
         UnLockDocumentJob,
+        LinksJob,
         RenderPageJob,
         PageSizesJob,
         SearchDocumentJob,
@@ -78,6 +79,18 @@ public:
 
 private:
     QString m_password;
+};
+
+class LinksJob : public PDFJob
+{
+    Q_OBJECT
+public:
+    LinksJob(int page);
+
+    virtual void run();
+
+    int m_page;
+    QList<QPair<QRectF, QUrl> > m_links;
 };
 
 class RenderPageJob : public PDFJob
