@@ -29,6 +29,8 @@ Page {
 
     allowedOrientations: Orientation.All
 
+    onTocModelChanged: tocModel.requestToc()
+
     SilicaListView {
         id: tocListView
 
@@ -42,14 +44,18 @@ Page {
 
         ViewPlaceholder {
             id: placeholder
+            enabled: tocListView.model
+                     && tocListView.model.ready
+                     && tocListView.model.count == 0
             //% "Document has no table of content"
             text: qsTrId("sailfish-office-me-no-toc")
         }
-        // The enabled attribute of the placeholder is not set by binding since
-        // the model object comes from a different thread and QML cannot listen
-        // on signals from a different thread. Thus, the attribute is set by
-        // reading the count value instead of a binding.
-        onModelChanged: placeholder.enabled = !model || (model.count == 0)
+        BusyIndicator {
+            anchors.centerIn: parent
+            size: BusyIndicatorSize.Large
+            z: 1
+            running: !tocListView.model || !tocListView.model.ready
+        }
 
         delegate: BackgroundItem {
             id: bg
@@ -71,7 +77,7 @@ Page {
                 id: pageNumberLabel
                 anchors {
                     right: parent.right
-                    rightMargin: Theme.paddingLarge
+                    rightMargin: Theme.horizontalPageMargin
                     verticalCenter: parent.verticalCenter
                 }
                 text: (model.pageNumber === undefined) ? "" : model.pageNumber

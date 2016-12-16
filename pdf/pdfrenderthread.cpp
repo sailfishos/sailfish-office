@@ -120,11 +120,11 @@ public:
 
     void run() {
         QThread::exec();
-        // Delete pending search that may use document.
+        // Delete pending search and toc that may use document.
         delete searchThread;
+        delete tocModel;
         autoSaveTo();
         delete document;
-        delete tocModel;
         deleteLater();
     }
 
@@ -276,6 +276,8 @@ int PDFRenderThread::pageCount() const
 QObject* PDFRenderThread::tocModel() const
 {
     QMutexLocker(&d->thread->mutex);
+    if (d->document && !d->document->isLocked() && !d->tocModel)
+        d->tocModel = new PDFTocModel(d->document);
     return d->tocModel;
 }
 
@@ -474,8 +476,6 @@ void PDFRenderThreadQueue::processPendingJob()
 
             if (!d->document || (!d->document->isLocked() && d->document->numPages() == 0)) {
                 d->loadFailure = true;
-            } else if (!d->document->isLocked()) {
-                d->tocModel = new PDFTocModel(d->document);
             }
 
             job->deleteLater();
