@@ -43,6 +43,17 @@ public:
 
     typedef QPair<int, QRectF> ReducedBox;
 
+    class PageIterator {
+    public:
+        ~PageIterator();
+
+        bool next();
+        bool visible();
+    private:
+        class Private;
+        Private * const d;
+    };
+
     Q_INVOKABLE QRectF pageRectangle(int index) const;
 
     QQuickItem *flickable() const;
@@ -86,6 +97,7 @@ public:
     int currentPage() const;
 
     void layout();
+    bool begin(PageIterator &it);
 
     /**
      * \return The url of the link at point or an empty url if there is no link at point.

@@ -797,3 +797,54 @@ QPair<int, QRectF> PDFCanvas::pageAtPoint(const QPointF &point) const
     }
     return QPair<int, QRectF>{-1, QRectF()};
 }
+
+class PDFCanvas::PageIterator::Private {
+public:
+    Private(PDFCanvas *canvas): parent(canvas), i(0)
+    {
+    }
+
+    PDFCanvas *parent;
+    int i;
+    PDFPage &page;
+    QRectF visibleArea;
+};
+
+class PDFCanvas::PageIterator {
+public:
+    PageIterator(): d(new Private(nullptr))
+    {
+    }
+    ~PageIterator()
+    {
+        delete d;
+    }
+    bool next()
+    {
+        if (!parent || d->i >= parent->d->pageCount)
+            return false;
+
+        d->page = parent->d->pages.value(d->i);
+        d->i += 1;
+        return true;
+    }
+    bool visible()
+    {
+        
+    }
+};
+
+bool PDFCanvas::begin(PDFCanvas::PageIterator &it)
+{
+    if (d->pageCount == 0 || !d->flickable)
+        return false;
+    
+    delete(it.d->parent);
+    it.d->parent = this;
+    it.d->i = 0;
+    it.d->visibleArea.set(d->flickable->property("contentX").toFloat(),
+                          d->flickable->property("contentY").toFloat(),
+                          d->flickable->width(), d->flickable->height());
+
+    return it.next();
+}
