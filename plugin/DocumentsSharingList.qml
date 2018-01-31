@@ -37,6 +37,7 @@ ShareMethodList {
         filter: menuList.mimeType
     }
     source: menuList.path
+    popSharingPage: false
 
     header: PageHeader {
         title: menuList.title
