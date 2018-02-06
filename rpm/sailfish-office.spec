@@ -48,6 +48,7 @@ Group: System/Base
 %{_datadir}/translations/*.qm
 %{_datadir}/dbus-1/interfaces/
 %{_datadir}/dbus-1/services/
+%{_datadir}/mapplauncherd/privileges.d/sailfish-office.privileges
 
 %files ts-devel
 %{_datadir}/translations/source/*.ts

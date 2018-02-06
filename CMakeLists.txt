@@ -74,4 +74,5 @@ install(FILES ${engen_qm_file} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/transla
 install(FILES ${CMAKE_BINARY_DIR}/sailfish-office.ts DESTINATION ${CMAKE_INSTALL_PREFIX}/share/translations/source)
 install(FILES org.sailfish.office.service DESTINATION ${CMAKE_INSTALL_PREFIX}/share/dbus-1/services)
 install(FILES org.sailfish.office.xml DESTINATION ${CMAKE_INSTALL_PREFIX}/share/dbus-1/interfaces)
+install(FILES sailfish-office.privileges DESTINATION ${CMAKE_INSTALL_PREFIX}/share/mapplauncherd/privileges.d)
 
