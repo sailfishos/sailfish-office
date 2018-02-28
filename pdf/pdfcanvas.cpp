@@ -72,6 +72,7 @@ public:
         , resizeTimer(nullptr)
         , spacing(10.f)
         , linkWiggle(4.f)
+        , pageRotation(Poppler::Page::Rotate0)
     { }
 
     enum TextureType{
@@ -96,6 +97,8 @@ public:
 
     float spacing;
     float linkWiggle;
+
+    Poppler::Page::Rotation pageRotation;
 
     QRectF visibleArea;
 
@@ -147,8 +150,85 @@ public:
             page.requested = false;
         }
     }
-};
 
+    QRectF pageToCanvas(const QRectF &page, const QRectF &rect, bool translated = true) const
+    {
+        if (pageRotation == Poppler::Page::Rotate0) {
+            return QRectF(rect.x() * page.width() + (translated ? page.x() : 0.),
+                          rect.y() * page.height() + (translated ? page.y() : 0.),
+                          rect.width() * page.width(), rect.height() * page.height());
+        } else if (pageRotation == Poppler::Page::Rotate90) {
+            return QRectF((1. - rect.y() - rect.height()) * page.width()
+                          + (translated ? page.x() : 0.),
+                          rect.x() * page.height() + (translated ? page.y() : 0.),
+                          rect.height() * page.width(), rect.width() * page.height());
+        } else if (pageRotation == Poppler::Page::Rotate180) {
+            return QRectF((1. - rect.x() - rect.width()) * page.width() + (translated ? page.x() : 0.),
+                          (1. - rect.y() - rect.height()) * page.height() + (translated ? page.y() : 0.),
+                          rect.width() * page.width(), rect.height() * page.height());
+        } else if (pageRotation == Poppler::Page::Rotate270) {
+            return QRectF(rect.y() * page.width() + (translated ? page.x() : 0.),
+                          (1. - rect.x() - rect.width()) * page.height() +
+                          (translated ? page.y() : 0.),
+                          rect.height() * page.width(), rect.width() * page.height());
+        } else {
+            return QRectF();
+        }
+    }
+
+    QPointF pageToCanvas(const QRectF &page, const QPointF &at, bool translated = true) const
+    {
+        if (pageRotation == Poppler::Page::Rotate0) {
+            return QPointF(at.x() * page.width() + (translated ? page.x() : 0.),
+                           at.y() * page.height() + (translated ? page.y() : 0.));
+        } else if (pageRotation == Poppler::Page::Rotate90) {
+            return QPointF((1. - at.y()) * page.width() + (translated ? page.x() : 0.),
+                           at.x() * page.height() + (translated ? page.y() : 0.));
+        } else if (pageRotation == Poppler::Page::Rotate180) {
+            return QPointF((1. - at.x()) * page.width() + (translated ? page.x() : 0.),
+                           (1. - at.y()) * page.height() + (translated ? page.y() : 0.));
+        } else if (pageRotation == Poppler::Page::Rotate270) {
+            return QPointF(at.y() * page.width() + (translated ? page.x() : 0.),
+                           (1. - at.x()) * page.height() + (translated ? page.y() : 0.));
+        } else {
+            return QPointF();
+        }
+    }
+
+    QSizeF pageToCanvas(const QRectF &page, const QSizeF &size) const
+    {
+        if (pageRotation == Poppler::Page::Rotate0) {
+            return QSizeF(size.width() * page.width(), size.height() * page.height());
+        } else if (pageRotation == Poppler::Page::Rotate90) {
+            return QSizeF(size.height() * page.height(), size.width() * page.width());
+        } else if (pageRotation == Poppler::Page::Rotate180) {
+            return QSizeF(size.width() * page.width(), size.height() * page.height());
+        } else if (pageRotation == Poppler::Page::Rotate270) {
+            return QSizeF(size.height() * page.height(), size.width() * page.width());
+        } else {
+            return QSizeF();
+        }
+    }
+
+    QPointF canvasToPage(const QRectF &page, const QPointF &at, bool absolute = true) const
+    {
+        if (pageRotation == Poppler::Page::Rotate0) {
+            return QPointF((at.x() - (absolute ? page.x() : 0.)) / page.width(),
+                           (at.y() - (absolute ? page.y() : 0.)) / page.height());
+        } else if (pageRotation == Poppler::Page::Rotate90) {
+            return QPointF((at.y() - (absolute ? page.y() : 0.)) / page.height(),
+                           1. - (at.x() - (absolute ? page.x() : 0.)) / page.width());
+        } else if (pageRotation == Poppler::Page::Rotate180) {
+            return QPointF(1. - (at.x() - (absolute ? page.x() : 0.)) / page.width(),
+                           1. - (at.y() - (absolute ? page.y() : 0.)) / page.height());
+        } else if (pageRotation == Poppler::Page::Rotate270) {
+            return QPointF(1. - (at.y()- (absolute ? page.y() : 0.)) / page.height(),
+                           (at.x() - (absolute ? page.x() : 0.)) / page.width());
+        } else {
+            return QPointF();
+        }
+    }
+};
 
 PDFCanvas::PDFCanvas(QQuickItem *parent)
     : QQuickItem(parent), d(new Private(this))
@@ -286,6 +366,66 @@ void PDFCanvas::setPagePlaceholderColor(const QColor &color)
     }
 }
 
+PDFCanvas::PageRotation PDFCanvas::pageRotation() const
+{
+    switch (d->pageRotation) {
+    case (Poppler::Page::Rotate0):
+        return PDFCanvas::NoRotation;
+    case (Poppler::Page::Rotate90):
+        return PDFCanvas::Clockwise;
+    case (Poppler::Page::Rotate270):
+        return PDFCanvas::CounterClockwise;
+    case (Poppler::Page::Rotate180):
+        return PDFCanvas::UpSideDown;
+    }
+    return PDFCanvas::NoRotation;
+}
+
+void PDFCanvas::setPageRotation(PDFCanvas::PageRotation pageRotation)
+{
+    Poppler::Page::Rotation rotation = Poppler::Page::Rotate0;
+    switch (pageRotation) {
+    case (PDFCanvas::NoRotation):
+        rotation = Poppler::Page::Rotate0;
+        break;
+    case (PDFCanvas::Clockwise):
+        rotation = Poppler::Page::Rotate90;
+        break;
+    case (PDFCanvas::CounterClockwise):
+        rotation = Poppler::Page::Rotate270;
+        break;
+    case (PDFCanvas::UpSideDown):
+        rotation = Poppler::Page::Rotate180;
+        break;
+    }
+    if (d->pageRotation == rotation)
+        return;
+
+    d->pageRotation = rotation;
+    for (int i = 0; i < d->pageCount; ++i)
+        d->cleanPageTexturesLater(d->pages[i]);
+    layout();
+    emit pageRotationChanged();
+}
+
+void PDFCanvas::rotate(bool clockwise)
+{
+    switch (d->pageRotation) {
+    case (Poppler::Page::Rotate0):
+        setPageRotation(clockwise ? PDFCanvas::Clockwise : PDFCanvas::CounterClockwise);
+        break;
+    case (Poppler::Page::Rotate90):
+        setPageRotation(clockwise ? PDFCanvas::UpSideDown : PDFCanvas::NoRotation);
+        break;
+    case (Poppler::Page::Rotate180):
+        setPageRotation(clockwise ? PDFCanvas::CounterClockwise : PDFCanvas::Clockwise);
+        break;
+    case (Poppler::Page::Rotate270):
+        setPageRotation(clockwise ? PDFCanvas::NoRotation : PDFCanvas::UpSideDown);
+        break;
+    }
+}
+
 void PDFCanvas::layout()
 {
     if (d->pageSizes.count() == 0) {
@@ -303,7 +443,12 @@ void PDFCanvas::layout()
 
         PDFPage page;
         page.index = i;
-        page.rect = QRectF(0, totalHeight, width(), width() * ratio);
+        if (d->pageRotation == Poppler::Page::Rotate90 ||
+            d->pageRotation == Poppler::Page::Rotate270) {
+            page.rect = QRectF(0, totalHeight, width(), width() / ratio);
+        } else {
+            page.rect = QRectF(0, totalHeight, width(), width() * ratio);
+        }
         page.requested = false; // We're cancelling all requests below
         if (d->pages.contains(i)) {
             page.renderWidth = d->pages.value(i).renderWidth;
@@ -335,12 +480,7 @@ qreal PDFCanvas::squaredDistanceFromRect(const QRectF &pageRect,
                                          const QPointF &point) const
 {
     qreal dist = 0.;
-    QRectF rect {
-        reducedCoordRect.x() * pageRect.width(),
-        reducedCoordRect.y() * pageRect.height() + pageRect.y(),
-        reducedCoordRect.width() * pageRect.width(),
-        reducedCoordRect.height() * pageRect.height()
-    };
+    QRectF rect = d->pageToCanvas(pageRect, reducedCoordRect);
 
     if ((qreal)point.x() < rect.left()) {
         dist += (rect.left() - (qreal)point.x()) * (rect.left() - (qreal)point.x());
@@ -437,11 +577,7 @@ QRectF PDFCanvas::fromPageToItem(int index, const QRectF &rect) const
     if (index < 0 || index >= d->pageCount)
         return QRectF();
 
-    const PDFPage &page = d->pages.value(index);
-    return QRectF(rect.x() * page.rect.width() + page.rect.x(),
-                  rect.y() * page.rect.height() + page.rect.y(),
-                  rect.width() * page.rect.width(),
-                  rect.height() * page.rect.height());
+    return d->pageToCanvas(d->pages.value(index).rect, rect);
 }
 
 QPointF PDFCanvas::fromPageToItem(int index, const QPointF &point) const
@@ -449,9 +585,20 @@ QPointF PDFCanvas::fromPageToItem(int index, const QPointF &point) const
     if (index < 0 || index >= d->pageCount)
         return QPointF();
 
-    const PDFPage &page = d->pages.value(index);
-    return QPointF(point.x() * page.rect.width() + page.rect.x(),
-                   point.y() * page.rect.height() + page.rect.y());
+    return d->pageToCanvas(d->pages.value(index).rect, point);
+}
+
+QSizeF PDFCanvas::fromPageToItem(int index, const QSizeF &size) const
+{
+    if (index < 0 || index >= d->pageCount)
+        return QSizeF();
+
+    return d->pageToCanvas(d->pages.value(index).rect, size);
+}
+
+QPointF PDFCanvas::fromItemToPage(const QRectF &page, const QPointF &point) const
+{
+    return d->canvasToPage(page, point);
 }
 
 void PDFCanvas::linksFinished(int id, const QList<QPair<QRectF, QUrl> > &links)
@@ -483,12 +630,12 @@ void PDFCanvas::pageModified(int id, const QRectF &subpart)
     } else {
         int buf = 10;
         // Ask only for a patch on this page.
-        QRect request(int(subpart.x() * page.rect.width()) - buf,
-                      int(subpart.y() * page.rect.height()) - buf,
-                      qCeil(subpart.width() * page.rect.width()) + buf * 2,
-                      qCeil(subpart.height() * page.rect.height()) + buf * 2);
+        QRectF shape(d->pageToCanvas(page.rect, subpart, false));
+        QRect request(int(shape.x()) - buf, int(shape.y()) - buf,
+                      qCeil(shape.width()) + buf * 2, qCeil(shape.height()) + buf * 2);
         d->document->requestPage(id, d->renderWidth, window(),
-                                 request, PDFCanvas::Private::PatchTexture);
+                                 request, d->pageRotation,
+                                 PDFCanvas::Private::PatchTexture);
     }
 }
 
@@ -558,8 +705,8 @@ QSGNode* PDFCanvas::updatePaintNode(QSGNode *node, QQuickItem::UpdatePaintNodeDa
 
     //Visible area equals flickable translated by contentX/Y
     QRectF visibleArea{ d->flickable->property("contentX").toFloat(),
-                d->flickable->property("contentY").toFloat(),
-                d->flickable->width(), d->flickable->height() };
+            d->flickable->property("contentY").toFloat(),
+            d->flickable->width(), d->flickable->height() };
 
     //Loaded area equals visible area scaled to five times the size
     QRectF loadedArea = {
@@ -622,7 +769,8 @@ QSGNode* PDFCanvas::updatePaintNode(QSGNode *node, QQuickItem::UpdatePaintNodeDa
                 QRect request = (fullPageFit) ? QRect() : textureLimit;
                 if (!page.requested) {
                     d->document->requestPage(i, d->renderWidth, window(),
-                                             request, PDFCanvas::Private::RootTexture);
+                                             request, d->pageRotation,
+                                             PDFCanvas::Private::RootTexture);
                     page.requested = true;
                 }
                 priorityRequests << QPair<int, QPair<int, QRect> >(i, QPair<int, QRect>(d->renderWidth, request));
@@ -633,7 +781,8 @@ QSGNode* PDFCanvas::updatePaintNode(QSGNode *node, QQuickItem::UpdatePaintNodeDa
             // We preload full page only if they can fit into texture.
             if (textureLimit.contains(pageRect)) {
                 d->document->requestPage(i, d->renderWidth, window(),
-                                         QRect(), PDFCanvas::Private::RootTexture);
+                                         QRect(), d->pageRotation,
+                                         PDFCanvas::Private::RootTexture);
                 page.requested = true;
             }
         } else if (!loadPage) {
@@ -654,7 +803,7 @@ QSGNode* PDFCanvas::updatePaintNode(QSGNode *node, QQuickItem::UpdatePaintNodeDa
         }
 
         QMatrix4x4 m;
-        m.translate(0, page.rect.y());
+        m.translate(page.rect.x(), page.rect.y());
         t->setMatrix(m);
 
         if (showPage) {
@@ -728,14 +877,7 @@ QSGNode* PDFCanvas::updatePaintNode(QSGNode *node, QQuickItem::UpdatePaintNodeDa
                         rn->setFlag(QSGNode::OwnedByParent);
                         n->appendChildNode(rn);
                     }
-                    QRectF linkRect = page.links.value(l).first;
-                    QRectF targetRect{
-                        linkRect.x() * page.rect.width(),
-                        linkRect.y() * page.rect.height(),
-                        linkRect.width() * page.rect.width(),
-                        linkRect.height() * page.rect.height()
-                    };
-                    rn->setRect(targetRect);
+                    rn->setRect(d->pageToCanvas(page.rect, page.links.value(l).first, false));
                     rn->setColor(d->linkColor);
 
                     rn = static_cast<QSGSimpleRectNode*>(rn->nextSibling());

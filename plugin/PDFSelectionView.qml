@@ -46,7 +46,7 @@ Repeater {
                      ? flickable.contentX
                      : handle.x - Theme.itemSizeExtraLarge
             handle: root.model.handle1
-            dragHeight: root.model.handle1Height
+            handleSize: root.model.handle1Size
         },
         PDFSelectionHandle {
             id: handle2
@@ -55,7 +55,7 @@ Repeater {
                      ? flickable.contentX + flickable.width
                      : handle.x + Theme.itemSizeExtraLarge
             handle: root.model.handle2
-            dragHeight: root.model.handle2Height
+            handleSize: root.model.handle2Size
         }
     ]
 }

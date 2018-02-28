@@ -30,8 +30,8 @@ class PDFSelection : public QAbstractListModel
     Q_PROPERTY(PDFCanvas* canvas READ canvas WRITE setCanvas NOTIFY canvasChanged)
     Q_PROPERTY(QPointF handle1 READ handle1 WRITE setHandle1 NOTIFY handle1Changed)
     Q_PROPERTY(QPointF handle2 READ handle2 WRITE setHandle2 NOTIFY handle2Changed)
-    Q_PROPERTY(float handle1Height READ handle1Height NOTIFY handle1Changed)
-    Q_PROPERTY(float handle2Height READ handle2Height NOTIFY handle2Changed)
+    Q_PROPERTY(QSizeF handle1Size READ handle1Size NOTIFY handle1Changed)
+    Q_PROPERTY(QSizeF handle2Size READ handle2Size NOTIFY handle2Changed)
     Q_PROPERTY(QString text READ text NOTIFY textChanged)
     Q_PROPERTY(float wiggle READ wiggle WRITE setWiggle NOTIFY wiggleChanged)
 
@@ -73,7 +73,7 @@ public:
      * This handle can be dragged later and become the stop handle.
      */
     QPointF handle1() const;
-    float handle1Height() const;
+    QSizeF handle1Size() const;
     /**
      * Change the start/stop of the selection to the start/end of the word at point.
      * point is given in canvas coordinates. If there is no word at point,
@@ -86,7 +86,7 @@ public:
      * This handle can later be dragged to become the start handle.
      */
     QPointF handle2() const;
-    float handle2Height() const;
+    QSizeF handle2Size() const;
     /**
      * Change the stop of the selection to the end of the word at point.
      * point is given in canvas coordinates. If there is no word at point,

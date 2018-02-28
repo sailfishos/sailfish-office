@@ -106,8 +106,15 @@ void LinksJob::run()
 }
 
 RenderPageJob::RenderPageJob(int index, uint width, QQuickWindow *window,
-                             QRect subpart, int extraData)
-    : PDFJob(PDFJob::RenderPageJob), m_index(index), m_subpart(subpart), m_page(0), m_extraData(extraData), m_window(window), m_width(width)
+                             QRect subpart, int extraData, Poppler::Page::Rotation rotation)
+    : PDFJob(PDFJob::RenderPageJob)
+    , m_index(index)
+    , m_subpart(subpart)
+    , m_page(0)
+    , m_extraData(extraData)
+    , m_window(window)
+    , m_width(width)
+    , m_rotation(rotation)
 {
 }
 
@@ -117,18 +124,22 @@ void RenderPageJob::run()
 
     Poppler::Page *page = m_document->page(m_index);
     QSizeF size = page->pageSizeF();
+    if (m_rotation == Poppler::Page::Rotate90
+        || m_rotation == Poppler::Page::Rotate270) {
+        size.transpose();
+    }
     float scale = 72.0f * (float(m_width) / size.width());
 
     QImage image;
     if (m_subpart.isEmpty()) {
-        image = page->renderToImage(scale, scale);
+        image = page->renderToImage(scale, scale, -1, -1, -1, -1, m_rotation);
         m_subpart.setCoords(0, 0, image.width(), image.height());
     } else {
-        QRect pageRect = {0, 0, int(m_width), qCeil(size.height() / size.width() * m_width)};
+        QRect pageRect(0, 0, int(m_width), qCeil(size.height() / size.width() * m_width));
         m_subpart = m_subpart.intersected(pageRect);
 
         image = page->renderToImage(scale, scale, m_subpart.x(), m_subpart.y(),
-                                    m_subpart.width(), m_subpart.height());
+                                    m_subpart.width(), m_subpart.height(), m_rotation);
     }
     // Note: assuming there's exactly one handler (PDFCanvas) to catch ownership of this when PDFDocument emits a signal with this
     m_page = m_window->createTextureFromImage(image);
