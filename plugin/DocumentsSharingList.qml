@@ -19,9 +19,6 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 import Sailfish.TransferEngine 1.0
-import Sailfish.Accounts 1.0
-import com.jolla.settings.accounts 1.0
-import com.jolla.signonuiservice 1.0
 
 ShareMethodList {
     id: menuList
@@ -44,37 +41,15 @@ ShareMethodList {
         //% "Share"
         description: qsTrId("sailfish-office-la-share")
     }
-
-    // Add "add account" to the footer. User must be able to
-    // create accounts in a case there are none.
-    footer: BackgroundItem {
-        Label {
-            //: Add a share account
-            //% "Add account"
-            text: qsTrId("sailfish-office-me-add_account")
-            x: Theme.horizontalPageMargin
-            width: parent.width - x*2
-            truncationMode: TruncationMode.Fade
-            anchors.verticalCenter: parent.verticalCenter
-            color: highlighted ? Theme.highlightColor : Theme.primaryColor
-            visible: true
-        }
-
-        onClicked: {
-            jolla_signon_ui_service.inProcessParent = visualParent
-            accountCreator.startAccountCreation()
-        }
+    content: {
+        "name": name,
+        "data": text,
+        "type": type,
+        "icon": icon,
+        // also some non-standard fields for Twitter/Facebook status sharing:
+        "status" : text,
+        "linkTitle" : name
     }
-
-    SignonUiService {
-        id: jolla_signon_ui_service;
-        inProcessServiceName: "org.sailfish.office"
-        inProcessObjectPath: "/SailfishOfficeSignonUi"
-    }
-
-    AccountCreationManager {
-        id: accountCreator
-        endDestination: menuList.visualParent
-        endDestinationAction: PageStackAction.Pop
-    }
+    serviceFilter: ["sharing", "e-mail"]
+    containerPage: menuList.visualParent
 }
