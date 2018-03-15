@@ -60,6 +60,10 @@ SilicaFlickable {
         return Math.max(width, Math.min(value, maximumZoom))
     }
 
+    function rotate() {
+        pdfCanvas.rotate(true)
+    }
+
     function zoom(amount, center) {
         var oldWidth = pdfCanvas.width
         var oldHeight = pdfCanvas.height

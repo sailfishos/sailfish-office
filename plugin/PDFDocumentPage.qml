@@ -218,6 +218,7 @@ DocumentPage {
             id: row
             property bool active: pageCount.highlighted
                                   || linkBack.visible
+                                  || rotateButton.highlighted
                                   || search.highlighted
                                   || !search.iconized
                                   || textButton.highlighted
@@ -388,6 +389,22 @@ DocumentPage {
                     row.toggle(linkBack)
                     view.moveBack()
                     toolbar.hide()
+                }
+            }
+            BackgroundItem {
+                id: rotateTool
+
+                width: row.itemWidth
+                height: parent.height
+                highlighted: pressed || rotateButton.pressed
+                onClicked: view.rotate()
+                IconButton {
+                    id: rotateButton
+                    anchors.centerIn: parent
+                    highlighted: pressed || row.activeItem === rotateTool
+                    icon.source: row.activeItem === rotateTool ? "image://theme/icon-m-rotate-right-selected"
+                                                               : "image://theme/icon-m-rotate-right"
+                    onClicked: view.rotate()
                 }
             }
             BackgroundItem {
