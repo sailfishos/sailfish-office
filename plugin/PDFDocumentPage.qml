@@ -47,7 +47,7 @@ DocumentPage {
             _settings = new PDFStorage.Settings(pdfDocument.source)
         }
         var last = view.getPagePosition()
-        _settings.setLastPage(last[0] + 1, last[1], last[2], view.itemWidth)
+        _settings.setLastPage(last[0] + 1, last[1], last[2], view.itemWidth, view.pageRotation)
     }
 
     attachedPage: Component {
@@ -73,6 +73,7 @@ DocumentPage {
                     _settings = new PDFStorage.Settings(pdfDocument.source)
                 }
                 var last = _settings.getLastPage()
+                view.pageRotation = last[4]
                 if (last[3] > 0) {
                     view.itemWidth = last[3]
                     view.adjust()

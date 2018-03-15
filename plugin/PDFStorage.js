@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Caliste Damien.
+ * Copyright (C) 2015-2018 Caliste Damien.
  * Contact: Damien Caliste <dcaliste@free.fr>
  *
  * This program is free software; you can redistribute it and/or
@@ -24,15 +24,24 @@ var Settings = function(file) {
 
 /* Different tables. */
 function createTableLastViewSettings(tx) {
-    /* Currently store the last page, may be altered later to store
-       zoom level or page position. */
+    tx.executeSql("CREATE TABLE IF NOT EXISTS Version("
+                  + "id INT)")
+    var rs = tx.executeSql('SELECT id FROM Version')
+    var id = 0
+    if (rs.rows.length > 0) id = rs.rows.item(0).id
+
     tx.executeSql("CREATE TABLE IF NOT EXISTS LastViewSettings("
                   + "file TEXT   NOT NULL,"
                   + "page INT    NOT NULL,"
                   + "top  REAL           ,"
                   + "left REAL           ,"
-                  + "width INT CHECK(width > 0))");
-    tx.executeSql('CREATE UNIQUE INDEX IF NOT EXISTS idx_file ON LastViewSettings(file)');
+                  + "width INT CHECK(width > 0),"
+                  + "orientation INT DEFAULT 0)")
+    tx.executeSql('CREATE UNIQUE INDEX IF NOT EXISTS idx_file ON LastViewSettings(file)')
+    if (id == 0)
+        tx.executeSql('ALTER TABLE LastViewSettings ADD COLUMN orientation INT DEFAULT 0')
+
+    tx.executeSql('INSERT OR REPLACE INTO Version(id) VALUES (1)')
 }
 
 /* Get and set operations. */
@@ -42,24 +51,26 @@ Settings.prototype.getLastPage = function() {
     var left = 0
     var width = 0
     var file = this.source
+    var orientation = 0
     this.db.transaction(function(tx) {
         createTableLastViewSettings(tx);
-        var rs = tx.executeSql('SELECT page, top, left, width FROM LastViewSettings WHERE file = ?', [file]);
+        var rs = tx.executeSql('SELECT page, top, left, width, orientation FROM LastViewSettings WHERE file = ?', [file]);
         if (rs.rows.length > 0) {
             page = rs.rows.item(0).page;
             top  = rs.rows.item(0).top;
             left = rs.rows.item(0).left;
             width = rs.rows.item(0).width;
+            orientation = rs.rows.item(0).orientation;
         }
     });
     // Return page is in [1:]
-    return [page, top, left, width];
+    return [page, top, left, width, orientation];
 }
-Settings.prototype.setLastPage = function(page, top, left, width) {
+Settings.prototype.setLastPage = function(page, top, left, width, orientation) {
     // page is in [1:]
     var file = this.source
     this.db.transaction(function(tx) {
         createTableLastViewSettings(tx);
-        var rs = tx.executeSql('INSERT OR REPLACE INTO LastViewSettings(file, page, top, left, width) VALUES (?,?,?,?,?)', [file, page, top, left, width]);
+        var rs = tx.executeSql('INSERT OR REPLACE INTO LastViewSettings(file, page, top, left, width, orientation) VALUES (?,?,?,?,?,?)', [file, page, top, left, width, orientation]);
     });
 }

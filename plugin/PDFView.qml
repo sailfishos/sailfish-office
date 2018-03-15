@@ -30,6 +30,7 @@ SilicaFlickable {
     property alias itemWidth: pdfCanvas.width
     property alias itemHeight: pdfCanvas.height
     property alias document: pdfCanvas.document
+    property alias pageRotation: pdfCanvas.pageRotation
     property int currentPage: !quickScrollAnimation.running
                               ? pdfCanvas.currentPage : quickScrollAnimation.pageTo
     property alias selection: pdfSelection
