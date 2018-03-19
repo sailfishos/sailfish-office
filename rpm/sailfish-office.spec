@@ -25,6 +25,7 @@ Requires: nemo-qml-plugin-configuration-qt5
 Requires:  %{name}-all-translations
 Requires: jolla-theme >= 0.8.16
 Requires: qt5-qtdeclarative-import-qtquick2plugin >= 5.4.0
+Requires: declarative-transferengine-qt5 >= 0.3.1
 
 %package ts-devel
 Summary: Translation source for %{name}
