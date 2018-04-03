@@ -41,15 +41,6 @@ ShareMethodList {
         //% "Share"
         description: qsTrId("sailfish-office-la-share")
     }
-    content: {
-        "name": name,
-        "data": text,
-        "type": type,
-        "icon": icon,
-        // also some non-standard fields for Twitter/Facebook status sharing:
-        "status" : text,
-        "linkTitle" : name
-    }
     serviceFilter: ["sharing", "e-mail"]
     containerPage: menuList.visualParent
 }
