@@ -54,6 +54,13 @@ Page {
                 label: qsTrId("sailfish-office-la-filename")
                 value: info.fileName
             }
+            
+            DetailItem {
+                //: Path detail of the document
+                //% "Path"
+                label: qsTrId("sailfish-office-la-path")
+                value: info.fullPath
+            }
 
             DetailItem {
                 //: File size detail of the document
