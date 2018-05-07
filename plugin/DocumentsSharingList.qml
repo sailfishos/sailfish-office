@@ -41,6 +41,6 @@ ShareMethodList {
         //% "Share"
         description: qsTrId("sailfish-office-la-share")
     }
-    serviceFilter: ["sharing", "e-mail"]
+    serviceFilter: ["e-mail"]
     containerPage: menuList.visualParent
 }
