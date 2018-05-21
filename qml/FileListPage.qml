@@ -234,6 +234,13 @@ Page {
                 ContextMenu {
                     id: contextMenu
                     MenuItem {
+                        //: Share a file
+                        //% "Share"
+                        text: qsTrId("sailfish-office-la-share")
+                        onClicked: pageStack.push("Sailfish.TransferEngine.SharePage",
+                                                  { serviceFilter: ["e-mail"], mimeType: model.fileMimeType, source: model.filePath })
+                    }
+                    MenuItem {
                         //: Delete a file from the device
                         //% "Delete"
                         text: qsTrId("sailfish-office-me-delete")
