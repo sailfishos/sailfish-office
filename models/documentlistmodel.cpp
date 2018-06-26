@@ -177,7 +177,8 @@ int DocumentListModel::mimeTypeToDocumentClass(QString mimeType) const
             || mimeType == QLatin1String("application/vnd.openxmlformats-officedocument.wordprocessingml.document")
             || mimeType == QLatin1String("application/vnd.openxmlformats-officedocument.wordprocessingml.template")
             || mimeType == QLatin1String("application/vnd.ms-word.document.macroEnabled.12")
-            || mimeType == QLatin1String("application/vnd.ms-word.template.macroEnabled.12")) {
+            || mimeType == QLatin1String("application/vnd.ms-word.template.macroEnabled.12")
+            || mimeType == QLatin1String("application/rtf")) {
         documentClass = TextDocument;
     } else if (mimeType == QLatin1String("application/vnd.oasis.opendocument.presentation")
                || mimeType == QLatin1String("application/vnd.ms-powerpoint")
