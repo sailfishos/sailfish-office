@@ -197,20 +197,20 @@ Page {
             onClicked: {
                 switch(model.fileDocumentClass) {
                 case DocumentListModel.TextDocument:
-                    pageStack.push("Sailfish.Office.TextDocumentPage",
-                                   { title: model.fileName, path: model.filePath, mimeType: model.fileMimeType })
+                    pageStack.animatorPush("Sailfish.Office.TextDocumentPage",
+                                           { title: model.fileName, path: model.filePath, mimeType: model.fileMimeType })
                     break
                 case DocumentListModel.SpreadSheetDocument:
-                    pageStack.push("Sailfish.Office.SpreadsheetPage",
-                                   { title: model.fileName, path: model.filePath, mimeType: model.fileMimeType })
+                    pageStack.animatorPush("Sailfish.Office.SpreadsheetPage",
+                                           { title: model.fileName, path: model.filePath, mimeType: model.fileMimeType })
                     break
                 case DocumentListModel.PresentationDocument:
-                    pageStack.push("Sailfish.Office.PresentationPage",
-                                   { title: model.fileName, path: model.filePath, mimeType: model.fileMimeType })
+                    pageStack.animatorPush("Sailfish.Office.PresentationPage",
+                                           { title: model.fileName, path: model.filePath, mimeType: model.fileMimeType })
                     break
                 case DocumentListModel.PDFDocument:
-                    pageStack.push("Sailfish.Office.PDFDocumentPage",
-                                   { title: model.fileName, path: model.filePath, mimeType: model.fileMimeType })
+                    pageStack.animatorPush("Sailfish.Office.PDFDocumentPage",
+                                           { title: model.fileName, path: model.filePath, mimeType: model.fileMimeType })
                     break
                 default:
                     console.log("Unknown file format for file " + model.fileName + " with stated mimetype " + model.fileMimeType)
@@ -236,8 +236,8 @@ Page {
                         //: Share a file
                         //% "Share"
                         text: qsTrId("sailfish-office-la-share")
-                        onClicked: pageStack.push("Sailfish.TransferEngine.SharePage",
-                                                  { serviceFilter: ["e-mail"], mimeType: model.fileMimeType, source: model.filePath })
+                        onClicked: pageStack.animatorPush("Sailfish.TransferEngine.SharePage",
+                                                          { serviceFilter: ["e-mail"], mimeType: model.fileMimeType, source: model.filePath })
                     }
                     MenuItem {
                         //: Delete a file from the device

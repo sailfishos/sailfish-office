@@ -21,8 +21,7 @@ import Sailfish.Silica 1.0
 import Sailfish.Office 1.0
 import Sailfish.Office.Files 1.0
 
-ApplicationWindow
-{
+ApplicationWindow {
     id: window
 
     property Item documentItem

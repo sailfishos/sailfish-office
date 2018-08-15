@@ -420,19 +420,23 @@ DocumentPage {
         function create(annotation, callback) {
             var isText = (annotation.type == PDF.Annotation.Text
                           || annotation.type == PDF.Annotation.Caret)
-            var dialog = pageStack.push(Qt.resolvedUrl("PDFAnnotationNew.qml"),
+            var obj = pageStack.animatorPush(Qt.resolvedUrl("PDFAnnotationNew.qml"),
                                         {"isTextAnnotation": isText})
-            dialog.accepted.connect(function() {
-                annotation.contents = dialog.text
+            obj.pageCompleted.connect(function(dialog) {
+                dialog.accepted.connect(function() {
+                    annotation.contents = dialog.text
+                })
+                if (callback !== undefined) dialog.accepted.connect(callback)
             })
-            if (callback !== undefined) dialog.accepted.connect(callback)
         }
         function edit(annotation) {
-            var edit = pageStack.push(Qt.resolvedUrl("PDFAnnotationEdit.qml"),
+            var obj = pageStack.animatorPush(Qt.resolvedUrl("PDFAnnotationEdit.qml"),
                                       {"annotation": annotation})
-            edit.remove.connect(function() {
-                pageStack.pop()
-                annotation.remove()
+            obj.pageCompleted.connect(function(edit) {
+                edit.remove.connect(function() {
+                    pageStack.pop()
+                    annotation.remove()
+                })
             })
         }
     }

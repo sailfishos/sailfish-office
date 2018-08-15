@@ -47,7 +47,7 @@ Page {
 
     function pushAttachedPage() {
         if (pageStack.nextPage(base) === null) {
-            pageStack.push(base.attachedPage)
+            pageStack.animatorPush(base.attachedPage)
         } else {
             _forceNavigation = true
             pageStack.navigateForward()
@@ -84,11 +84,11 @@ Page {
                     //: Show the Details page
                     //% "Details"
                     text: qsTrId("sailfish-office-me-details_page");
-                    onClicked: pageStack.push(detailsPage, {
-                                                  source: base.source,
-                                                  indexCount: base.indexCount,
-                                                  mimeType: base.mimeType
-                                              })
+                    onClicked: pageStack.animatorPush(detailsPage, {
+                                                          source: base.source,
+                                                          indexCount: base.indexCount,
+                                                          mimeType: base.mimeType
+                                                      })
                 }
             }
         }
