@@ -64,6 +64,7 @@ public:
     Private()
         : model(new DocumentListModel)
         , connection{nullptr}
+        , ready(false)
     {
         model->setObjectName("TrackerDocumentList");
     }
@@ -74,6 +75,7 @@ public:
 
     DocumentListModel *model;
     QSparqlConnection *connection;
+    bool ready;
 };
 
 TrackerDocumentProvider::TrackerDocumentProvider(QObject *parent)
@@ -134,6 +136,10 @@ void TrackerDocumentProvider::searchFinished()
         }
         // Remove all entries with the dirty mark.
         d->model->removeItemsDirty();
+        if (!d->ready) {
+            d->ready = true;
+            emit readyChanged();
+        }
     }
 
     emit countChanged();
@@ -159,7 +165,7 @@ QUrl TrackerDocumentProvider::icon() const
 
 bool TrackerDocumentProvider::isReady() const
 {
-    return d->connection != nullptr;
+    return d->ready;
 }
 
 QObject* TrackerDocumentProvider::model() const
