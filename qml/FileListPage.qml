@@ -141,9 +141,8 @@ Page {
             text: page.provider.count == 0 ? qsTrId("sailfish-office-la-no_documents")
                                          : //% "No documents found"
                                            qsTrId("sailfish-office-la-not-found")
-            visible: opacity > 0
             opacity: (page.provider.ready && page.provider.count == 0) || (searchText.length > 0 && listView.count == 0) ? 1.0 : 0.0
-            Behavior on opacity { FadeAnimation {} }
+            Behavior on opacity { FadeAnimator {} }
         }
 
         delegate: ListItem {
