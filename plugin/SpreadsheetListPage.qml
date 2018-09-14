@@ -71,7 +71,7 @@ Page {
 
             onClicked: {
                 page.document.currentIndex = model.contentIndex
-                pageStack.navigateBack(PageStackAction.Animated)
+                pageStack.navigateBack()
             }
         }
     }
