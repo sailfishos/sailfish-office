@@ -131,5 +131,3 @@ Q_DECL_EXPORT int main(int argc, char *argv[])
 
     return retn;
 }
-
-#include "main.moc"
