@@ -86,7 +86,6 @@ DocumentPage {
                 var newCenter = mapToItem(documentFlickable, pinch.center.x, pinch.center.y)
                 controller.zoomAroundPoint(controller.zoom * (pinch.scale - pinch.previousScale), newCenter.x, newCenter.y)
             }
-            onPinchFinished: controller.zoomTimeout()
 
             Calligra.LinkArea {
                 anchors.fill: parent
