@@ -143,11 +143,13 @@ void DocumentListModel::addItem(QString name, QString path, QString type, int si
 
 void DocumentListModel::removeItemsDirty()
 {
-    for (int index=0; index < d->entries.count(); index++) {
+    for (int index=0; index < d->entries.count();) {
         if (d->entries.at(index).dirty) {
             beginRemoveRows(QModelIndex(), index, index);
             d->entries.removeAt(index);
             endRemoveRows();
+        } else {
+            ++index;
         }
     }
 }

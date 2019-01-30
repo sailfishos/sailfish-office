@@ -46,6 +46,7 @@ static const QString documentQuery{
     "?u nfo:fileSize ?size . "
     "?u nfo:fileLastAccessed ?lastAccessed . "
     "?u nie:mimeType ?mimeType . "
+    "?u tracker:available true . "
     "{ ?u a nfo:PaginatedTextDocument } UNION { ?u a nfo:Presentation } UNION { ?u a nfo:Spreadsheet } "
 "}"
 };
