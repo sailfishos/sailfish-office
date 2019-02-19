@@ -83,7 +83,7 @@ CoverBackground {
 
             anchors.fill: parent
             visible: window.documentItem && (!window.documentItem.hasOwnProperty("contentAvailable") ||
-                                             window.documentItem.contentAvailable)
+                                              window.documentItem.contentAvailable)
 
             function updatePreview() {
                 if (window.visible && window.documentItem) {
@@ -94,8 +94,13 @@ CoverBackground {
             }
             Connections {
                 target: window
-                onDocumentItemChanged: { previewImage.updatePreview() }
-                onOrientationChanged: { previewImage.updatePreview() }
+                onDocumentItemChanged: delayedUpdate.restart()
+                onOrientationChanged: delayedUpdate.restart()
+            }
+            Timer {
+                id: delayedUpdate
+                interval: 16
+                onTriggered: previewImage.updatePreview()
             }
         }
 

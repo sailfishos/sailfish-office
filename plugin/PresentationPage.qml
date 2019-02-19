@@ -18,55 +18,145 @@
 
 import QtQuick 2.0
 import Sailfish.Silica 1.0
+import Sailfish.Silica.private 1.0
 import org.kde.calligra 1.0 as Calligra
 
 DocumentPage {
     id: page
 
-    busy: doc.status != Calligra.DocumentStatus.Loaded
+    busy: doc.status !== Calligra.DocumentStatus.Loaded
+    documentItem: view
     source: doc.source
-    indexCount: doc.indexCount
 
-    attachedPage: Component {
-        PresentationThumbnailPage {
-            document: doc
-        }
-    }
+    FadeBlocker {}
 
     onStatusChanged: {
         //Delay loading the document until the page has been activated.
         if (status == PageStatus.Active) {
-            doc.source = page.path
+            doc.source = page.source
         }
     }
 
     SlideshowView {
-        width: page.width
-        height: page.height
+        id: view
 
-        itemWidth: page.width
-        itemHeight: page.height
+        property bool contentAvailable: !page.busy
 
+        anchors.fill: parent
+        orientation: Qt.Vertical
         currentIndex: doc.currentIndex
 
+        enabled: !page.busy
+        opacity: enabled ? 1.0 : 0.0
+        Behavior on opacity { FadeAnimator { duration: 400 }}
+
         model: Calligra.ContentsModel {
+            id: contentsModel
             document: doc
             thumbnailSize.width: page.width
             thumbnailSize.height: page.width * 0.75
         }
 
-        delegate: ZoomableThumbnail {
-            width: PathView.view.itemWidth
-            maxHeight: PathView.view.itemHeight
+        delegate: ZoomableFlickable {
+            id: flickable
 
-            y: - height / 2
+            readonly property bool active: PathView.isCurrentItem || viewMoving
+            onActiveChanged: {
+                if (!active) {
+                    resetZoom()
+                    largeThumb.data = contentsModel.thumbnail(-1, 0)
+                }
+            }
 
-            content: PathView.view.model.thumbnail(index, page.width)
+            onZoomedChanged: overlay.active = !zoomed
+            onZoomFinished: if (largeThumb.implicitWidth === 0) largeThumb.data = contentsModel.thumbnail(model.index, 3264)
 
-            onClicked: page.open = !page.open
+            width: view.width
+            height: view.height
+            viewMoving: view.moving
+            scrollDecoratorColor: Theme.highlightDimmerFromColor(Theme.highlightDimmerColor, Theme.DarkOnLight)
+            implicitContentWidth: thumb.implicitWidth
+            implicitContentHeight: thumb.implicitHeight
 
-            onUpdateSize: {
-                content = PathView.view.model.thumbnail(index, newWidth)
+            MouseArea {
+                anchors.fill: parent
+                onClicked: {
+                    if (zoomed) {
+                        zoomOut()
+                    } else {
+                        overlay.active = !overlay.active
+                    }
+                }
+            }
+
+            Calligra.ImageDataItem {
+                id: thumb
+
+                property bool initialized
+                property bool ready: initialized && !viewMoving
+
+                Component.onCompleted: initialized = true
+                onReadyChanged: {
+                    if (ready) {
+                        ready = true // remove binding
+                        data = contentsModel.thumbnail(model.index, Screen.height)
+                    }
+                }
+
+                anchors.fill: parent
+            }
+            Calligra.ImageDataItem {
+                id: largeThumb
+                visible: implicitWidth > 0
+                anchors.fill: parent
+            }
+        }
+    }
+
+    Item {
+        id: overlay
+        property bool active: true
+
+        enabled: active && !deleteButton.remorseActive
+        anchors.fill: parent
+        opacity: enabled ? 1.0 : 0.0
+        Behavior on opacity { FadeAnimator {}}
+
+        FadeGradient {
+            topDown: true
+            width: parent.width
+            height: header.height + Theme.paddingLarge
+        }
+
+        DocumentHeader {
+            id: header
+            color: Theme.lightPrimaryColor
+            page: page
+            indexCount: doc.indexCount
+        }
+
+        OverlayToolbar {
+            enabled: !page.busy
+            opacity: enabled ? 1.0 : 0.0
+            Behavior on opacity { FadeAnimator { duration: 400 }}
+
+            DeleteButton {
+                id: deleteButton
+                page: page
+                icon.color: Theme.lightPrimaryColor
+            }
+
+            ShareButton {
+                page: page
+                icon.color: Theme.lightPrimaryColor
+            }
+
+            IndexButton {
+                onClicked: pageStack.animatorPush(Qt.resolvedUrl("PresentationThumbnailPage.qml"), { document: doc })
+
+                index: Math.max(1, view.currentIndex + 1)
+                count: doc.indexCount
+                color: Theme.lightPrimaryColor
             }
         }
     }

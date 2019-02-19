@@ -39,7 +39,7 @@ Page {
         }
 
         delegate: BackgroundItem {
-            id: bg
+            property bool isCurrentItem: model.contentIndex + 1 == page.document.currentIndex
             Label {
                 anchors {
                     left: parent.left
@@ -49,8 +49,7 @@ Page {
                     verticalCenter: parent.verticalCenter
                 }
                 text: model.title
-                color: (model.contentIndex == page.document.currentIndex || bg.highlighted) ? Theme.highlightColor
-                                                                                            : Theme.primaryColor
+                color: highlighted || isCurrentItem ? Theme.highlightColor : Theme.primaryColor
                 truncationMode: TruncationMode.Fade
             }
             Label {
@@ -61,8 +60,7 @@ Page {
                     verticalCenter: parent.verticalCenter
                 }
                 text: model.contentIndex + 1
-                color: (model.contentIndex == page.document.currentIndex || bg.highlighted) ? Theme.highlightColor
-                                                                                            : Theme.primaryColor
+                color: highlighted || isCurrentItem ? Theme.highlightColor : Theme.primaryColor
             }
 
             onClicked: {

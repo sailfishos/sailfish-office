@@ -198,19 +198,19 @@ Page {
                 switch(model.fileDocumentClass) {
                 case DocumentListModel.TextDocument:
                     pageStack.animatorPush("Sailfish.Office.TextDocumentPage",
-                                           { title: model.fileName, path: model.filePath, mimeType: model.fileMimeType })
+                                           { title: model.fileName, source: model.filePath, mimeType: model.fileMimeType, provider: page.provider })
                     break
                 case DocumentListModel.SpreadSheetDocument:
                     pageStack.animatorPush("Sailfish.Office.SpreadsheetPage",
-                                           { title: model.fileName, path: model.filePath, mimeType: model.fileMimeType })
+                                           { title: model.fileName, source: model.filePath, mimeType: model.fileMimeType, provider: page.provider })
                     break
                 case DocumentListModel.PresentationDocument:
                     pageStack.animatorPush("Sailfish.Office.PresentationPage",
-                                           { title: model.fileName, path: model.filePath, mimeType: model.fileMimeType })
+                                           { title: model.fileName, source: model.filePath, mimeType: model.fileMimeType, provider: page.provider })
                     break
                 case DocumentListModel.PDFDocument:
                     pageStack.animatorPush("Sailfish.Office.PDFDocumentPage",
-                                           { title: model.fileName, path: model.filePath, mimeType: model.fileMimeType })
+                                           { title: model.fileName, source: model.filePath, mimeType: model.fileMimeType, provider: page.provider })
                     break
                 default:
                     console.log("Unknown file format for file " + model.fileName + " with stated mimetype " + model.fileMimeType)
@@ -219,7 +219,6 @@ Page {
             }
 
             function deleteFile() {
-                var idx = index
                 //: Deleting file after timeout.
                 //% "Deleting"
                 remorseAction(qsTrId("sailfish-office-la-deleting"), function() { page.provider.deleteFile(model.filePath) })

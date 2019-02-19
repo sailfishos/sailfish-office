@@ -48,7 +48,7 @@ Page {
         }
 
         delegate: Item {
-            id: base
+            id: root
             width: GridView.view.cellWidth
             height: GridView.view.cellHeight
 
@@ -66,14 +66,14 @@ Page {
                     width: label.width + Theme.paddingMedium
                     height: label.height
                     radius: Theme.paddingSmall
-                    color: base.GridView.isCurrentItem ? Theme.highlightColor : Theme.secondaryHighlightColor
+                    color: root.GridView.isCurrentItem ? Theme.highlightColor : Theme.darkPrimaryColor
                 }
 
                 Label {
                     id: label
                     anchors.centerIn: parent
                     text: model.contentIndex + 1
-                    color: mouseArea.pressed && mouseArea.containsMouse ? Theme.highlightColor : Theme.primaryColor
+                    color: Theme.lightPrimaryColor
                 }
 
                 Rectangle {

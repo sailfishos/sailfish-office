@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2013-2014 Jolla Ltd.
- * Contact: Robin Burchell <robin.burchell@jolla.com>
+ * Copyright (C) 2019 Jolla Ltd.
+ * Contact: Joona Petrell <joona.petrell@jolla.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,26 +19,17 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 
-Page {
-    id: page
-
-    property string title
-    property url source
-    property bool error
-    property string mimeType
-    property Item documentItem: page
-    property alias busy: busyIndicator.running
-    property QtObject provider
-
-    Component.onDestruction: window.documentItem = null
-    onStatusChanged: {
-        if (status == PageStatus.Active) {
-            window.documentItem = documentItem
-        }
+IconButton {
+    property DocumentPage page
+    icon.source: "image://theme/icon-m-share"
+    visible: page.source != ""  && !page.error
+    anchors.verticalCenter: parent.verticalCenter
+    onClicked: {
+        pageStack.animatorPush("Sailfish.TransferEngine.SharePage",
+                               {
+                                   "source": page.source,
+                                   "mimeType": page.mimeType,
+                                   "serviceFilter": ["e-mail"]
+                               })
     }
-
-    allowedOrientations: Orientation.All
-    clip: status !== PageStatus.Active || pageStack.dragInProgress
-
-    BusyIndicator { id: busyIndicator; anchors.centerIn: parent; size: BusyIndicatorSize.Large; z: 101 }
 }

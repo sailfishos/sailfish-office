@@ -18,81 +18,131 @@
 
 import QtQuick 2.0
 import Sailfish.Silica 1.0
+import Sailfish.Silica.private 1.0
 import org.kde.calligra 1.0 as Calligra
 
 DocumentPage {
     id: page
 
-    busy: doc.status != Calligra.DocumentStatus.Loaded
-    source: doc.source
-    indexCount: doc.indexCount
-
-    attachedPage: Component {
-        SpreadsheetListPage {
-            document: doc
+    onStatusChanged: {
+        if (status == PageStatus.Active) {
+            doc.source = page.source
+        }
+        //Reset the position when we change sheets
+        if (status == PageStatus.Activating) {
+            flickable.contentX = 0
+            flickable.contentY = 0
         }
     }
 
-    onStatusChanged: {
-        //Delay loading the document until the page has been activated.
-        if (status == PageStatus.Active) {
-            doc.source = page.path
-        }
+    busy: doc.status != Calligra.DocumentStatus.Loaded
+    documentItem: documentView
 
-        //Reset the position when we change sheets
-        if (status == PageStatus.Activating) {
-            documentFlickable.contentX = 0
-            documentFlickable.contentY = 0
+    FadeBlocker {
+        id: fadeBlocker
+        color: "white"
+        Binding {
+            when: fadeBlocker.fullscreen
+            target: __silica_applicationwindow_instance.__quickWindow
+            property: "color"
+            value: Qt.application.active ? fadeBlocker.color : "transparent"
         }
     }
 
     Calligra.Document {
         id: doc
+        onStatusChanged: if (status == Calligra.DocumentStatus.Loaded) viewController.zoomToFitWidth(page.width)
     }
 
     Calligra.View {
         id: documentView
 
-        width: page.width
-        height: page.height
+        property bool contentAvailable: !page.busy
 
+        anchors.fill: parent
         document: doc
     }
 
+    ControllerFlickable {
+        id: flickable
 
-    SilicaFlickable {
-        id: documentFlickable
+        onZoomedChanged: overlay.active = !zoomed
 
-        width: page.width
-        height: page.height
+        controller: viewController
+        anchors.fill: parent
+        enabled: !page.busy
+        opacity: enabled ? 1.0 : 0.0
+        Behavior on opacity { FadeAnimator { duration: 400 }}
 
         Calligra.ViewController {
-            id: controller
+            id: viewController
             view: documentView
-            flickable: documentFlickable
+            flickable: flickable
             useZoomProxy: false
-            maximumZoom: 5.0
+            maximumZoom: 10.0
+            minimumZoomFitsWidth: true
         }
 
-        children: [
-            HorizontalScrollDecorator { color: Theme.highlightDimmerColor },
-            VerticalScrollDecorator { color: Theme.highlightDimmerColor }
-        ]
-
-        PinchArea {
+        Calligra.LinkArea {
             anchors.fill: parent
+            document: doc
+            onClicked: {
+                if (flickable.zoomed) {
+                    flickable.zoomOut()
+                } else {
+                    overlay.active = !overlay.active
+                }
+            }
+            onLinkClicked: Qt.openUrlExternally(linkTarget)
+            controllerZoom: viewController.zoom
+        }
+    }
 
-            onPinchUpdated: {
-                var newCenter = mapToItem(documentFlickable, pinch.center.x, pinch.center.y)
-                controller.zoomAroundPoint(controller.zoom * (pinch.scale - pinch.previousScale), newCenter.x, newCenter.y)
+    Item {
+        id: overlay
+        property bool active: true
+
+        enabled: active && !deleteButton.remorseActive
+        anchors.fill: parent
+        opacity: enabled ? 1.0 : 0.0
+        Behavior on opacity { FadeAnimator {}}
+
+        FadeGradient {
+            topDown: true
+            width: parent.width
+            height: header.height + Theme.paddingLarge
+            color: fadeBlocker.color
+        }
+
+        DocumentHeader {
+            id: header
+            color: Theme.darkPrimaryColor
+            page: page
+            indexCount: doc.indexCount
+        }
+
+        OverlayToolbar {
+            enabled: !page.busy
+            opacity: enabled ? 1.0 : 0.0
+            color: fadeBlocker.color
+            Behavior on opacity { FadeAnimator { duration: 400 }}
+
+            DeleteButton {
+                id: deleteButton
+                page: page
+                icon.color: Theme.darkPrimaryColor
             }
 
-            Calligra.LinkArea {
-                anchors.fill: parent
-                document: doc
-                onClicked: page.open = !page.open
-                onLinkClicked: Qt.openUrlExternally(linkTarget)
-                controllerZoom: controller.zoom
+            ShareButton {
+                page: page
+                icon.color: Theme.darkPrimaryColor
+            }
+
+            IndexButton {
+                onClicked: pageStack.animatorPush(Qt.resolvedUrl("SpreadsheetListPage.qml"), { document: doc })
+                index: Math.max(1, doc.currentIndex + 1)
+                count: doc.indexCount
+                color: Theme.darkPrimaryColor
             }
         }
     }

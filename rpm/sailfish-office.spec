@@ -16,7 +16,7 @@ BuildRequires: cmake
 BuildRequires: qt5-qttools-linguist
 Requires: calligra-components >= 2.7.9+git4
 Requires: calligra-filters >= 2.7.9+git4
-Requires: sailfishsilica-qt5 >= 0.27.0
+Requires: sailfishsilica-qt5 >= 1.0.59
 Requires: sailfish-components-accounts-qt5
 Requires: libqt5sparql-tracker
 Requires: mapplauncherd >= 4.1.17

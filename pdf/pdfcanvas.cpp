@@ -558,7 +558,7 @@ QSGNode* PDFCanvas::updatePaintNode(QSGNode *node, QQuickItem::UpdatePaintNodeDa
 
     //Visible area equals flickable translated by contentX/Y
     QRectF visibleArea{ d->flickable->property("contentX").toFloat(),
-                d->flickable->property("contentY").toFloat(),
+                d->flickable->property("contentY").toFloat() - y(),
                 d->flickable->width(), d->flickable->height() };
 
     //Loaded area equals visible area scaled to five times the size

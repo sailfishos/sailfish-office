@@ -42,38 +42,31 @@ import Sailfish.Silica 1.0
 BackgroundItem {
     id: root
 
-    property bool iconized: true
+    property bool active
     property int matchCount: -1
-    property real iconizedWidth
+    property real expandedWidth
     property bool searching
     property alias searchProgress: progressBar.progress
 
-    property real _margin: Math.max((iconizedWidth - searchIcon.width) / 2., 0.)
+    property real _margin: Math.max((width - searchIcon.width) / 2., 0.)
 
     signal requestSearch(string text)
     signal requestPreviousMatch()
     signal requestNextMatch()
     signal requestCancel()
 
-    onClicked: iconized = false
-    onIconizedChanged: if (!iconized) searchField.forceActiveFocus()
+    onClicked: active = true
+    onActiveChanged: if (active) searchField.forceActiveFocus()
 
-    states: [State {
-                 name: "extended"
-                 when: !root.iconized
-                 PropertyChanges {
-                     target: root
-                     _margin: Theme.horizontalPageMargin
-                 }
-             },
-             State {
-                 name: "iconized"
-                 when: root.iconized
-                 PropertyChanges {
-                     target: root
-                     width: iconizedWidth
-                 }
-             }]
+    states: State {
+        name: "expanded"
+        when: root.active
+        PropertyChanges {
+            target: root
+            _margin: Theme.horizontalPageMargin
+            width: expandedWidth
+        }
+    }
     transitions: Transition {
         NumberAnimation {
             properties: "_margin, width"
@@ -172,7 +165,7 @@ BackgroundItem {
                 cursorPosition = text.length
             } else {
                 if (!text) {
-                    root.iconized = true
+                    root.active = false
                 } else if (matchCount == 0 && !searching) {
                     text = ""
                 }
@@ -191,7 +184,7 @@ BackgroundItem {
 
         background: null
 
-        visible: !root.iconized && opacity > 0.
+        visible: root.active && opacity > 0.
 
         opacity: root._margin == Theme.horizontalPageMargin ? 1. : 0.
         Behavior on opacity { FadeAnimation {} }
@@ -258,7 +251,7 @@ BackgroundItem {
                     searchField._searchText = ""
                     if (!searchField.activeFocus || searchField.text == "") {
                         // Close case.
-                        root.iconized = true
+                        root.active = false
                         searchField.focus = false
                     } else {
                         // Clear case.
