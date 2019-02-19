@@ -32,11 +32,20 @@ Summary: Translation source for %{name}
 License: GPLv2
 Group: System/Base
 
+%package tests
+Summary: Unitary tests for %{name}
+Requires: qt5-qtdeclarative-import-qttest
+Requires: qt5-qtdeclarative-devel-tools
+Requires: %{name} = %{version}-%{release}
+
 
 %description
 %{summary}.
 
 %description ts-devel
+%{summary}.
+
+%description tests
 %{summary}.
 
 
@@ -54,6 +63,9 @@ Group: System/Base
 %files ts-devel
 %{_datadir}/translations/source/*.ts
 
+%files tests
+/opt/tests/sailfish-office/tst_PDFDocumentPage.qml
+/opt/tests/sailfish-office/data/*.pdf
 
 %prep
 %setup -q -n %{name}-%{version}

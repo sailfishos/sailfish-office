@@ -27,6 +27,12 @@ import "PDFStorage.js" as PDFStorage
 DocumentPage {
     id: base
 
+    // Group of accessors properties. Can be used to control the PDFDocumentPage
+    // from outside or for testing purposes.
+    property alias document: pdfDocument
+    property alias placeHolder: placeHolderLoader
+    property alias toolbar: toolbar
+
     property var _settings // Handle save and restore the view settings using PDFStorage
     property ContextMenu contextMenuLinks
     property ContextMenu contextMenuText
@@ -90,6 +96,7 @@ DocumentPage {
     }
 
     Loader {
+        id: placeHolderLoader
         parent: base
         sourceComponent: (pdfDocument.failure || pdfDocument.locked) ? placeholderComponent : null
         anchors.verticalCenter: parent.verticalCenter
@@ -170,6 +177,11 @@ DocumentPage {
         id: toolbar
 
         property Notification notice
+
+        // Group of accessors properties. Can be used to control the toolbar
+        // from outside or for testing purposes.
+        property alias searchIconized: search.iconized
+        property alias searchText: search.text
 
         width: parent.width
         height: base.orientation == Orientation.Portrait

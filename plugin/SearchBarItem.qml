@@ -47,6 +47,7 @@ BackgroundItem {
     property real iconizedWidth
     property bool searching
     property alias searchProgress: progressBar.progress
+    property alias text: searchField._searchText
 
     property real _margin: Math.max((iconizedWidth - searchIcon.width) / 2., 0.)
 
