@@ -109,7 +109,6 @@ void TrackerDocumentProvider::startSearch()
     QSparqlQuery q(documentQuery);
     QSparqlResult* result = d->connection->exec(q);
     connect(result, SIGNAL(finished()), this, SLOT(searchFinished()));
-
 }
 
 void TrackerDocumentProvider::stopSearch()
