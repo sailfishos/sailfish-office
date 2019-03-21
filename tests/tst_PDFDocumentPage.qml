@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Caliste Damien.
+ * Copyright (C) 2016-2019 Caliste Damien.
  * Contact: Damien Caliste <dcaliste@free.fr>
  *
  * This program is free software; you can redistribute it and/or
@@ -31,6 +31,28 @@ ApplicationWindow {
             id: page
             mimeType: "application/pdf"
             Component.onCompleted: window._mainPage = page
+
+            function clickAt(testCase, x, y) {
+                clickFeedback.x = x - clickFeedback.width / 2
+                clickFeedback.y = y - clickFeedback.height / 2
+                clickAnimation.start()
+                testCase.tryCompare(clickAnimation, "running", false)
+                testCase.mouseClick(page, x, y)
+            }
+
+            Rectangle {
+                id: clickFeedback
+                height: Theme.itemSizeMedium
+                width: height
+                radius: Theme.itemSizeMedium / 2
+                color: Theme.highlightColor
+                opacity: 0.
+                SequentialAnimation {
+                    id: clickAnimation
+                    NumberAnimation { target: clickFeedback; property: "opacity"; duration: 500; to: 1.0; easing.type: Easing.InOutCubic }
+                    NumberAnimation { target: clickFeedback; property: "opacity"; duration: 500; to: 0.0; easing.type: Easing.InOutCubic }
+                }
+            }
         }
     }
 
@@ -223,6 +245,7 @@ ApplicationWindow {
     }
 
     TestCase {
+        id: searchTestCase
         name: "search"
         when: _mainPage && windowShown
 
@@ -230,6 +253,13 @@ ApplicationWindow {
         property rect match: Qt.rect(0.546236, 0.794508, 0.0332727, 0.0126171)
         property int backMatchPage: 0
         property rect backMatch: Qt.rect(0.723961, 0.312414, 0.0332727, 0.0122314)
+
+        IconButton {
+            id: refIcon
+            width: icon.width
+            height: icon.height
+            icon.source: "image://theme/icon-m-left"
+        }
 
         function checkCentredMatch(page, match) {
             tryCompare(_mainPage.documentItem, "scrolling", false)
@@ -258,7 +288,7 @@ ApplicationWindow {
         function test_no_match() {
             _mainPage.toolbar.show()
             tryCompare(_mainPage.toolbar, "offset", _mainPage.toolbar.height)
-            mouseClick(_mainPage, 0.5 * window.width / 4, window.height - Theme.itemSizeSmall)
+            _mainPage.clickAt(searchTestCase, 0.5 * window.width / 4, window.height - _mainPage.toolbar.height / 2)
             tryCompare(_mainPage.toolbar, "searchIconized", false)
             verify(!_mainPage.toolbar.autoShowHide)
             keyClick("p")
@@ -275,7 +305,7 @@ ApplicationWindow {
 
         function test_no_match_finalize() {
             tryCompare(_mainPage.toolbar, "searchIconized", false)
-            mouseClick(_mainPage, window.width - Theme.itemSizeSmall / 2, window.height - _mainPage.toolbar.height / 2)
+            _mainPage.clickAt(searchTestCase, window.width - refIcon.width / 2 - Theme.horizontalPageMargin, window.height - _mainPage.toolbar.height / 2)
             tryCompare(_mainPage.toolbar, "searchIconized", true)
         }
 
@@ -283,7 +313,7 @@ ApplicationWindow {
             _mainPage.documentItem.goToPage(0, 0., 0.)
             _mainPage.toolbar.show()
             tryCompare(_mainPage.toolbar, "offset", _mainPage.toolbar.height)
-            mouseClick(_mainPage, 0.5 * window.width / 4, window.height - Theme.itemSizeSmall)
+            _mainPage.clickAt(searchTestCase, 0.5 * window.width / 4, window.height - _mainPage.toolbar.height / 2)
             tryCompare(_mainPage.toolbar, "searchIconized", false)
             verify(!_mainPage.toolbar.autoShowHide)
             keyClick("e")
@@ -297,27 +327,27 @@ ApplicationWindow {
             tryCompare(_mainPage, "height", window.height) // Ensure keyboard is folded
             tryCompare(_mainPage.documentItem, "scrolling", false)
             tryCompare(_mainPage.toolbar, "searchIconized", false)
-            mouseClick(_mainPage, window.width - Theme.paddingLarge - 1.5 * Theme.itemSizeSmall, window.height - _mainPage.toolbar.height / 2)
+            _mainPage.clickAt(searchTestCase, window.width - Theme.paddingLarge - 1.5 * refIcon.width - Theme.horizontalPageMargin, window.height - _mainPage.toolbar.height / 2)
             checkCentredMatch(matchPage, match)
         }
 
         function test_match_back_navigate() {
             tryCompare(_mainPage.toolbar, "searchIconized", false)
-            mouseClick(_mainPage, window.width - 2 * Theme.paddingLarge - 2.5 * Theme.itemSizeSmall, window.height - _mainPage.toolbar.height / 2)
+            _mainPage.clickAt(searchTestCase, window.width - 2 * Theme.paddingLarge - 2.5 * refIcon.width - Theme.horizontalPageMargin, window.height - _mainPage.toolbar.height / 2)
             checkCentredMatch(backMatchPage, backMatch)
         }
 
         function test_match_reopen() {
-            mouseClick(_mainPage, window.width / 2, window.height - _mainPage.toolbar.height / 2)
+            _mainPage.clickAt(searchTestCase, window.width / 2, window.height - _mainPage.toolbar.height / 2)
             tryCompare(_mainPage.toolbar, "searchIconized", false)
-            mouseClick(_mainPage, _mainPage.width - Theme.itemSizeSmall / 2, _mainPage.height - _mainPage.toolbar.height / 2)
+            _mainPage.clickAt(searchTestCase, _mainPage.width - refIcon.width / 2 - Theme.horizontalPageMargin, window.height - _mainPage.toolbar.height / 2)
             tryCompare(_mainPage.toolbar, "searchIconized", false)
             compare(_mainPage.toolbar.searchText, "")
         }
 
         function test_match_reopen_finalize() {
             tryCompare(_mainPage.toolbar, "searchIconized", false)
-            mouseClick(_mainPage, window.width - Theme.itemSizeSmall / 2, window.height - _mainPage.toolbar.height / 2)
+            _mainPage.clickAt(searchTestCase, window.width - refIcon.width / 2 - Theme.horizontalPageMargin, window.height - _mainPage.toolbar.height / 2)
             tryCompare(_mainPage.toolbar, "searchIconized", true)
             _mainPage.toolbar.hide()
             tryCompare(_mainPage.toolbar, "offset", 0)
