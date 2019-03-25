@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2013-2014 Jolla Ltd.
- * Contact: Robin Burchell <robin.burchell@jolla.com>
+ * Copyright (C) 2013-2019 Jolla Ltd.
+ * Contact: Pekka Vuorela <pekka.vuorela@jolla.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -22,13 +22,13 @@
 #include <QtQml>
 #include <QQuickView>
 #include <QQmlError>
-#include <QQmlContext>
 #include <QQmlEngine>
 #include <QQuickItem>
 #include <QDBusConnection>
 #include <QTranslator>
 #include <QLocale>
 #include <QDebug>
+#include <QLoggingCategory>
 
 #include <MDeclarativeCache>
 
@@ -107,14 +107,23 @@ Q_DECL_EXPORT int main(int argc, char *argv[])
     Q_UNUSED(QT_TRID_NOOP("sailfish-office-ap-name"))
 
     bool preStart = false;
+    bool debug = false;
     QString fileName;
 
     for (int i = 1; i < argc; ++i) {
-        if (QString(argv[i]) == QStringLiteral("-prestart")) {
+        QString parameter(argv[i]);
+        if (parameter == QStringLiteral("-prestart")) {
             preStart = true;
+        } else if (parameter == QStringLiteral("-d")) {
+            debug = true;
         } else if (fileName.isEmpty()) {
-            fileName = QString(argv[i]);
+            fileName = parameter;
         }
+    }
+
+    if (!debug) {
+        // calligra is quite noisy by default
+        QLoggingCategory::setFilterRules("calligra.*.debug=false");
     }
 
     int retn = 1;
