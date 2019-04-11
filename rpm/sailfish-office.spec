@@ -9,6 +9,7 @@ BuildRequires: pkgconfig(Qt5Quick)
 BuildRequires: pkgconfig(Qt5Widgets)
 #BuildRequires: pkgconfig(Qt5WebKit)
 BuildRequires: pkgconfig(Qt5DBus)
+BuildRequires: pkgconfig(sailfishsilica) >= 1.1.8
 BuildRequires: libqt5sparql-devel
 BuildRequires: poppler-qt5-devel poppler-qt5 poppler-devel poppler
 BuildRequires: mapplauncherd-qt5-devel
@@ -18,6 +19,7 @@ Requires: calligra-components >= 2.7.9+git4
 Requires: calligra-filters >= 2.7.9+git4
 Requires: sailfishsilica-qt5 >= 1.0.59
 Requires: sailfish-components-accounts-qt5
+Requires: sailfish-components-textlinking
 Requires: libqt5sparql-tracker
 Requires: mapplauncherd >= 4.1.17
 #Requires: qt5-qtqml-import-webkitplugin

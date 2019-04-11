@@ -200,6 +200,10 @@ Page {
                     pageStack.animatorPush("Sailfish.Office.TextDocumentPage",
                                            { title: model.fileName, source: model.filePath, mimeType: model.fileMimeType, provider: page.provider })
                     break
+                case DocumentListModel.PlainTextDocument:
+                    pageStack.animatorPush("Sailfish.Office.PlainTextDocumentPage",
+                                           { title: model.fileName, source: model.filePath, mimeType: model.fileMimeType, provider: page.provider })
+                    break
                 case DocumentListModel.SpreadSheetDocument:
                     pageStack.animatorPush("Sailfish.Office.SpreadsheetPage",
                                            { title: model.fileName, source: model.filePath, mimeType: model.fileMimeType, provider: page.provider })
