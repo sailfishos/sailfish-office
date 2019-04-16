@@ -276,8 +276,7 @@ void PDFSelection::Private::textBoxAtPoint(const QPointF &point, Position positi
         // Find the first box index in pageIndex that is after @point,
         // including at @point. If none is found in this page, returns
         // the first box of the next page.
-        QPointF reducedCoordPoint {point.x() / at.second.width(),
-                (point.y() - at.second.y()) / at.second.height()};
+        QPointF reducedCoordPoint = canvas->fromItemToPage(at.second, point);
         
         int index = 0;
         PDFSelection::Private::Position previousBoxPosition = PDFSelection::Private::Before;
@@ -418,12 +417,12 @@ QPointF PDFSelection::handle1() const
         return d->canvas->fromPageToItem(d->pageIndexStart, d->start);
 }
 
-float PDFSelection::handle1Height() const
+QSizeF PDFSelection::handle1Size() const
 {
     if (d->handleReversed)
-        return d->canvas->fromPageToItem(d->pageIndexStop, rectAt(-1).second).height();
+        return d->canvas->fromPageToItem(d->pageIndexStop, QSizeF(0, rectAt(-1).second.height()));
     else
-        return d->canvas->fromPageToItem(d->pageIndexStart, rectAt(0).second).height();
+        return d->canvas->fromPageToItem(d->pageIndexStart, QSizeF(0, rectAt(0).second.height()));
 }
 
 void PDFSelection::setHandle1(const QPointF &point)
@@ -499,12 +498,12 @@ QPointF PDFSelection::handle2() const
         return d->canvas->fromPageToItem(d->pageIndexStop, d->stop);
 }
 
-float PDFSelection::handle2Height() const
+QSizeF PDFSelection::handle2Size() const
 {
     if (d->handleReversed)
-        return d->canvas->fromPageToItem(d->pageIndexStart, rectAt(0).second).height();
+        return d->canvas->fromPageToItem(d->pageIndexStart, QSizeF(0, rectAt(0).second.height()));
     else
-        return d->canvas->fromPageToItem(d->pageIndexStop, rectAt(-1).second).height();
+        return d->canvas->fromPageToItem(d->pageIndexStop, QSizeF(0, rectAt(-1).second.height()));
 }
 
 void PDFSelection::setHandle2(const QPointF &point)

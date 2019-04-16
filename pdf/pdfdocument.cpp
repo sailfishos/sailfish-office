@@ -216,12 +216,13 @@ void PDFDocument::requestLinksAtPage(int page)
 }
 
 void PDFDocument::requestPage(int index, int size, QQuickWindow *window,
-                              QRect subpart, int extraData)
+                              QRect subpart, Poppler::Page::Rotation rotation, int extraData)
 {
     if (!isLoaded() || isLocked())
         return;
 
-    RenderPageJob* job = new RenderPageJob(index, size, window, subpart, extraData);
+    RenderPageJob* job = new RenderPageJob(index, size, window, subpart,
+                                           extraData, rotation);
     d->thread->queueJob(job);
 }
 

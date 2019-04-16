@@ -24,6 +24,8 @@
 #include <QObject>
 #include <QtQuick/QQuickWindow>
 
+#include <poppler-qt5.h>
+
 namespace Poppler
 {
     class Document;
@@ -98,7 +100,8 @@ class RenderPageJob : public PDFJob
     Q_OBJECT
 public:
     RenderPageJob(int index, uint width, QQuickWindow *window,
-                  QRect  subpart = QRect(), int extraData = 0);
+                  QRect  subpart = QRect(), int extraData = 0,
+                  Poppler::Page::Rotation rotation = Poppler::Page::Rotate0);
 
     virtual void run();
 
@@ -113,6 +116,7 @@ public:
 private:
     QQuickWindow *m_window;
     uint m_width;
+    Poppler::Page::Rotation m_rotation;
 };
 
 class PageSizesJob : public PDFJob

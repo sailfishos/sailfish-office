@@ -47,7 +47,7 @@ DocumentPage {
             _settings = new PDFStorage.Settings(pdfDocument.source)
         }
         var last = view.getPagePosition()
-        _settings.setLastPage(last[0] + 1, last[1], last[2], view.itemWidth)
+        _settings.setLastPage(last[0] + 1, last[1], last[2], view.itemWidth, view.pageRotation)
     }
 
     attachedPage: Component {
@@ -73,6 +73,7 @@ DocumentPage {
                     _settings = new PDFStorage.Settings(pdfDocument.source)
                 }
                 var last = _settings.getLastPage()
+                view.pageRotation = last[4]
                 if (last[3] > 0) {
                     view.itemWidth = last[3]
                     view.adjust()
@@ -105,6 +106,8 @@ DocumentPage {
 
         anchors.fill: parent
         anchors.bottomMargin: toolbar.offset
+        opacity: toolbarMenu.active ? 0.1 : 1.
+        Behavior on opacity {FadeAnimation{}}
         document: pdfDocument
         onCanMoveBackChanged: if (canMoveBack) toolbar.show()
         onClicked: base.open = !base.open
@@ -182,7 +185,7 @@ DocumentPage {
                      || (contextMenuLinks && contextMenuLinks.active)
                      || (contextMenuHighlight && contextMenuHighlight.active)
                      || (contextMenuText && contextMenuText.active)
-        autoShowHide: !row.active
+        autoShowHide: !row.active && !toolbarMenu.active
 
         function noticeShow(message) {
             if (!notice) {
@@ -214,199 +217,213 @@ DocumentPage {
         }
 
         // Toolbar contain.
-        Row {
-            id: row
-            property bool active: pageCount.highlighted
-                                  || linkBack.visible
-                                  || search.highlighted
-                                  || !search.iconized
-                                  || textButton.highlighted
-                                  || highlightButton.highlighted
-                                  || view.selection.selected
-            property Item activeItem
-            property int nVisibleChildren: children.length - (linkBack.visible ? 0 : 1)
-            property real itemWidth: Math.max(toolbar.width - pageCount.width, 0)
-                                     / (nVisibleChildren - 1)
-            height: parent.height
+        SilicaFlickable {
+            width: parent.width
+            height: toolbar.height
+            contentHeight: row.height
 
-            function toggle(item) {
-                if (toolbar.notice) toolbar.notice.hide()
-                view.selection.unselect()
-                if (row.activeItem === item) {
-                    row.activeItem = null
-                } else {
-                    row.activeItem = item
+            PushUpMenu {
+                id: toolbarMenu
+                MenuItem {
+                    //% "Rotate document"
+                    text: qsTrId("sailfish-office-me-rotate_document");
+                    onClicked: view.rotate()
                 }
             }
+            Row {
+                id: row
+                property bool active: pageCount.highlighted
+                                      || linkBack.visible
+                                      || search.highlighted
+                                      || !search.iconized
+                                      || textButton.highlighted
+                                      || highlightButton.highlighted
+                                      || view.selection.selected
+                property Item activeItem
+                property int nVisibleChildren: children.length - (linkBack.visible ? 0 : 1)
+                property real itemWidth: Math.max(toolbar.width - pageCount.width, 0)
+                                         / (nVisibleChildren - 1)
+                height: toolbar.height
 
-            SearchBarItem {
-                id: search
-                width: toolbar.width
-                iconizedWidth: row.itemWidth
-                height: parent.height
-
-                searching: pdfDocument.searching
-                searchProgress: pdfDocument.searchModel ? pdfDocument.searchModel.fraction : 0.
-                matchCount: pdfDocument.searchModel ? pdfDocument.searchModel.count : -1
-
-                onRequestSearch: pdfDocument.search(text, view.currentPage - 1)
-                onRequestPreviousMatch: view.prevSearchMatch()
-                onRequestNextMatch: view.nextSearchMatch()
-                onRequestCancel: pdfDocument.cancelSearch(!pdfDocument.searching)
-                onClicked: row.toggle(search)
-            }
-            BackgroundItem {
-                id: textTool
-                property bool first: true
-
-                width: row.itemWidth
-                height: parent.height
-                highlighted: pressed || textButton.pressed
-                onClicked: {
-                    row.toggle(textTool)
-                    if (textTool.first) {
-                        //% "Tap where you want to add a note"
-                        toolbar.noticeShow(qsTrId("sailfish-office-la-notice-anno-text"))
-                        textTool.first = false
+                function toggle(item) {
+                    if (toolbar.notice) toolbar.notice.hide()
+                    view.selection.unselect()
+                    if (row.activeItem === item) {
+                        row.activeItem = null
+                    } else {
+                        row.activeItem = item
                     }
                 }
-                IconButton {
-                    id: textButton
-                    anchors.centerIn: parent
-                    highlighted: pressed || textTool.pressed || row.activeItem === textTool
-                    icon.source: row.activeItem === textTool ? "image://theme/icon-m-annotation-selected"
-                                                             : "image://theme/icon-m-annotation"
-                    onClicked: textTool.clicked(mouse)
+
+                SearchBarItem {
+                    id: search
+                    width: toolbar.width
+                    iconizedWidth: row.itemWidth
+                    height: parent.height
+
+                    searching: pdfDocument.searching
+                    searchProgress: pdfDocument.searchModel ? pdfDocument.searchModel.fraction : 0.
+                    matchCount: pdfDocument.searchModel ? pdfDocument.searchModel.count : -1
+
+                    onRequestSearch: pdfDocument.search(text, view.currentPage - 1)
+                    onRequestPreviousMatch: view.prevSearchMatch()
+                    onRequestNextMatch: view.nextSearchMatch()
+                    onRequestCancel: pdfDocument.cancelSearch(!pdfDocument.searching)
+                    onClicked: row.toggle(search)
                 }
-                MouseArea {
-                    parent: row.activeItem === textTool ? view : null
-                    anchors.fill: parent
+                BackgroundItem {
+                    id: textTool
+                    property bool first: true
+
+                    width: row.itemWidth
+                    height: parent.height
+                    highlighted: pressed || textButton.pressed
                     onClicked: {
-                        var annotation = textComponent.createObject(textTool)
-                        var pt = Qt.point(view.contentX + mouse.x,
-                                          view.contentY + mouse.y)
-                        pdfDocument.create(annotation,
-                                           function() {
-                                               var at = view.getPositionAt(pt)
-                                               annotation.attachAt(pdfDocument,
-                                                                   at[0], at[2], at[1])
-                                           })
                         row.toggle(textTool)
-                    }
-                    Component {
-                        id: textComponent
-                        PDF.TextAnnotation { }
-                    }
-                }
-            }
-            BackgroundItem {
-                id: highlightTool
-                property bool first: true
-
-                function highlightSelection() {
-                    var anno = highlightComponent.createObject(highlightTool)
-                    anno.color = highlightColorConfig.value
-                    anno.style = highlightStyleConfig.toEnum(highlightStyleConfig.value)
-                    anno.attach(pdfDocument, view.selection)
-                    toolbar.hide()
-                }
-
-                width: row.itemWidth
-                height: parent.height
-                highlighted: pressed || highlightButton.pressed
-                onClicked: {
-                    if (view.selection.selected) {
-                        highlightSelection()
-                        view.selection.unselect()
-                        return
-                    }
-                    row.toggle(highlightTool)
-                    if (highlightTool.first) {
-                        //% "Tap and move your finger over the area"
-                        toolbar.noticeShow(qsTrId("sailfish-office-la-notice-anno-highlight"))
-                        highlightTool.first = false
-                    }
-                }
-
-                Component {
-                    id: highlightComponent
-                    PDF.HighlightAnnotation { }
-                }
-
-                IconButton {
-                    id: highlightButton
-                    anchors.centerIn: parent
-                    highlighted: pressed || highlightTool.pressed || row.activeItem === highlightTool
-                    icon.source: row.activeItem === highlightTool ? "image://theme/icon-m-edit-selected"
-                                                                  : "image://theme/icon-m-edit"
-                    onClicked: highlightTool.clicked(mouse)
-                }
-                MouseArea {
-                    parent: row.activeItem === highlightTool ? view : null
-                    anchors.fill: parent
-                    preventStealing: true
-                    onPressed: {
-                        view.selection.selectAt(Qt.point(view.contentX + mouse.x,
-                                                         view.contentY + mouse.y))
-                    }
-                    onPositionChanged: {
-                        if (view.selection.count < 1) {
-                            view.selection.selectAt(Qt.point(view.contentX + mouse.x,
-                                                             view.contentY + mouse.y))
-                        } else {
-                            view.selection.handle2 = Qt.point(view.contentX + mouse.x,
-                                                              view.contentY + mouse.y)
+                        if (textTool.first) {
+                            //% "Tap where you want to add a note"
+                            toolbar.noticeShow(qsTrId("sailfish-office-la-notice-anno-text"))
+                            textTool.first = false
                         }
                     }
-                    onReleased: {
-                        if (view.selection.selected) highlightTool.highlightSelection()
+                    IconButton {
+                        id: textButton
+                        anchors.centerIn: parent
+                        highlighted: pressed || textTool.pressed || row.activeItem === textTool
+                        icon.source: row.activeItem === textTool ? "image://theme/icon-m-annotation-selected"
+                                                                 : "image://theme/icon-m-annotation"
+                        onClicked: textTool.clicked(mouse)
+                    }
+                    MouseArea {
+                        parent: row.activeItem === textTool ? view : null
+                        anchors.fill: parent
+                        onClicked: {
+                            var annotation = textComponent.createObject(textTool)
+                            var pt = Qt.point(view.contentX + mouse.x,
+                                              view.contentY + mouse.y)
+                            pdfDocument.create(annotation,
+                                               function() {
+                                                   var at = view.getPositionAt(pt)
+                                                   annotation.attachAt(pdfDocument,
+                                                                       at[0], at[2], at[1])
+                                               })
+                            row.toggle(textTool)
+                        }
+                        Component {
+                            id: textComponent
+                            PDF.TextAnnotation { }
+                        }
+                    }
+                }
+                BackgroundItem {
+                    id: highlightTool
+                    property bool first: true
+
+                    function highlightSelection() {
+                        var anno = highlightComponent.createObject(highlightTool)
+                        anno.color = highlightColorConfig.value
+                        anno.style = highlightStyleConfig.toEnum(highlightStyleConfig.value)
+                        anno.attach(pdfDocument, view.selection)
+                        toolbar.hide()
+                    }
+
+                    width: row.itemWidth
+                    height: parent.height
+                    highlighted: pressed || highlightButton.pressed
+                    onClicked: {
+                        if (view.selection.selected) {
+                            highlightSelection()
+                            view.selection.unselect()
+                            return
+                        }
                         row.toggle(highlightTool)
+                        if (highlightTool.first) {
+                            //% "Tap and move your finger over the area"
+                            toolbar.noticeShow(qsTrId("sailfish-office-la-notice-anno-highlight"))
+                            highlightTool.first = false
+                        }
                     }
-                    Binding {
-                        target: view
-                        property: "selectionDraggable"
-                        value: row.activeItem !== highlightTool
+
+                    Component {
+                        id: highlightComponent
+                        PDF.HighlightAnnotation { }
+                    }
+
+                    IconButton {
+                        id: highlightButton
+                        anchors.centerIn: parent
+                        highlighted: pressed || highlightTool.pressed || row.activeItem === highlightTool
+                        icon.source: row.activeItem === highlightTool ? "image://theme/icon-m-edit-selected"
+                                                                      : "image://theme/icon-m-edit"
+                        onClicked: highlightTool.clicked(mouse)
+                    }
+                    MouseArea {
+                        parent: row.activeItem === highlightTool ? view : null
+                        anchors.fill: parent
+                        preventStealing: true
+                        onPressed: {
+                            view.selection.selectAt(Qt.point(view.contentX + mouse.x,
+                                                             view.contentY + mouse.y))
+                        }
+                        onPositionChanged: {
+                            if (view.selection.count < 1) {
+                                view.selection.selectAt(Qt.point(view.contentX + mouse.x,
+                                                                 view.contentY + mouse.y))
+                            } else {
+                                view.selection.handle2 = Qt.point(view.contentX + mouse.x,
+                                                                  view.contentY + mouse.y)
+                            }
+                        }
+                        onReleased: {
+                            if (view.selection.selected) highlightTool.highlightSelection()
+                            row.toggle(highlightTool)
+                        }
+                        Binding {
+                            target: view
+                            property: "selectionDraggable"
+                            value: row.activeItem !== highlightTool
+                        }
                     }
                 }
-            }
-            BackgroundItem {
-                id: linkBack
-                width: row.itemWidth
-                height: parent.height
-                highlighted: pressed || backButton.pressed
-                opacity: view.canMoveBack ? 1. : 0.
-                visible: opacity > 0
-                Behavior on opacity { FadeAnimation{ duration: 400 } }
-                IconButton {
-                    id: backButton
-                    anchors.centerIn: parent
-                    highlighted: pressed || linkBack.pressed
-                    icon.source: "image://theme/icon-m-back"
-                    onClicked: linkBack.clicked(mouse)
+                BackgroundItem {
+                    id: linkBack
+                    width: row.itemWidth
+                    height: parent.height
+                    highlighted: pressed || backButton.pressed
+                    opacity: view.canMoveBack ? 1. : 0.
+                    visible: opacity > 0
+                    Behavior on opacity { FadeAnimation{ duration: 400 } }
+                    IconButton {
+                        id: backButton
+                        anchors.centerIn: parent
+                        highlighted: pressed || linkBack.pressed
+                        icon.source: "image://theme/icon-m-back"
+                        onClicked: linkBack.clicked(mouse)
+                    }
+                    onClicked: {
+                        row.toggle(linkBack)
+                        view.moveBack()
+                        toolbar.hide()
+                    }
                 }
-                onClicked: {
-                    row.toggle(linkBack)
-                    view.moveBack()
-                    toolbar.hide()
-                }
-            }
-            BackgroundItem {
-                id: pageCount
-                width: screen.sizeCategory <= Screen.Medium
-                       ? Math.max(toolbar.width / row.nVisibleChildren, Screen.width / 4)
-                       : toolbar.width / row.nVisibleChildren
-                height: parent.height
-                Label {
-                    id: pageLabel
-                    anchors.centerIn: parent
-                    width: Math.min(parent.width - Theme.paddingSmall, implicitWidth)
-                    fontSizeMode: Text.HorizontalFit
-                    color: pageCount.highlighted ? Theme.highlightColor : Theme.primaryColor
-                    text: view.currentPage + " | " + view.document.pageCount
-                }
-                onClicked: {
-                    row.toggle(pageCount)
-                    base.pushAttachedPage()
+                BackgroundItem {
+                    id: pageCount
+                    width: screen.sizeCategory <= Screen.Medium
+                           ? Math.max(toolbar.width / row.nVisibleChildren, Screen.width / 4)
+                           : toolbar.width / row.nVisibleChildren
+                    height: parent.height
+                    Label {
+                        id: pageLabel
+                        anchors.centerIn: parent
+                        width: Math.min(parent.width - Theme.paddingSmall, implicitWidth)
+                        fontSizeMode: Text.HorizontalFit
+                        color: pageCount.highlighted ? Theme.highlightColor : Theme.primaryColor
+                        text: view.currentPage + " | " + view.document.pageCount
+                    }
+                    onClicked: {
+                        row.toggle(pageCount)
+                        base.pushAttachedPage()
+                    }
                 }
             }
         }

@@ -24,8 +24,8 @@ Rectangle {
 
     property alias attachX: translationMove.from
     property point handle
+    property size handleSize
     property bool dragged
-    property real dragHeight
 
     x: handle.x - width / 2
     y: handle.y - height / 2
@@ -40,8 +40,8 @@ Rectangle {
         name: "dragged"
         PropertyChanges {
             target: root
-            width: Theme.paddingSmall / 2
-            height: dragHeight
+            width: handleSize.width > 0 ? handleSize.width : (Theme.paddingSmall / 2)
+            height: handleSize.height > 0 ? handleSize.height : (Theme.paddingSmall / 2)
             radius: 0
         }
     }

@@ -30,6 +30,7 @@ SilicaFlickable {
     property alias itemWidth: pdfCanvas.width
     property alias itemHeight: pdfCanvas.height
     property alias document: pdfCanvas.document
+    property alias pageRotation: pdfCanvas.pageRotation
     property int currentPage: !quickScrollAnimation.running
                               ? pdfCanvas.currentPage : quickScrollAnimation.pageTo
     property alias selection: pdfSelection
@@ -58,6 +59,10 @@ SilicaFlickable {
     function clamp(value) {
         var maximumZoom = Math.min(Screen.height, Screen.width) * maxZoomLevelConfig.value
         return Math.max(width, Math.min(value, maximumZoom))
+    }
+
+    function rotate() {
+        pdfCanvas.rotate(true)
     }
 
     function zoom(amount, center) {

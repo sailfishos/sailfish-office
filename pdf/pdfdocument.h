@@ -83,8 +83,9 @@ public Q_SLOTS:
     void setAutoSavePath(const QString &filename);
     void requestUnLock(const QString &password);
     void requestLinksAtPage(int page);
-    void requestPage(int index, int size, QQuickWindow *window,
-                     QRect subpart = QRect(), int extraData = 0);
+    void requestPage(int index, int size, QQuickWindow *window, QRect subpart = QRect(),
+                     Poppler::Page::Rotation rotation = Poppler::Page::Rotate0,
+                     int extraData = 0);
     void prioritizeRequest(int index, int size, QRect subpart = QRect());
     void cancelPageRequest(int index);
     void requestPageSizes();

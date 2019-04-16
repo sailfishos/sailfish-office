@@ -29,6 +29,7 @@ class PDFDocument;
 class PDFCanvas : public QQuickItem
 {
     Q_OBJECT
+    Q_ENUMS(PageRotation)
     Q_PROPERTY(PDFDocument* document READ document WRITE setDocument NOTIFY documentChanged)
     Q_PROPERTY(QQuickItem* flickable READ flickable WRITE setFlickable NOTIFY flickableChanged)
     Q_PROPERTY(float spacing READ spacing WRITE setSpacing NOTIFY spacingChanged)
@@ -36,8 +37,16 @@ class PDFCanvas : public QQuickItem
     Q_PROPERTY(QColor pagePlaceholderColor READ pagePlaceholderColor WRITE setPagePlaceholderColor NOTIFY pagePlaceholderColorChanged)
     Q_PROPERTY(int currentPage READ currentPage NOTIFY currentPageChanged)
     Q_PROPERTY(float linkWiggle READ linkWiggle WRITE setLinkWiggle NOTIFY linkWiggleChanged)
+    Q_PROPERTY(PageRotation pageRotation READ pageRotation WRITE setPageRotation NOTIFY pageRotationChanged)
 
 public:
+    enum PageRotation {
+        NoRotation,
+        Clockwise,
+        CounterClockwise,
+        UpSideDown
+    };
+
     PDFCanvas(QQuickItem *parent = 0);
     ~PDFCanvas();
 
@@ -85,6 +94,10 @@ public:
      */
     int currentPage() const;
 
+    PageRotation pageRotation() const;
+    void setPageRotation(PageRotation pageRotation);
+    Q_INVOKABLE void rotate(bool clockwise);
+
     void layout();
 
     /**
@@ -99,6 +112,8 @@ public:
      */
     Q_INVOKABLE QRectF fromPageToItem(int index, const QRectF &rect) const;
     Q_INVOKABLE QPointF fromPageToItem(int index, const QPointF &point) const;
+    QSizeF fromPageToItem(int index, const QSizeF &size) const;
+    QPointF fromItemToPage(const QRectF &page, const QPointF &point) const;
     /**
      * Provide a distance measure from @point to a rectangle given by @reducedCoordRect.
      * @point is given in PDFCanvas coordinates, while @reducedCoordRect is in
@@ -118,6 +133,7 @@ Q_SIGNALS:
     void currentPageChanged();
     void pageLayoutChanged();
     void linkWiggleChanged();
+    void pageRotationChanged();
 
 protected:
     virtual void geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry);
