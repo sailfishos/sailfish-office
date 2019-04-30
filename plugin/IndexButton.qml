@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2013-2014 Jolla Ltd.
- * Contact: Robin Burchell <robin.burchell@jolla.com>
+ * Copyright (C) 2019 Jolla Ltd.
+ * Contact: Joona Petrell <joona.petrell@jolla.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,26 +19,23 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 
-Page {
-    id: page
+MouseArea {
+    property bool allowed: true
+    property color color: Theme.primaryColor
+    property int index
+    property int count
+    readonly property bool highlighted: pressed && containsMouse
 
-    property string title
-    property url source
-    property bool error
-    property string mimeType
-    property Item documentItem: page
-    property alias busy: busyIndicator.running
-    property QtObject provider
+    enabled: count > 1 && allowed
+    opacity: count > 0 && allowed ? (count > 1 ? 1.0 : 0.6) : 0.0
+    width: Theme.itemSizeSmall
+    height: Theme.itemSizeSmall
 
-    Component.onDestruction: window.documentItem = null
-    onStatusChanged: {
-        if (status == PageStatus.Active) {
-            window.documentItem = documentItem
-        }
+    Label {
+        anchors.centerIn: parent
+        width: Math.min(parent.width - Theme.paddingSmall, implicitWidth)
+        fontSizeMode: Text.HorizontalFit
+        color: highlighted ? Theme.highlightColor : parent.color
+        text: index + " | " + count
     }
-
-    allowedOrientations: Orientation.All
-    clip: status !== PageStatus.Active || pageStack.dragInProgress
-
-    BusyIndicator { id: busyIndicator; anchors.centerIn: parent; size: BusyIndicatorSize.Large; z: 101 }
 }

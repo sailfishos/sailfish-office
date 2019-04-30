@@ -103,7 +103,7 @@ ApplicationWindow {
 
         if (handler != "") {
             pageStack.push(handler,
-                           { title: fileInfo.fileName, path: fileInfo.fullPath, mimeType: fileInfo.mimeType },
+                           { title: fileInfo.fileName, source: fileInfo.fullPath, mimeType: fileInfo.mimeType },
                            PageStackAction.Immediate)
         }
 

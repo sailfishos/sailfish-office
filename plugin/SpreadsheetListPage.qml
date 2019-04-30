@@ -41,7 +41,6 @@ Page {
         }
 
         delegate: BackgroundItem {
-            id: bg
             Calligra.ImageDataItem {
                 id: thumbnail
 
@@ -64,8 +63,8 @@ Page {
                 }
 
                 text: model.title
-                color: (model.contentIndex == page.document.currentIndex || bg.highlighted) ? Theme.highlightColor
-                                                                                            : Theme.primaryColor
+                color: (model.contentIndex == page.document.currentIndex || highlighted) ? Theme.highlightColor
+                                                                                         : Theme.primaryColor
                 truncationMode: TruncationMode.Fade
             }
 

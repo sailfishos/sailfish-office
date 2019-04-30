@@ -18,17 +18,18 @@
 
 import QtQuick 2.0
 import Sailfish.Silica 1.0
+import Sailfish.Silica.private 1.0
 import Sailfish.Office.PDF 1.0 as PDF
 import org.nemomobile.configuration 1.0
 
-SilicaFlickable {
-    id: base
-
-    contentWidth: pdfCanvas.width
-    contentHeight: pdfCanvas.height
+DocumentFlickable {
+    id: root
 
     property alias itemWidth: pdfCanvas.width
     property alias itemHeight: pdfCanvas.height
+
+    property Item header
+    property alias canvas: pdfCanvas
     property alias document: pdfCanvas.document
     property int currentPage: !quickScrollAnimation.running
                               ? pdfCanvas.currentPage : quickScrollAnimation.pageTo
@@ -36,7 +37,6 @@ SilicaFlickable {
     property alias selectionDraggable: selectionView.draggable
     property bool canMoveBack: (_contentYAtGotoLink >= 0)
 
-    property bool scaled: pdfCanvas.width != width
     property QtObject _feedbackEffect
 
     property int _pageAtLinkTarget
@@ -77,13 +77,22 @@ SilicaFlickable {
         _contentYAtGotoLink = -1.
     }
 
+    onClicked: {
+        if (zoomed) {
+            var scale = pdfCanvas.width / width
+            zoomOutContentYAnimation.to = Math.max(0, Math.min(contentHeight - height,
+                                                               (contentY + height/2) / scale - height/2))
+            zoomOutAnimation.start()
+        }
+    }
+
     function adjust() {
         var oldWidth = pdfCanvas.width
         var oldHeight = pdfCanvas.height
         var oldContentX = contentX
         var oldContentY = contentY
 
-        pdfCanvas.width = scaled ? clamp(pdfCanvas.width) : width
+        pdfCanvas.width = zoomed ? clamp(pdfCanvas.width) : width
 
         contentX = oldContentX * pdfCanvas.width / oldWidth
         if (!contextHook.active) {
@@ -95,7 +104,7 @@ SilicaFlickable {
         if (index < 0 || index >= searchDisplay.count) return
 
         _searchIndex = index
-        
+
         var match = searchDisplay.itemAt(index)
         var cX = match.x + match.width / 2. - width / 2.
         cX = Math.max(0, Math.min(cX, pdfCanvas.width - width))
@@ -122,21 +131,21 @@ SilicaFlickable {
     }
 
     function scrollTo(pt, pageId, focusItem) {
-        if ((pt.y < base.contentY + base.height && pt.y > base.contentY - base.height)
-            && (pt.x < base.contentX + base.width && pt.x > base.contentX - base.width)) {
+        if ((pt.y < root.contentY + root.height && pt.y > root.contentY - root.height)
+                && (pt.x < root.contentX + root.width && pt.x > root.contentX - root.width)) {
             scrollX.to = pt.x
             scrollY.to = pt.y
             scrollAnimation.focusItem = (focusItem !== undefined) ? focusItem : null
             scrollAnimation.start()
         } else {
-            var deltaY = pt.y - base.contentY
+            var deltaY = pt.y - root.contentY
             if (deltaY < 0) {
-                deltaY = Math.max(deltaY / 2., -base.height / 2.)
+                deltaY = Math.max(deltaY / 2., -root.height / 2.)
             } else {
-                deltaY = Math.min(deltaY / 2., base.height / 2.)
+                deltaY = Math.min(deltaY / 2., root.height / 2.)
             }
-            leaveX.to = (base.contentX + pt.x) / 2
-            leaveY.to = base.contentY + deltaY
+            leaveX.to = (root.contentX + pt.x) / 2
+            leaveY.to = root.contentY + deltaY
             returnX.to = pt.x
             returnY.from = pt.y - deltaY
             returnY.to = pt.y
@@ -158,6 +167,10 @@ SilicaFlickable {
         _contentYAtGotoLink = -1.
     }
 
+    pinchArea.enabled: false // TODO: remove duplicate
+    contentWidth: pdfCanvas.width
+    contentHeight: pdfCanvas.height + header.height
+
     SequentialAnimation {
         id: focusAnimation
         property Item targetItem
@@ -168,13 +181,15 @@ SilicaFlickable {
         id: scrollAnimation
         property Item focusItem
         ParallelAnimation {
-            NumberAnimation { id: scrollX; target: base; property: "contentX"; duration: 300; easing.type: Easing.InOutQuad }
-            NumberAnimation { id: scrollY; target: base; property: "contentY"; duration: 300; easing.type: Easing.InOutQuad }
+            NumberAnimation { id: scrollX; target: root; property: "contentX"; duration: 300; easing.type: Easing.InOutQuad }
+            NumberAnimation { id: scrollY; target: root; property: "contentY"; duration: 300; easing.type: Easing.InOutQuad }
         }
         ScriptAction {
-            script: if (scrollAnimation.focusItem) {
-                focusAnimation.targetItem = scrollAnimation.focusItem
-                focusAnimation.start()
+            script: {
+                if (scrollAnimation.focusItem) {
+                    focusAnimation.targetItem = scrollAnimation.focusItem
+                    focusAnimation.start()
+                }
             }
         }
     }
@@ -183,21 +198,21 @@ SilicaFlickable {
         property int pageTo
         property Item focusItem
         ParallelAnimation {
-            NumberAnimation { id: leaveX; target: base; property: "contentX"; duration: 300; easing.type: Easing.InQuad }
-            NumberAnimation { id: leaveY; target: base; property: "contentY"; duration: 300; easing.type: Easing.InQuad }
-            NumberAnimation { target: base; property: "opacity"; duration: 300; to: 0.; easing.type: Easing.InQuad }
+            NumberAnimation { id: leaveX; target: root; property: "contentX"; duration: 300; easing.type: Easing.InQuad }
+            NumberAnimation { id: leaveY; target: root; property: "contentY"; duration: 300; easing.type: Easing.InQuad }
+            NumberAnimation { target: root; property: "opacity"; duration: 300; to: 0.; easing.type: Easing.InQuad }
         }
         PauseAnimation { duration: 100 }
         ParallelAnimation {
-            NumberAnimation { id: returnX; target: base; property: "contentX"; duration: 300; easing.type: Easing.OutQuad }
-            NumberAnimation { id: returnY; target: base; property: "contentY"; duration: 300; easing.type: Easing.OutQuad }
-            NumberAnimation { target: base; property: "opacity"; duration: 300; to: 1.; easing.type: Easing.OutQuad }
+            NumberAnimation { id: returnX; target: root; property: "contentX"; duration: 300; easing.type: Easing.OutQuad }
+            NumberAnimation { id: returnY; target: root; property: "contentY"; duration: 300; easing.type: Easing.OutQuad }
+            NumberAnimation { target: root; property: "opacity"; duration: 300; to: 1.; easing.type: Easing.OutQuad }
         }
         ScriptAction {
             script: if (quickScrollAnimation.focusItem) {
-                focusAnimation.targetItem = quickScrollAnimation.focusItem
-                focusAnimation.start()
-            }
+                        focusAnimation.targetItem = quickScrollAnimation.focusItem
+                        focusAnimation.start()
+                    }
         }
     }
     NumberAnimation {
@@ -205,7 +220,7 @@ SilicaFlickable {
         property real start
         duration: 200
         easing.type: Easing.InOutCubic
-        target: base
+        target: root
         property: "contentY"
     }
 
@@ -214,7 +229,7 @@ SilicaFlickable {
     Component.onCompleted: {
         // Avoid hard dependency to feedback
         _feedbackEffect = Qt.createQmlObject("import QtQuick 2.0; import QtFeedback 5.0; ThemeEffect { effect: ThemeEffect.PressWeak }",
-                                             base, 'ThemeEffect')
+                                             root, 'ThemeEffect')
         if (_feedbackEffect && !_feedbackEffect.supported) {
             _feedbackEffect = null
         }
@@ -224,13 +239,14 @@ SilicaFlickable {
         target: document
         onSearchModelChanged: moveToFirstMatch.done = false
     }
+
     Connections {
         id: moveToFirstMatch
         property bool done
         target: document.searchModel
         onCountChanged: {
             if (done) return
-            
+
             moveToSearchMatch(0)
             done = true
         }
@@ -238,34 +254,34 @@ SilicaFlickable {
 
     PDF.Selection {
         id: pdfSelection
-        
+
         property bool dragging: drag1.pressed || drag2.pressed
         property bool selected: count > 0
 
         canvas: pdfCanvas
         wiggle: Theme.itemSizeSmall / 2
-        
+
         onDraggingChanged: {
             if (dragging) {
                 if (!selectionOffset.running)
-                    selectionOffset.start = base.contentY
+                    selectionOffset.start = root.contentY
 
                 // Limit offset when being at the bottom of the view.
                 selectionOffset.to = selectionOffset.start +
-                    Math.min(Theme.itemSizeSmall,
-                             Math.max(0, base.itemHeight - base.height - base.contentY))
+                        Math.min(Theme.itemSizeSmall,
+                                 Math.max(0, root.itemHeight - root.height - pdfCanvas.y - root.contentY))
                 // Limit offset when being at the top of screen
                 selectionOffset.to =
-                    Math.max(base.contentY,
-                             Math.min(selectionOffset.to,
-                                      (drag1.pressed ? handle1.y : handle2.y)
-                                      - Theme.itemSizeSmall / 2)
-                            )
+                        Math.max(root.contentY,
+                                 Math.min(selectionOffset.to,
+                                          (drag1.pressed ? handle1.y : handle2.y)
+                                          - Theme.itemSizeSmall / 2)
+                                 )
             } else {
                 selectionOffset.to = selectionOffset.start
             }
             selectionOffset.restart()
-            
+
             // Copy selection to clipboard when dragging finishes
             if (!dragging) Clipboard.text = text
         }
@@ -278,18 +294,18 @@ SilicaFlickable {
 
         property bool _pageSizesReady
 
-        width: base.width
-
+        y: header.height
+        width: root.width
         spacing: Theme.paddingLarge
-        flickable: base
+        flickable: root
         linkWiggle: Theme.itemSizeMedium / 2
         linkColor: Theme.highlightColor
-        pagePlaceholderColor: Theme.highlightColor
+        pagePlaceholderColor: "white"
 
         onPageLayoutChanged: {
             if (!_pageSizesReady) {
                 _pageSizesReady = true
-                base.pageSizesReady()
+                root.pageSizesReady()
             }
         }
 
@@ -297,10 +313,10 @@ SilicaFlickable {
             // If the document is moved than more than one page
             // the back move is cancelled.
             if (_pageAtLinkTarget > 0
-                && !scrollAnimation.running
-                && !quickScrollAnimation.running
-                && (currentPage > _pageAtLinkTarget + 1
-                    || currentPage < _pageAtLinkTarget - 1)) {
+                    && !scrollAnimation.running
+                    && !quickScrollAnimation.running
+                    && (currentPage > _pageAtLinkTarget + 1
+                        || currentPage < _pageAtLinkTarget - 1)) {
                 _pageAtLinkTarget = 0
                 _contentXAtGotoLink = -1.
                 _contentYAtGotoLink = -1.
@@ -309,16 +325,16 @@ SilicaFlickable {
 
         PinchArea {
             anchors.fill: parent
+            enabled: !pageStack.dragInProgress
             onPinchUpdated: {
                 var newCenter = mapToItem(pdfCanvas, pinch.center.x, pinch.center.y)
-                base.zoom(1.0 + (pinch.scale - pinch.previousScale), newCenter)
+                root.zoom(1.0 + (pinch.scale - pinch.previousScale), newCenter)
             }
-            onPinchFinished: base.returnToBounds()
+            onPinchFinished: root.returnToBounds()
 
             PDF.LinkArea {
                 id: linkArea
                 anchors.fill: parent
-
                 onClickedBoxChanged: {
                     if (clickedBox.width > 0) {
                         contextHook.setTarget(clickedBox.y, clickedBox.height)
@@ -328,23 +344,23 @@ SilicaFlickable {
                 canvas: pdfCanvas
                 selection: pdfSelection
 
-                onLinkClicked: base.linkClicked(linkTarget, contextHook)
+                onLinkClicked: root.linkClicked(linkTarget, contextHook)
                 onGotoClicked: {
-                    var pt = base.contentAt(page - 1, top, left,
+                    var pt = root.contentAt(page - 1, top, left,
                                             Theme.paddingLarge, Theme.paddingLarge)
                     _pageAtLinkTarget = page
                     _pageAtGotoLink = pdfCanvas.currentPage
-                    _contentXAtGotoLink = base.contentX
-                    _contentYAtGotoLink = base.contentY
+                    _contentXAtGotoLink = root.contentX
+                    _contentYAtGotoLink = root.contentY
                     scrollTo(pt, page)
                 }
-                onSelectionClicked: base.selectionClicked(selection, contextHook)
-                onAnnotationClicked: base.annotationClicked(annotation, contextHook)
-                onClicked: base.clicked()
-                onAnnotationLongPress: base.annotationLongPress(annotation, contextHook)
+                onSelectionClicked: root.selectionClicked(selection, contextHook)
+                onAnnotationClicked: root.annotationClicked(annotation, contextHook)
+                onClicked: root.clicked()
+                onAnnotationLongPress: root.annotationLongPress(annotation, contextHook)
                 onLongPress: {
                     contextHook.setTarget(pressAt.y, Theme.itemSizeSmall / 2)
-                    base.longPress(pressAt, contextHook)
+                    root.longPress(pressAt, contextHook)
                 }
             }
         }
@@ -358,7 +374,7 @@ SilicaFlickable {
             color: Theme.highlightColor
             opacity: linkArea.pressed ? 0.75 : 0.
             visible: opacity > 0.
-            Behavior on opacity { FadeAnimation { duration: 100 } }
+            Behavior on opacity { FadeAnimator { duration: 100 } }
         }
 
         Repeater {
@@ -387,7 +403,7 @@ SilicaFlickable {
         PDFSelectionView {
             id: selectionView
             model: pdfSelection
-            flickable: base
+            flickable: root
             dragHandle1: drag1.pressed
             dragHandle2: drag2.pressed
             onVisibleChanged: if (visible && _feedbackEffect) _feedbackEffect.play()
@@ -395,14 +411,14 @@ SilicaFlickable {
         PDFSelectionDrag {
             id: drag1
             visible: pdfSelection.selected && selectionView.draggable
-            flickable: base
+            flickable: root
             handle: pdfSelection.handle1
             onDragged: pdfSelection.handle1 = at
         }
         PDFSelectionDrag {
             id: drag2
             visible: pdfSelection.selected && selectionView.draggable
-            flickable: base
+            flickable: root
             handle: pdfSelection.handle2
             onDragged: pdfSelection.handle2 = at
         }
@@ -410,9 +426,11 @@ SilicaFlickable {
             id: contextHook
             Connections {
                 target: linkArea
-                onPositionChanged: if (contextHook.active) {
-                    var local = linkArea.mapToItem(contextHook, at.x, at.y)
-                    contextHook.positionChanged(Qt.point(local.x, local.y))
+                onPositionChanged: {
+                    if (contextHook.active) {
+                        var local = linkArea.mapToItem(contextHook, at.x, at.y)
+                        contextHook.positionChanged(Qt.point(local.x, local.y))
+                    }
                 }
                 onReleased: if (contextHook.active) contextHook.released(true)
             }
@@ -431,11 +449,18 @@ SilicaFlickable {
         defaultValue: 10.
     }
 
-    function contentAt(pageNumber, top, left, topSpacing, leftSpacing) {
+    function pageRectangle(pageNumber) {
         var rect = pdfCanvas.pageRectangle( pageNumber )
+        rect.y = rect.y + pdfCanvas.y
+        return rect
+    }
+
+    function contentAt(pageNumber, top, left, topSpacing, leftSpacing) {
+        var rect = pageRectangle( pageNumber )
+
         var scrollX, scrollY
         // Adjust horizontal position if required.
-        scrollX = base.contentX
+        scrollX = root.contentX
         if (left !== undefined && left >= 0.) {
             scrollX = rect.x + left * rect.width - ( leftSpacing !== undefined ? leftSpacing : 0.)
         }
@@ -458,9 +483,9 @@ SilicaFlickable {
     function getPagePosition() {
         // Find the page on top
         var i = currentPage - 1
-        var rect = pdfCanvas.pageRectangle( i )
+        var rect = pageRectangle( i )
         while (rect.y > contentY && i > 0) {
-            rect = pdfCanvas.pageRectangle( --i )
+            rect = pageRectangle( --i )
         }
         var top  = (contentY - rect.y) / rect.height
         var left = (contentX - rect.x) / rect.width
@@ -469,13 +494,39 @@ SilicaFlickable {
     function getPositionAt(at) {
         // Find the page that contains at
         var i = Math.max(0, currentPage - 2)
-        var rect = pdfCanvas.pageRectangle( i )
+        var rect = pageRectangle( i )
         while ((rect.y + rect.height) < at.y
                && i < pdfCanvas.document.pageCount) {
-            rect = pdfCanvas.pageRectangle( ++i )
+            rect = pageRectangle( ++i )
         }
         var top  = Math.max(0, at.y - rect.y) / rect.height
         var left = (at.x - rect.x) / rect.width
         return [i, top, left]
+    }
+
+    ParallelAnimation {
+        id: zoomOutAnimation
+
+        NumberAnimation {
+            target: pdfCanvas
+            property: "width"
+            to: root.width
+            easing.type: Easing.InOutQuad
+            duration: 200
+        }
+        NumberAnimation {
+            target: root
+            properties: "contentX"
+            to: 0
+            easing.type: Easing.InOutQuad
+            duration: 200
+        }
+        NumberAnimation {
+            id: zoomOutContentYAnimation
+            target: root
+            properties: "contentY"
+            easing.type: Easing.InOutQuad
+            duration: 200
+        }
     }
 }

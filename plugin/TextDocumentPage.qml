@@ -18,76 +18,115 @@
 
 import QtQuick 2.0
 import Sailfish.Silica 1.0
+import Sailfish.Silica.private 1.0
 import org.kde.calligra 1.0 as Calligra
 
 DocumentPage {
     id: page
 
-    busy: doc.status != Calligra.DocumentStatus.Loaded
-    source: doc.source
-    indexCount: doc.indexCount
-    attachedPage: Component {
-        TextDocumentToCPage {
-            document: doc
-        }
-    }
     onStatusChanged: {
         //Delay loading the document until the page has been activated.
         if (status == PageStatus.Active) {
-            doc.source = page.path
+            doc.source = page.source
         }
     }
+
+    busy: doc.status != Calligra.DocumentStatus.Loaded
+    documentItem: documentView
 
     Calligra.View {
         id: documentView
 
-        width: page.width
-        height: page.height
+        property bool contentAvailable: !page.busy
 
+        anchors.fill: flickable
+        opacity: page.busy ? 0.0 : 1.0
+        Behavior on opacity { FadeAnimator { duration: 400 }}
         document: doc
     }
 
-    SilicaFlickable {
-        id: documentFlickable
+    ControllerFlickable {
+        id: flickable
 
-        width: page.width
-        height: page.height
+        property bool resetPositionWorkaround
+
+        onContentYChanged: {
+            if (doc.status == Calligra.DocumentStatus.Loaded
+                    && !resetPositionWorkaround) {
+                // Calligra is not Flickable.topMargin aware
+                contentY = -topMargin
+                contentX = 0
+                viewController.useZoomProxy = false
+                resetPositionWorkaround = true
+            }
+        }
+
+        controller: viewController
+        topMargin: header.height
+        clip: anchors.bottomMargin > 0
+        anchors {
+            fill: parent
+            bottomMargin: toolbar.offset
+        }
+
 
         Calligra.ViewController {
-            id: controller
+            id: viewController
             view: documentView
-            flickable: documentFlickable
-            useZoomProxy: false
+            flickable: flickable
             maximumZoom: 5.0
             minimumZoomFitsWidth: true
         }
 
-        children: [
-            HorizontalScrollDecorator { color: Theme.highlightDimmerColor },
-            VerticalScrollDecorator { color: Theme.highlightDimmerColor }
-        ]
-
-        PinchArea {
+        Calligra.LinkArea {
             anchors.fill: parent
+            document: doc
+            onLinkClicked: Qt.openUrlExternally(linkTarget)
+            onClicked: flickable.zoomOut()
 
-            onPinchUpdated: {
-                var newCenter = mapToItem(documentFlickable, pinch.center.x, pinch.center.y)
-                controller.zoomAroundPoint(controller.zoom * (pinch.scale - pinch.previousScale), newCenter.x, newCenter.y)
-            }
+            controllerZoom: viewController.zoom
+        }
 
-            Calligra.LinkArea {
-                anchors.fill: parent
-                document: doc
-                onClicked: page.open = !page.open
-                onLinkClicked: Qt.openUrlExternally(linkTarget)
-                controllerZoom: controller.zoom
-            }
+        DocumentHeader {
+            id: header
+            page: page
+            width: page.width
+            indexCount: doc.indexCount
+            x: flickable.contentX
+            y: -height
         }
     }
 
+    ToolBar {
+        id: toolbar
+
+        flickable: flickable
+        anchors.top: flickable.bottom
+        forceHidden: doc.failure
+        enabled: !page.busy
+        opacity: enabled ? 1.0 : 0.0
+        Behavior on opacity { FadeAnimator { duration: 400 }}
+
+        DeleteButton {
+            page: page
+        }
+
+        ShareButton {
+            page: page
+        }
+
+        IndexButton {
+            onClicked: pageStack.animatorPush(Qt.resolvedUrl("TextDocumentToCPage.qml"), { document: doc })
+
+            index: Math.max(1, doc.currentIndex)
+            count: doc.indexCount
+            allowed: !doc.failure
+        }
+    }
     Calligra.Document {
         id: doc
 
-        onStatusChanged: if (status == Calligra.DocumentStatus.Loaded) controller.zoomToFitWidth(page.width)
+        readonly property bool failure: status === Calligra.DocumentStatus.Failed
+        onStatusChanged: if (status == Calligra.DocumentStatus.Loaded) viewController.zoomToFitWidth(page.width)
     }
 }

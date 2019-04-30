@@ -27,8 +27,12 @@ PanelBackground {
     property bool autoShowHide: true
     property int offset: _active && !forceHidden ? height : 0
 
-    property bool _active
+    property bool _active: true
     property int _previousContentY
+    default property alias _data: contentItem.data
+
+    width: parent.width
+    height: isPortrait ? Theme.itemSizeLarge : Theme.itemSizeSmall
 
     function show() {
         if (forceHidden) {
@@ -64,6 +68,15 @@ PanelBackground {
     }
 
     Behavior on offset { NumberAnimation { duration: 400; easing.type: Easing.InOutQuad } }
+
+
+    Row {
+        id: contentItem
+
+        spacing: Theme.paddingLarge
+        anchors.verticalCenter: parent.verticalCenter
+        x: Math.max(0, parent.width/2 - width/2)
+    }
 
     Connections {
         target: flickable

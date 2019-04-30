@@ -26,13 +26,18 @@ MouseArea {
     property Item flickable
 
     property real _contentY0
-    property real _contentY: flickable !== undefined ? flickable.contentY : 0.
+    property real _contentY: flickable ? flickable.contentY : 0.0
     property real _dragX0
     property real _dragY0
     property real dragX
     property real dragY
 
     signal dragged(point at)
+
+    function reset() {
+        dragX = 0
+        dragY = 0
+    }
 
     width: Theme.itemSizeSmall
     height: width
@@ -42,12 +47,10 @@ MouseArea {
     onPressed: {
         _dragX0 = mouseX
         _dragY0 = mouseY
-        _contentY0 = flickable !== undefined ? flickable.contentY : 0.
+        _contentY0 = (flickable ? flickable.contentY : 0.0)
     }
-    onReleased: {
-        dragX = 0
-        dragY = 0
-    }
+    onCanceled: reset()
+    onReleased: reset()
 
     Binding {
         target: root
@@ -81,7 +84,7 @@ MouseArea {
         height: width
         visible: opacity > 0.
         opacity: root.pressed ? 0.25 : 0.
-        Behavior on opacity { FadeAnimation {} }
+        Behavior on opacity { FadeAnimator {} }
         radius: width / 2
         color: Qt.rgba(1. - Theme.highlightDimmerColor.r,
                        1. - Theme.highlightDimmerColor.g,

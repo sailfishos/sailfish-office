@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import QtQuick 2.0
+import QtQuick 2.6
 import Sailfish.Silica 1.0
 
 Rectangle {
@@ -58,17 +58,16 @@ Rectangle {
 
     ParallelAnimation {
         id: appearingMove
-        FadeAnimation {
+        FadeAnimator {
             target: root
-            from: 0
+            from: 0.0
             to: 0.5
         }
-        NumberAnimation {
+        XAnimator {
             id: translationMove
             duration: 200
             easing.type: Easing.InOutQuad
             target: root
-            property: "x"
             to: root.x
         }
     }
