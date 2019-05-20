@@ -93,6 +93,10 @@ ApplicationWindow {
             handler = "Sailfish.Office.TextDocumentPage"
             break
 
+        case "text/plain":
+            handler = "Sailfish.Office.PlainTextDocumentPage"
+            break
+
         case "application/pdf":
             handler = "Sailfish.Office.PDFDocumentPage"
             break

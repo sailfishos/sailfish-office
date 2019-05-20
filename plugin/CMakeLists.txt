@@ -1,11 +1,19 @@
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(SAILFISHSILICA sailfishsilica REQUIRED)
+
+include_directories(
+    ${SAILFISHSILICA_INCLUDE_DIRS}
+)
+
 set(plugin_SRCS
     fileinfo.cpp
+    plaintextmodel.cpp
     sailfishofficeplugin.cpp
 )
 
 add_library(sailfishofficeplugin MODULE ${plugin_SRCS})
 qt5_use_modules(sailfishofficeplugin Widgets Quick)
-target_link_libraries(sailfishofficeplugin stdc++ ${QT_LIBRARIES})
+target_link_libraries(sailfishofficeplugin stdc++ ${QT_LIBRARIES} ${SAILFISHSILICA_LIBRARIES})
 
 install(TARGETS sailfishofficeplugin DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/qt5/qml/Sailfish/Office)
 
@@ -32,6 +40,7 @@ install(FILES
     PDFSelectionView.qml
     PDFStorage.js
     PDFView.qml
+    PlainTextDocumentPage.qml
     PresentationPage.qml
     PresentationThumbnailPage.qml
     SearchBarItem.qml

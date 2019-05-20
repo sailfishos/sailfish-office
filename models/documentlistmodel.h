@@ -31,6 +31,7 @@ public:
     enum DocumentClass {
         UnknownDocument,
         TextDocument,
+        PlainTextDocument,
         SpreadSheetDocument,
         PresentationDocument,
         PDFDocument

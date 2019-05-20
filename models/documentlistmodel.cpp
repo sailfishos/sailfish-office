@@ -182,6 +182,8 @@ int DocumentListModel::mimeTypeToDocumentClass(QString mimeType) const
             || mimeType == QLatin1String("application/vnd.ms-word.template.macroEnabled.12")
             || mimeType == QLatin1String("application/rtf")) {
         documentClass = TextDocument;
+    } else if (mimeType == QLatin1String("text/plain")) {
+        documentClass = PlainTextDocument;
     } else if (mimeType == QLatin1String("application/vnd.oasis.opendocument.presentation")
                || mimeType == QLatin1String("application/vnd.ms-powerpoint")
                || mimeType == QLatin1String("application/vnd.openxmlformats-officedocument.presentationml.presentation")
