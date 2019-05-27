@@ -26,6 +26,7 @@ install(FILES
     DocumentFlickable.qml
     DocumentHeader.qml
     DocumentPage.qml
+    FullscreenError.qml
     IndexButton.qml
     OverlayToolbar.qml
     PDFAnnotationEdit.qml

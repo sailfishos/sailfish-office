@@ -36,6 +36,7 @@ DocumentPage {
     }
 
     busy: doc.status != Calligra.DocumentStatus.Loaded
+          && doc.status != Calligra.DocumentStatus.Failed
     documentItem: documentView
 
     FadeBlocker {
@@ -51,7 +52,13 @@ DocumentPage {
 
     Calligra.Document {
         id: doc
-        onStatusChanged: if (status == Calligra.DocumentStatus.Loaded) viewController.zoomToFitWidth(page.width)
+        onStatusChanged: {
+            if (status == Calligra.DocumentStatus.Loaded) {
+                viewController.zoomToFitWidth(page.width)
+            } else if (status == Calligra.DocumentStatus.Failed) {
+                errorLoader.setSource(Qt.resolvedUrl("FullscreenError.qml"), { error: lastError })
+            }
+        }
     }
 
     Calligra.View {
@@ -122,7 +129,7 @@ DocumentPage {
         }
 
         OverlayToolbar {
-            enabled: !page.busy
+            enabled: doc.status == Calligra.DocumentStatus.Loaded
             opacity: enabled ? 1.0 : 0.0
             color: fadeBlocker.color
             Behavior on opacity { FadeAnimator { duration: 400 }}
@@ -145,5 +152,10 @@ DocumentPage {
                 color: Theme.darkPrimaryColor
             }
         }
+    }
+
+    Loader {
+        id: errorLoader
+        anchors.fill: parent
     }
 }

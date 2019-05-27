@@ -32,6 +32,7 @@ DocumentPage {
     }
 
     busy: doc.status != Calligra.DocumentStatus.Loaded
+          && doc.status != Calligra.DocumentStatus.Failed
     documentItem: documentView
 
     Calligra.View {
@@ -103,7 +104,7 @@ DocumentPage {
         flickable: flickable
         anchors.top: flickable.bottom
         forceHidden: doc.failure
-        enabled: !page.busy
+        enabled: doc.status == Calligra.DocumentStatus.Loaded
         opacity: enabled ? 1.0 : 0.0
         Behavior on opacity { FadeAnimator { duration: 400 }}
 
@@ -127,6 +128,17 @@ DocumentPage {
         id: doc
 
         readonly property bool failure: status === Calligra.DocumentStatus.Failed
-        onStatusChanged: if (status == Calligra.DocumentStatus.Loaded) viewController.zoomToFitWidth(page.width)
+        onStatusChanged: {
+            if (status == Calligra.DocumentStatus.Loaded) {
+                viewController.zoomToFitWidth(page.width)
+            } else if (status == Calligra.DocumentStatus.Failed) {
+                errorLoader.setSource(Qt.resolvedUrl("FullscreenError.qml"), { error: lastError })
+            }
+        }
+    }
+
+    Loader {
+        id: errorLoader
+        anchors.fill: parent
     }
 }
