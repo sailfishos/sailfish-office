@@ -117,7 +117,6 @@ ApplicationWindow {
     function mimeToIcon(fileMimeType) {
         var iconType = "other"
         switch (fileMimeType) {
-        case "text/plain":
         case "text/x-vnote":
             iconType = "note"
             break
@@ -140,6 +139,7 @@ ApplicationWindow {
         case "application/vnd.openxmlformats-officedocument.presentationml.template":
             iconType = "presentation"
             break
+        case "text/plain":
         case "application/vnd.oasis.opendocument.text-master":
         case "application/vnd.oasis.opendocument.text":
         case "application/vnd.oasis.opendocument.text-template":
