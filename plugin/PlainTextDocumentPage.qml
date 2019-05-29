@@ -102,6 +102,16 @@ DocumentPage {
                 }
             }
 
+            ViewPlaceholder {
+                enabled: model.lineCount === 0
+                         && (model.status === PlainTextModel.Ready || model.status === PlainTextModel.Error)
+                text: model.status === PlainTextModel.Error
+                        //% "Error loading text file"
+                        ? qsTrId("sailfish-office-la-plain_text_error")
+                          //% "Empty text file"
+                        : qsTrId("sailfish-office-la-plain_text_empty")
+            }
+
             VerticalScrollDecorator {
                 color: Theme.highlightDimmerColor
                 anchors.rightMargin: horizontalFlickable.contentWidth - horizontalFlickable.width - horizontalFlickable.contentX
