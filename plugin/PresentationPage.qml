@@ -24,7 +24,8 @@ import org.kde.calligra 1.0 as Calligra
 DocumentPage {
     id: page
 
-    busy: doc.status !== Calligra.DocumentStatus.Loaded
+    busy: doc.status != Calligra.DocumentStatus.Loaded
+          && doc.status != Calligra.DocumentStatus.Failed
     documentItem: view
     source: doc.source
 
@@ -136,7 +137,7 @@ DocumentPage {
         }
 
         OverlayToolbar {
-            enabled: !page.busy
+            enabled: doc.status == Calligra.DocumentStatus.Loaded
             opacity: enabled ? 1.0 : 0.0
             Behavior on opacity { FadeAnimator { duration: 400 }}
 
@@ -163,5 +164,16 @@ DocumentPage {
 
     Calligra.Document {
         id: doc
+        onStatusChanged: {
+            if (status == Calligra.DocumentStatus.Failed) {
+                errorLoader.setSource(Qt.resolvedUrl("FullscreenError.qml"), { error: lastError })
+            }
+        }
+
+    }
+
+    Loader {
+        id: errorLoader
+        anchors.fill: parent
     }
 }
