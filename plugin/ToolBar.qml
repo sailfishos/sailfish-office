@@ -25,7 +25,7 @@ PanelBackground {
     property Item flickable
     property bool forceHidden
     property bool autoShowHide: true
-    property int offset: _active && !forceHidden ? height : 0
+    property int offset: _active && !forceHidden && !flickable.pullDownMenu.active ? height : 0
 
     property bool _active: true
     property int _previousContentY
