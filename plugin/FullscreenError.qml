@@ -105,7 +105,7 @@ TouchBlocker {
 
     Rectangle {
         anchors.fill: parent
-        opacity: 0.4
+        opacity: Theme.opacityLow
         color: Theme.highlightDimmerColor
     }
 

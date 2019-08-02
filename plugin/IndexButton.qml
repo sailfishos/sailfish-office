@@ -27,7 +27,7 @@ MouseArea {
     readonly property bool highlighted: pressed && containsMouse
 
     enabled: count > 1 && allowed
-    opacity: count > 0 && allowed ? (count > 1 ? 1.0 : 0.6) : 0.0
+    opacity: count > 0 && allowed ? (count > 1 ? 1.0 : Theme.opacityHigh) : 0.0
     width: Theme.itemSizeSmall
     height: Theme.itemSizeSmall
 
