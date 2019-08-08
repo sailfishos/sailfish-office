@@ -48,7 +48,7 @@ MouseArea {
         source: "image://theme/icon-m-about"
         highlighted: parent.down
         Behavior on opacity { FadeAnimator {}}
-        opacity: parent.enabled ? 1.0 : 0.6
+        opacity: parent.enabled ? 1.0 : Theme.opacityHigh
 
         anchors  {
             right: parent.right

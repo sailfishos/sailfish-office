@@ -102,7 +102,7 @@ ContextMenu {
                         visible: modelData["style"] == HighlightAnnotation.Highlight
                         anchors.fill: parent
                         color: bgStyle.highlighted ? Theme.highlightColor : Theme.primaryColor
-                        opacity: 0.4
+                        opacity: Theme.opacityLow
                         z: -1
                     }
                 }

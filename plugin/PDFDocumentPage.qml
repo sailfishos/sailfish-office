@@ -474,7 +474,7 @@ DocumentPage {
 
             InfoLabel {
                 font.pixelSize: Theme.fontSizeLarge
-                color: Theme.rgba(Theme.highlightColor, 0.4)
+                color: Theme.rgba(Theme.highlightColor, Theme.opacityLow)
                 text: doc.failure ? //% "Cannot read the PDF document"
                                     qsTrId("sailfish-office-me-broken-pdf-hint")
                                   : //% "Enter password to unlock"

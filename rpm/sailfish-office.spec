@@ -17,7 +17,7 @@ BuildRequires: cmake
 BuildRequires: qt5-qttools-linguist
 Requires: calligra-components >= 2.7.9+git4
 Requires: calligra-filters >= 2.7.9+git4
-Requires: sailfishsilica-qt5 >= 1.0.59
+Requires: sailfishsilica-qt5 >= 1.1.46
 Requires: sailfish-components-accounts-qt5
 Requires: sailfish-components-textlinking
 Requires: libqt5sparql-tracker
