@@ -25,10 +25,11 @@ PanelBackground {
     property Item flickable
     property bool forceHidden
     property bool autoShowHide: true
-    property int offset: _active && !forceHidden && !flickable.pullDownMenu.active ? height : 0
+    property int offset: _active && !forceHidden && !_pulleyActive ? height : 0
 
     property bool _active: true
     property int _previousContentY
+    readonly property bool _pulleyActive: flickable && flickable.pullDownMenu && flickable.pullDownMenu.active
     default property alias _data: contentItem.data
 
     width: parent.width
