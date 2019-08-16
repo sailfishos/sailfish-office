@@ -182,7 +182,7 @@ int DocumentListModel::mimeTypeToDocumentClass(QString mimeType) const
             || mimeType == QLatin1String("application/vnd.ms-word.template.macroEnabled.12")
             || mimeType == QLatin1String("application/rtf")) {
         documentClass = TextDocument;
-    } else if (mimeType == QLatin1String("text/plain")) {
+    } else if (mimeType == QLatin1String("text/plain") || (mimeType == QLatin1String("application/xml") || mimeType == QLatin1String("text/csv"))) {
         documentClass = PlainTextDocument;
     } else if (mimeType == QLatin1String("application/vnd.oasis.opendocument.presentation")
                || mimeType == QLatin1String("application/vnd.ms-powerpoint")
