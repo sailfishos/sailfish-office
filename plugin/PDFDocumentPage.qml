@@ -297,7 +297,7 @@ DocumentPage {
                     var pt = Qt.point(mouse.x, mouse.y)
                     doc.create(annotation,
                                function() {
-                                   var at = view.getPoitionAt(pt)
+                                   var at = view.getPositionAt(pt)
                                    annotation.attachAt(doc,
                                                        at[0], at[2], at[1])
                                })
