@@ -51,7 +51,6 @@ static const QString documentQuery{
     "UNION { ?u a nfo:TextDocument . ?u nie:mimeType 'text/plain' FILTER(fn:ends-with(nfo:fileName(?u),'.txt')) } "
     "UNION { ?u a nfo:Presentation } "
     "UNION { ?u a nfo:Spreadsheet } "
-    "UNION { ?u a nfo:FileDataObject . ?u nie:mimeType 'application/xml' FILTER(fn:ends-with(nfo:fileName(?u),'.xml')) } "
     "UNION { ?u a nfo:FileDataObject . ?u nie:mimeType 'text/csv'} "
 "}"
 };

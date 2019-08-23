@@ -126,6 +126,7 @@ ApplicationWindow {
         case "application/vnd.oasis.opendocument.spreadsheet":
         case "application/x-kspread":
         case "application/vnd.ms-excel":
+        case "text/csv":
         case "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
         case "application/vnd.openxmlformats-officedocument.spreadsheetml.template":
             iconType = "spreadsheet"
@@ -139,8 +140,6 @@ ApplicationWindow {
             iconType = "presentation"
             break
         case "text/plain":
-        case "text/csv":
-        case "application/xml":
         case "application/vnd.oasis.opendocument.text-master":
         case "application/vnd.oasis.opendocument.text":
         case "application/vnd.oasis.opendocument.text-template":
