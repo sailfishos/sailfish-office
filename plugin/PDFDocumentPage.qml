@@ -426,8 +426,8 @@ DocumentPage {
                                              {"annotation": annotation})
             obj.pageCompleted.connect(function(edit) {
                 edit.remove.connect(function() {
-                    pageStack.pop()
                     annotation.remove()
+                    pageStack.pop()
                 })
             })
         }
