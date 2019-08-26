@@ -294,7 +294,7 @@ DocumentPage {
                 anchors.fill: parent
                 onClicked: {
                     var annotation = textComponent.createObject(textTool)
-                    var pt = Qt.point(mouse.x, mouse.y)
+                    var pt = Qt.point(view.contentX + mouse.x, view.contentY + mouse.y)
                     doc.create(annotation,
                                function() {
                                    var at = view.getPositionAt(pt)
