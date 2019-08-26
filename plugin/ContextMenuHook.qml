@@ -27,6 +27,7 @@ Item {
     property alias backgroundOpacity: background.opacity
 
     property real _flickableContentHeight
+    property real _flickableContentYAtOpen
     property bool _opened: _menu ? _menu._open : false
 
     property int _hookHeight
@@ -45,7 +46,7 @@ Item {
 
     function showMenu(menu) {
         _menu = menu
-        menu.show(hook)
+        menu.open(hook)
         _flickableContentHeight = _menu._flickable.contentHeight
     }
 
@@ -60,11 +61,13 @@ Item {
             // if the device has been rotated and the link would be sent
             // out of screen.
             _menu._flickable.contentY =
-                Math.max(_menu._flickableContentYAtOpen,
+                Math.max(_flickableContentYAtOpen,
                          hook.y + _hookHeight + Theme.paddingSmall - _menu._flickable.height)
             // Reset menu flickable after menu is closed to avoid initialisation
             // issues next time showMenu() is called.
             _menu._flickable = null
+        } else {
+            _flickableContentYAtOpen = _menu._flickable.contentY
         }
     }
     Connections {
@@ -72,7 +75,7 @@ Item {
         onContentHeightChanged: {
             // Update the initial opening position with the zoom factor
             // if the contentHeight is changed while menu was displayed.
-            _menu._flickableContentYAtOpen *= _menu._flickable.contentHeight / _flickableContentHeight
+            _flickableContentYAtOpen *= _menu._flickable.contentHeight / _flickableContentHeight
             _flickableContentHeight = _menu._flickable.contentHeight
         }
     }
