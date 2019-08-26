@@ -32,10 +32,10 @@ ContextMenu {
         onClicked: {
             var annotation = textComponent.createObject(contextMenuText)
             annotation.color = "#202020"
-            pdfDocument.create(annotation,
+            doc.create(annotation,
                                function() {
                                    var at = view.getPositionAt(contextMenuText.at)
-                                   annotation.attachAt(pdfDocument, at[0], at[2], at[1])
+                                   annotation.attachAt(doc, at[0], at[2], at[1])
                                })
         }
         Component {
@@ -47,7 +47,7 @@ ContextMenu {
         visible: contextMenuText.annotation
         //% "Edit"
         text: qsTrId("sailfish-office-me-pdf-txt-anno-edit")
-        onClicked: pdfDocument.edit(contextMenuText.annotation)
+        onClicked: doc.edit(contextMenuText.annotation)
     }
     MenuItem {
         visible: contextMenuText.annotation
