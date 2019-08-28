@@ -20,6 +20,7 @@ import QtQuick 2.0
 import Sailfish.Silica 1.0
 
 MouseArea {
+    id: root
     property bool allowed: true
     property color color: Theme.primaryColor
     property int index
@@ -35,7 +36,7 @@ MouseArea {
         anchors.centerIn: parent
         width: Math.min(parent.width - Theme.paddingSmall, implicitWidth)
         fontSizeMode: Text.HorizontalFit
-        color: highlighted ? Theme.highlightColor : parent.color
+        color: root.highlighted ? Theme.highlightColor : parent.color
         text: index + " | " + count
     }
 }
