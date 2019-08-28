@@ -29,7 +29,7 @@ MouseArea {
     enabled: count > 1 && allowed
     opacity: count > 0 && allowed ? (count > 1 ? 1.0 : Theme.opacityHigh) : 0.0
     width: Theme.itemSizeSmall
-    height: Theme.itemSizeSmall
+    height: parent.height
 
     Label {
         anchors.centerIn: parent

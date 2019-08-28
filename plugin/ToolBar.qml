@@ -75,8 +75,8 @@ PanelBackground {
         id: contentItem
 
         spacing: Theme.paddingLarge
-        anchors.verticalCenter: parent.verticalCenter
         x: Math.max(0, parent.width/2 - width/2)
+        height: parent.height
     }
 
     Connections {
