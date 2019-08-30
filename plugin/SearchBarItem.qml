@@ -39,7 +39,7 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 
-BackgroundItem {
+Item {
     id: root
 
     property bool active
@@ -47,15 +47,16 @@ BackgroundItem {
     property real expandedWidth
     property bool searching
     property alias searchProgress: progressBar.progress
+    property alias highlighted: searchIcon.highlighted
 
     property real _margin: Math.max((width - searchIcon.width) / 2., 0.)
 
+    signal clicked()
     signal requestSearch(string text)
     signal requestPreviousMatch()
     signal requestNextMatch()
     signal requestCancel()
 
-    onClicked: active = true
     onActiveChanged: if (active) searchField.forceActiveFocus()
 
     states: State {
@@ -74,7 +75,6 @@ BackgroundItem {
             duration: 400
         }
     }
-    highlighted: down || searchIcon.down
 
     Rectangle {
         id: progressBar
@@ -104,11 +104,11 @@ BackgroundItem {
         width: icon.width
         height: parent.height
         icon.source: "image://theme/icon-m-search"
-        highlighted: down || root.down || searchField.activeFocus
+        highlighted: down || searchField.activeFocus
 
         onClicked: {
-            root.clicked(mouse)
-            searchField.forceActiveFocus()
+            root.active = true
+            root.clicked()
         }
     }
 
