@@ -29,12 +29,13 @@ MouseArea {
 
     enabled: count > 1 && allowed
     opacity: count > 0 && allowed ? (count > 1 ? 1.0 : Theme.opacityHigh) : 0.0
-    width: Theme.itemSizeSmall
+    width: Math.min(Theme.itemSizeMedium, label.implicitWidth + Theme.paddingSmall)
     height: parent.height
 
     Label {
+        id: label
         anchors.centerIn: parent
-        width: Math.min(parent.width - Theme.paddingSmall, implicitWidth)
+        width: parent.width - Theme.paddingSmall
         fontSizeMode: Text.HorizontalFit
         color: root.highlighted ? Theme.highlightColor : parent.color
         text: index + " | " + count

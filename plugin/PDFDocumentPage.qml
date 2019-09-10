@@ -375,6 +375,7 @@ DocumentPage {
 
         IconButton {
             id: linkBack
+            anchors.verticalCenter: parent.verticalCenter
             opacity: view.canMoveBack ? 1. : 0.
             visible: opacity > 0
             Behavior on opacity { FadeAnimator { duration: 400 } }
