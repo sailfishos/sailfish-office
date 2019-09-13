@@ -22,32 +22,10 @@ import Sailfish.Silica 1.0
 IconButton {
     property DocumentPage page
     readonly property url source: page.source
-    property Item _remorsePopup
-    readonly property bool remorseActive: _remorsePopup && _remorsePopup.active
-    function remorseAction(text, action) {
-        if (!_remorsePopup) {
-            _remorsePopup = remorsePopupComponent.createObject(page)
-        }
-        if (!_remorsePopup.active) {
-            _remorsePopup.execute(text, action)
-        }
-    }
 
-    onSourceChanged: if (_remorsePopup && _remorsePopup.active) _remorsePopup.trigger()
-    onClicked: {
-        //: Delete an image
-        //% "Deleting"
-        remorseAction(qsTrId("sailfish-office-la-deleting"), function() {
-            page.provider.deleteFile(page.source)
-            pageStack.pop()
-        })
-    }
+    onClicked: window._mainPage.deleteSource(page.source)
 
     icon.source: "image://theme/icon-m-delete"
     anchors.verticalCenter: parent.verticalCenter
     visible: page.source != ""
-    Component {
-        id: remorsePopupComponent
-        RemorsePopup {}
-    }
 }

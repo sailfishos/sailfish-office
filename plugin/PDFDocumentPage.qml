@@ -37,11 +37,6 @@ DocumentPage {
     error: doc.failure
     source: doc.source
 
-    onSourceChanged: {
-        var remorsePopup = deleteButton.remorsePopup
-        if (remorsePopup && remorsePopup.active) remorsePopup.trigger()
-    }
-
     function savePageSettings() {
         if (!rememberPositionConfig.value || doc.failure || doc.locked) {
             return
@@ -164,32 +159,10 @@ DocumentPage {
 
         PullDownMenu {
             MenuItem {
-                id: deleteButton
                 //% "Delete"
                 text: qsTrId("sailfish-office-me-delete")
-                property Item remorsePopup
-                readonly property bool remorseActive: remorsePopup && remorsePopup.active
-                function remorseAction(text, action) {
-                    if (!remorsePopup) {
-                        remorsePopup = remorsePopupComponent.createObject(page)
-                    }
-                    if (!remorsePopup.active) {
-                        remorsePopup.execute(text, action)
-                    }
-                }
 
-                onClicked: {
-                    //: Deleting file after timeout.
-                    //% "Deleting"
-                    remorseAction(qsTrId("sailfish-office-la-deleting"), function() {
-                        page.provider.deleteFile(page.source)
-                        pageStack.pop()
-                    })
-                }
-                Component {
-                    id: remorsePopupComponent
-                    RemorsePopup {}
-                }
+                onClicked: window._mainPage.deleteSource(page.source)
             }
             MenuItem {
                 //% "Share"
