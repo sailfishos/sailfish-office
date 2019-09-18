@@ -95,6 +95,9 @@ private:
     inline QString *lineAt(int index);
     inline static bool readLines(
             QTextStream *stream, std::vector<Line> *lines, std::vector<QString> *cache);
+    
+    static QTextCodec * detect(const char *encodedCharacters, int length);
+
 
     std::vector<Line> m_lines;
     QCache<int, QString> m_textCache { maximumCost + (maximumCost / 20) };

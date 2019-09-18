@@ -45,7 +45,11 @@ Group: System/Base
 %files
 %defattr(-,root,root,-)
 %{_bindir}/*
+%{_includedir}/uchardet/uchardet.h
+%{_libdir}/pkgconfig/*
+%{_libdir}/libuchardet.*
 %{_libdir}/qt5/qml/Sailfish/Office/
+%{_datadir}/man/*
 %{_datadir}/applications/*.desktop
 %{_datadir}/%{name}/
 %{_datadir}/translations/*.qm
@@ -68,6 +72,7 @@ make %{?_smp_mflags}
 
 %install
 make DESTDIR=%{buildroot} install
+cp -r uchardet/usr/ %{buildroot}
 
 
 %post

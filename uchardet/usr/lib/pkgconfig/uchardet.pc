@@ -1,0 +1,10 @@
+libdir=/usr/lib
+includedir=/usr/include
+
+Name: uchardet
+Description: An encoding detector library ported from Mozilla
+Version: 0.0.6
+Requires:
+Libs: -L${libdir} -luchardet
+Libs.private: -lstdc++
+Cflags: -I${includedir}/uchardet

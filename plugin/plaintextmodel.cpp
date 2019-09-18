@@ -24,6 +24,10 @@
 #include <QThread>
 #include <silicatheme.h>
 
+#include <unicode/ucsdet.h>
+
+#include <uchardet/uchardet.h>
+
 class PlainTextModel::FileData : public QSharedData
 {
 public:
@@ -117,6 +121,11 @@ void PlainTextModel::setSource(const QUrl &source)
                 m_status = Error;
             } else {
                 m_textStream.setDevice(&m_file);
+                QByteArray ba = m_file.readAll();
+
+                QString name = detect(ba.data(), ba.size())->name();
+                m_textStream.setCodec(QTextCodec::codecForName( name.toStdString().data() ));
+                m_textStream.seek(0);
 
                 if (m_file.size() > maximumSynchronousSize) {
                     m_fileData = new FileData(this);
@@ -264,6 +273,26 @@ bool PlainTextModel::readLines(
     return false;
 }
 
+QTextCodec *PlainTextModel::detect(const char *encodedCharacters, int length)
+{
+    QTextCodec *codec = QTextCodec::codecForLocale();
+
+    uchardet_t cd = uchardet_new();
+    int res = uchardet_handle_data(cd, encodedCharacters, length);
+    if(!res)
+    {
+        uchardet_data_end(cd);
+
+        const char * name = uchardet_get_charset(cd);
+        codec = QTextCodec::codecForName(name);
+    }
+
+    uchardet_data_end(cd);
+    uchardet_delete(cd);
+
+    return codec;
+}
+
 PlainTextModel::Reader::Reader(const QExplicitlySharedDataPointer<PlainTextModel::FileData> &fileData)
     : m_fileData(fileData)
 {
@@ -280,6 +309,11 @@ void PlainTextModel::Reader::run()
         QCoreApplication::postEvent(this, event);
     } else {
         QTextStream stream(&file);
+        QByteArray ba = file.readAll();
+        QString name = detect(ba.data(), ba.size())->name();
+        stream.setCodec(QTextCodec::codecForName( name.toStdString().data() ));
+        stream.seek(0);
+
 
         bool atEnd = false;
         for (bool cache = true; m_fileData->model && !atEnd; cache = false) {
