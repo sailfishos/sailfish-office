@@ -30,6 +30,21 @@ Page {
     property bool searchEnabled
     property QtObject provider
 
+    property string deletingSource
+
+    function deleteSource(source) {
+        pageStack.pop()
+        deletingSource = source
+        var popup = Remorse.popupAction(
+                    page,
+                    Remorse.deletedText,
+                    function() {
+                        provider.deleteFile(deletingSource)
+                        deletingSource = ""
+                    })
+        popup.canceled.connect(function() { deletingSource = "" })
+    }
+
     allowedOrientations: Orientation.All
 
     onSearchEnabledChanged: {
@@ -147,7 +162,9 @@ Page {
 
         delegate: ListItem {
             id: listItem
+
             contentHeight: Theme.itemSizeMedium
+            hidden: deletingSource === model.filePath
 
             Image {
                 id: icon
@@ -223,9 +240,7 @@ Page {
             }
 
             function deleteFile() {
-                //: Deleting file after timeout.
-                //% "Deleting"
-                remorseAction(qsTrId("sailfish-office-la-deleting"), function() { page.provider.deleteFile(model.filePath) })
+                remorseDelete(function() { page.provider.deleteFile(model.filePath) })
             }
 
             // TODO: transitions disabled until they don't anymore confuse SilicaListView positioning. JB#33215

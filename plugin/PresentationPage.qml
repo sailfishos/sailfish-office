@@ -118,7 +118,7 @@ DocumentPage {
         id: overlay
         property bool active: true
 
-        enabled: active && !deleteButton.remorseActive
+        enabled: active
         anchors.fill: parent
         opacity: enabled ? 1.0 : 0.0
         Behavior on opacity { FadeAnimator {}}
@@ -142,7 +142,6 @@ DocumentPage {
             Behavior on opacity { FadeAnimator { duration: 400 }}
 
             DeleteButton {
-                id: deleteButton
                 page: page
                 icon.color: Theme.lightPrimaryColor
             }

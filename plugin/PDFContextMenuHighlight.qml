@@ -119,9 +119,9 @@ ContextMenu {
               : qsTrId("sailfish-office-me-pdf-hl-anno-comment-edit")
         onClicked: {
             if (contextMenuHighlight.annotation.contents == "") {
-                pdfDocument.create(contextMenuHighlight.annotation)
+                doc.create(contextMenuHighlight.annotation)
             } else {
-                pdfDocument.edit(contextMenuHighlight.annotation)
+                doc.edit(contextMenuHighlight.annotation)
             }
         }
     }

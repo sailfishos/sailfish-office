@@ -37,11 +37,6 @@ DocumentPage {
     error: doc.failure
     source: doc.source
 
-    onSourceChanged: {
-        var remorsePopup = deleteButton.remorsePopup
-        if (remorsePopup && remorsePopup.active) remorsePopup.trigger()
-    }
-
     function savePageSettings() {
         if (!rememberPositionConfig.value || doc.failure || doc.locked) {
             return
@@ -164,32 +159,10 @@ DocumentPage {
 
         PullDownMenu {
             MenuItem {
-                id: deleteButton
                 //% "Delete"
                 text: qsTrId("sailfish-office-me-delete")
-                property Item remorsePopup
-                readonly property bool remorseActive: remorsePopup && remorsePopup.active
-                function remorseAction(text, action) {
-                    if (!remorsePopup) {
-                        remorsePopup = remorsePopupComponent.createObject(page)
-                    }
-                    if (!remorsePopup.active) {
-                        remorsePopup.execute(text, action)
-                    }
-                }
 
-                onClicked: {
-                    //: Deleting file after timeout.
-                    //% "Deleting"
-                    remorseAction(qsTrId("sailfish-office-la-deleting"), function() {
-                        page.provider.deleteFile(page.source)
-                        pageStack.pop()
-                    })
-                }
-                Component {
-                    id: remorsePopupComponent
-                    RemorsePopup {}
-                }
+                onClicked: window._mainPage.deleteSource(page.source)
             }
             MenuItem {
                 //% "Share"
@@ -294,7 +267,7 @@ DocumentPage {
                 anchors.fill: parent
                 onClicked: {
                     var annotation = textComponent.createObject(textTool)
-                    var pt = Qt.point(mouse.x, mouse.y)
+                    var pt = Qt.point(view.contentX + mouse.x, view.contentY + mouse.y)
                     doc.create(annotation,
                                function() {
                                    var at = view.getPositionAt(pt)
@@ -375,6 +348,7 @@ DocumentPage {
 
         IconButton {
             id: linkBack
+            anchors.verticalCenter: parent.verticalCenter
             opacity: view.canMoveBack ? 1. : 0.
             visible: opacity > 0
             Behavior on opacity { FadeAnimator { duration: 400 } }
@@ -426,8 +400,8 @@ DocumentPage {
                                              {"annotation": annotation})
             obj.pageCompleted.connect(function(edit) {
                 edit.remove.connect(function() {
-                    pageStack.pop()
                     annotation.remove()
+                    pageStack.pop()
                 })
             })
         }
