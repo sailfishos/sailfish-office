@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2019 Open Mobile Platform LLC
  * Copyright (C) 2019 Jolla Ltd.
  * Contact: Andrew den Exter <andrew.den.exter@jolla.com>
  *
@@ -25,6 +26,7 @@
 #include <QFile>
 #include <QTextStream>
 #include <QUrl>
+#include <QTextCodec>
 
 #include <vector>
 
@@ -95,6 +97,7 @@ private:
     inline QString *lineAt(int index);
     inline static bool readLines(
             QTextStream *stream, std::vector<Line> *lines, std::vector<QString> *cache);
+    static QTextCodec * detectCodec(const char *encodedCharacters, qint64 length);
 
     std::vector<Line> m_lines;
     QCache<int, QString> m_textCache { maximumCost + (maximumCost / 20) };

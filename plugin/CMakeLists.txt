@@ -1,8 +1,10 @@
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(SAILFISHSILICA sailfishsilica REQUIRED)
+pkg_check_modules(ICU icu-i18n REQUIRED)
 
 include_directories(
     ${SAILFISHSILICA_INCLUDE_DIRS}
+    ${ICU_INCLUDE_DIRS}
 )
 
 set(plugin_SRCS
@@ -13,7 +15,7 @@ set(plugin_SRCS
 
 add_library(sailfishofficeplugin MODULE ${plugin_SRCS})
 qt5_use_modules(sailfishofficeplugin Widgets Quick)
-target_link_libraries(sailfishofficeplugin stdc++ ${QT_LIBRARIES} ${SAILFISHSILICA_LIBRARIES})
+target_link_libraries(sailfishofficeplugin stdc++ ${QT_LIBRARIES} ${SAILFISHSILICA_LIBRARIES} ${ICU_LIBRARIES})
 
 install(TARGETS sailfishofficeplugin DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/qt5/qml/Sailfish/Office)
 

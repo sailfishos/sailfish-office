@@ -15,6 +15,7 @@ BuildRequires: poppler-qt5-devel poppler-qt5 poppler-devel poppler
 BuildRequires: mapplauncherd-qt5-devel
 BuildRequires: cmake
 BuildRequires: qt5-qttools-linguist
+BuildRequires: pkgconfig(icu-i18n)
 Requires: calligra-components >= 2.7.9+git4
 Requires: calligra-filters >= 2.7.9+git4
 Requires: sailfishsilica-qt5 >= 1.1.53
