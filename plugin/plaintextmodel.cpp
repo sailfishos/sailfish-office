@@ -24,16 +24,22 @@
 #include <QThread>
 #include <silicatheme.h>
 
+#include <unicode/ucsdet.h>
+
+#include <uchardet/uchardet.h>
+
 class PlainTextModel::FileData : public QSharedData
 {
 public:
     FileData(PlainTextModel *model)
         : fileName(model->m_file.fileName())
         , model(model)
+        , codec(nullptr)
     {
     }
 
     QString fileName;
+    QTextCodec *codec;
     PlainTextModel *model = nullptr;
 };
 
@@ -116,10 +122,18 @@ void PlainTextModel::setSource(const QUrl &source)
                 qmlInfo(this) << "Can't open " << m_source << ": " << m_file.errorString();
                 m_status = Error;
             } else {
+                qint64 limit = 5*1024*1024;
+                qint64 limitSize = qMin(m_file.size(), limit);
+
+                uchar * res = m_file.map(0, limitSize);
+                QTextCodec * detectedCodec = detectCodec(reinterpret_cast<const char *>(res), limitSize);
+
                 m_textStream.setDevice(&m_file);
+                m_textStream.setCodec(detectedCodec);
 
                 if (m_file.size() > maximumSynchronousSize) {
                     m_fileData = new FileData(this);
+                    m_fileData->codec = detectedCodec;
 
                     Reader *const reader = new Reader(m_fileData);
                     reader->start();
@@ -264,6 +278,25 @@ bool PlainTextModel::readLines(
     return false;
 }
 
+QTextCodec *PlainTextModel::detectCodec(const char *encodedCharacters, qint64 length)
+{
+    QTextCodec *codec = QTextCodec::codecForLocale();
+
+    uchardet_t cd = uchardet_new();
+    int res = uchardet_handle_data(cd, encodedCharacters, length);
+    if (!res) {
+        uchardet_data_end(cd);
+
+        const char * name = uchardet_get_charset(cd);
+        codec = QTextCodec::codecForName(name);
+    }
+
+    uchardet_data_end(cd);
+    uchardet_delete(cd);
+
+    return codec;
+}
+
 PlainTextModel::Reader::Reader(const QExplicitlySharedDataPointer<PlainTextModel::FileData> &fileData)
     : m_fileData(fileData)
 {
@@ -280,6 +313,7 @@ void PlainTextModel::Reader::run()
         QCoreApplication::postEvent(this, event);
     } else {
         QTextStream stream(&file);
+        stream.setCodec(m_fileData->codec);
 
         bool atEnd = false;
         for (bool cache = true; m_fileData->model && !atEnd; cache = false) {

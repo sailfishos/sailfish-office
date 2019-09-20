@@ -14,6 +14,22 @@ find_package(Qt5LinguistTools REQUIRED)
 find_package(QtSparql REQUIRED)
 find_package(Booster REQUIRED)
 
+project(sailfish-office)
+
+cmake_minimum_required(VERSION 2.8.6)
+
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
+set(CMAKE_AUTOMOC TRUE)
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
+find_package(Qt5Core REQUIRED)
+find_package(Qt5Quick REQUIRED)
+find_package(Qt5Gui REQUIRED)
+find_package(Qt5DBus REQUIRED)
+find_package(Qt5LinguistTools REQUIRED)
+find_package(QtSparql REQUIRED)
+find_package(Booster REQUIRED)
+
 include(cmake/QtTranslationWithID.cmake)
 
 include_directories(
@@ -61,7 +77,7 @@ create_translation(engen_qm_file ${CMAKE_BINARY_DIR}/sailfish-office.ts ${sailfi
 
 add_executable(sailfish-office ${sailfishoffice_SRCS} ${engen_qm_file})
 qt5_use_modules(sailfish-office Widgets Quick DBus)
-target_link_libraries(sailfish-office stdc++ ${QT_LIBRARIES} ${BOOSTER_LIBRARY} ${QTSPARQL_LIBRARY})
+target_link_libraries(sailfish-office stdc++ uchardet ${QT_LIBRARIES} ${BOOSTER_LIBRARY} ${QTSPARQL_LIBRARY})
 
 install(TARGETS sailfish-office DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 install(FILES
@@ -75,4 +91,3 @@ install(FILES ${CMAKE_BINARY_DIR}/sailfish-office.ts DESTINATION ${CMAKE_INSTALL
 install(FILES org.sailfish.office.service DESTINATION ${CMAKE_INSTALL_PREFIX}/share/dbus-1/services)
 install(FILES org.sailfish.office.xml DESTINATION ${CMAKE_INSTALL_PREFIX}/share/dbus-1/interfaces)
 install(FILES sailfish-office.privileges DESTINATION ${CMAKE_INSTALL_PREFIX}/share/mapplauncherd/privileges.d)
-
