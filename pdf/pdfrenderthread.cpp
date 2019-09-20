@@ -353,10 +353,11 @@ void PDFRenderThread::removeAnnotation(Poppler::Annotation *annotation, int page
         return;
     if (d->annotations.contains(pageIndex))
         d->annotations[pageIndex].removeOne(annotation);
+    QRectF boundary(annotation->boundary());
     Poppler::Page *page = d->document->page(pageIndex);
     page->removeAnnotation(annotation);
     delete page;
-    emit pageModified(pageIndex, annotation->boundary());
+    emit pageModified(pageIndex, boundary);
 }
 
 void PDFRenderThread::setAutoSaveName(const QString &filename)
