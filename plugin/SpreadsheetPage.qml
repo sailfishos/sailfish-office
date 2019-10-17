@@ -86,7 +86,7 @@ DocumentPage {
             view: documentView
             flickable: flickable
             useZoomProxy: false
-            maximumZoom: 10.0
+            maximumZoom: Math.max(10.0, 2.0 * minimumZoom)
             minimumZoomFitsWidth: true
         }
 

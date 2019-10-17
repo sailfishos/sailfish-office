@@ -75,7 +75,7 @@ DocumentPage {
             id: viewController
             view: documentView
             flickable: flickable
-            maximumZoom: 5.0
+            maximumZoom: Math.max(5.0, 2.0 * minimumZoom)
             minimumZoomFitsWidth: true
         }
 
