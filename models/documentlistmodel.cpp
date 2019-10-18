@@ -203,7 +203,8 @@ int DocumentListModel::mimeTypeToDocumentClass(QString mimeType) const
                || mimeType == QLatin1String("application/vnd.openxmlformats-officedocument.spreadsheetml.template")
                || mimeType == QLatin1String("application/vnd.ms-excel.sheet.macroEnabled")
                || mimeType == QLatin1String("application/vnd.ms-excel.sheet.macroEnabled.12")
-               || mimeType == QLatin1String("application/vnd.ms-excel.template.macroEnabled.12") ) {
+               || mimeType == QLatin1String("application/vnd.ms-excel.template.macroEnabled.12") 
+               || mimeType == QLatin1String("text/csv")) {
         documentClass = SpreadSheetDocument;
     } else if (mimeType == QLatin1String("application/pdf")) {
         documentClass = PDFDocument;
