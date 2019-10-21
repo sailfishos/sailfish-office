@@ -1,7 +1,5 @@
 /*
- * Copyright (c) 2013 - 2019 Jolla Ltd.
- * Copyright (c) 2019 Open Mobile Platform LLC.
- *
+ * Copyright (C) 2013-2014 Jolla Ltd.
  * Contact: Robin Burchell <robin.burchell@jolla.com>
  *
  * This program is free software; you can redistribute it and/or
@@ -43,7 +41,7 @@ DocumentPage {
         if (!rememberPositionConfig.value || doc.failure || doc.locked) {
             return
         }
-        
+
         if (!_settings) {
             _settings = new PDFStorage.Settings(doc.source)
         }
