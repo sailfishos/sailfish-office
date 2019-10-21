@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2013-2014 Jolla Ltd.
+ * Copyright (c) 2013 - 2019 Jolla Ltd.
+ * Copyright (c) 2019 Open Mobile Platform LLC.
+ *
  * Contact: Robin Burchell <robin.burchell@jolla.com>
  *
  * This program is free software; you can redistribute it and/or
@@ -86,7 +88,7 @@ DocumentPage {
             view: documentView
             flickable: flickable
             useZoomProxy: false
-            maximumZoom: 10.0
+            maximumZoom: Math.max(10.0, 2.0 * minimumZoom)
             minimumZoomFitsWidth: true
         }
 
