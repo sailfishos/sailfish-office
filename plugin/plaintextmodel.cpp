@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2019 Open Mobile Platform LLC 
  * Copyright (C) 2019 Jolla Ltd.
  * Contact: Andrew den Exter <andrew.den.exter@jolla.com>
  *
@@ -24,6 +25,8 @@
 #include <QThread>
 #include <silicatheme.h>
 
+#include <unicode/ucsdet.h>
+
 class PlainTextModel::FileData : public QSharedData
 {
 public:
@@ -34,6 +37,7 @@ public:
     }
 
     QString fileName;
+    QTextCodec *codec = nullptr;
     PlainTextModel *model = nullptr;
 };
 
@@ -116,10 +120,20 @@ void PlainTextModel::setSource(const QUrl &source)
                 qmlInfo(this) << "Can't open " << m_source << ": " << m_file.errorString();
                 m_status = Error;
             } else {
+                qint64 limit = 5*1024*1024;
+                qint64 limitSize = qMin(m_file.size(), limit);
+
+                uchar * res = m_file.map(0, limitSize);
+                QTextCodec * detectedCodec = detectCodec(reinterpret_cast<const char *>(res), limitSize);
+
                 m_textStream.setDevice(&m_file);
+                m_textStream.setCodec(detectedCodec);
+                
+                m_file.unmap(res);
 
                 if (m_file.size() > maximumSynchronousSize) {
                     m_fileData = new FileData(this);
+                    m_fileData->codec = detectedCodec;
 
                     Reader *const reader = new Reader(m_fileData);
                     reader->start();
@@ -264,6 +278,65 @@ bool PlainTextModel::readLines(
     return false;
 }
 
+QTextCodec *PlainTextModel::detectCodec(const char *encodedCharacters, qint64 length)
+{
+    QLocale locale;
+    QTextCodec *codec = QTextCodec::codecForName("UTF-8");
+
+    UErrorCode error = U_ZERO_ERROR;
+    if (UCharsetDetector * const detector = ucsdet_open(&error)) {
+        ucsdet_setText(detector, encodedCharacters, length, &error);
+
+        int32_t count = 0;
+        if (U_FAILURE(error)) {
+            qWarning() << "Unable to detect text encoding" << u_errorName(error);
+        } else if (const UCharsetMatch ** const matches = ucsdet_detectAll(detector, &count, &error)) {
+            int bestConfidenceDetector = 0;
+            QTextCodec * bestMatchDetector = nullptr;
+
+            for (int32_t i = 0; i < count; ++i) {
+                if (QTextCodec *detectedCodec = QTextCodec::codecForName(ucsdet_getName(matches[i], &error))) {
+                    bestConfidenceDetector = ucsdet_getConfidence(matches[i], &error);
+                    bestMatchDetector = detectedCodec;
+
+                    break;
+                }
+            }
+
+            if (bestMatchDetector) {
+                QString localeName = locale.name();
+
+                int bestConfidenceLanguage = 0;
+                QTextCodec * bestMatchLanguage = nullptr;
+
+                for (int32_t i = 0; i < count; ++i) {
+                    if (localeName.left(localeName.indexOf("_")) == QString(ucsdet_getLanguage(matches[i], &error))) {
+                        if (QTextCodec * detectedCodec = QTextCodec::codecForName(ucsdet_getName(matches[i], &error))) {
+                            bestConfidenceLanguage = ucsdet_getConfidence(matches[i], &error) * 1.5;
+                            bestMatchLanguage = detectedCodec;
+
+                            break;
+                        }
+                    }
+                }
+
+                if (bestMatchLanguage) {
+                    codec = bestConfidenceDetector > bestConfidenceLanguage ? bestMatchDetector : bestMatchLanguage;
+                } else {
+                    codec = bestMatchDetector;
+                }
+            }
+        } else {
+            qWarning() << "Unable to detect text encoding" << u_errorName(error);
+        }
+        ucsdet_close(detector);
+    } else {
+        qWarning() << "Unable to detect text encoding" << u_errorName(error);
+    }
+
+    return codec;
+}
+
 PlainTextModel::Reader::Reader(const QExplicitlySharedDataPointer<PlainTextModel::FileData> &fileData)
     : m_fileData(fileData)
 {
@@ -280,7 +353,8 @@ void PlainTextModel::Reader::run()
         QCoreApplication::postEvent(this, event);
     } else {
         QTextStream stream(&file);
-
+        stream.setCodec(m_fileData->codec);
+        
         bool atEnd = false;
         for (bool cache = true; m_fileData->model && !atEnd; cache = false) {
             ReaderEvent * const event = new ReaderEvent(m_fileData);
