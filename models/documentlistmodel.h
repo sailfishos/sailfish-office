@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2019 Open Mobile Platform LLC
  * Copyright (C) 2013-2014 Jolla Ltd.
  * Contact: Robin Burchell <robin.burchell@jolla.com>
  *
@@ -46,7 +47,8 @@ public:
         FileSizeRole,
         FileReadRole,
         FileMimeTypeRole,
-        FileDocumentClass
+        FileDocumentClass,
+        FileTypeAndNameRole
     };
 
     DocumentListModel(QObject *parent = 0);
