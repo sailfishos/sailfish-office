@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2019 Open Mobile Platform LLC
  * Copyright (C) 2013-2014 Jolla Ltd.
  * Contact: Robin Burchell <robin.burchell@jolla.com>
  *
@@ -44,6 +45,7 @@ public:
         roles.insert(FileReadRole, "fileRead");
         roles.insert(FileMimeTypeRole, "fileMimeType");
         roles.insert(FileDocumentClass, "fileDocumentClass");
+        roles.insert(FileTypeAndNameRole, "fileTypeAndNameRole");
     }
     QList<DocumentListModelEntry> entries;
     QHash<int, QByteArray> roles;
@@ -69,7 +71,7 @@ QVariant DocumentListModel::data(const QModelIndex &index, int role) const
     case FilePathRole:
         return d->entries.at(index.row()).filePath;
     case FileTypeRole:
-        return QString().append(d->entries.at(index.row()).fileType).append(d->entries.at(index.row()).fileRead.toString(Qt::ISODate));
+        return d->entries.at(index.row()).fileType;
     case FileSizeRole:
         return d->entries.at(index.row()).fileSize;
     case FileReadRole:
@@ -78,6 +80,8 @@ QVariant DocumentListModel::data(const QModelIndex &index, int role) const
         return d->entries.at(index.row()).mimeType;
     case FileDocumentClass:
         return d->entries.at(index.row()).documentClass;
+    case FileTypeAndNameRole:
+        return QString().append(d->entries.at(index.row()).fileType).append(d->entries.at(index.row()).fileName);
     default:
         break;
     }

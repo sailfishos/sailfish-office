@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2019 Open Mobile Platform LLC
  * Copyright (C) 2015 Caliste Damien.
  * Contact: Damien Caliste <dcaliste@free.fr>
  *
@@ -27,18 +28,35 @@ class FilterModel : public QSortFilterProxyModel
 {
     Q_OBJECT
     Q_PROPERTY(DocumentListModel *sourceModel READ sourceModel WRITE setSourceModel NOTIFY sourceModelChanged)
+    Q_PROPERTY(int sortParameter READ sortParameter WRITE setSortParameter NOTIFY sortParameterChanged)
 public:
     FilterModel(QObject *parent = 0);
     ~FilterModel();
+    
+    enum SortParameter {
+        None,
+        Name,
+        Type,
+        Date
+    };
+
+    Q_ENUM(SortParameter)
 
 public:
     DocumentListModel* sourceModel() const;
+    
+    int sortParameter() const;
+    void setSortParameter(int sortParameter);
 
 public Q_SLOTS:
     void setSourceModel(DocumentListModel *model);
+        
+private:
+    int m_sortParameter;
 
 Q_SIGNALS:
     void sourceModelChanged();
+    void sortParameterChanged();
 };
 
 #endif // FILTERMODEL_H

@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2019 Open Mobile Platform LLC
  * Copyright (C) 2013-2014 Jolla Ltd.
  * Contact: Robin Burchell <robin.burchell@jolla.com>
  *
@@ -58,6 +59,21 @@ Page {
         if (!searchEnabled) {
             searchField.text = ""
         }
+    }
+    
+    function getSortParameterName(parameter) {
+        if (parameter === FilterModel.Name) {
+            //% "name"
+            return qsTrId("jolla-email-me-sort_by_name")
+        } else if (parameter === FilterModel.Type) {
+            //% "type"
+            return qsTrId("jolla-email-me-sort_by_type")
+        } else if (parameter === FilterModel.Date) {
+            //% "date"
+            return qsTrId("jolla-email-me-sort_by_date")
+        }
+
+        return ""
     }
 
     FilterModel {
@@ -145,6 +161,20 @@ Page {
                                              //% "Hide search"
                                            : qsTrId("sailfish-office-me-hide_search")
                 onClicked: page.searchEnabled = !page.searchEnabled
+            }
+            
+            MenuItem {
+                //% "Sort by: %1"
+                text: qsTrId("sailfish-office-me-sort_by").arg(getSortParameterName(filteredModel.sortParameter))
+                onClicked: {
+                    var obj = pageStack.animatorPush("SortTypeSelectionPage.qml")
+                    obj.pageCompleted.connect(function(page) {
+                        page.sortSelected.connect(function(sortParameter) {
+                            filteredModel.sortParameter = sortParameter
+                            pageStack.pop()
+                        })
+                    })
+                }
             }
         }
 

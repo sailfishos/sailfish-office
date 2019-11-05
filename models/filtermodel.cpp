@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2019 Open Mobile Platform LLC
  * Copyright (C) 2015 Caliste Damien.
  * Contact: Damien Caliste <dcaliste@free.fr>
  *
@@ -24,6 +25,8 @@ FilterModel::FilterModel(QObject *parent)
     : QSortFilterProxyModel(parent)
 {
     this->setFilterRole(DocumentListModel::Roles::FileNameRole);
+    setSortParameter(SortParameter::Date);
+    setSortCaseSensitivity(Qt::CaseInsensitive);
 }
 
 FilterModel::~FilterModel()
@@ -33,6 +36,40 @@ FilterModel::~FilterModel()
 void FilterModel::setSourceModel(DocumentListModel *model)
 {
     QSortFilterProxyModel::setSourceModel(static_cast<QAbstractItemModel*>(model));
+}
+
+int FilterModel::sortParameter() const
+{
+    return m_sortParameter;
+}
+
+void FilterModel::setSortParameter(int sortParameter)
+{
+    if (m_sortParameter == sortParameter) {
+        return;
+    }
+    
+    m_sortParameter = sortParameter;
+    Qt::SortOrder order = Qt::AscendingOrder;
+
+    switch (m_sortParameter) {
+    case Name:
+        setSortRole(DocumentListModel::Roles::FileNameRole);
+        break;
+    case Type:
+        setSortRole(DocumentListModel::Roles::FileTypeAndNameRole);
+        break;
+    case Date:
+        setSortRole(DocumentListModel::Roles::FileReadRole);
+        order = Qt::DescendingOrder;
+        break;
+    default:
+        break;
+    }
+
+    emit sortParameterChanged();
+    
+    sort(0, order);
 }
 
 DocumentListModel* FilterModel::sourceModel() const
