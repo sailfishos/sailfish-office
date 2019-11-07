@@ -40,16 +40,14 @@ DocumentPage {
     busy: doc.status != Calligra.DocumentStatus.Loaded
           && doc.status != Calligra.DocumentStatus.Failed
     documentItem: documentView
+    _opaqueBackground: true
 
-    FadeBlocker {
+    Rectangle {
         id: fadeBlocker
         color: "white"
-        Binding {
-            when: fadeBlocker.fullscreen
-            target: __silica_applicationwindow_instance.__quickWindow
-            property: "color"
-            value: Qt.application.active ? fadeBlocker.color : "transparent"
-        }
+        z: -1
+        anchors.fill: parent
+        parent: page._backgroundParent
     }
 
     Calligra.Document {
