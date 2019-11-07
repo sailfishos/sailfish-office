@@ -70,9 +70,14 @@ QString FileInfo::fileName() const
     return d->fileInfo.fileName();
 }
 
-QUrl FileInfo::fullPath() const
+QUrl FileInfo::fileUrl() const
 {
     return d->path;
+}
+
+QString FileInfo::filePath() const
+{
+    return d->fileInfo.filePath();
 }
 
 qint64 FileInfo::fileSize() const

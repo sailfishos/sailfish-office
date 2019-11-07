@@ -49,10 +49,11 @@ Page {
             }
 
             DetailItem {
-                //: File name detail of the document
-                //% "File Name"
-                label: qsTrId("sailfish-office-la-filename")
-                value: info.fileName
+                //: File path detail of the document
+                //% "File path"
+                label: qsTrId("sailfish-office-la-filepath")
+                value: info.filePath
+                alignment: Qt.AlignLeft
             }
 
             DetailItem {
@@ -60,6 +61,7 @@ Page {
                 //% "Size"
                 label: qsTrId("sailfish-office-la-filesize")
                 value: Format.formatFileSize(info.fileSize)
+                alignment: Qt.AlignLeft
             }
 
             DetailItem {
@@ -67,18 +69,20 @@ Page {
                 //% "Type"
                 label: qsTrId("sailfish-office-la-filetype")
                 value: info.mimeTypeComment
+                alignment: Qt.AlignLeft
             }
 
             DetailItem {
                 //: Last modified date of the document
-                //% "Last Modified"
+                //% "Last modified"
                 label: qsTrId("sailfish-office-la-lastmodified")
                 value: Format.formatDate(info.modifiedDate, Format.DateFull)
+                alignment: Qt.AlignLeft
             }
 
             DetailItem {
                 label: {
-                    switch(page.mimeType) {
+                    switch (page.mimeType) {
                         case "application/vnd.oasis.opendocument.spreadsheet":
                         case "application/x-kspread":
                         case "application/vnd.ms-excel":
@@ -120,6 +124,7 @@ Page {
                     }
                 }
                 value: page.indexCount
+                alignment: Qt.AlignLeft
             }
         }
 
