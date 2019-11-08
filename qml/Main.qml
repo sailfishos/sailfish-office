@@ -55,6 +55,7 @@ ApplicationWindow {
         id: fileInfo
     }
 
+    // file = file or url
     function openFile(file) {
         fileInfo.source = file
 
@@ -102,12 +103,12 @@ ApplicationWindow {
             break
 
         default:
-            console.log("Warning: Unrecognised file type for file " + fileInfo.fullPath)
+            console.log("Warning: Unrecognised file type for file " + fileInfo.filePath)
         }
 
         if (handler != "") {
             pageStack.push(handler,
-                           { title: fileInfo.fileName, source: fileInfo.fullPath, mimeType: fileInfo.mimeType },
+                           { title: fileInfo.fileName, source: fileInfo.fileUrl, mimeType: fileInfo.mimeType },
                            PageStackAction.Immediate)
         }
 
