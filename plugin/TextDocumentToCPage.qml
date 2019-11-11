@@ -41,28 +41,14 @@ Page {
         delegate: BackgroundItem {
             property bool isCurrentItem: model.contentIndex + 1 == page.document.currentIndex
             Label {
-                anchors {
-                    left: parent.left
-                    leftMargin: Theme.horizontalPageMargin + (Theme.paddingLarge * model.level)
-                    right: pageNumberLabel.left
-                    rightMargin: Theme.paddingLarge
-                    verticalCenter: parent.verticalCenter
-                }
-                text: model.title
+                x: Theme.horizontalPageMargin
+                width: parent.width - 2*x
+                anchors.verticalCenter: parent.verticalCenter
+                //% "Page %1"
+                text: qsTrId("sailfish_office-la-page_number").arg(model.contentIndex + 1)
                 color: highlighted || isCurrentItem ? Theme.highlightColor : Theme.primaryColor
                 truncationMode: TruncationMode.Fade
             }
-            Label {
-                id: pageNumberLabel
-                anchors {
-                    right: parent.right
-                    rightMargin: Theme.horizontalPageMargin
-                    verticalCenter: parent.verticalCenter
-                }
-                text: model.contentIndex + 1
-                color: highlighted || isCurrentItem ? Theme.highlightColor : Theme.primaryColor
-            }
-
             onClicked: {
                 page.document.currentIndex = model.contentIndex
                 pageStack.navigateBack(PageStackAction.Animated)

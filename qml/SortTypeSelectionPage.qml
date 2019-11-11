@@ -13,7 +13,7 @@ Page {
 
         header: PageHeader {
             //% "Sort by"
-            title: qsTrId("jolla-email-he-sort_by")
+            title: qsTrId("sailfish_office-he-sort_by")
         }
 
         delegate: BackgroundItem {
@@ -36,21 +36,21 @@ Page {
             sortType: FilterModel.Name
             //: Sort by name
             //% "Name"
-            name: qsTrId("jolla-email-me-sort_name")
+            name: qsTrId("sailfish_office-me-sort_name")
         }
 
         ListElement {
             sortType: FilterModel.Type
             //: Sort by type
             //% "Type"
-            name: qsTrId("jolla-email-me-sort_type")
+            name: qsTrId("sailfish_office-me-sort_type")
         }
 
         ListElement {
             sortType: FilterModel.Date
             //: Sort by date
             //% "Date"
-            name: qsTrId("jolla-email-me-sort_date")
+            name: qsTrId("sailfish_office-me-sort_date")
         }
     }
 }

@@ -64,13 +64,13 @@ Page {
     function getSortParameterName(parameter) {
         if (parameter === FilterModel.Name) {
             //% "name"
-            return qsTrId("jolla-email-me-sort_by_name")
+            return qsTrId("sailfish_office-me-sort_by_name")
         } else if (parameter === FilterModel.Type) {
             //% "type"
-            return qsTrId("jolla-email-me-sort_by_type")
+            return qsTrId("sailfish_office-me-sort_by_type")
         } else if (parameter === FilterModel.Date) {
             //% "date"
-            return qsTrId("jolla-email-me-sort_by_date")
+            return qsTrId("sailfish_office-me-sort_by_date")
         }
 
         return ""
