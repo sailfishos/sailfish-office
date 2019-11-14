@@ -21,6 +21,7 @@ import QtQuick 2.0
 import Sailfish.Silica 1.0
 import Sailfish.Office 1.0
 import Sailfish.Office.Files 1.0
+import Nemo.Configuration 1.0
 
 Page {
     id: page
@@ -234,9 +235,18 @@ Page {
                     }
                     Label {
                         anchors.right: parent.right
-                        text: Format.formatDate(model.fileRead, Format.Timepoint)
+                        text: Format.formatDate(model.fileRead, Format.DateMedium)
+                              + " "
+                              + Format.formatDate(model.fileRead, timeFormatConfig.value === "24"
+                                                                  ? Format.TimeValueTwentyFourHours
+                                                                  : Format.TimeValueTwelveHours)
                         font.pixelSize: Theme.fontSizeExtraSmall
                         color: listItem.highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
+                    }
+                    
+                    ConfigurationValue {
+                        id: timeFormatConfig
+                        key: "/sailfish/i18n/lc_timeformat24h"
                     }
                 }
             }
