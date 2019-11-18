@@ -28,11 +28,57 @@ DocumentPage {
     property real maximumWidth
     property bool wrap: true
 
-    busy: model.status === PlainTextModel.Loading && model.count === 0
+    icon: "image://theme/icon-m-file-formatted"
+    busy: documentModel.status === PlainTextModel.Loading && documentModel.count === 0
     onStatusChanged: {
         //Delay loading the document until the page has been activated.
         if (status === PageStatus.Active) {
-            model.source = documentPage.source
+            documentModel.source = documentPage.source
+        }
+    }
+
+    preview: documentModel.status === PlainTextModel.Ready && documentModel.lineCount > 0
+            ? previewComponent
+            : placeholderPreview
+
+    Component {
+        id: previewComponent
+
+        Rectangle {
+            color: "white"
+
+            ListView {
+                id: previewView
+
+                Component.onCompleted: positionViewAtIndex(Math.max(0, documentView.indexAt(0, documentView.contentY)), ListView.Beginning)
+
+                anchors.fill: parent
+                model: documentModel
+                delegate: Rectangle {
+                    width: previewView.width
+                    height: previewLine.y + previewLine.height
+
+                    color: "white"
+
+                    Text {
+                        id: previewLine
+
+                        x: Theme.paddingLarge
+                        y: index === 0 ? Theme.paddingLarge : 0
+
+                        width: previewView.width - (2 * x)
+                        height: index === previewView.count - 1
+                                ? implicitHeight + Theme.paddingSmall
+                                : implicitHeight
+
+                        color: Theme.darkPrimaryColor
+                        linkColor: Theme.highlightColor
+                        font.pixelSize: Theme.fontSizeTiny
+
+                        text: lineText
+                    }
+                }
+            }
         }
     }
 
@@ -65,7 +111,7 @@ DocumentPage {
             _quickScrollItem.rightMargin: horizontalFlickable.contentWidth - horizontalFlickable.width - horizontalFlickable.contentX
 
             model: PlainTextModel {
-                id: model
+                id: documentModel
             }
 
             header: DocumentHeader {
@@ -103,9 +149,9 @@ DocumentPage {
             }
 
             ViewPlaceholder {
-                enabled: model.lineCount === 0
-                         && (model.status === PlainTextModel.Ready || model.status === PlainTextModel.Error)
-                text: model.status === PlainTextModel.Error
+                enabled: documentModel.lineCount === 0
+                         && (documentModel.status === PlainTextModel.Ready || documentModel.status === PlainTextModel.Error)
+                text: documentModel.status === PlainTextModel.Error
                         //% "Error loading text file"
                         ? qsTrId("sailfish-office-la-plain_text_error")
                           //% "Empty text file"

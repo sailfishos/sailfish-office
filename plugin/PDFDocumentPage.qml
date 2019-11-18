@@ -32,10 +32,14 @@ DocumentPage {
     property ContextMenu contextMenuText
     property ContextMenu contextMenuHighlight
 
-    documentItem: view
+    icon: "image://theme/icon-m-file-pdf"
     busy: (!doc.loaded && !doc.failure) || doc.searching
     error: doc.failure
     source: doc.source
+
+    preview: doc.loaded
+            ? previewComponent
+            : placeholderPreview
 
     function savePageSettings() {
         if (!rememberPositionConfig.value || doc.failure || doc.locked) {
@@ -78,6 +82,29 @@ DocumentPage {
         active: doc.failure || doc.locked
         sourceComponent: placeholderComponent
         anchors.verticalCenter: parent.verticalCenter
+    }
+
+    Component {
+        id: previewComponent
+
+        Item {
+            id: coverPreview
+
+            PDF.Canvas {
+                width: coverPreview.width
+
+                objectName: "cover"
+
+                document: doc
+                flickable: coverPreview
+
+                onPageLayoutChanged: {
+                    var pageRect = pageRectangle(view.currentPage - 1)
+
+                    y = -pageRect.y + ((coverPreview.height - pageRect.height) / 2)
+                }
+            }
+        }
     }
 
     PDFView {

@@ -18,28 +18,19 @@
 
 import QtQuick 2.4
 import Sailfish.Silica 1.0
+import Sailfish.Office 1.0
 
 CoverBackground {
     id: root
 
-    // While peeking both main window and cover window are visible at the
-    // same time. Thus, we can capture from main window when cover
-    // becomes visible.
-    // Note: this may change in future.
-    onVisibleChanged: {
-        if (visible) {
-            previewImage.updatePreview()
-        } else if (window.visible) {
-            previewImage.source = ""
-        }
-    }
+    property alias preview: previewLoader.sourceComponent
 
     CoverPlaceholder {
         //: Cover placeholder shown when there are no documents
         //% "No documents"
         text: qsTrId("sailfish-office-la-cover_no_documents")
         icon.source: "image://theme/icon-launcher-office"
-        visible: window.documentItem === null && fileListView.count == 0
+        visible: previewLoader.status !== Loader.Ready && fileListView.count == 0
     }
 
     property int iconSize: Math.round(Theme.iconSizeMedium * 0.8)
@@ -52,7 +43,7 @@ CoverBackground {
         clip: true
         interactive: false
         model: window.fileListModel
-        visible: window.documentItem === null
+        visible: previewLoader.status !== Loader.Ready
         anchors {
             fill: parent
             topMargin: Theme.paddingLarge
@@ -72,51 +63,13 @@ CoverBackground {
         }
     }
 
-    Item {
-        property bool isPortrait: !pageStack.currentPage || pageStack.currentPage.isPortrait
+    Loader {
+        id: previewLoader
 
-        anchors.centerIn: parent
-        width: isPortrait ? parent.width : parent.height
-        height: isPortrait ? parent.height : parent.width
-        rotation: isPortrait ? 0 : 90
-        visible: window.documentItem != null
+        width: root.width
+        height: root.height
 
-        Image {
-            id: previewImage
-
-            anchors.fill: parent
-            visible: window.documentItem && (!window.documentItem.hasOwnProperty("contentAvailable") ||
-                                              window.documentItem.contentAvailable)
-
-            function updatePreview() {
-                if (window.visible && window.documentItem) {
-                    window.documentItem.grabToImage(function(result) {
-                        previewImage.source = result.url
-                    }, Qt.size(width, height))
-                }
-            }
-            Connections {
-                target: window
-                onDocumentItemChanged: delayedUpdate.restart()
-                onOrientationChanged: delayedUpdate.restart()
-            }
-            Timer {
-                id: delayedUpdate
-                interval: 16
-                onTriggered: previewImage.updatePreview()
-            }
-        }
-
-        // fall back to file name if content is not loaded
-        CoverFileItem {
-            visible: !previewImage.visible
-            width: parent.width
-            y: Theme.paddingLarge
-            multiLine: true
-            text: window.documentItem && window.documentItem.hasOwnProperty("title")
-                  ? window.documentItem.title : ""
-            iconSource: window.documentItem && window.documentItem.hasOwnProperty("mimeType")
-                        ? window.mimeToIcon(window.documentItem.mimeType) : ""
-        }
+        active: root.status === Cover.Active
+        sourceComponent: window.coverPreview
     }
 }

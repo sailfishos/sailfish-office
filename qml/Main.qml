@@ -24,7 +24,9 @@ import Sailfish.Office.Files 1.0
 ApplicationWindow {
     id: window
 
-    property Item documentItem
+    readonly property Component coverPreview: pageStack.currentPage && (pageStack.currentPage.preview || null)
+
+
     property QtObject fileListModel: trackerProvider.model
     property Page _mainPage
 
