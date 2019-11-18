@@ -75,8 +75,6 @@ DocumentPage {
     ControllerFlickable {
         id: flickable
 
-        onZoomedChanged: overlay.active = !zoomed
-
         controller: viewController
         anchors.fill: parent
         enabled: !page.busy
