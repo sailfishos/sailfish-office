@@ -1,5 +1,5 @@
 Name: sailfish-office
-Version: 1.1.18
+Version: 1.5.20
 Release: 1
 Summary: Sailfish office viewer
 Group: Applications/Office
@@ -16,8 +16,8 @@ BuildRequires: mapplauncherd-qt5-devel
 BuildRequires: cmake
 BuildRequires: qt5-qttools-linguist
 BuildRequires: pkgconfig(icu-i18n)
-Requires: calligra-components >= 2.7.9+git4
-Requires: calligra-filters >= 2.7.9+git4
+Requires: calligra-components
+Requires: calligra-filters >= 3.1.0+git16
 Requires: sailfishsilica-qt5 >= 1.1.63
 Requires: sailfish-components-accounts-qt5
 Requires: sailfish-components-textlinking
