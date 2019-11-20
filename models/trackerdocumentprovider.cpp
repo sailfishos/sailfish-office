@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2019 Open Mobile Platform LLC
  * Copyright (C) 2013-2014 Jolla Ltd.
  * Contact: Robin Burchell <robin.burchell@jolla.com>
  *
@@ -51,6 +52,7 @@ static const QString documentQuery{
     "UNION { ?u a nfo:TextDocument . ?u nie:mimeType 'text/plain' FILTER(fn:ends-with(nfo:fileName(?u),'.txt')) } "
     "UNION { ?u a nfo:Presentation } "
     "UNION { ?u a nfo:Spreadsheet } "
+    "UNION { ?u a nfo:FileDataObject . ?u nie:mimeType 'text/csv'} "
 "}"
 };
 
