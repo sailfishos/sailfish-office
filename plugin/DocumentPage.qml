@@ -40,5 +40,8 @@ Page {
     allowedOrientations: Orientation.All
     clip: status !== PageStatus.Active || pageStack.dragInProgress
 
-    BusyIndicator { id: busyIndicator; anchors.centerIn: parent; size: BusyIndicatorSize.Large; z: 101 }
+    PageBusyIndicator {
+        id: busyIndicator
+        z: 101
+    }
 }

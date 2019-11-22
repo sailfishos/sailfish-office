@@ -50,11 +50,9 @@ Page {
             //% "Document has no table of content"
             text: qsTrId("sailfish-office-me-no-toc")
         }
-        BusyIndicator {
-            anchors.centerIn: parent
-            size: BusyIndicatorSize.Large
-            z: 1
+        PageBusyIndicator {
             running: !tocListView.model || !tocListView.model.ready
+            z: 1
         }
 
         delegate: BackgroundItem {
