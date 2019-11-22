@@ -42,11 +42,13 @@ CoverBackground {
         visible: window.documentItem === null && fileListView.count == 0
     }
 
+    property int iconSize: Math.round(Theme.iconSizeMedium * 0.8)
+
     ListView {
         id: fileListView
 
         property int itemHeight: height/maxItemCount
-        property int maxItemCount: Math.round(height/(fontMetrics.height + Theme.paddingSmall))
+        property int maxItemCount: Math.round(height/(Math.max(fontMetrics.height, iconSize) + Theme.paddingSmall))
         clip: true
         interactive: false
         model: window.fileListModel
@@ -62,6 +64,7 @@ CoverBackground {
             height: fileListView.itemHeight
             text: model.fileName
             iconSource: window.mimeToIcon(model.fileMimeType)
+            iconSize: root.iconSize
         }
         FontMetrics {
             id: fontMetrics

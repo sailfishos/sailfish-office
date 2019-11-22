@@ -193,8 +193,8 @@ Page {
         delegate: ListItem {
             id: listItem
 
-            contentHeight: Theme.itemSizeMedium
             hidden: deletingSource === model.filePath
+            contentHeight: Math.max(Theme.itemSizeMedium, labels.height + 2 * Theme.paddingMedium)
 
             Image {
                 id: icon
@@ -206,6 +206,7 @@ Page {
                 source: window.mimeToIcon(model.fileMimeType) + (highlighted ? "?" + Theme.highlightColor : "")
             }
             Column {
+                id: labels
                 anchors {
                     left: icon.right
                     leftMargin: Theme.paddingMedium

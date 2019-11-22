@@ -25,21 +25,22 @@ Item {
     property alias text: label.text
     property bool multiLine
     property string iconSource
+    property int iconSize
 
     Image {
         id: icon
 
         anchors {
             left: parent.left
-            leftMargin: Theme.paddingLarge
+            leftMargin: Theme.paddingLarge - Theme.paddingSmall // counter the padding inside the icon
             verticalCenter: root.multiLine ? undefined : parent.verticalCenter
         }
         source: root.iconSource !== "" ? root.iconSource
-                                       : "image://theme/icon-l-document"
+                                       : "image://theme/icon-m-document"
 
         sourceSize {
-            width: Theme.iconSizeSmall
-            height: Theme.iconSizeSmall
+            width: root.iconSize
+            height: root.iconSize
         }
     }
     Label {
@@ -50,7 +51,7 @@ Item {
             leftMargin: Theme.paddingMedium
             verticalCenter: root.multiLine ? undefined : parent.verticalCenter
             right: parent.right
-            rightMargin: Theme.paddingLarge
+            rightMargin: Theme.paddingLarge - Theme.paddingSmall // counter the margin caused by fading
         }
 
         truncationMode: root.multiLine ? TruncationMode.None : TruncationMode.Fade
