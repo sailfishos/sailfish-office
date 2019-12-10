@@ -174,7 +174,11 @@ void PDFDocument::setAutoSavePath(const QString &filename)
 void PDFDocument::addAnnotation(Poppler::Annotation *annotation, int pageIndex,
                                 bool normalizeSize)
 {
-    d->thread->addAnnotation(annotation, pageIndex, normalizeSize);
+    if (pageIndex < 0) {
+        qWarning() << "Invalid page index for annotation";
+    } else {
+        d->thread->addAnnotation(annotation, pageIndex, normalizeSize);
+    }
 }
 
 QList<Poppler::Annotation*> PDFDocument::annotations(int page) const
