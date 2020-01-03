@@ -17,7 +17,7 @@ BuildRequires: cmake
 BuildRequires: qt5-qttools-linguist
 BuildRequires: pkgconfig(icu-i18n)
 Requires: calligra-components
-Requires: calligra-filters >= 3.1.0+git16
+Requires: calligra-filters >= 3.1.0+git18
 Requires: sailfishsilica-qt5 >= 1.1.63
 Requires: sailfish-components-accounts-qt5
 Requires: sailfish-components-textlinking
