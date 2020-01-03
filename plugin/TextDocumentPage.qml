@@ -130,6 +130,7 @@ DocumentPage {
         id: doc
 
         readonly property bool failure: status === Calligra.DocumentStatus.Failed
+        readOnly: true
         onStatusChanged: {
             if (status == Calligra.DocumentStatus.Loaded) {
                 viewController.zoomToFitWidth(page.width)

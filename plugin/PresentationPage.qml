@@ -163,6 +163,8 @@ DocumentPage {
 
     Calligra.Document {
         id: doc
+
+        readOnly: true
         onStatusChanged: {
             if (status == Calligra.DocumentStatus.Failed) {
                 errorLoader.setSource(Qt.resolvedUrl("FullscreenError.qml"), { error: lastError })
