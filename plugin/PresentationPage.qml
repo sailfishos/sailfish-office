@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2013-2014 Jolla Ltd.
- * Contact: Robin Burchell <robin.burchell@jolla.com>
+ * Copyright (c) 2013-2020 Jolla Ltd.
+ * Copyright (c) 2020 Open Mobile Platform LLC.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -28,8 +28,15 @@ DocumentPage {
           && doc.status != Calligra.DocumentStatus.Failed
     documentItem: view
     source: doc.source
+    _opaqueBackground: true
 
-    FadeBlocker {}
+    Rectangle {
+        id: fadeBlocker
+        color: "black"
+        z: -1
+        anchors.fill: parent
+        parent: page._backgroundParent
+    }
 
     onStatusChanged: {
         //Delay loading the document until the page has been activated.
