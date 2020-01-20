@@ -28,6 +28,8 @@ Page {
     allowedOrientations: Orientation.All
 
     SilicaListView {
+        id: view
+
         anchors.fill: parent
 
         //: Page with sheet selector

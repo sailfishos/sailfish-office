@@ -21,6 +21,7 @@ install(TARGETS sailfishofficeplugin DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/qt5
 
 install(FILES
     qmldir
+    CalligraDocumentPage.qml
     ContextMenuHook.qml
     ControllerFlickable.qml
     DeleteButton.qml

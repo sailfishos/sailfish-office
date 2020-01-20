@@ -127,7 +127,7 @@ private Q_SLOTS:
     void linksFinished(int id, const QList<QPair<QRectF, QUrl> > &links);
     void pageModified(int id, const QRectF &subpart);
     void pageFinished(int id, int pageRenderWidth,
-                      QRect subpart, QSGTexture *texture, int extraData);
+                      QRect subpart, const QImage &image, int extraData);
     void documentLoaded();
     void resizeTimeout();
     void pageSizesFinished(const QList<QSizeF> &sizes);

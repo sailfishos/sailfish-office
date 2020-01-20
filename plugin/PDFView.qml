@@ -294,6 +294,8 @@ DocumentFlickable {
 
         property bool _pageSizesReady
 
+        objectName: "application"
+
         y: header.height
         width: root.width
         spacing: Theme.paddingLarge

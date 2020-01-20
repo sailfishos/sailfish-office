@@ -75,6 +75,9 @@ public:
 
     void setDocumentModified();
 
+    int requestPage(int index, int size,
+                     QRect subpart = QRect(), int extraData = 0);
+
     virtual void classBegin();
     virtual void componentComplete();
 
@@ -83,8 +86,7 @@ public Q_SLOTS:
     void setAutoSavePath(const QString &filename);
     void requestUnLock(const QString &password);
     void requestLinksAtPage(int page);
-    void requestPage(int index, int size, QQuickWindow *window,
-                     QRect subpart = QRect(), int extraData = 0);
+
     void prioritizeRequest(int index, int size, QRect subpart = QRect());
     void cancelPageRequest(int index);
     void requestPageSizes();
@@ -110,8 +112,8 @@ Q_SIGNALS:
     void documentLockedChanged();
     void documentModifiedChanged();
     void linksFinished(int page, const LinkList &links);
-    void pageFinished(int index, int resolution, QRect subpart,
-                      QSGTexture *page, int extraData);
+    void pageFinished(int requestId, int resolution, QRect subpart,
+                      const QImage &page, int extraData);
     void pageSizesFinished(const QList<QSizeF> &heights);
 
 private:

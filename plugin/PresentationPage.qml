@@ -21,28 +21,21 @@ import Sailfish.Silica 1.0
 import Sailfish.Silica.private 1.0
 import org.kde.calligra 1.0 as Calligra
 
-DocumentPage {
+CalligraDocumentPage {
     id: page
 
-    busy: doc.status != Calligra.DocumentStatus.Loaded
-          && doc.status != Calligra.DocumentStatus.Failed
-    documentItem: view
-    source: doc.source
-    _opaqueBackground: true
+    icon: "image://theme/icon-m-file-presentation"
+    backgroundColor: "black"
+    coverAlignment: Qt.AlignCenter
+    coverFillMode: Image.PreserveAspectFit
 
-    Rectangle {
-        id: fadeBlocker
-        color: "black"
-        z: -1
-        anchors.fill: parent
-        parent: page._backgroundParent
+    function currentIndex() {
+        return view.currentIndex >= 0 ? view.currentIndex : document.currentIndex
     }
 
-    onStatusChanged: {
-        //Delay loading the document until the page has been activated.
-        if (status == PageStatus.Active) {
-            doc.source = page.source
-        }
+    contents.thumbnailSize {
+        width: page.width
+        height: page.width * 0.75
     }
 
     SlideshowView {
@@ -52,18 +45,13 @@ DocumentPage {
 
         anchors.fill: parent
         orientation: Qt.Vertical
-        currentIndex: doc.currentIndex
+        currentIndex: page.document.currentIndex
 
         enabled: !page.busy
         opacity: enabled ? 1.0 : 0.0
         Behavior on opacity { FadeAnimator { duration: 400 }}
 
-        model: Calligra.ContentsModel {
-            id: contentsModel
-            document: doc
-            thumbnailSize.width: page.width
-            thumbnailSize.height: page.width * 0.75
-        }
+        model: page.contents
 
         delegate: ZoomableFlickable {
             id: flickable
@@ -72,12 +60,12 @@ DocumentPage {
             onActiveChanged: {
                 if (!active) {
                     resetZoom()
-                    largeThumb.data = contentsModel.thumbnail(-1, 0)
+                    largeThumb.data = page.contents.thumbnail(-1, 0)
                 }
             }
 
             onZoomedChanged: overlay.active = !zoomed
-            onZoomFinished: if (largeThumb.implicitWidth === 0) largeThumb.data = contentsModel.thumbnail(model.index, 3264)
+            onZoomFinished: if (largeThumb.implicitWidth === 0) largeThumb.data = page.contents.thumbnail(model.index, 3264)
 
             width: view.width
             height: view.height
@@ -107,7 +95,7 @@ DocumentPage {
                 onReadyChanged: {
                     if (ready) {
                         ready = true // remove binding
-                        data = contentsModel.thumbnail(model.index, Screen.height)
+                        data = page.contents.thumbnail(model.index, Screen.height)
                     }
                 }
 
@@ -140,11 +128,11 @@ DocumentPage {
             id: header
             color: Theme.lightPrimaryColor
             page: page
-            indexCount: doc.indexCount
+            indexCount: page.document.indexCount
         }
 
         OverlayToolbar {
-            enabled: doc.status == Calligra.DocumentStatus.Loaded
+            enabled: page.document.status == Calligra.DocumentStatus.Loaded
             opacity: enabled ? 1.0 : 0.0
             Behavior on opacity { FadeAnimator { duration: 400 }}
 
@@ -159,29 +147,12 @@ DocumentPage {
             }
 
             IndexButton {
-                onClicked: pageStack.animatorPush(Qt.resolvedUrl("PresentationThumbnailPage.qml"), { document: doc })
+                onClicked: pageStack.animatorPush(Qt.resolvedUrl("PresentationThumbnailPage.qml"), { document: page.document })
 
                 index: Math.max(1, view.currentIndex + 1)
-                count: doc.indexCount
+                count: page.document.indexCount
                 color: Theme.lightPrimaryColor
             }
         }
-    }
-
-    Calligra.Document {
-        id: doc
-
-        readOnly: true
-        onStatusChanged: {
-            if (status == Calligra.DocumentStatus.Failed) {
-                errorLoader.setSource(Qt.resolvedUrl("FullscreenError.qml"), { error: lastError })
-            }
-        }
-
-    }
-
-    Loader {
-        id: errorLoader
-        anchors.fill: parent
     }
 }

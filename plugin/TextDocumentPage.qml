@@ -23,19 +23,21 @@ import Sailfish.Silica 1.0
 import Sailfish.Silica.private 1.0
 import org.kde.calligra 1.0 as Calligra
 
-DocumentPage {
+CalligraDocumentPage {
     id: page
 
-    onStatusChanged: {
-        //Delay loading the document until the page has been activated.
-        if (status == PageStatus.Active) {
-            doc.source = page.source
-        }
+    icon: "image://theme/icon-m-file-formatted"
+
+    function currentIndex() {
+        // Text document indexes appear to start at 1, model indexes at the traditional 0.
+        return document.currentIndex - 1
     }
 
-    busy: doc.status != Calligra.DocumentStatus.Loaded
-          && doc.status != Calligra.DocumentStatus.Failed
-    documentItem: documentView
+    document.onStatusChanged: {
+        if (document.status === Calligra.DocumentStatus.Loaded) {
+            viewController.zoomToFitWidth(page.width)
+        }
+    }
 
     Calligra.View {
         id: documentView
@@ -45,7 +47,7 @@ DocumentPage {
         anchors.fill: flickable
         opacity: page.busy ? 0.0 : 1.0
         Behavior on opacity { FadeAnimator { duration: 400 }}
-        document: doc
+        document: page.document
     }
 
     ControllerFlickable {
@@ -54,7 +56,7 @@ DocumentPage {
         property bool resetPositionWorkaround
 
         onContentYChanged: {
-            if (doc.status == Calligra.DocumentStatus.Loaded
+            if (page.document.status == Calligra.DocumentStatus.Loaded
                     && !resetPositionWorkaround) {
                 // Calligra is not Flickable.topMargin aware
                 contentY = -topMargin
@@ -83,7 +85,7 @@ DocumentPage {
 
         Calligra.LinkArea {
             anchors.fill: parent
-            document: doc
+            document: page.document
             onLinkClicked: Qt.openUrlExternally(linkTarget)
             onClicked: flickable.zoomOut()
 
@@ -94,7 +96,7 @@ DocumentPage {
             id: header
             page: page
             width: page.width
-            indexCount: doc.indexCount
+            indexCount: page.document.indexCount
             x: flickable.contentX
             y: -height
         }
@@ -105,8 +107,8 @@ DocumentPage {
 
         flickable: flickable
         anchors.top: flickable.bottom
-        forceHidden: doc.failure
-        enabled: doc.status == Calligra.DocumentStatus.Loaded
+        forceHidden: page.document.status === Calligra.DocumentStatus.Failed
+        enabled: page.document.status === Calligra.DocumentStatus.Loaded
         opacity: enabled ? 1.0 : 0.0
         Behavior on opacity { FadeAnimator { duration: 400 }}
 
@@ -119,29 +121,11 @@ DocumentPage {
         }
 
         IndexButton {
-            onClicked: pageStack.animatorPush(Qt.resolvedUrl("TextDocumentToCPage.qml"), { document: doc })
+            onClicked: pageStack.animatorPush(Qt.resolvedUrl("TextDocumentToCPage.qml"), { document: page.document, contents: page.contents })
 
-            index: Math.max(1, doc.currentIndex)
-            count: doc.indexCount
-            allowed: !doc.failure
+            index: Math.max(1, page.document.currentIndex)
+            count: page.document.indexCount
+            allowed: page.document.status !== Calligra.DocumentStatus.Failed
         }
-    }
-    Calligra.Document {
-        id: doc
-
-        readonly property bool failure: status === Calligra.DocumentStatus.Failed
-        readOnly: true
-        onStatusChanged: {
-            if (status == Calligra.DocumentStatus.Loaded) {
-                viewController.zoomToFitWidth(page.width)
-            } else if (status == Calligra.DocumentStatus.Failed) {
-                errorLoader.setSource(Qt.resolvedUrl("FullscreenError.qml"), { error: lastError })
-            }
-        }
-    }
-
-    Loader {
-        id: errorLoader
-        anchors.fill: parent
     }
 }

@@ -24,19 +24,17 @@ Page {
     id: page
 
     property QtObject document
+    property alias contents: view.model
 
     allowedOrientations: Orientation.All
 
     SilicaListView {
+        id: view
         anchors.fill: parent
 
         //: Page with Text document index
         //% "Index"
         header: PageHeader { title: qsTrId("sailfish-office-he-index") }
-
-        model: Calligra.ContentsModel {
-            document: page.document
-        }
 
         delegate: BackgroundItem {
             property bool isCurrentItem: model.contentIndex + 1 == page.document.currentIndex

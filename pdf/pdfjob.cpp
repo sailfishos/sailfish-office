@@ -105,9 +105,9 @@ void LinksJob::run()
     delete page;
 }
 
-RenderPageJob::RenderPageJob(int index, uint width, QQuickWindow *window,
+RenderPageJob::RenderPageJob(int requestId, int index, uint width,
                              QRect subpart, int extraData)
-    : PDFJob(PDFJob::RenderPageJob), m_index(index), m_subpart(subpart), m_page(0), m_extraData(extraData), m_window(window), m_width(width)
+    : PDFJob(PDFJob::RenderPageJob), m_requestId(requestId), m_index(index), m_subpart(subpart), m_page(0), m_extraData(extraData), m_width(width)
 {
 }
 
@@ -119,19 +119,17 @@ void RenderPageJob::run()
     QSizeF size = page->pageSizeF();
     float scale = 72.0f * (float(m_width) / size.width());
 
-    QImage image;
     if (m_subpart.isEmpty()) {
-        image = page->renderToImage(scale, scale);
-        m_subpart.setCoords(0, 0, image.width(), image.height());
+        m_page = page->renderToImage(scale, scale);
+        m_subpart.setCoords(0, 0, m_page.width(), m_page.height());
     } else {
         QRect pageRect = {0, 0, int(m_width), qCeil(size.height() / size.width() * m_width)};
         m_subpart = m_subpart.intersected(pageRect);
 
-        image = page->renderToImage(scale, scale, m_subpart.x(), m_subpart.y(),
+        m_page = page->renderToImage(scale, scale, m_subpart.x(), m_subpart.y(),
                                     m_subpart.width(), m_subpart.height());
     }
-    // Note: assuming there's exactly one handler (PDFCanvas) to catch ownership of this when PDFDocument emits a signal with this
-    m_page = m_window->createTextureFromImage(image);
+
     delete page;
 }
 
