@@ -31,6 +31,7 @@ Page {
     property Component preview: defaultPreview
     property alias placeholderPreview: defaultPreview
     property url icon: "image://theme/icon-m-file-other"
+    property alias busyIndicator: busyIndicator
 
     allowedOrientations: Orientation.All
     clip: status !== PageStatus.Active || pageStack.dragInProgress

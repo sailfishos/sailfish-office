@@ -47,16 +47,18 @@ DocumentPage {
         visible: page._opaqueBackground
     }
 
-    onStatusChanged: {
-        //Delay loading the document until the page has been activated.
-        if (status === PageStatus.Active) {
-            document.source = page.source
-        }
-    }
-
+    backNavigation: !busy // During loading the UI is unresponsive, don't show page indicator as back-stepping is not possible
+    busyIndicator._forceAnimation: busy // Start animation before the main thread gets blocked by loading
     icon: "image://theme/icon-m-file-formatted"
     busy: doc.status !== Calligra.DocumentStatus.Loaded
             && doc.status !== Calligra.DocumentStatus.Failed
+
+    Timer {
+        interval: 1
+        running: status === PageStatus.Active
+        // Delay loading the document until the page has been activated
+        onTriggered: document.source = page.source
+    }
 
     Timer {
         id: previewDelay

@@ -28,6 +28,7 @@ CalligraDocumentPage {
     backgroundColor: "black"
     coverAlignment: Qt.AlignCenter
     coverFillMode: Image.PreserveAspectFit
+    busyIndicator.y: Math.round(page.height/2 - busyIndicator.height/2)
 
     function currentIndex() {
         return view.currentIndex >= 0 ? view.currentIndex : document.currentIndex
