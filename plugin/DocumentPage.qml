@@ -29,6 +29,7 @@ Page {
     property Item documentItem: page
     property alias busy: busyIndicator.running
     property QtObject provider
+    property alias busyIndicator: busyIndicator
 
     Component.onDestruction: window.documentItem = null
     onStatusChanged: {

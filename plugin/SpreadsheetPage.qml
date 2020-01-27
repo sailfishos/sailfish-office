@@ -27,9 +27,6 @@ DocumentPage {
     id: page
 
     onStatusChanged: {
-        if (status == PageStatus.Active) {
-            doc.source = page.source
-        }
         //Reset the position when we change sheets
         if (status == PageStatus.Activating) {
             flickable.contentX = 0
@@ -40,6 +37,15 @@ DocumentPage {
     busy: doc.status != Calligra.DocumentStatus.Loaded
           && doc.status != Calligra.DocumentStatus.Failed
     documentItem: documentView
+    backNavigation: !busy // During loading the UI is unresponsive, don't show page indicator as back-stepping is not possible
+    busyIndicator._forceAnimation: busy // Start animation before the main thread gets blocked by loading
+
+    Timer {
+        interval: 1
+        running: status === PageStatus.Active
+        // Delay loading the document until the page has been activated
+        onTriggered: doc.source = page.source
+    }
 
     FadeBlocker {
         id: fadeBlocker

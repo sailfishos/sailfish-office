@@ -29,13 +29,16 @@ DocumentPage {
     documentItem: view
     source: doc.source
 
+    backNavigation: !busy // During loading the UI is unresponsive, don't show page indicator as back-stepping is not possible
+    busyIndicator._forceAnimation: busy // Start animation before the main thread gets blocked by loading
+
     FadeBlocker {}
 
-    onStatusChanged: {
-        //Delay loading the document until the page has been activated.
-        if (status == PageStatus.Active) {
-            doc.source = page.source
-        }
+    Timer {
+        interval: 1
+        running: status === PageStatus.Active
+        // Delay loading the document until the page has been activated
+        onTriggered: doc.source = page.source
     }
 
     SlideshowView {
