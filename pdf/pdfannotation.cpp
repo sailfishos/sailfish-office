@@ -97,7 +97,7 @@ void PDFAnnotation::attach(PDFDocument *document, PDFSelection *selection)
     
     QRectF bounds = word.second;
     for (int i = 1; i < selection->count(); i++)
-        bounds.united(selection->rectAt(i).second);
+        bounds |= selection->rectAt(i).second;
 
     d->m_annotation->setBoundary(bounds);
     d->m_document->addAnnotation(d->m_annotation, d->m_page);
