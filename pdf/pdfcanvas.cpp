@@ -321,6 +321,7 @@ void PDFCanvas::layout()
             page.renderWidth = d->pages.value(i).renderWidth;
             page.textureArea = d->pages.value(i).textureArea;
             page.image = d->pages.value(i).image;
+            page.hasImage = d->pages.value(i).hasImage;
             page.patches = d->pages.value(i).patches;
             page.links = d->pages.value(i).links;
         }
