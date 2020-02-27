@@ -127,7 +127,7 @@ Q_DECL_EXPORT int main(int argc, char *argv[])
     }
 
     int retn = 1;
-    if (!view->errors().count() > 0) {
+    if (view->errors().count() == 0) {
         if (!fileName.isEmpty()) {
             QVariant fileNameParameter(fileName);
             QMetaObject::invokeMethod(view->rootObject(), "openFile", Q_ARG(QVariant, fileNameParameter));
