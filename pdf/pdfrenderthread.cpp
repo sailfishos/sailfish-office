@@ -374,8 +374,9 @@ void PDFRenderThread::queueJob(PDFJob *job)
     QCoreApplication::postEvent(d->thread->jobQueue, new QEvent(Event_JobPending));
 }
 
-void PDFRenderThread::cancelRenderJob(int requestId)
+bool PDFRenderThread::cancelRenderJob(int requestId)
 {
+    bool deleted = false;
     QMutexLocker locker(&d->thread->mutex);
     for (QList<PDFJob *>::iterator it = d->thread->jobQueue->begin(); it != d->thread->jobQueue->end(); ) {
         PDFJob *j = *it;
@@ -383,10 +384,12 @@ void PDFRenderThread::cancelRenderJob(int requestId)
                 && (requestId < 0 || static_cast<RenderPageJob *>(j)->m_requestId == requestId)) {
             it = d->thread->jobQueue->erase(it);
             j->deleteLater();
+            deleted = true;
         } else {
             ++it;
         }
     }
+    return deleted;
 }
 
 void PDFRenderThread::prioritizeRenderJob(int index, int size, QRect subpart)
