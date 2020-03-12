@@ -31,16 +31,16 @@
 #include "pdfrenderthread.h"
 #include "pdfdocument.h"
 
-typedef QPair<QRect, QImage> Patch;
-
 struct PDFPage {
     PDFPage()
         : index(-1)
         , requestId(0)
         , renderWidth(0)
+        , requestWidth(0)
         , texture(nullptr)
-        , linksLoaded(false)
+        , linksRequested(false)
         , hasImage(false)
+        , pageIsInCacheArea(false)
     { }
 
     int index;
@@ -49,15 +49,15 @@ struct PDFPage {
     int requestId;
 
     int renderWidth;
+    int requestWidth;
 
     QRect textureArea;
     QImage image;
     QSGTexture *texture;
 
-    QList<Patch> patches;
-
-    bool linksLoaded;
+    bool linksRequested;
     bool hasImage;
+    bool pageIsInCacheArea;
     PDFDocument::LinkList links;
 };
 
@@ -70,6 +70,7 @@ public:
         , pageCount(0)
         , currentPage(1)
         , renderWidth(0)
+        , layoutScheduled(true)
         , document(nullptr)
         , flickable(0)
         , resizeTimer(nullptr)
@@ -84,13 +85,15 @@ public:
 
     PDFCanvas *q;
 
-    QHash<int, PDFPage> pages;
+    QVector<PDFPage> pages;
     bool pageSizeRequested;
 
     int pageCount;
     int currentPage;
 
     int renderWidth;
+
+    bool layoutScheduled;
 
     QPointer<PDFDocument> document;
     QPointer<QQuickItem> flickable;
@@ -107,8 +110,6 @@ public:
     QColor linkColor;
     QColor pagePlaceholderColor;
 
-    QPointer<QQuickWindow> connectedWindow;
-
     void deleteAllTextures() {
 
         // Delete textures currently stored by pages.
@@ -118,7 +119,6 @@ public:
             }
 
             page.image = QImage();
-            page.patches.clear();
             page.requestId = 0;
             page.hasImage = false;
         }
@@ -184,13 +184,13 @@ void PDFCanvas::setFlickable(QQuickItem *f)
         d->flickable = f;
 
         if (d->flickable) {
-            const QMetaMethod update = staticMetaObject.method(staticMetaObject.indexOfSlot("update()"));
+            const QMetaMethod schedulePolish = staticMetaObject.method(staticMetaObject.indexOfSlot("schedulePolish()"));
             const QMetaObject *metaObject = d->flickable->metaObject();
 
-            connectUpdate(metaObject, d->flickable, "contentX", this, update);
-            connectUpdate(metaObject, d->flickable, "contentY", this, update);
+            connectUpdate(metaObject, d->flickable, "contentX", this, schedulePolish);
+            connectUpdate(metaObject, d->flickable, "contentY", this, schedulePolish);
 
-            connect(d->flickable, &QQuickItem::widthChanged, this, &PDFCanvas::update);
+            connect(d->flickable, &QQuickItem::widthChanged, this, &PDFCanvas::schedulePolish);
         }
 
         emit flickableChanged();
@@ -230,10 +230,10 @@ void PDFCanvas::setDocument(PDFDocument *doc)
 
 QRectF PDFCanvas::pageRectangle(int index) const
 {
-    if (d->pages.count() == 0)
+    if (index < 0 || index >= d->pages.count())
         return QRectF();
 
-    return d->pages.value(index).rect;
+    return d->pages.at(index).rect;
 }
 
 int PDFCanvas::currentPage() const
@@ -299,6 +299,8 @@ void PDFCanvas::setPagePlaceholderColor(const QColor &color)
 
 void PDFCanvas::layout()
 {
+    d->layoutScheduled = false;
+
     if (d->pageSizes.count() == 0) {
         if (d->document && d->document->isLoaded() && d->pageCount > 0 && !d->pageSizeRequested) {
             d->document->requestPageSizes();
@@ -307,25 +309,24 @@ void PDFCanvas::layout()
         return;
     }
 
+    for (int i = d->pageCount; i < d->pages.count(); ++i) {
+        PDFPage &page = d->pages[i];
+
+        if (page.requestId != 0) {
+            d->document->cancelPageRequest(page.requestId);
+        }
+    }
+
+    d->pages.resize(d->pageCount);
+
     float totalHeight = 0.f;
-    for (int i = 0; i < d->pageCount; ++i) {
+    for (int i = 0; i < d->pages.count(); ++i) {
         QSizeF unscaledSize = d->pageSizes.at(i);
         float ratio = unscaledSize.height() / unscaledSize.width();
 
-
-        PDFPage page;
+        PDFPage &page = d->pages[i];
         page.index = i;
         page.rect = QRectF(0, totalHeight, width(), width() * ratio);
-        page.requestId = 0; // We're cancelling all requests below
-        if (d->pages.contains(i)) {
-            page.renderWidth = d->pages.value(i).renderWidth;
-            page.textureArea = d->pages.value(i).textureArea;
-            page.image = d->pages.value(i).image;
-            page.hasImage = d->pages.value(i).hasImage;
-            page.patches = d->pages.value(i).patches;
-            page.links = d->pages.value(i).links;
-        }
-        d->pages.insert(i, page);
 
         totalHeight += page.rect.height();
         if (i < d->pageCount - 1)
@@ -333,10 +334,6 @@ void PDFCanvas::layout()
     }
 
     setHeight(int(totalHeight));
-
-    // We're going to be requesting new images for all content, so remove
-    // pending reuqests to minimize the delay before they come.
-    d->cancelAllRequests();
 
     emit pageLayoutChanged();
 
@@ -371,8 +368,8 @@ qreal PDFCanvas::squaredDistanceFromRect(const QRectF &pageRect,
 
 QPair<QUrl, PDFCanvas::ReducedBox> PDFCanvas::urlAtPoint(const QPointF &point) const
 {
-    for (int i = 0; i < d->pageCount; ++i) {
-        const PDFPage &page = d->pages.value(i);
+    for (int i = 0; i < d->pages.count(); ++i) {
+        const PDFPage &page = d->pages.at(i);
         if (page.rect.contains(point)) {
             qreal squaredDistanceMin = d->linkWiggle * d->linkWiggle;
             QUrl url;
@@ -396,8 +393,8 @@ QPair<QUrl, PDFCanvas::ReducedBox> PDFCanvas::urlAtPoint(const QPointF &point) c
 
 QPair<Poppler::Annotation*, PDFCanvas::ReducedBox> PDFCanvas::annotationAtPoint(const QPointF &point) const
 {
-    for (int i = 0; i < d->pageCount; ++i) {
-        const PDFPage &page = d->pages.value(i);
+    for (int i = 0; i < d->pages.count(); ++i) {
+        const PDFPage &page = d->pages.at(i);
         if (page.rect.contains(point)) {
             qreal squaredDistanceMin = d->linkWiggle * d->linkWiggle;
             Poppler::Annotation *result = nullptr;
@@ -447,10 +444,10 @@ QPair<Poppler::Annotation*, PDFCanvas::ReducedBox> PDFCanvas::annotationAtPoint(
 
 QRectF PDFCanvas::fromPageToItem(int index, const QRectF &rect) const
 {
-    if (index < 0 || index >= d->pageCount)
+    if (index < 0 || index >= d->pages.count())
         return QRectF();
 
-    const PDFPage &page = d->pages.value(index);
+    const PDFPage &page = d->pages.at(index);
     return QRectF(rect.x() * page.rect.width() + page.rect.x(),
                   rect.y() * page.rect.height() + page.rect.y(),
                   rect.width() * page.rect.width(),
@@ -459,19 +456,22 @@ QRectF PDFCanvas::fromPageToItem(int index, const QRectF &rect) const
 
 QPointF PDFCanvas::fromPageToItem(int index, const QPointF &point) const
 {
-    if (index < 0 || index >= d->pageCount)
+    if (index < 0 || index >= d->pages.count())
         return QPointF();
 
-    const PDFPage &page = d->pages.value(index);
+    const PDFPage &page = d->pages.at(index);
     return QPointF(point.x() * page.rect.width() + page.rect.x(),
                    point.y() * page.rect.height() + page.rect.y());
 }
 
 void PDFCanvas::linksFinished(int id, const QList<QPair<QRectF, QUrl> > &links)
 {
+    if (id < 0 || id >= d->pages.count()) {
+        return;
+    }
+
     PDFPage &page = d->pages[id];
 
-    page.linksLoaded = true;
     page.links = links;
     if (!page.links.isEmpty())
         update();
@@ -479,28 +479,23 @@ void PDFCanvas::linksFinished(int id, const QList<QPair<QRectF, QUrl> > &links)
 
 void PDFCanvas::pageModified(int id, const QRectF &subpart)
 {
+    if (id < 0 || id >= d->pages.count()) {
+        return;
+    }
+
     PDFPage &page = d->pages[id];
 
-    if (subpart.isEmpty()) {
-        // Ask for a full page redraw in update by deleting
-        // the current texture of the page.
+    // Request an update of the page if it has been loaded.
+    if (page.hasImage || page.requestId != 0) {
         page.image = QImage();
         page.hasImage = false;
+
         if (page.requestId != 0) {
             d->document->cancelPageRequest(page.requestId);
             page.requestId = 0;
         }
-        update();
-    } else {
-        int buf = 10;
-        // Ask only for a patch on this page.
-        QRect request(int(subpart.x() * page.rect.width()) - buf,
-                      int(subpart.y() * page.rect.height()) - buf,
-                      qCeil(subpart.width() * page.rect.width()) + buf * 2,
-                      qCeil(subpart.height() * page.rect.height()) + buf * 2);
-        page.requestId = d->document->requestPage(id, d->renderWidth,
-                                 request, PDFCanvas::Private::PatchTexture);
     }
+    polish();
 }
 
 void PDFCanvas::pageFinished(int requestId, int pageRenderWidth,
@@ -513,30 +508,28 @@ void PDFCanvas::pageFinished(int requestId, int pageRenderWidth,
         PDFPage &page = *it;
 
         page.requestId = 0;
-
-        if (PDFCanvas::Private::TextureType(extraData) == PDFCanvas::Private::RootTexture) {
-            page.renderWidth = pageRenderWidth;
-            page.textureArea = subpart;
-            page.image = image;
-            page.hasImage = true;
-        } else if (pageRenderWidth == page.renderWidth) {
-            page.patches.append(Patch(subpart, image));
-        }
+        page.renderWidth = pageRenderWidth;
+        page.textureArea = subpart;
+        page.image = image;
+        page.hasImage = true;
 
         update();
+
+        polish();
     }
 }
 
 void PDFCanvas::geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry)
 {
     if (oldGeometry.width() != newGeometry.width()) {
-        QMetaObject::invokeMethod(d->resizeTimer, "start");
+        d->resizeTimer->start();
         layout();
     }
     QQuickItem::geometryChanged(newGeometry, oldGeometry);
 }
 
-void PDFCanvas::sceneGraphInvalidated()
+// QQuickWindow will invoke a slot with this name directly if needed, no need to connect.
+void PDFCanvas::invalidateSceneGraph()
 {
     d->deleteAllTextures();
 }
@@ -563,104 +556,20 @@ static void setTextureRect(
 
 QSGNode* PDFCanvas::updatePaintNode(QSGNode *node, QQuickItem::UpdatePaintNodeData *)
 {
-    if (d->pageCount == 0 || !d->flickable) {
+    if (d->pageCount == 0) {
         delete node;
         return nullptr;
     }
 
     QQuickWindow * const window = this->window();
-    if (window != d->connectedWindow) {
-        d->connectedWindow = window;
-        connect(window, &QQuickWindow::sceneGraphInvalidated, this, &PDFCanvas::sceneGraphInvalidated);
-    }
-
-    //Visible area equals flickable translated by contentX/Y
-    QRectF visibleArea = mapRectFromItem(d->flickable, d->flickable->boundingRect());
-
-    //Loaded area equals visible area scaled to five times the size
-    QRectF loadedArea = {
-        visibleArea.x() - visibleArea.width() * 2,
-        visibleArea.y() - visibleArea.height() * 2,
-        visibleArea.width() * 5,
-        visibleArea.height() * 5,
-    };
-    QRect textureLimit = {
-        0, 0,
-        int(2.5 * qMin(window->width(), window->height())),
-        int(2.5 * qMin(window->width(), window->height()))
-    };
-    float renderingRatio = float(d->renderWidth) / width();
 
     QSGNode *root = static_cast<QSGNode*>(node);
     if (!root) {
         root = new QSGNode;
     }
 
-    QList<QPair<int, QPair<int, QRect> > > priorityRequests;
-    int currentPage = d->currentPage;
-    qreal maxVisibleArea = 0.;
-
-    for (int i = 0; i < d->pageCount; ++i) {
+    for (int i = 0; i < d->pages.count(); ++i) {
         PDFPage &page = d->pages[i];
-
-        bool loadPage = page.rect.intersects(loadedArea);
-        bool showPage = page.rect.intersects(visibleArea);
-
-        // Current rendering in pixels is done with a width of
-        // d->renderWidth which can be different than actual width()
-        // when zooming.
-        QRect pageRect = {
-            0, 0, d->renderWidth, int(page.rect.height() * renderingRatio)
-        };
-
-        if (showPage) {
-            if (!page.linksLoaded)
-                d->document->requestLinksAtPage(i);
-
-            textureLimit.moveTo(0, 0);
-            bool fullPageFit = textureLimit.contains(pageRect);
-            QRect showableArea = {
-                int(renderingRatio * (visibleArea.x() - float(window->width() / 4.) - page.rect.x())),
-                int(renderingRatio * (visibleArea.y() - float(window->height() / 4.) - page.rect.y())),
-                int(renderingRatio * (visibleArea.width() + float(window->width() / 2.))),
-                int(renderingRatio * (visibleArea.height() + float(window->height() / 2.)))
-            };
-            showableArea = showableArea.intersected(pageRect);
-            // Limit showableArea with textureLimit to avoid looping request
-            // for something too big.
-            textureLimit.moveCenter(showableArea.center());
-            showableArea = showableArea.intersected(textureLimit);
-
-            if (!page.hasImage
-                || page.renderWidth != d->renderWidth
-                || (page.renderWidth == int(width()) &&
-                    !page.textureArea.contains(showableArea))) {
-                QRect request = (fullPageFit) ? QRect() : textureLimit;
-                if (page.requestId == 0) {
-                    page.requestId = d->document->requestPage(i, d->renderWidth,
-                                             request, PDFCanvas::Private::RootTexture);
-                }
-                priorityRequests << QPair<int, QPair<int, QRect> >(i, QPair<int, QRect>(d->renderWidth, request));
-            }
-        } else if (loadPage
-                   && page.requestId == 0 && (page.renderWidth != d->renderWidth)) {
-            textureLimit.moveTo(0, 0);
-            // We preload full page only if they can fit into texture.
-            if (textureLimit.contains(pageRect)) {
-                page.requestId = d->document->requestPage(i, d->renderWidth,
-                                         QRect(), PDFCanvas::Private::RootTexture);
-            }
-        } else if (!loadPage) {
-            // Scrolled beyond where this page is needed, skip it.
-            if (page.requestId != 0) {
-                d->document->cancelPageRequest(page.requestId);
-                page.requestId = 0;
-            }
-
-            page.image = QImage();
-            page.patches.clear();
-            page.hasImage = false;
-        }
 
         QSGTransformNode *t = static_cast<QSGTransformNode*>(root->childAtIndex(i));
         if (!t) {
@@ -673,23 +582,11 @@ QSGNode* PDFCanvas::updatePaintNode(QSGNode *node, QQuickItem::UpdatePaintNodeDa
         m.translate(0, page.rect.y());
         t->setMatrix(m);
 
-        if (showPage) {
-            QRectF inter = page.rect.intersected(visibleArea);
-            qreal area = inter.width() * inter.height();
-            // Select the current page as the page with the maximum
-            // visible area.
-            if (area > maxVisibleArea) {
-                maxVisibleArea = area;
-                currentPage = i + 1;
-            }
-        }
-
-        if (loadPage) {
+        if (page.pageIsInCacheArea) {
             // Node hierachy:
             // t
             // |-bg
             // |  |-tn
-            // |  | |- patch1...
             // |  |-n
             // |  | |- link1
             // |  | |- link2...
@@ -714,30 +611,6 @@ QSGNode* PDFCanvas::updatePaintNode(QSGNode *node, QQuickItem::UpdatePaintNodeDa
                     page.image = QImage();
                 }
                 setTextureRect(tn, width(), page.renderWidth, page.textureArea);
-
-                if (!page.patches.empty()) {
-                    QSGSimpleTextureNode *ptn = static_cast<QSGSimpleTextureNode*>(tn->firstChild());
-                    for (QList<Patch>::iterator it = page.patches.begin();
-                         it != page.patches.end(); it++) {
-                        if (!ptn) {
-                            ptn = new QSGSimpleTextureNode;
-                            ptn->setFlag(QSGNode::OwnedByParent);
-                            tn->appendChildNode(ptn);
-                        }
-                        
-                        if (!it->second.isNull()) {
-                            putTexture(window, ptn, it->second);
-                            it->second = QImage();
-                        }
-                        setTextureRect(ptn, width(), page.renderWidth, it->first);
-
-                        ptn = static_cast<QSGSimpleTextureNode*>(ptn->nextSibling());
-                    }
-                } else {
-                    // Delete all previously registered patches.
-                    for (QSGNode *child = tn->firstChild(); child; child = tn->firstChild())
-                        delete child;
-                }
 
                 QSGNode *n = tn->nextSibling();
                 if (!n) {
@@ -773,19 +646,148 @@ QSGNode* PDFCanvas::updatePaintNode(QSGNode *node, QQuickItem::UpdatePaintNodeDa
         }
     }
 
+    return root;
+}
+
+void PDFCanvas::updatePolish()
+{
+    if (d->layoutScheduled) {
+        layout();
+    }
+
+    if (!d->flickable) {
+        return;
+    }
+
+    QQuickWindow * const window = this->window();
+
+    //Visible area equals flickable translated by contentX/Y
+    const QRectF visibleArea = mapRectFromItem(d->flickable, d->flickable->boundingRect());
+
+    //Loaded area equals visible area scaled to five times the size
+    const QRectF loadedArea = {
+        visibleArea.x() - visibleArea.width() * 2,
+        visibleArea.y() - visibleArea.height() * 2,
+        visibleArea.width() * 5,
+        visibleArea.height() * 5,
+    };
+    const QRect textureLimit = {
+        0, 0,
+        int(2.5 * qMin(window->width(), window->height())),
+        int(2.5 * qMin(window->width(), window->height()))
+    };
+    const float renderingRatio = float(d->renderWidth) / width();
+
+    struct PriorityRequest { int index; int width; QRect area; };
+
+    QVector<PriorityRequest> priorityRequests;
+    int currentPage = d->currentPage;
+    qreal maxVisibleArea = 0.;
+
+    for (int i = 0; i < d->pages.count(); ++i) {
+        PDFPage &page = d->pages[i];
+
+        page.pageIsInCacheArea = page.rect.intersects(loadedArea);
+
+        const bool pageIsInVisibleArea = page.rect.intersects(visibleArea);
+
+        // Current rendering in pixels is done with a width of
+        // d->renderWidth which can be different than actual width()
+        // when zooming.
+        QRect pageRect = {
+            0, 0, d->renderWidth, int(page.rect.height() * renderingRatio)
+        };
+
+        if (pageIsInVisibleArea) {
+            if (!page.linksRequested)
+                page.linksRequested = true;
+                d->document->requestLinksAtPage(i);
+
+            const bool fullPageFit = textureLimit.contains(pageRect);
+            QRect showableArea = {
+                int(renderingRatio * (visibleArea.x() - float(window->width() / 4.) - page.rect.x())),
+                int(renderingRatio * (visibleArea.y() - float(window->height() / 4.) - page.rect.y())),
+                int(renderingRatio * (visibleArea.width() + float(window->width() / 2.))),
+                int(renderingRatio * (visibleArea.height() + float(window->height() / 2.)))
+            };
+
+            QRect requestArea = textureLimit;
+            requestArea.moveCenter(showableArea.center());
+
+            showableArea = showableArea.intersected(pageRect);
+            // Limit showableArea with requestArea to avoid looping request
+            // for something too big.
+            showableArea = showableArea.intersected(requestArea);
+
+            if (!page.hasImage
+                || page.requestWidth != d->renderWidth
+                || (page.requestWidth == int(width()) &&
+                    !page.textureArea.contains(showableArea))) {
+                QRect request = (fullPageFit) ? QRect() : requestArea;
+                if (page.requestId == 0 || d->document->cancelPageRequest(page.requestId)) {
+                    page.requestId = d->document->requestPage(i, d->renderWidth, request);
+                    page.requestWidth = d->renderWidth;
+                }
+
+                PriorityRequest priorityRequest = { i, d->renderWidth, request };
+                priorityRequests.append(priorityRequest);
+            }
+
+            QRectF inter = page.rect.intersected(visibleArea);
+            qreal area = inter.width() * inter.height();
+            // Select the current page as the page with the maximum
+            // visible area.
+            if (area > maxVisibleArea) {
+                maxVisibleArea = area;
+                currentPage = i + 1;
+            }
+        } else if (page.pageIsInCacheArea && textureLimit.contains(pageRect)) {
+            // We preload full page only if they can fit into texture.
+            if (page.requestWidth != d->renderWidth
+                    && (page.requestId == 0 || d->document->cancelPageRequest(page.requestId))) {
+                page.requestId = d->document->requestPage(i, d->renderWidth, QRect());
+                page.requestWidth = d->renderWidth;
+            }
+        } else if (page.requestId != 0 || page.hasImage) {
+            // Scrolled beyond where this page is needed, skip it.
+            if (page.requestId != 0) {
+                d->document->cancelPageRequest(page.requestId);
+                page.requestId = 0;
+            }
+
+            page.image = QImage();
+            page.hasImage = false;
+            page.requestWidth = 0;
+
+            update();
+        }
+    }
+
     // prioritize in reverse order so we end up with a final priority list which is
     // ordered by increasing page number.
-    for (int i = priorityRequests.size() - 1; i >= 0; --i) {
-        const QPair<int, QPair<int, QRect> > &pr = priorityRequests.at(i);
-        d->document->prioritizeRequest(pr.first, pr.second.first, pr.second.second);
+    for (PriorityRequest &request : priorityRequests) {
+        d->document->prioritizeRequest(request.index, request.width, request.area);
     }
 
     if (d->currentPage != currentPage) {
         d->currentPage = currentPage;
         emit currentPageChanged();
     }
+}
 
-    return root;
+void PDFCanvas::itemChange(ItemChange change, const ItemChangeData &data)
+{
+    switch (change) {
+    case ItemVisibleHasChanged:
+        if (data.boolValue) {
+            polish();
+        }
+        break;
+    default:
+        break;
+    }
+
+    QQuickItem::itemChange(change, data);
 }
 
 void PDFCanvas::documentLoaded()
@@ -793,26 +795,28 @@ void PDFCanvas::documentLoaded()
     d->pages.clear();
     d->pageCount = d->document->pageCount();
     d->renderWidth = width();
-    layout();
+    d->layoutScheduled = true;
+    polish();
 }
 
 void PDFCanvas::resizeTimeout()
 {
     d->renderWidth = width();
-    update();
+    polish();
 }
 
 void PDFCanvas::pageSizesFinished(const QList<QSizeF> &sizes)
 {
     d->pageSizes = sizes;
     d->pageSizeRequested = false;
-    layout();
+    d->layoutScheduled = true;
+    polish();
 }
 
 QPair<int, QRectF> PDFCanvas::pageAtPoint(const QPointF &point) const
 {
-    for (int i = 0; i < d->pageCount; ++i) {
-        const PDFPage& page = d->pages.value(i);
+    for (int i = 0; i < d->pages.count(); ++i) {
+        const PDFPage& page = d->pages.at(i);
         if (page.rect.contains(point)) {
             return QPair<int, QRectF>{i, page.rect};
         }

@@ -88,7 +88,7 @@ public Q_SLOTS:
     void requestLinksAtPage(int page);
 
     void prioritizeRequest(int index, int size, QRect subpart = QRect());
-    void cancelPageRequest(int index);
+    bool cancelPageRequest(int index);
     void requestPageSizes();
     void search(const QString &search, uint startPage = 0);
     void cancelSearch(bool resetModel = true);

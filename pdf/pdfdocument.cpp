@@ -242,11 +242,11 @@ void PDFDocument::prioritizeRequest(int index, int size, QRect subpart)
     d->thread->prioritizeRenderJob(index, size, subpart);
 }
 
-void PDFDocument::cancelPageRequest(int requestId)
+bool PDFDocument::cancelPageRequest(int requestId)
 {
     if (!isLoaded() || isLocked())
-        return;
-    d->thread->cancelRenderJob(requestId);
+        return false;
+    return d->thread->cancelRenderJob(requestId);
 }
 
 void PDFDocument::requestPageSizes()

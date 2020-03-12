@@ -123,6 +123,9 @@ protected:
     virtual void geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry);
     virtual QSGNode* updatePaintNode(QSGNode *node, UpdatePaintNodeData*);
 
+    void updatePolish() override;
+    void itemChange(ItemChange change, const ItemChangeData &data) override;
+
 private Q_SLOTS:
     void linksFinished(int id, const QList<QPair<QRectF, QUrl> > &links);
     void pageModified(int id, const QRectF &subpart);
@@ -131,7 +134,8 @@ private Q_SLOTS:
     void documentLoaded();
     void resizeTimeout();
     void pageSizesFinished(const QList<QSizeF> &sizes);
-    void sceneGraphInvalidated();
+    void invalidateSceneGraph();
+    void schedulePolish() { polish(); }
 
 private:
     class Private;

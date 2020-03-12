@@ -22,6 +22,11 @@
 #include <QUrlQuery>
 #include <poppler-qt5.h>
 
+#include <QElapsedTimer>
+#include <QLoggingCategory>
+
+Q_LOGGING_CATEGORY(renderTimes, "sailfish.office.pdf.timing", QtWarningMsg)
+
 LoadDocumentJob::LoadDocumentJob(const QString &source)
     : PDFJob(PDFJob::LoadDocumentJob), m_source(source)
 {
@@ -58,8 +63,9 @@ void LinksJob::run()
 {
     Q_ASSERT(m_document);
 
-    if (m_document->isLocked() || m_page < 0 || m_page >= m_document->numPages())
+    if (m_document->isLocked() || m_page < 0 || m_page >= m_document->numPages()) {
         return;
+    }
 
     Poppler::Page *page = m_document->page(m_page);
     QList<Poppler::Link*> links = page->links();
@@ -115,6 +121,10 @@ void RenderPageJob::run()
 {
     Q_ASSERT(m_document);
 
+
+    QElapsedTimer timer;
+    timer.start();
+
     Poppler::Page *page = m_document->page(m_index);
     QSizeF size = page->pageSizeF();
     float scale = 72.0f * (float(m_width) / size.width());
@@ -129,6 +139,13 @@ void RenderPageJob::run()
         m_page = page->renderToImage(scale, scale, m_subpart.x(), m_subpart.y(),
                                     m_subpart.width(), m_subpart.height());
     }
+
+    qCDebug(renderTimes)
+            << "Completed a render job for the page" << m_index
+            << "with the scale" << scale
+            << "and the sub rect" << m_subpart
+            << "in" << timer.elapsed() << "ms"
+            << "to produce an image this big" << m_page.size();
 
     delete page;
 }

@@ -55,7 +55,7 @@ public:
     void setAutoSaveName(const QString &filename);
 
     void queueJob(PDFJob *job);
-    void cancelRenderJob(int index);
+    bool cancelRenderJob(int index);
     void prioritizeRenderJob(int index, int size, QRect subpart);
 
 Q_SIGNALS:
