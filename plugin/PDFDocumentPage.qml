@@ -97,6 +97,7 @@ DocumentPage {
 
                 document: doc
                 flickable: coverPreview
+                linkColor: Theme.highlightColor
 
                 onPageLayoutChanged: {
                     var pageRect = pageRectangle(view.currentPage - 1)
