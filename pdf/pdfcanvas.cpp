@@ -699,9 +699,10 @@ void PDFCanvas::updatePolish()
         };
 
         if (pageIsInVisibleArea) {
-            if (!page.linksRequested)
+            if (!page.linksRequested) {
                 page.linksRequested = true;
                 d->document->requestLinksAtPage(i);
+            }
 
             const bool fullPageFit = textureLimit.contains(pageRect);
             QRect showableArea = {
