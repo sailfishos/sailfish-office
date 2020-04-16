@@ -25,6 +25,7 @@ DocumentPage {
     id: documentPage
 
     property real fontSize: Theme.fontSizeMedium
+    property color linkColor: Theme.highlightFromColor(Theme.highlightColor, Theme.DarkOnLight)
     property real maximumWidth
     property bool wrap: true
 
@@ -72,7 +73,7 @@ DocumentPage {
                                 : implicitHeight
 
                         color: Theme.darkPrimaryColor
-                        linkColor: Theme.highlightColor
+                        linkColor: documentPage.linkColor
                         font.pixelSize: Theme.fontSizeTiny
 
                         text: lineText
@@ -133,7 +134,7 @@ DocumentPage {
                     width: parent.width - (2 * x)
                     wrapMode: documentPage.wrap ? Text.Wrap : Text.NoWrap
                     color: Theme.darkPrimaryColor
-                    linkColor: Theme.highlightColor
+                    linkColor: documentPage.linkColor
                     font.pixelSize: Math.round(documentPage.fontSize)
                     text: lineText
                     textFormat: Text.StyledText
