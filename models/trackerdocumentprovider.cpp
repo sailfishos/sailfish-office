@@ -103,17 +103,27 @@ void TrackerDocumentProvider::classBegin()
 void TrackerDocumentProvider::componentComplete()
 {
     QDBusConnection sessionBus = QDBusConnection::sessionBus();
-    sessionBus.connect(dbusService, dbusPath, dbusInterface, dbusSignal, this, SLOT(trackerGraphChanged(QString,QVariantList,QVariantList)));
+    sessionBus.connect(dbusService, dbusPath, dbusInterface, dbusSignal,
+                       this, SLOT(trackerGraphChanged(QString,QVariantList,QVariantList)));
 
     d->connection = new QSparqlConnection(trackerDriver);
-    startSearch();
+    if (!d->connection->isValid()) {
+        qWarning() << "No valid QSparqlConnection on TrackerDocumentProvider";
+    } else {
+        startSearch();
+    }
 }
 
 void TrackerDocumentProvider::startSearch()
 {
     QSparqlQuery q(documentQuery);
-    QSparqlResult* result = d->connection->exec(q);
-    connect(result, SIGNAL(finished()), this, SLOT(searchFinished()));
+    QSparqlResult *result = d->connection->exec(q);
+    if (result->hasError()) {
+        qWarning() << "Error executing sparql query:" << result->lastError();
+        delete result;
+    } else {
+        connect(result, SIGNAL(finished()), this, SLOT(searchFinished()));
+    }
 }
 
 void TrackerDocumentProvider::stopSearch()
@@ -146,6 +156,8 @@ void TrackerDocumentProvider::searchFinished()
             emit readyChanged();
         }
     }
+
+    delete r;
 
     emit countChanged();
 }
