@@ -26,7 +26,6 @@ DocumentPage {
 
     property alias document: doc
     property alias contents: contentsModel
-    property alias backgroundColor: background.color
     property int coverAlignment: Qt.AlignLeft | Qt.AlignTop
     property int coverFillMode: Image.PreserveAspectCrop
 
@@ -34,17 +33,6 @@ DocumentPage {
         // This is a function which can be shadowed because the currentIndex property doesn't
         // notify reliably and nothing needs to bind to it.
         return doc.currentIndex
-    }
-
-    _opaqueBackground: background.color !== "transparent"
-
-    Rectangle {
-        id: background
-        color: "transparent"
-        z: -1
-        anchors.fill: parent
-        parent: page._backgroundParent
-        visible: page._opaqueBackground
     }
 
     backNavigation: !busy // During loading the UI is unresponsive, don't show page indicator as back-stepping is not possible
