@@ -44,11 +44,6 @@ ApplicationWindow {
         }
     }
 
-    /* Currently tracker is the only source for documents, so DocumentProviderListModel is unused
-    DocumentProviderListModel {
-        id: documentProviderListModel
-
-    }*/
     TrackerDocumentProvider {
         id: trackerProvider
     }

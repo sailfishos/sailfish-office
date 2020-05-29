@@ -21,7 +21,6 @@
 class DocumentProvider::Private {
 public:
     Private() {}
-    QUrl page;
 };
 
 DocumentProvider::DocumentProvider(QObject *parent)
@@ -33,27 +32,6 @@ DocumentProvider::DocumentProvider(QObject *parent)
 DocumentProvider::~DocumentProvider()
 {
     delete d;
-}
-
-QString DocumentProvider::setupPageUrl() const
-{
-    return QString();
-}
-
-bool DocumentProvider::needsSetup() const
-{
-    return false;
-}
-
-QUrl DocumentProvider::page() const
-{
-    return d->page;
-}
-
-void DocumentProvider::setPage(const QUrl &url)
-{
-    d->page = url;
-    emit pageChanged();
 }
 
 void DocumentProvider::deleteFile(const QUrl &file)

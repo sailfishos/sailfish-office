@@ -37,7 +37,6 @@
 #include "models/documentlistmodel.h"
 #include "models/trackerdocumentprovider.h"
 #include "models/documentprovider.h"
-#include "models/documentproviderlistmodel.h"
 #include "dbusadaptor.h"
 
 namespace {
@@ -64,7 +63,6 @@ QSharedPointer<QApplication> createApplication(int &argc, char **argv)
 QSharedPointer<QQuickView> createView(const QString &file)
 {
     qmlRegisterType<DocumentListModel>("Sailfish.Office.Files", 1, 0, "DocumentListModel");
-    qmlRegisterType<DocumentProviderListModel>("Sailfish.Office.Files", 1, 0, "DocumentProviderListModel");
     qmlRegisterType<TrackerDocumentProvider>("Sailfish.Office.Files", 1, 0, "TrackerDocumentProvider");
     qmlRegisterType<FilterModel>("Sailfish.Office.Files", 1, 0, "FilterModel");
     qmlRegisterInterface<DocumentProvider>("DocumentProvider");

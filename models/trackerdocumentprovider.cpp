@@ -20,9 +20,8 @@
 #include "trackerdocumentprovider.h"
 #include "documentlistmodel.h"
 
-#include <QDir>
-#include <QtCore/qthreadpool.h>
 #include <QtCore/QModelIndex>
+#include <QtCore/QFile>
 #include <QtDBus/QDBusConnection>
 
 #include <qglobal.h>
@@ -168,18 +167,6 @@ int TrackerDocumentProvider::count() const
     return d->model->rowCount(QModelIndex());
 }
 
-QString TrackerDocumentProvider::description() const
-{
-    //: Description for local device files provider
-    //% "Files found on this device."
-    return qtTrId("sailfish-office-la-localfiles_description");
-}
-
-QUrl TrackerDocumentProvider::icon() const
-{
-    return QUrl();
-}
-
 bool TrackerDocumentProvider::isReady() const
 {
     return d->ready;
@@ -188,18 +175,6 @@ bool TrackerDocumentProvider::isReady() const
 QObject* TrackerDocumentProvider::model() const
 {
     return d->model;
-}
-
-QUrl TrackerDocumentProvider::thumbnail() const
-{
-    return QUrl();
-}
-
-QString TrackerDocumentProvider::title() const
-{
-    //: Title for local device files provider
-    //% "This Device"
-    return qtTrId("sailfish-office-he-localfiles_title");
 }
 
 void TrackerDocumentProvider::deleteFile(const QUrl &file)
