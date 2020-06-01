@@ -41,6 +41,7 @@ public:
     virtual int count() const;
     virtual QObject *model() const;
     virtual bool isReady() const;
+    virtual bool error() const;
 
     virtual void classBegin();
     virtual void componentComplete();

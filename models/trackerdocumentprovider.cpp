@@ -70,6 +70,7 @@ public:
         : model(new DocumentListModel)
         , connection{nullptr}
         , ready(false)
+        , error(false)
     {
         model->setObjectName("TrackerDocumentList");
     }
@@ -81,6 +82,7 @@ public:
     DocumentListModel *model;
     QSparqlConnection *connection;
     bool ready;
+    bool error;
 };
 
 TrackerDocumentProvider::TrackerDocumentProvider(QObject *parent)
@@ -132,7 +134,10 @@ void TrackerDocumentProvider::stopSearch()
 void TrackerDocumentProvider::searchFinished()
 {
     QSparqlResult *r = qobject_cast<QSparqlResult*>(sender());
-    if (!r->hasError()) {
+    bool wasError = d->error;
+    d->error = r->hasError();
+
+    if (!d->error) {
         // d->model->clear();
         // Mark all current entries in the model dirty.
         d->model->setAllItemsDirty(true);
@@ -158,6 +163,10 @@ void TrackerDocumentProvider::searchFinished()
 
     delete r;
 
+    if (wasError != d->error) {
+        emit errorChanged();
+    }
+
     emit countChanged();
 }
 
@@ -170,6 +179,11 @@ int TrackerDocumentProvider::count() const
 bool TrackerDocumentProvider::isReady() const
 {
     return d->ready;
+}
+
+bool TrackerDocumentProvider::error() const
+{
+    return d->error;
 }
 
 QObject* TrackerDocumentProvider::model() const

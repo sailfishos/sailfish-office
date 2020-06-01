@@ -28,6 +28,7 @@ class DocumentProvider : public QObject
     Q_PROPERTY(int count READ count NOTIFY countChanged)
     Q_PROPERTY(QObject *model READ model NOTIFY modelChanged)
     Q_PROPERTY(bool ready READ isReady NOTIFY readyChanged)
+    Q_PROPERTY(bool error READ error NOTIFY errorChanged)
 
 public:
     DocumentProvider(QObject *parent = 0);
@@ -36,6 +37,7 @@ public:
     virtual int count() const = 0;
     virtual QObject *model() const = 0;
     virtual bool isReady() const = 0;
+    virtual bool error() const = 0;
 
     Q_INVOKABLE virtual void deleteFile(const QUrl &file);
 
@@ -43,6 +45,7 @@ signals:
     void countChanged();
     void modelChanged();
     void readyChanged();
+    void errorChanged();
 
 private:
     class Private;
