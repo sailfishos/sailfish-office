@@ -37,7 +37,6 @@ set(sailfishoffice_SRCS
     dbusadaptor.cpp
     models/filtermodel.cpp
     models/documentlistmodel.cpp
-    models/documentproviderlistmodel.cpp
     models/documentprovider.cpp
     models/trackerdocumentprovider.cpp
 )

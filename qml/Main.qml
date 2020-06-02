@@ -26,7 +26,6 @@ ApplicationWindow {
 
     readonly property Component coverPreview: pageStack.currentPage && (pageStack.currentPage.preview || null)
 
-
     property QtObject fileListModel: trackerProvider.model
     property Page _mainPage
 
@@ -44,11 +43,6 @@ ApplicationWindow {
         }
     }
 
-    /* Currently tracker is the only source for documents, so DocumentProviderListModel is unused
-    DocumentProviderListModel {
-        id: documentProviderListModel
-
-    }*/
     TrackerDocumentProvider {
         id: trackerProvider
     }

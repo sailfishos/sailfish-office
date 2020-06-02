@@ -180,13 +180,20 @@ Page {
 
         InfoLabel {
             parent: listView.contentItem
-            y: listView.headerItem.y + pageHeader.height + searchField.height + (page.isPortrait ? Theme.itemSizeMedium : Theme.paddingLarge)
-            //: View placeholder shown when there are no documents
-            //% "No documents"
-            text: page.provider.count == 0 ? qsTrId("sailfish-office-la-no_documents")
-                                         : //% "No documents found"
-                                           qsTrId("sailfish-office-la-not-found")
-            opacity: (page.provider.ready && page.provider.count == 0) || (searchText.length > 0 && listView.count == 0) ? 1.0 : 0.0
+            y: listView.headerItem.y + pageHeader.height + searchField.height
+               + (page.isPortrait ? Theme.itemSizeMedium : Theme.paddingLarge)
+            text: page.provider.error ? //% "Error getting document list"
+                                        qsTrId("sailfish-office-la-error_getting_documents")
+                                      : page.provider.count == 0
+                                        ? //: View placeholder shown when there are no documents
+                                          //% "No documents"
+                                          qsTrId("sailfish-office-la-no_documents")
+                                        : //% "No documents found"
+                                          qsTrId("sailfish-office-la-not-found")
+            opacity: (page.provider.ready && page.provider.count == 0)
+                     || (searchText.length > 0 && listView.count == 0)
+                     || page.provider.error
+                     ? 1.0 : 0.0
             Behavior on opacity { FadeAnimator {} }
         }
 

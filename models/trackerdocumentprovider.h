@@ -21,9 +21,6 @@
 
 #include "documentprovider.h"
 
-#include <QtCore/QFileInfo>
-#include <QtCore/QRunnable>
-#include <QtCore/QHash>
 #include <QtQml/QQmlParserStatus>
 
 class DocumentListModel;
@@ -42,12 +39,9 @@ public:
     ~TrackerDocumentProvider();
 
     virtual int count() const;
-    virtual QUrl icon() const;
-    virtual QString title() const;
-    virtual QString description() const;
     virtual QObject *model() const;
-    virtual QUrl thumbnail() const;
     virtual bool isReady() const;
+    virtual bool error() const;
 
     virtual void classBegin();
     virtual void componentComplete();
