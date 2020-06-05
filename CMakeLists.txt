@@ -2,6 +2,8 @@ project(sailfish-office)
 
 cmake_minimum_required(VERSION 2.8.6)
 
+include(GNUInstallDirs)
+
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 set(CMAKE_AUTOMOC TRUE)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -24,7 +26,7 @@ include_directories(
     ${QTSPARQL_INCLUDE_DIR}
 )
 
-set(CALLIGRA_QML_PLUGIN_DIR /usr/lib/calligra CACHE PATH "The location of the Calligra QtQuick Components")
+set(CALLIGRA_QML_PLUGIN_DIR ${CMAKE_INSTALL_LIBDIR}/calligra CACHE PATH "The location of the Calligra QtQuick Components")
 configure_file(config.h.in config.h)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -fPIC -pie -rdynamic -Wall")
