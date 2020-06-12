@@ -17,7 +17,7 @@ add_library(sailfishofficeplugin MODULE ${plugin_SRCS})
 qt5_use_modules(sailfishofficeplugin Widgets Quick)
 target_link_libraries(sailfishofficeplugin stdc++ ${QT_LIBRARIES} ${SAILFISHSILICA_LIBRARIES} ${ICU_LIBRARIES})
 
-install(TARGETS sailfishofficeplugin DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/qt5/qml/Sailfish/Office)
+install(TARGETS sailfishofficeplugin DESTINATION ${CMAKE_INSTALL_LIBDIR}/qt5/qml/Sailfish/Office)
 
 install(FILES
     qmldir
@@ -54,5 +54,5 @@ install(FILES
     TextDocumentPage.qml
     TextDocumentToCPage.qml
     ToolBar.qml
-    DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/qt5/qml/Sailfish/Office
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/qt5/qml/Sailfish/Office
 )

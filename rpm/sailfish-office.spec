@@ -2,7 +2,6 @@ Name: sailfish-office
 Version: 1.5.20
 Release: 1
 Summary: Sailfish office viewer
-Group: Applications/Office
 License: GPLv2
 Source0: %{name}-%{version}.tar.gz
 BuildRequires: pkgconfig(Qt5Quick)
@@ -33,7 +32,6 @@ Requires: declarative-transferengine-qt5 >= 0.3.1
 %package ts-devel
 Summary: Translation source for %{name}
 License: GPLv2
-Group: System/Base
 
 
 %description
