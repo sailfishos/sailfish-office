@@ -84,6 +84,7 @@ ApplicationWindow {
         case "application/msword":
         case "application/rtf":
         case "application/x-mswrite":
+        case "application/vnd.openxmlformats-officedocument.wordprocessing":
         case "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
         case "application/vnd.openxmlformats-officedocument.wordprocessingml.template":
         case "application/vnd.ms-works":

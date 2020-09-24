@@ -180,6 +180,7 @@ int DocumentListModel::mimeTypeToDocumentClass(QString mimeType) const
     DocumentClass documentClass = UnknownDocument;
     if (mimeType == QLatin1String("application/vnd.oasis.opendocument.text")
             || mimeType == QLatin1String("application/msword")
+            || mimeType == QLatin1String("application/vnd.openxmlformats-officedocument.wordprocessing")
             || mimeType == QLatin1String("application/vnd.openxmlformats-officedocument.wordprocessingml.document")
             || mimeType == QLatin1String("application/vnd.openxmlformats-officedocument.wordprocessingml.template")
             || mimeType == QLatin1String("application/vnd.ms-word.document.macroEnabled.12")

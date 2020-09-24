@@ -52,6 +52,8 @@ static const QString documentQuery{
     "UNION { ?u a nfo:Presentation } "
     "UNION { ?u a nfo:Spreadsheet } "
     "UNION { ?u a nfo:FileDataObject . ?u nie:mimeType 'text/csv'} "
+    "UNION { ?u a nfo:FileDataObject . ?u nie:mimeType 'application/msword'} "
+    "UNION { ?u a nfo:FileDataObject . ?u nie:mimeType 'application/vnd.openxmlformats-officedocument.wordprocessing'} "
 "}"
 };
 
