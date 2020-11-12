@@ -25,7 +25,7 @@ class QQuickView;
 class DBusAdaptor : public QDBusAbstractAdaptor
 {
     Q_OBJECT
-    Q_CLASSINFO("D-Bus Interface", "org.sailfish.office.ui")
+    Q_CLASSINFO("D-Bus Interface", "org.sailfishos.Office.ui")
 
 public:
     DBusAdaptor(QQuickView *view);
