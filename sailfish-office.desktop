@@ -6,6 +6,6 @@ X-MeeGo-Translation-Catalog=sailfish-office
 Icon=icon-launcher-office
 Exec=invoker -s --type=silica-qt5 /usr/bin/sailfish-office %U
 Comment=Document Viewer
-X-Maemo-Service=org.sailfish.office
-X-Maemo-Object-Path=/org/sailfish/office/ui
-X-Maemo-Method=org.sailfish.office.ui.activateWindow
+X-Maemo-Service=org.sailfishos.Office
+X-Maemo-Object-Path=/org/sailfishos/office/ui
+X-Maemo-Method=org.sailfishos.Office.ui.activateWindow

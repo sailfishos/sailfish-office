@@ -25,7 +25,7 @@
 #include <QElapsedTimer>
 #include <QLoggingCategory>
 
-Q_LOGGING_CATEGORY(renderTimes, "sailfish.office.pdf.timing", QtWarningMsg)
+Q_LOGGING_CATEGORY(renderTimes, "org.sailfishos.office.pdf.timing", QtWarningMsg)
 
 LoadDocumentJob::LoadDocumentJob(const QString &source)
     : PDFJob(PDFJob::LoadDocumentJob), m_source(source)

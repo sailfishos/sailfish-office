@@ -73,11 +73,11 @@ QSharedPointer<QQuickView> createView(const QString &file)
 
     new DBusAdaptor(view.data());
 
-    if (!QDBusConnection::sessionBus().registerObject("/org/sailfish/office/ui", view.data()))
-        qWarning() << "Could not register /org/sailfish/office/ui D-Bus object.";
+    if (!QDBusConnection::sessionBus().registerObject("/org/sailfishos/office/ui", view.data()))
+        qWarning() << "Could not register /org/sailfishos/office/ui D-Bus object.";
 
-    if (!QDBusConnection::sessionBus().registerService("org.sailfish.office"))
-        qWarning() << "Could not register org.sailfish.office D-Bus service.";
+    if (!QDBusConnection::sessionBus().registerService("org.sailfishos.Office"))
+        qWarning() << "Could not register org.sailfishos.Office D-Bus service.";
 
     return view;
 }
