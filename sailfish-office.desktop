@@ -4,8 +4,13 @@ Name=Documents
 X-MeeGo-Logical-Id=sailfish-office-ap-name
 X-MeeGo-Translation-Catalog=sailfish-office
 Icon=icon-launcher-office
-Exec=invoker -s --type=silica-qt5 /usr/bin/sailfish-office %U
+Exec=/usr/bin/sailjail -p sailfish-office.desktop /usr/bin/sailfish-office %U
 Comment=Document Viewer
 X-Maemo-Service=org.sailfishos.Office
 X-Maemo-Object-Path=/org/sailfishos/office/ui
 X-Maemo-Method=org.sailfishos.Office.ui.activateWindow
+
+[X-Sailjail]
+Permissions=Documents;Downloads;MediaIndexing
+ApplicationName=Office
+OrganizationName=org.sailfishos

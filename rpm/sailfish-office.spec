@@ -21,7 +21,7 @@ Requires: sailfishsilica-qt5 >= 1.1.107
 Requires: sailfish-components-accounts-qt5
 Requires: sailfish-components-textlinking
 Requires: libqt5sparql-tracker
-Requires: mapplauncherd >= 4.1.17
+Requires: sailjail-launch-approval
 #Requires: qt5-qtqml-import-webkitplugin
 Requires: nemo-qml-plugin-configuration-qt5
 Requires:  %{name}-all-translations
