@@ -11,6 +11,6 @@ X-Maemo-Object-Path=/org/sailfishos/office/ui
 X-Maemo-Method=org.sailfishos.Office.ui.activateWindow
 
 [X-Sailjail]
-Permissions=Documents;Downloads;MediaIndexing;Sharing;Notifications
+Permissions=Documents;Downloads;MediaIndexing;Sharing
 ApplicationName=Office
 OrganizationName=org.sailfishos
