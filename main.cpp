@@ -96,8 +96,8 @@ Q_DECL_EXPORT int main(int argc, char *argv[])
     auto app = createApplication(argc, argv);
     // Note, these must be said now, otherwise some plugins using QSettings
     // will get terribly confused when they fail to load properly.
-    app->setOrganizationName("Sailfish");
-    app->setApplicationName("Sailfish Office");
+    app->setOrganizationName("org.sailfishos");
+    app->setApplicationName("Office");
 
     auto view = createView("Main.qml");
 
