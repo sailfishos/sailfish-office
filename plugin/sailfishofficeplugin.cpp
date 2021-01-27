@@ -23,7 +23,6 @@
 #include <QTranslator>
 #include <QApplication>
 
-#include "fileinfo.h"
 #include "plaintextmodel.h"
 
 #include "config.h"
@@ -51,7 +50,6 @@ SailfishOfficePlugin::SailfishOfficePlugin(QObject *parent)
 void SailfishOfficePlugin::registerTypes(const char *uri)
 {
     Q_ASSERT(uri == QLatin1String("Sailfish.Office"));
-    qmlRegisterType<FileInfo>(uri, 1, 0, "FileInfo");
     qmlRegisterType<PlainTextModel>(uri, 1, 0, "PlainTextModel");
 }
 

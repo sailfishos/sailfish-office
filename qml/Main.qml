@@ -20,6 +20,7 @@ import QtQuick 2.0
 import Sailfish.Silica 1.0
 import Sailfish.Office 1.0
 import Sailfish.Office.Files 1.0
+import Nemo.FileManager 1.0
 
 ApplicationWindow {
     id: window
@@ -53,7 +54,7 @@ ApplicationWindow {
 
     // file = file or url
     function openFile(file) {
-        fileInfo.source = file
+        fileInfo.url = file
 
         pageStack.pop(window._mainPage, PageStackAction.Immediate)
 
@@ -99,12 +100,12 @@ ApplicationWindow {
             break
 
         default:
-            console.log("Warning: Unrecognised file type for file " + fileInfo.filePath)
+            console.log("Warning: Unrecognised file type for file " + fileInfo.file)
         }
 
         if (handler != "") {
             pageStack.push(handler,
-                           { title: fileInfo.fileName, source: fileInfo.fileUrl, mimeType: fileInfo.mimeType },
+                           { title: fileInfo.fileName, source: fileInfo.url, mimeType: fileInfo.mimeType },
                            PageStackAction.Immediate)
         }
 

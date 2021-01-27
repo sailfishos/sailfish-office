@@ -8,7 +8,6 @@ include_directories(
 )
 
 set(plugin_SRCS
-    fileinfo.cpp
     plaintextmodel.cpp
     sailfishofficeplugin.cpp
 )

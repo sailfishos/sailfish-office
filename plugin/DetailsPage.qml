@@ -19,6 +19,7 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 import Sailfish.Office 1.0
+import Nemo.FileManager 1.0
 
 Page {
     id: page
@@ -29,7 +30,7 @@ Page {
 
     FileInfo {
         id: info
-        source: page.source
+        url: page.source
     }
 
     SilicaFlickable {
@@ -52,7 +53,7 @@ Page {
                 //: File path detail of the document
                 //% "File path"
                 label: qsTrId("sailfish-office-la-filepath")
-                value: info.filePath
+                value: info.file
                 alignment: Qt.AlignLeft
             }
 
@@ -60,7 +61,7 @@ Page {
                 //: File size detail of the document
                 //% "Size"
                 label: qsTrId("sailfish-office-la-filesize")
-                value: Format.formatFileSize(info.fileSize)
+                value: Format.formatFileSize(info.size)
                 alignment: Qt.AlignLeft
             }
 
@@ -76,7 +77,7 @@ Page {
                 //: Last modified date of the document
                 //% "Last modified"
                 label: qsTrId("sailfish-office-la-lastmodified")
-                value: Format.formatDate(info.modifiedDate, Format.DateFull)
+                value: Format.formatDate(info.lastModified, Format.DateFull)
                 alignment: Qt.AlignLeft
             }
 
