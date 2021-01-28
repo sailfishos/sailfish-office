@@ -24,6 +24,7 @@ Requires: libqt5sparql-tracker
 Requires: sailjail-launch-approval
 #Requires: qt5-qtqml-import-webkitplugin
 Requires: nemo-qml-plugin-configuration-qt5
+Requires: nemo-qml-plugin-filemanager
 Requires:  %{name}-all-translations
 Requires: sailfish-content-graphics
 Requires: qt5-qtdeclarative-import-qtquick2plugin >= 5.4.0
