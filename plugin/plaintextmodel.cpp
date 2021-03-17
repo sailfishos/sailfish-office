@@ -111,13 +111,13 @@ void PlainTextModel::setSource(const QUrl &source)
         } else {
             m_file.setFileName(m_source.toLocalFile());
 
-            if (m_file.size() == 0) {
+            if (!m_file.open(QIODevice::ReadOnly)) {
+                qmlInfo(this) << "Can't open " << m_source << ": " << m_file.errorString();
+                m_status = Error;
+            } else if (m_file.size() == 0) {
                 m_status = Ready;
             } else if (m_file.size() < 0 || m_file.size() > maximumFileSize) {
                 qmlInfo(this) << "File is too large " << m_source << ": " << m_file.errorString();
-                m_status = Error;
-            } else if (!m_file.open(QIODevice::ReadOnly)) {
-                qmlInfo(this) << "Can't open " << m_source << ": " << m_file.errorString();
                 m_status = Error;
             } else {
                 qint64 limit = 5*1024*1024;
