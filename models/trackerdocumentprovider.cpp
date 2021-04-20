@@ -32,27 +32,30 @@
 
 #include "config.h"
 
-//The Tracker driver to use.
-static const QString trackerDriver{"QTRACKER"};
+//The Tracker driver to use. direct = libtracker-sparql based
+static const QString trackerDriver{"QTRACKER_DIRECT"};
 
 //The query to run to get files out of Tracker.
 static const QString documentQuery{
-"PREFIX nfo: <http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#> "
-"PREFIX nie: <http://www.semanticdesktop.org/ontologies/2007/01/19/nie#> "
-"PREFIX nco: <http://www.semanticdesktop.org/ontologies/2007/03/22/nco#> "
-"SELECT ?name ?path ?size ?lastAccessed ?mimeType WHERE { "
-    "?u nfo:fileName ?name . "
-    "?u nie:url ?path . "
-    "?u nfo:fileSize ?size . "
-    "?u nfo:fileLastAccessed ?lastAccessed . "
-    "?u nie:mimeType ?mimeType . "
-    "?u tracker:available true . "
-    "{ ?u a nfo:PaginatedTextDocument } "
-    "UNION { ?u a nfo:TextDocument . ?u nie:mimeType 'text/plain' FILTER(fn:ends-with(nfo:fileName(?u),'.txt')) } "
-    "UNION { ?u a nfo:Presentation } "
-    "UNION { ?u a nfo:Spreadsheet } "
-    "UNION { ?u a nfo:FileDataObject . ?u nie:mimeType 'text/csv'} "
-"}"
+    "SELECT ?name ?path ?size ?lastModified ?mimeType "
+    "WHERE {"
+    "  GRAPH tracker:Documents {"
+    "    SELECT nfo:fileName(?path) AS ?name"
+    "      nfo:fileSize(?path) AS ?size"
+    "      nfo:fileLastModified(?path) AS ?lastModified"
+    "      ?path ?mimeType"
+    "    WHERE {"
+    "      ?u nie:isStoredAs ?path ."
+    "      ?u nie:mimeType ?mimeType ."
+    "      { ?u a nfo:PaginatedTextDocument . }"
+    "      UNION { ?u nie:mimeType 'text/plain' FILTER(fn:ends-with(nfo:fileName(nie:isStoredAs(?u)),'.txt')) }"
+    "      GRAPH tracker:FileSystem {"
+    "        ?path nie:dataSource ?dataSource ."
+    "        ?dataSource tracker:available true "
+    "      }"
+    "    }"
+    "  }"
+    "}"
 };
 
 //Strings used for the DBus connection to listen to Tracker's GraphUpdated signal.
