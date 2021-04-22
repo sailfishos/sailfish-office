@@ -22,7 +22,6 @@
 
 #include <QtCore/QModelIndex>
 #include <QtCore/QFile>
-#include <QtDBus/QDBusConnection>
 
 #include <qglobal.h>
 
@@ -58,14 +57,7 @@ static const QString documentQuery{
     "}"
 };
 
-//Strings used for the DBus connection to listen to Tracker's GraphUpdated signal.
-static const QString dbusService{"org.freedesktop.Tracker1"};
-static const QString dbusPath{"/org/freedesktop/Tracker1/Resources"};
-static const QString dbusInterface{"org.freedesktop.Tracker1.Resources"};
-static const QString dbusSignal{"GraphUpdated"};
-
-//The semantic class for all document types.
-static const QString documentClassName("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Document");
+static const QString documentGraph("http://tracker.api.gnome.org/ontology/v3/tracker#Documents");
 
 class TrackerDocumentProvider::Private {
 public:
@@ -106,15 +98,14 @@ void TrackerDocumentProvider::classBegin()
 
 void TrackerDocumentProvider::componentComplete()
 {
-    QDBusConnection sessionBus = QDBusConnection::sessionBus();
-    sessionBus.connect(dbusService, dbusPath, dbusInterface, dbusSignal,
-                       this, SLOT(trackerGraphChanged(QString,QVariantList,QVariantList)));
-
     d->connection = new QSparqlConnection(trackerDriver);
     if (!d->connection->isValid()) {
         qWarning() << "No valid QSparqlConnection on TrackerDocumentProvider";
     } else {
         startSearch();
+        d->connection->subscribeToGraph(documentGraph);
+        connect(d->connection, &QSparqlConnection::graphUpdated,
+                this, &TrackerDocumentProvider::trackerGraphChanged);
     }
 }
 
@@ -209,9 +200,9 @@ void TrackerDocumentProvider::deleteFile(const QUrl &file)
     }
 }
 
-void TrackerDocumentProvider::trackerGraphChanged(const QString &className, const QVariantList&, const QVariantList&)
+void TrackerDocumentProvider::trackerGraphChanged(const QString &graphName)
 {
-    if (className == documentClassName) {
+    if (graphName == documentGraph) {
         startSearch();
     }
 }
