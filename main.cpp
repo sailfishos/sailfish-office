@@ -68,7 +68,6 @@ QSharedPointer<QQuickView> createView(const QString &file)
     qmlRegisterInterface<DocumentProvider>("DocumentProvider");
 
     QSharedPointer<QQuickView> view(MDeclarativeCache::qQuickView());
-    view->engine()->addImportPath(CALLIGRA_QML_PLUGIN_DIR);
     view->setSource(QUrl::fromLocalFile(QML_INSTALL_DIR + file));
 
     new DBusAdaptor(view.data());

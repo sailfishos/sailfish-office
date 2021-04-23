@@ -57,8 +57,6 @@ void SailfishOfficePlugin::initializeEngine(QQmlEngine *engine, const char *uri)
 {
     Q_ASSERT(uri == QLatin1String("Sailfish.Office"));
 
-    engine->addImportPath(CALLIGRA_QML_PLUGIN_DIR);
-
     Translator *engineeringEnglish = new Translator(engine);
     engineeringEnglish->load("sailfish-office_eng_en", TRANSLATION_INSTALL_DIR);
 
