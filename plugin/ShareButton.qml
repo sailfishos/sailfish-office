@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2019 Jolla Ltd.
- * Contact: Joona Petrell <joona.petrell@jolla.com>
+ * Copyright (C) 2021 Open Mobile Platform LLC.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -18,6 +18,7 @@
 
 import QtQuick 2.0
 import Sailfish.Silica 1.0
+import Sailfish.Share 1.0
 
 IconButton {
     property DocumentPage page
@@ -25,11 +26,13 @@ IconButton {
     visible: page.source != ""  && !page.error
     anchors.verticalCenter: parent.verticalCenter
     onClicked: {
-        pageStack.animatorPush("Sailfish.TransferEngine.SharePage",
-                               {
-                                   "source": page.source,
-                                   "mimeType": page.mimeType,
-                                   "serviceFilter": ["e-mail"]
-                               })
+        shareAction.trigger()
+    }
+
+    ShareAction {
+        id: shareAction
+
+        resources: [page.source]
+        mimeType: page.mimeType
     }
 }
