@@ -57,6 +57,7 @@ set(sailfishoffice_TS_SRCS
     ${sailfishoffice_SRCS}
     ${sailfishoffice_QML_SRCS}
     ${plugin_QML_SRCS}
+    qml/translations/StoreDescription.qml
 )
 
 create_translation(engen_qm_file ${CMAKE_BINARY_DIR}/sailfish-office.ts ${sailfishoffice_TS_SRCS})
