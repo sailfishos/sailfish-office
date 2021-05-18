@@ -69,7 +69,6 @@ target_link_libraries(sailfish-office stdc++ ${QT_LIBRARIES} ${BOOSTER_LIBRARY} 
 install(TARGETS sailfish-office DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 install(FILES
     sailfish-office.desktop
-    sailfish-office-openfile.desktop
     DESTINATION ${CMAKE_INSTALL_PREFIX}/share/applications)
 install(FILES ${sailfishoffice_QML_SRCS} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/sailfish-office
 )
