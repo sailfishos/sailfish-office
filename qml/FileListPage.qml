@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Open Mobile Platform LLC
+ * Copyright (C) 2019 - 2021 Open Mobile Platform LLC.
  * Copyright (C) 2013-2014 Jolla Ltd.
  * Contact: Robin Burchell <robin.burchell@jolla.com>
  *
@@ -21,6 +21,7 @@ import QtQuick 2.0
 import Sailfish.Silica 1.0
 import Sailfish.Office 1.0
 import Sailfish.Office.Files 1.0
+import Sailfish.Share 1.0
 
 Page {
     id: page
@@ -292,8 +293,14 @@ Page {
                         //: Share a file
                         //% "Share"
                         text: qsTrId("sailfish-office-la-share")
-                        onClicked: pageStack.animatorPush("Sailfish.TransferEngine.SharePage",
-                                                          { serviceFilter: ["e-mail"], mimeType: model.fileMimeType, source: model.filePath })
+                        onClicked: {
+                            shareAction.resources = [model.filePath]
+                            shareAction.trigger()
+                        }
+                        ShareAction {
+                            id: shareAction
+                            mimeType: model.fileMimeType
+                        }
                     }
                     MenuItem {
                         //: Delete a file from the device

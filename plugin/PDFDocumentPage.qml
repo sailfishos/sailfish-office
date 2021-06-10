@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2013-2014 Jolla Ltd.
+ * Copyright (C) 2013-2021 Jolla Ltd.
+ * Copyright (C) 2021 Open Mobile Platform LLC.
  * Contact: Robin Burchell <robin.burchell@jolla.com>
  *
  * This program is free software; you can redistribute it and/or
@@ -18,6 +19,7 @@
 
 import QtQuick 2.0
 import Sailfish.Silica 1.0
+import Sailfish.Share 1.0
 import Sailfish.Office.PDF 1.0 as PDF
 import org.nemomobile.configuration 1.0
 import org.nemomobile.notifications 1.0
@@ -196,12 +198,12 @@ DocumentPage {
                 //% "Share"
                 text: qsTrId("sailfish-office-me-share")
                 onClicked: {
-                    pageStack.animatorPush("Sailfish.TransferEngine.SharePage",
-                                           {
-                                               "source": page.source,
-                                               "mimeType": page.mimeType,
-                                               "serviceFilter": ["e-mail"]
-                                           })
+                    shareAction.resources = [page.source]
+                    shareAction.trigger()
+                }
+                ShareAction {
+                    id: shareAction
+                    mimeType: page.mimeType
                 }
             }
         }
