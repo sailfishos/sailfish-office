@@ -12,6 +12,6 @@ X-Maemo-Object-Path=/org/sailfishos/office/ui
 X-Maemo-Method=org.sailfishos.Office.ui.openFile
 
 [X-Sailjail]
-Permissions=Documents;Downloads;MediaIndexing;Sharing;RemovableMedia
+Permissions=UserDirs;MediaIndexing;Sharing;RemovableMedia
 ApplicationName=Office
 OrganizationName=org.sailfishos
