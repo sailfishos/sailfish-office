@@ -22,7 +22,6 @@
 
 #include <QtCore/QModelIndex>
 #include <QtCore/QFile>
-#include <QtDBus/QDBusConnection>
 
 #include <qglobal.h>
 
@@ -32,37 +31,33 @@
 
 #include "config.h"
 
-//The Tracker driver to use.
-static const QString trackerDriver{"QTRACKER"};
+//The Tracker driver to use. direct = libtracker-sparql based
+static const QString trackerDriver{"QTRACKER_DIRECT"};
 
 //The query to run to get files out of Tracker.
 static const QString documentQuery{
-"PREFIX nfo: <http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#> "
-"PREFIX nie: <http://www.semanticdesktop.org/ontologies/2007/01/19/nie#> "
-"PREFIX nco: <http://www.semanticdesktop.org/ontologies/2007/03/22/nco#> "
-"SELECT ?name ?path ?size ?lastAccessed ?mimeType WHERE { "
-    "?u nfo:fileName ?name . "
-    "?u nie:url ?path . "
-    "?u nfo:fileSize ?size . "
-    "?u nfo:fileLastAccessed ?lastAccessed . "
-    "?u nie:mimeType ?mimeType . "
-    "?u tracker:available true . "
-    "{ ?u a nfo:PaginatedTextDocument } "
-    "UNION { ?u a nfo:TextDocument . ?u nie:mimeType 'text/plain' FILTER(fn:ends-with(nfo:fileName(?u),'.txt')) } "
-    "UNION { ?u a nfo:Presentation } "
-    "UNION { ?u a nfo:Spreadsheet } "
-    "UNION { ?u a nfo:FileDataObject . ?u nie:mimeType 'text/csv'} "
-"}"
+    "SELECT ?name ?path ?size ?lastModified ?mimeType "
+    "WHERE {"
+    "  GRAPH tracker:Documents {"
+    "    SELECT nfo:fileName(?path) AS ?name"
+    "      nfo:fileSize(?path) AS ?size"
+    "      nfo:fileLastModified(?path) AS ?lastModified"
+    "      ?path ?mimeType"
+    "    WHERE {"
+    "      ?u nie:isStoredAs ?path ."
+    "      ?u nie:mimeType ?mimeType ."
+    "      { ?u a nfo:PaginatedTextDocument . }"
+    "      UNION { ?u nie:mimeType 'text/plain' FILTER(fn:ends-with(nfo:fileName(nie:isStoredAs(?u)),'.txt')) }"
+    "      GRAPH tracker:FileSystem {"
+    "        ?path nie:dataSource ?dataSource ."
+    "        ?dataSource tracker:available true "
+    "      }"
+    "    }"
+    "  }"
+    "}"
 };
 
-//Strings used for the DBus connection to listen to Tracker's GraphUpdated signal.
-static const QString dbusService{"org.freedesktop.Tracker1"};
-static const QString dbusPath{"/org/freedesktop/Tracker1/Resources"};
-static const QString dbusInterface{"org.freedesktop.Tracker1.Resources"};
-static const QString dbusSignal{"GraphUpdated"};
-
-//The semantic class for all document types.
-static const QString documentClassName("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Document");
+static const QString documentGraph("http://tracker.api.gnome.org/ontology/v3/tracker#Documents");
 
 class TrackerDocumentProvider::Private {
 public:
@@ -103,15 +98,14 @@ void TrackerDocumentProvider::classBegin()
 
 void TrackerDocumentProvider::componentComplete()
 {
-    QDBusConnection sessionBus = QDBusConnection::sessionBus();
-    sessionBus.connect(dbusService, dbusPath, dbusInterface, dbusSignal,
-                       this, SLOT(trackerGraphChanged(QString,QVariantList,QVariantList)));
-
     d->connection = new QSparqlConnection(trackerDriver);
     if (!d->connection->isValid()) {
         qWarning() << "No valid QSparqlConnection on TrackerDocumentProvider";
     } else {
         startSearch();
+        d->connection->subscribeToGraph(documentGraph);
+        connect(d->connection, &QSparqlConnection::graphUpdated,
+                this, &TrackerDocumentProvider::trackerGraphChanged);
     }
 }
 
@@ -206,9 +200,9 @@ void TrackerDocumentProvider::deleteFile(const QUrl &file)
     }
 }
 
-void TrackerDocumentProvider::trackerGraphChanged(const QString &className, const QVariantList&, const QVariantList&)
+void TrackerDocumentProvider::trackerGraphChanged(const QString &graphName)
 {
-    if (className == documentClassName) {
+    if (graphName == documentGraph) {
         startSearch();
     }
 }

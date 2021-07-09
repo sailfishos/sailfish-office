@@ -2,8 +2,6 @@
 #define CONFIG_H
 
 #define QML_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/share/sailfish-office/"
-#define IMAGES_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/share/sailfish-office/images/"
 #define TRANSLATION_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/share/translations/"
-#define CALLIGRA_QML_PLUGIN_DIR "${CALLIGRA_QML_PLUGIN_DIR}"
 
 #endif //CONFIG_H

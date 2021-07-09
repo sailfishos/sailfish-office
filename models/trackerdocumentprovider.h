@@ -54,7 +54,7 @@ public Q_SLOTS:
 
 private Q_SLOTS:
     void searchFinished();
-    void trackerGraphChanged(const QString &className, const QVariantList&, const QVariantList&);
+    void trackerGraphChanged(const QString &graphName);
 
 private:
     class Private;
