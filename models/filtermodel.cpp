@@ -60,7 +60,7 @@ void FilterModel::setSortParameter(int sortParameter)
         setSortRole(DocumentListModel::Roles::FileTypeAndNameRole);
         break;
     case Date:
-        setSortRole(DocumentListModel::Roles::FileReadRole);
+        setSortRole(DocumentListModel::Roles::FileDateRole);
         order = Qt::DescendingOrder;
         break;
     default:

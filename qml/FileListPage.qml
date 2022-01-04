@@ -243,7 +243,7 @@ Page {
                     }
                     Label {
                         anchors.right: parent.right
-                        text: Format.formatDate(model.fileRead, Format.Timepoint)
+                        text: Format.formatDate(model.fileDate, Format.Timepoint)
                         font.pixelSize: Theme.fontSizeExtraSmall
                         color: listItem.highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
                     }

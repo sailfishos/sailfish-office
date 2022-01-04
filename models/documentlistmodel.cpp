@@ -27,7 +27,7 @@ struct DocumentListModelEntry
     QString filePath;
     QString fileType;
     int fileSize;
-    QDateTime fileRead;
+    QDateTime fileDate;
     QString mimeType;
     DocumentListModel::DocumentClass documentClass;
     bool dirty; // When true, should be removed from list.
@@ -42,7 +42,7 @@ public:
         roles.insert(FilePathRole, "filePath");
         roles.insert(FileTypeRole, "fileType");
         roles.insert(FileSizeRole, "fileSize");
-        roles.insert(FileReadRole, "fileRead");
+        roles.insert(FileDateRole, "fileDate");
         roles.insert(FileMimeTypeRole, "fileMimeType");
         roles.insert(FileDocumentClass, "fileDocumentClass");
         roles.insert(FileTypeAndNameRole, "fileTypeAndNameRole");
@@ -74,8 +74,8 @@ QVariant DocumentListModel::data(const QModelIndex &index, int role) const
         return d->entries.at(index.row()).fileType;
     case FileSizeRole:
         return d->entries.at(index.row()).fileSize;
-    case FileReadRole:
-        return d->entries.at(index.row()).fileRead;
+    case FileDateRole:
+        return d->entries.at(index.row()).fileDate;
     case FileMimeTypeRole:
         return d->entries.at(index.row()).mimeType;
     case FileDocumentClass:
@@ -108,7 +108,8 @@ void DocumentListModel::setAllItemsDirty(bool status)
     }
 }
 
-void DocumentListModel::addItem(QString name, QString path, QString type, int size, QDateTime lastRead, QString mimeType)
+void DocumentListModel::addItem(const QString &name, const QString &path, const QString &type, int size, QDateTime date,
+                                const QString &mimeType)
 {
     // We sometimes get duplicate entries... and that's kind of silly.
     for (QList<DocumentListModelEntry>::iterator entry = d->entries.begin();
@@ -117,7 +118,7 @@ void DocumentListModel::addItem(QString name, QString path, QString type, int si
             entry->dirty = false;
             entry->fileType = type;
             entry->fileSize = size;
-            entry->fileRead = lastRead;
+            entry->fileDate = date;
             entry->mimeType = mimeType;
             entry->documentClass = static_cast<DocumentClass>(mimeTypeToDocumentClass(mimeType));
             return;
@@ -130,13 +131,13 @@ void DocumentListModel::addItem(QString name, QString path, QString type, int si
     entry.filePath = path;
     entry.fileType = type;
     entry.fileSize = size;
-    entry.fileRead = lastRead;
+    entry.fileDate = date;
     entry.mimeType = mimeType;
     entry.documentClass = static_cast<DocumentClass>(mimeTypeToDocumentClass(mimeType));
 
     int index = 0;
     for (; index < d->entries.count(); ++index) {
-        if (d->entries.at(index).fileRead < entry.fileRead)
+        if (d->entries.at(index).fileDate < entry.fileDate)
             break;
     }
 
