@@ -45,7 +45,7 @@ public:
         FilePathRole,
         FileTypeRole,
         FileSizeRole,
-        FileReadRole,
+        FileDateRole,
         FileMimeTypeRole,
         FileDocumentClass,
         FileTypeAndNameRole
@@ -62,7 +62,8 @@ public:
     virtual QHash<int, QByteArray> roleNames() const;
 
     void setAllItemsDirty(bool status);
-    void addItem(QString name, QString path, QString type, int size, QDateTime lastRead, QString mimeType);
+    void addItem(const QString &name, const QString &path, const QString &type, int size, QDateTime date,
+                 const QString &mimeType);
     void removeItemsDirty();
     void removeAt(int index);
     void clear();

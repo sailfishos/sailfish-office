@@ -44,6 +44,7 @@ License: GPLv2
 
 %files
 %defattr(-,root,root,-)
+%license LICENSE
 %{_bindir}/*
 %{_libdir}/qt5/qml/Sailfish/Office/
 %{_datadir}/applications/*.desktop
