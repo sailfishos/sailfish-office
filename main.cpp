@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2013-2019 Jolla Ltd.
- * Contact: Pekka Vuorela <pekka.vuorela@jolla.com>
+ * Copyright (c) 2013 - 2022 Jolla Ltd.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -72,8 +71,8 @@ QSharedPointer<QQuickView> createView(const QString &file)
 
     new DBusAdaptor(view.data());
 
-    if (!QDBusConnection::sessionBus().registerObject("/org/sailfishos/office/ui", view.data()))
-        qWarning() << "Could not register /org/sailfishos/office/ui D-Bus object.";
+    if (!QDBusConnection::sessionBus().registerObject("/org/sailfishos/Office", view.data()))
+        qWarning() << "Could not register /org/sailfishos/Office D-Bus object.";
 
     if (!QDBusConnection::sessionBus().registerService("org.sailfishos.Office"))
         qWarning() << "Could not register org.sailfishos.Office D-Bus service.";

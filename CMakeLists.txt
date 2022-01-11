@@ -75,6 +75,5 @@ install(FILES ${sailfishoffice_QML_SRCS} DESTINATION ${CMAKE_INSTALL_PREFIX}/sha
 install(FILES ${engen_qm_file} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/translations)
 install(FILES ${CMAKE_BINARY_DIR}/sailfish-office.ts DESTINATION ${CMAKE_INSTALL_PREFIX}/share/translations/source)
 install(FILES org.sailfishos.Office.service DESTINATION ${CMAKE_INSTALL_PREFIX}/share/dbus-1/services)
-install(FILES org.sailfishos.Office.xml DESTINATION ${CMAKE_INSTALL_PREFIX}/share/dbus-1/interfaces)
 install(FILES sailfish-office.privileges DESTINATION ${CMAKE_INSTALL_PREFIX}/share/mapplauncherd/privileges.d)
 
