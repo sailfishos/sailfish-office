@@ -1,3 +1,0 @@
-[D-BUS Service]
-Name=org.sailfishos.Office
-Exec=/usr/bin/invoker -s --type=generic /usr/bin/sailjail -p sailfish-office.desktop /usr/bin/sailfish-office -prestart
