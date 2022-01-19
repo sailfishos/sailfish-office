@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2013-2014 Jolla Ltd.
- * Contact: Robin Burchell <robin.burchell@jolla.com>
+ * Copyright (c) 2013 - 2022 Jolla Ltd.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -22,7 +21,8 @@
 #include <QtQuick/QQuickItem>
 
 DBusAdaptor::DBusAdaptor(QQuickView *view)
-    : QDBusAbstractAdaptor(view), m_view{view}
+    : QDBusAbstractAdaptor(view)
+    , m_view(view)
 {
 }
 
@@ -30,11 +30,17 @@ DBusAdaptor::~DBusAdaptor()
 {
 }
 
-void DBusAdaptor::openFile(const QStringList &files)
+void DBusAdaptor::Open(const QStringList &uris, const QVariantMap &platformData)
 {
-    if (files.count() > 0) {
-        QMetaObject::invokeMethod(m_view->rootObject(), "openFile", Q_ARG(QVariant, files.at(0)));
+    if (!uris.isEmpty()) {
+        QMetaObject::invokeMethod(m_view->rootObject(), "openFile", Q_ARG(QVariant, uris.at(0)));
     } else {
-        QMetaObject::invokeMethod(m_view->rootObject(), "activate");
+        Activate(platformData);
     }
+}
+
+void DBusAdaptor::Activate(const QVariantMap &platformData)
+{
+    Q_UNUSED(platformData)
+    QMetaObject::invokeMethod(m_view->rootObject(), "activate");
 }
