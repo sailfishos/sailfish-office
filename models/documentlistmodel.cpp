@@ -209,6 +209,11 @@ int DocumentListModel::mimeTypeToDocumentClass(QString mimeType) const
         documentClass = SpreadSheetDocument;
     } else if (mimeType == QLatin1String("application/pdf")) {
         documentClass = PDFDocument;
+    } else if (mimeType == QLatin1String("image/vnd.djvu")
+               || mimeType == QLatin1String("image/vnd.djvu+multipage")
+               || mimeType == QLatin1String("image/x-djvu")
+               || mimeType == QLatin1String("image/x.djvu")) {
+        documentClass = DJVUDocument;
     }
 
     return documentClass;

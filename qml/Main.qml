@@ -98,6 +98,13 @@ ApplicationWindow {
             handler = "Sailfish.Office.PDFDocumentPage"
             break
 
+        case "image/vnd.djvu":
+        case "image/vnd.djvu+multipage":
+        case "image/x.djvu":
+        case "image/x-djvu":
+            handler = "Sailfish.Office.DJVUDocumentPage"
+            break
+
         default:
             console.log("Warning: Unrecognised file type for file " + fileInfo.file)
         }

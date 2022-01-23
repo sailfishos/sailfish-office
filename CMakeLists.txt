@@ -33,6 +33,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -fPIC -pie -rdynamic -Wall")
 
 add_subdirectory(plugin)
 add_subdirectory(pdf)
+add_subdirectory(djvu)
 
 set(sailfishoffice_SRCS
     main.cpp

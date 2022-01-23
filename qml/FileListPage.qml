@@ -272,6 +272,10 @@ Page {
                     pageStack.animatorPush("Sailfish.Office.PDFDocumentPage",
                                            { title: model.fileName, source: model.filePath, mimeType: model.fileMimeType, provider: page.provider })
                     break
+                case DocumentListModel.DJVUDocument:
+                    pageStack.animatorPush("Sailfish.Office.DJVUDocumentPage",
+                                           { title: model.fileName, source: model.filePath, mimeType: model.fileMimeType, provider: page.provider })
+                    break
                 default:
                     console.log("Unknown file format for file " + model.fileName + " with stated mimetype " + model.fileMimeType)
                     break

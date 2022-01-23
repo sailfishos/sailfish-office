@@ -118,6 +118,13 @@ Page {
                             //: Page count of the text document
                             //% "Page Count"
                             return qsTrId("sailfish-office-la-pagecount")
+                        case "image/vnd.djvu":
+                        case "image/vnd.djvu+multipage":
+                        case "image/x.djvu":
+                        case "image/x-djvu":
+                            //: Page count of the text document
+                            //% "Page Count"
+                            return qsTrId("sailfish-office-la-pagecount")
                         default:
                             //: Index count for unknown document types.
                             //% "Index Count"

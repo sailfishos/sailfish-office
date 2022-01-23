@@ -25,6 +25,18 @@ install(FILES
     ControllerFlickable.qml
     DeleteButton.qml
     DetailsPage.qml
+    DJVUAnnotationEdit.qml
+    DJVUAnnotationNew.qml
+    DJVUContextMenuHighlight.qml
+    DJVUContextMenuLinks.qml
+    DJVUContextMenuText.qml
+    DJVUDocumentPage.qml
+    DJVUDocumentToCPage.qml
+    DJVUSelectionDrag.qml
+    DJVUSelectionHandle.qml
+    DJVUSelectionView.qml
+    DJVUStorage.js
+    DJVUView.qml
     DocumentFlickable.qml
     DocumentHeader.qml
     DocumentPage.qml

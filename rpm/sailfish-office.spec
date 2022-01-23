@@ -8,6 +8,7 @@ BuildRequires: pkgconfig(Qt5Quick)
 BuildRequires: pkgconfig(Qt5Widgets)
 #BuildRequires: pkgconfig(Qt5WebKit)
 BuildRequires: pkgconfig(Qt5DBus)
+BuildRequires: pkgconfig(Qt5Xml)
 BuildRequires: pkgconfig(sailfishsilica) >= 1.1.8
 BuildRequires: libqt5sparql-devel
 BuildRequires: poppler-qt5-devel poppler-qt5 poppler-devel poppler
@@ -15,6 +16,7 @@ BuildRequires: mapplauncherd-qt5-devel
 BuildRequires: cmake
 BuildRequires: qt5-qttools-linguist
 BuildRequires: pkgconfig(icu-i18n)
+BuildRequires: libdjvulibre-devel >= 3.5.28
 Requires: calligra-components
 Requires: calligra-filters >= 3.1.0+git18
 Requires: sailfishsilica-qt5 >= 1.1.107
@@ -25,10 +27,12 @@ Requires: sailjail-launch-approval
 #Requires: qt5-qtqml-import-webkitplugin
 Requires: nemo-qml-plugin-configuration-qt5
 Requires: nemo-qml-plugin-filemanager
-Requires:  %{name}-all-translations
+#absent in emulator
+#Requires:  %{name}-all-translations
 Requires: sailfish-content-graphics
 Requires: qt5-qtdeclarative-import-qtquick2plugin >= 5.4.0
 Requires: declarative-transferengine-qt5 >= 0.3.1
+Requires: libdjvulibre21 >= 3.5.28
 
 %package ts-devel
 Summary: Translation source for %{name}
@@ -44,7 +48,7 @@ License: GPLv2
 
 %files
 %defattr(-,root,root,-)
-%license LICENSE
+#%license LICENSE
 %{_bindir}/*
 %{_libdir}/qt5/qml/Sailfish/Office/
 %{_datadir}/applications/*.desktop

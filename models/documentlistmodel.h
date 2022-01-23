@@ -35,7 +35,8 @@ public:
         PlainTextDocument,
         SpreadSheetDocument,
         PresentationDocument,
-        PDFDocument
+        PDFDocument,
+        DJVUDocument
     };
     Q_ENUMS(DocumentClass)
 

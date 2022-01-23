@@ -4,4 +4,5 @@ PresentationPage 1.0 PresentationPage.qml
 SpreadsheetPage 1.0 SpreadsheetPage.qml
 TextDocumentPage 1.0 TextDocumentPage.qml
 PlainTextDocumentPage 1.0 PlainTextDocumentPage.qml
+DJVUDocumentPage 1.0 DJVUDocumentPage.qml
 plugin sailfishofficeplugin
