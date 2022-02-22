@@ -42,6 +42,11 @@ public:
     int m_page;
 };
 
+PDFAnnotation::PDFAnnotation(QObject *parent)
+    : QObject(parent), d(new PDFAnnotation::Private(nullptr))
+{
+}
+
 PDFAnnotation::PDFAnnotation(Poppler::Annotation *annotation, QObject *parent)
     : QObject(parent), d(new PDFAnnotation::Private(annotation))
 {
@@ -72,6 +77,9 @@ int PDFAnnotation::page() const
 
 QRectF PDFAnnotation::boundary() const
 {
+    if (!d->m_annotation) {
+        return QRectF();
+    }
     return d->m_annotation->boundary();
 }
 
@@ -89,6 +97,9 @@ void PDFAnnotation::attachOnce(PDFDocument *document, int page)
 
 void PDFAnnotation::attach(PDFDocument *document, PDFSelection *selection)
 {
+    if (!d->m_annotation || !document) {
+        return;
+    }
     if (!selection || selection->count() == 0)
         return;
 
@@ -116,11 +127,17 @@ void PDFAnnotation::remove()
 
 QString PDFAnnotation::author() const
 {
+    if (!d->m_annotation) {
+        return QString();
+    }
     return d->m_annotation->author();
 }
 
 void PDFAnnotation::setAuthor(const QString &value)
 {
+    if (!d->m_annotation) {
+        return;
+    }
     // Store last given author to use it as default for
     // newly created annotations.
     currentAuthor = value;
@@ -139,12 +156,15 @@ void PDFAnnotation::setAuthor(const QString &value)
 
 QString PDFAnnotation::contents() const
 {
+    if (!d->m_annotation) {
+        return QString();
+    }
     return d->m_annotation->contents();
 }
 
 void PDFAnnotation::setContents(const QString &value)
 {
-    if (d->m_annotation->contents() == value)
+    if (!d->m_annotation || d->m_annotation->contents() == value)
         return;
 
     d->m_annotation->setContents(value);
@@ -159,22 +179,31 @@ void PDFAnnotation::setContents(const QString &value)
 
 QDateTime PDFAnnotation::creationDate() const
 {
+    if (!d->m_annotation) {
+        return QDateTime();
+    }
     return d->m_annotation->creationDate();
 }
 
 QDateTime PDFAnnotation::modificationDate() const
 {
+    if (!d->m_annotation) {
+        return QDateTime();
+    }
     return d->m_annotation->modificationDate();
 }
 
 QColor PDFAnnotation::color() const
 {
+    if (!d->m_annotation) {
+        return QColor();
+    }
     return d->m_annotation->style().color();
 }
 
 void PDFAnnotation::setColor(const QColor &value)
 {
-    if (color() == value)
+    if (!d->m_annotation || color() == value)
         return;
 
     Poppler::Annotation::Style style = d->m_annotation->style();
@@ -188,6 +217,9 @@ void PDFAnnotation::setColor(const QColor &value)
 
 PDFAnnotation::SubType PDFAnnotation::type() const
 {
+    if (!d->m_annotation) {
+        return PDFAnnotation::Base;
+    }
     return PDFAnnotation::SubType(d->m_annotation->subType());
 }
 
