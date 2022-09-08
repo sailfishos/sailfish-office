@@ -22,6 +22,7 @@ import Sailfish.Office.PDF 1.0
 
 ContextMenu {
     id: contextMenuHighlight
+
     property Annotation annotation
 
     InfoLabel {
@@ -61,7 +62,7 @@ ContextMenu {
                 MouseArea {
                     anchors.fill: parent
                     onClicked: {
-                        contextMenuHighlight.hide()
+                        contextMenuHighlight.close()
                         contextMenuHighlight.annotation.color = color
                         highlightColorConfig.value = modelData
                     }
@@ -86,7 +87,7 @@ ContextMenu {
                 width: contextMenuHighlight.width / styles.model.length
                 height: parent.height
                 onClicked: {
-                    contextMenuHighlight.hide()
+                    contextMenuHighlight.close()
                     contextMenuHighlight.annotation.style = modelData["style"]
                     highlightStyleConfig.value = highlightStyleConfig.fromEnum(modelData["style"])
                 }
