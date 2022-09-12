@@ -79,13 +79,6 @@ DocumentPage {
         }
     }
 
-    Loader {
-        parent: page
-        active: doc.failure || doc.locked
-        sourceComponent: placeholderComponent
-        anchors.verticalCenter: parent.verticalCenter
-    }
-
     Component {
         id: previewComponent
 
@@ -437,6 +430,13 @@ DocumentPage {
         }
     }
 
+    Loader {
+        parent: page
+        active: doc.failure || doc.locked
+        sourceComponent: placeholderComponent
+        anchors.verticalCenter: parent.verticalCenter
+    }
+
     property Notification notice
 
     function noticeShow(message) {
@@ -486,7 +486,7 @@ DocumentPage {
             }
 
             Item {
-                visible:password.visible
+                visible: password.visible
                 width: 1
                 height: Theme.paddingLarge
             }
