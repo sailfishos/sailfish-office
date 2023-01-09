@@ -20,7 +20,7 @@ import QtQuick 2.0
 import Sailfish.Silica 1.0
 import Sailfish.Silica.private 1.0
 import Sailfish.Office.PDF 1.0 as PDF
-import org.nemomobile.configuration 1.0
+import Nemo.Configuration 1.0
 
 DocumentFlickable {
     id: root
