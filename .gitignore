@@ -2,3 +2,10 @@
 .*
 *.kdev*
 *build*
+*.o
+*.so
+*.cmake
+Makefile
+moc_*
+mocs_*
+CMakeFiles
