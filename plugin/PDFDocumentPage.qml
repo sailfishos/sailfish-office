@@ -21,8 +21,8 @@ import QtQuick 2.0
 import Sailfish.Silica 1.0
 import Sailfish.Share 1.0
 import Sailfish.Office.PDF 1.0 as PDF
-import org.nemomobile.configuration 1.0
-import org.nemomobile.notifications 1.0
+import Nemo.Configuration 1.0
+import Nemo.Notifications 1.0
 import QtQuick.LocalStorage 2.0
 import "PDFStorage.js" as PDFStorage
 
