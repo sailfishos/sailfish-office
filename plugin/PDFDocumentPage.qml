@@ -38,6 +38,7 @@ DocumentPage {
     busy: (!doc.loaded && !doc.failure) || doc.searching
     error: doc.failure
     source: doc.source
+    document: doc
 
     preview: doc.loaded
             ? previewComponent
@@ -204,6 +205,7 @@ DocumentPage {
         DocumentHeader {
             id: header
             page: page
+            detailsPage: "PDFDetailsPage.qml"
             indexCount: doc.pageCount
             width: page.width
             x: view.contentX
@@ -501,7 +503,7 @@ DocumentPage {
                 EnterKey.iconSource: "image://theme/icon-m-enter-accept"
                 EnterKey.onClicked: {
                     focus = false
-                    doc.requestUnLock(text)
+                    doc.requestUnLock(text, storePassword.checked)
                     text = ""
                 }
 
@@ -509,6 +511,15 @@ DocumentPage {
                     if (visible)
                         forceActiveFocus()
                 }
+            }
+
+            TextSwitch {
+                id: storePassword
+                visible: doc.locked
+                x: Theme.horizontalPageMargin
+                width: parent.width - 2*x
+                //% "Remember password"
+                text: qsTrId("sailfish-office-lbl-remember-password")
             }
         }
     }

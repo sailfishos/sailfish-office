@@ -22,6 +22,11 @@
 #include <QUrlQuery>
 #include <poppler-qt5.h>
 
+#include <QStandardPaths>
+#include <QCryptographicHash>
+#include <QSqlDatabase>
+#include <QSqlQuery>
+#include <QSqlError>
 #include <QElapsedTimer>
 #include <QLoggingCategory>
 
@@ -30,6 +35,11 @@ Q_LOGGING_CATEGORY(renderTimes, "org.sailfishos.office.pdf.timing", QtWarningMsg
 LoadDocumentJob::LoadDocumentJob(const QString &source)
     : PDFJob(PDFJob::LoadDocumentJob), m_source(source)
 {
+}
+
+QString LoadDocumentJob::source() const
+{
+    return m_source;
 }
 
 void LoadDocumentJob::run()
@@ -41,17 +51,150 @@ void LoadDocumentJob::run()
     }
 }
 
-UnLockDocumentJob::UnLockDocumentJob(const QString &password)
-    : PDFJob(PDFJob::UnLockDocumentJob), m_password(password)
+class DbWorker
 {
+public:
+    DbWorker(const QString &url);
+    ~DbWorker();
+
+    QByteArray load() const;
+    void clear() const;
+    void store(const QByteArray &password) const;
+
+private:
+    QString m_url;
+    QByteArray m_id;
+};
+
+static QByteArray md5(const QString &url)
+{
+    const QString path = QUrl(url).toLocalFile();
+    if (!path.isEmpty()) {
+        QFile f(path);
+        if (f.open(QFile::ReadOnly)) {
+            QCryptographicHash hash(QCryptographicHash::Md5);
+            hash.addData(&f);
+            return hash.result();
+        }
+    }
+    return QByteArray();
+}
+
+DbWorker::DbWorker(const QString &url)
+    : m_url(url), m_id(md5(url).toHex())
+{
+    if (!m_id.isEmpty() && !QSqlDatabase::contains()) {
+        QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
+        db.setDatabaseName(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)
+                           + QString::fromLatin1("/pdf.db"));
+        if (!db.open()) {
+            qWarning() << "cannot open PDF database.";
+        }
+        QSqlQuery query(db);
+        /*
+          The Passwords table is used to associate a password to
+          a read-protected PDF document. A document is identified by
+          the md5 sum of its content, so the user can move documents.
+         */
+        if (!query.exec(QString::fromLatin1("CREATE TABLE IF NOT EXISTS Passwords(id TEXT, password TEXT)"))) {
+            qWarning() << "cannot create Passwords table";
+        }
+        if (!query.exec(QString::fromLatin1("CREATE UNIQUE INDEX IF NOT EXISTS PasswordsIndex on Passwords(id)"))) {
+            qWarning() << "cannot create Passwords index";
+        }
+    }
+}
+
+DbWorker::~DbWorker()
+{
+    QSqlDatabase db = QSqlDatabase::database();
+    if (db.isValid()) {
+        db.close();
+    }
+}
+
+QByteArray DbWorker::load() const
+{
+    QSqlDatabase db = QSqlDatabase::database();
+    if (!m_id.isEmpty() && db.isValid()) {
+        QSqlQuery query(db);
+        query.prepare(QString::fromLatin1("SELECT password FROM Passwords WHERE id = ?"));
+        query.addBindValue(m_id);
+        if (query.exec()) {
+            return query.next() ? query.value(0).toByteArray() : QByteArray();
+        } else {
+            qWarning() << "cannot get password for PDF document" << m_url;
+            qWarning() << "reason:" << query.lastError().text();
+        }
+    }
+    return QByteArray();
+}
+
+void DbWorker::clear() const
+{
+    QSqlDatabase db = QSqlDatabase::database();
+    if (!m_id.isEmpty() && db.isValid()) {
+        QSqlQuery query(db);
+        query.prepare(QString::fromLatin1("DELETE FROM Passwords WHERE id = ?"));
+        query.addBindValue(m_id);
+        query.exec();
+    }
+}
+
+void DbWorker::store(const QByteArray &password) const
+{
+    QSqlDatabase db = QSqlDatabase::database();
+    if (!m_id.isEmpty() && db.isValid()) {
+        QSqlQuery query(db);
+        query.prepare(QString::fromLatin1("INSERT OR REPLACE INTO Passwords(id, password) VALUES (?,?)"));
+        query.addBindValue(m_id);
+        query.addBindValue(password);
+        if (!query.exec()) {
+            qWarning() << "cannot set password for PDF document" << m_url;
+            qWarning() << "reason:" << query.lastError().text();
+        }
+    }
+}
+
+ClearSecretJob::ClearSecretJob(const QString &storeKey)
+    : PDFJob(PDFJob::ClearSecretJob), m_storeKey(storeKey)
+{
+}
+
+void ClearSecretJob::run()
+{
+    DbWorker db(m_storeKey);
+    db.clear();
+}
+
+UnLockDocumentJob::UnLockDocumentJob(const QString &password, const QString &storeKey)
+    : PDFJob(PDFJob::UnLockDocumentJob), m_password(password), m_storeKey(storeKey)
+{
+}
+
+QString UnLockDocumentJob::password() const
+{
+    return !m_storeKey.isEmpty() ? m_password : QString();
 }
 
 void UnLockDocumentJob::run()
 {
     Q_ASSERT(m_document);
 
-    if (m_document->isLocked())
+    if (m_document->isLocked()) {
+        const bool store = !m_password.isEmpty();
+        DbWorker secret(m_storeKey);
+        if (m_password.isEmpty()) {
+            m_password = QString::fromUtf8(secret.load());
+        }
         m_document->unlock(m_password.toUtf8(), m_password.toUtf8());
+        if (!m_document->isLocked() && store) {
+            secret.store(m_password.toUtf8());
+        } else if (m_document->isLocked()) {
+            secret.clear();
+            m_password.clear();
+        }
+    }
 }
 
 LinksJob::LinksJob(int page)

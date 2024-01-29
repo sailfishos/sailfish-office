@@ -35,6 +35,7 @@ class PDFJob : public QObject
 public:
     enum JobType {
         LoadDocumentJob,
+        ClearSecretJob,
         UnLockDocumentJob,
         LinksJob,
         RenderPageJob,
@@ -64,21 +65,36 @@ public:
     LoadDocumentJob(const QString &source);
 
     virtual void run();
+    QString source() const;
 
 private:
     QString m_source;
+};
+
+class ClearSecretJob : public PDFJob
+{
+    Q_OBJECT
+public:
+    ClearSecretJob(const QString &storeKey);
+
+    virtual void run(); // Default run action is clear().
+
+private:
+    QString m_storeKey;
 };
 
 class UnLockDocumentJob : public PDFJob
 {
     Q_OBJECT
 public:
-    UnLockDocumentJob(const QString &password);
+    UnLockDocumentJob(const QString &password, const QString &storeKey = QString());
 
     virtual void run();
+    QString password() const;
 
 private:
     QString m_password;
+    QString m_storeKey;
 };
 
 class LinksJob : public PDFJob

@@ -105,9 +105,9 @@ CalligraDocumentPage {
 
         DocumentHeader {
             id: header
+            detailsPage: "SpreadsheetDetailsPage.qml"
             color: Theme.darkPrimaryColor
             page: page
-            indexCount: page.document.indexCount
         }
 
         OverlayToolbar {

@@ -36,6 +36,7 @@ install(FILES
     PDFContextMenuHighlight.qml
     PDFContextMenuLinks.qml
     PDFContextMenuText.qml
+    PDFDetailsPage.qml
     PDFDocumentPage.qml
     PDFDocumentToCPage.qml
     PDFSelectionDrag.qml
@@ -45,11 +46,14 @@ install(FILES
     PDFView.qml
     PlainTextDocumentPage.qml
     PresentationPage.qml
+    PresentationDetailsPage.qml
     PresentationThumbnailPage.qml
     SearchBarItem.qml
     ShareButton.qml
     SpreadsheetListPage.qml
     SpreadsheetPage.qml
+    SpreadsheetDetailsPage.qml
+    TextDetailsPage.qml
     TextDocumentPage.qml
     TextDocumentToCPage.qml
     ToolBar.qml
