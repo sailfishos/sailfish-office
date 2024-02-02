@@ -23,7 +23,6 @@
 #include <poppler-qt5.h>
 
 #include <QStandardPaths>
-#include <QCryptographicHash>
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlError>
@@ -54,7 +53,7 @@ void LoadDocumentJob::run()
 class DbWorker
 {
 public:
-    DbWorker(const QString &url);
+    DbWorker(const QString &path);
     ~DbWorker();
 
     QByteArray load() const;
@@ -62,28 +61,13 @@ public:
     void store(const QByteArray &password) const;
 
 private:
-    QString m_url;
-    QByteArray m_id;
+    QString m_path;
 };
 
-static QByteArray md5(const QString &url)
+DbWorker::DbWorker(const QString &path)
+    : m_path(path)
 {
-    const QString path = QUrl(url).toLocalFile();
-    if (!path.isEmpty()) {
-        QFile f(path);
-        if (f.open(QFile::ReadOnly)) {
-            QCryptographicHash hash(QCryptographicHash::Md5);
-            hash.addData(&f);
-            return hash.result();
-        }
-    }
-    return QByteArray();
-}
-
-DbWorker::DbWorker(const QString &url)
-    : m_url(url), m_id(md5(url).toHex())
-{
-    if (!m_id.isEmpty() && !QSqlDatabase::contains()) {
+    if (!m_path.isEmpty() && !QSqlDatabase::contains()) {
         QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
         db.setDatabaseName(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)
                            + QString::fromLatin1("/pdf.db"));
@@ -91,15 +75,10 @@ DbWorker::DbWorker(const QString &url)
             qWarning() << "cannot open PDF database.";
         }
         QSqlQuery query(db);
-        /*
-          The Passwords table is used to associate a password to
-          a read-protected PDF document. A document is identified by
-          the md5 sum of its content, so the user can move documents.
-         */
-        if (!query.exec(QString::fromLatin1("CREATE TABLE IF NOT EXISTS Passwords(id TEXT, password TEXT)"))) {
+        if (!query.exec(QString::fromLatin1("CREATE TABLE IF NOT EXISTS Passwords(path TEXT, password TEXT)"))) {
             qWarning() << "cannot create Passwords table";
         }
-        if (!query.exec(QString::fromLatin1("CREATE UNIQUE INDEX IF NOT EXISTS PasswordsIndex on Passwords(id)"))) {
+        if (!query.exec(QString::fromLatin1("CREATE UNIQUE INDEX IF NOT EXISTS PasswordsIndex on Passwords(path)"))) {
             qWarning() << "cannot create Passwords index";
         }
     }
@@ -116,14 +95,14 @@ DbWorker::~DbWorker()
 QByteArray DbWorker::load() const
 {
     QSqlDatabase db = QSqlDatabase::database();
-    if (!m_id.isEmpty() && db.isValid()) {
+    if (!m_path.isEmpty() && db.isValid()) {
         QSqlQuery query(db);
-        query.prepare(QString::fromLatin1("SELECT password FROM Passwords WHERE id = ?"));
-        query.addBindValue(m_id);
+        query.prepare(QString::fromLatin1("SELECT password FROM Passwords WHERE path = ?"));
+        query.addBindValue(m_path);
         if (query.exec()) {
             return query.next() ? query.value(0).toByteArray() : QByteArray();
         } else {
-            qWarning() << "cannot get password for PDF document" << m_url;
+            qWarning() << "cannot get password for PDF document" << m_path;
             qWarning() << "reason:" << query.lastError().text();
         }
     }
@@ -133,10 +112,10 @@ QByteArray DbWorker::load() const
 void DbWorker::clear() const
 {
     QSqlDatabase db = QSqlDatabase::database();
-    if (!m_id.isEmpty() && db.isValid()) {
+    if (!m_path.isEmpty() && db.isValid()) {
         QSqlQuery query(db);
-        query.prepare(QString::fromLatin1("DELETE FROM Passwords WHERE id = ?"));
-        query.addBindValue(m_id);
+        query.prepare(QString::fromLatin1("DELETE FROM Passwords WHERE path = ?"));
+        query.addBindValue(m_path);
         query.exec();
     }
 }
@@ -144,13 +123,13 @@ void DbWorker::clear() const
 void DbWorker::store(const QByteArray &password) const
 {
     QSqlDatabase db = QSqlDatabase::database();
-    if (!m_id.isEmpty() && db.isValid()) {
+    if (!m_path.isEmpty() && db.isValid()) {
         QSqlQuery query(db);
-        query.prepare(QString::fromLatin1("INSERT OR REPLACE INTO Passwords(id, password) VALUES (?,?)"));
-        query.addBindValue(m_id);
+        query.prepare(QString::fromLatin1("INSERT OR REPLACE INTO Passwords(path, password) VALUES (?,?)"));
+        query.addBindValue(m_path);
         query.addBindValue(password);
         if (!query.exec()) {
-            qWarning() << "cannot set password for PDF document" << m_url;
+            qWarning() << "cannot set password for PDF document" << m_path;
             qWarning() << "reason:" << query.lastError().text();
         }
     }
