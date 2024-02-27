@@ -40,6 +40,7 @@ public:
     int pageCount() const;
     QObject* tocModel() const;
     bool isLoaded() const;
+    bool isPasswordProtected() const;
     bool isFailed() const;
     bool isLocked() const;
     QMultiMap<int, QPair<QRectF, QUrl> > linkTargets() const;
@@ -53,6 +54,8 @@ public:
     void removeAnnotation(Poppler::Annotation *annotation, int pageIndex);
 
     void setAutoSaveName(const QString &filename);
+
+    QString cachedPassword() const;
 
     void queueJob(PDFJob *job);
     bool cancelRenderJob(int index);

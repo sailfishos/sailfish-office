@@ -179,6 +179,8 @@ public:
     bool loadFailure;
     Poppler::Document *document;
     PDFTocModel *tocModel;
+    bool passwordProtected = false;
+    QString cachedPassword;
 
     QMultiMap<int, QPair<QRectF, QUrl> > linkTargets;
     QMap<int, QList<QPair <QRectF, Poppler::TextBox*> > > textBoxes;
@@ -287,6 +289,12 @@ bool PDFRenderThread::isLoaded() const
     return d->document != nullptr;
 }
 
+bool PDFRenderThread::isPasswordProtected() const
+{
+    QMutexLocker(&d->thread->mutex);
+    return d->passwordProtected;
+}
+
 bool PDFRenderThread::isFailed() const
 {
     QMutexLocker(&d->thread->mutex);
@@ -297,6 +305,12 @@ bool PDFRenderThread::isLocked() const
 {
     QMutexLocker(&d->thread->mutex);
     return (d->document != nullptr) ? d->document->isLocked() : false;
+}
+
+QString PDFRenderThread::cachedPassword() const
+{
+    QMutexLocker(&d->thread->mutex);
+    return d->cachedPassword;
 }
 
 QMultiMap<int, QPair<QRectF, QUrl> > PDFRenderThread::linkTargets() const
@@ -477,13 +491,35 @@ void PDFRenderThreadQueue::processPendingJob()
             }
     
             d->document = dj->m_document;
+            d->passwordProtected = d->document && d->document->isLocked();
+            if (d->document && d->document->isLocked()) {
+                // Try to unlock the file with cached passwords
+                UnLockDocumentJob unlock(QString(), QUrl::fromLocalFile(dj->source()).toString());
+                unlock.m_document = d->document;
+                unlock.run();
+                d->cachedPassword = unlock.password();
+            }
 
             if (!d->document || (!d->document->isLocked() && d->document->numPages() == 0)) {
                 d->loadFailure = true;
             }
 
             job->deleteLater();
+
             emit d->q->loadFinished();
+            break;
+        }
+        case PDFJob::UnLockDocumentJob: {
+            UnLockDocumentJob *uj = static_cast<UnLockDocumentJob*>(job);
+            if (d->document && !d->document->isLocked()) {
+                d->cachedPassword = uj->password();
+            }
+            emit d->q->jobFinished(job);
+            break;
+        }
+        case PDFJob::ClearSecretJob: {
+            d->cachedPassword.clear();
+            emit d->q->jobFinished(job);
             break;
         }
         default: {

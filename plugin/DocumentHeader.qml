@@ -20,14 +20,15 @@ import QtQuick 2.0
 import Sailfish.Silica 1.0
 
 MouseArea {
+    property string detailsPage: "DetailsPage.qml"
     property int indexCount
     property DocumentPage page
     property color color: Theme.primaryColor
     readonly property bool down: pressed && containsMouse
 
-    onClicked: pageStack.animatorPush(Qt.resolvedUrl("DetailsPage.qml"), {
+    onClicked: pageStack.animatorPush(Qt.resolvedUrl(detailsPage), {
+                                          document: page.document,
                                           source: page.source,
-                                          indexCount: indexCount,
                                           mimeType: page.mimeType
                                       })
 

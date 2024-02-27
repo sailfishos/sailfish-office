@@ -55,6 +55,7 @@ PDFDocument::PDFDocument(QObject *parent)
     connect(d->thread, &PDFRenderThread::loadFinished, this, &PDFDocument::documentLoadedChanged);
     connect(d->thread, &PDFRenderThread::loadFinished, this, &PDFDocument::pageCountChanged);
     connect(d->thread, &PDFRenderThread::loadFinished, this, &PDFDocument::loadFinished);
+    connect(d->thread, &PDFRenderThread::loadFinished, this, &PDFDocument::passwordChanged);
     connect(d->thread, &PDFRenderThread::jobFinished, this, &PDFDocument::jobFinished);
     connect(d->thread, &PDFRenderThread::searchFinished, this, &PDFDocument::onSearchFinished);
     connect(d->thread, &PDFRenderThread::searchProgress, this, &PDFDocument::onSearchProgress);
@@ -107,6 +108,11 @@ bool PDFDocument::isLoaded() const
     return d->thread->isLoaded();
 }
 
+bool PDFDocument::isPasswordProtected() const
+{
+    return d->thread->isPasswordProtected();
+}
+
 bool PDFDocument::isFailed() const
 {
     return d->thread->isFailed();
@@ -120,6 +126,17 @@ bool PDFDocument::isLocked() const
 bool PDFDocument::isModified() const
 {
     return d->modified;
+}
+
+QString PDFDocument::password() const
+{
+    return d->thread->cachedPassword();
+}
+
+void PDFDocument::clearCachedPassword() const
+{
+    ClearSecretJob* job = new ClearSecretJob(d->source);
+    d->thread->queueJob(job);
 }
 
 PDFDocument::TextList PDFDocument::textBoxesAtPage(int page)
@@ -201,12 +218,12 @@ void PDFDocument::setDocumentModified()
         d->thread->setAutoSaveName(QUrl(d->autoSavePath).toLocalFile());
 }
 
-void PDFDocument::requestUnLock(const QString &password)
+void PDFDocument::requestUnLock(const QString &password, bool store)
 {
     if (!isLocked())
         return;
 
-    UnLockDocumentJob* job = new UnLockDocumentJob(password);
+    UnLockDocumentJob* job = new UnLockDocumentJob(password, (store) ? d->source : QString());
     d->thread->queueJob(job);
 }
 
@@ -315,6 +332,7 @@ void PDFDocument::jobFinished(PDFJob *job)
     case PDFJob::UnLockDocumentJob: {
         emit documentLockedChanged();
         emit pageCountChanged();
+        emit passwordChanged();
         break;
     }
     case PDFJob::LinksJob: {
@@ -331,6 +349,10 @@ void PDFDocument::jobFinished(PDFJob *job)
     case PDFJob::PageSizesJob: {
         PageSizesJob* j = static_cast<PageSizesJob*>(job);
         emit pageSizesFinished(j->m_pageSizes);
+        break;
+    }
+    case PDFJob::ClearSecretJob: {
+        emit passwordChanged();
         break;
     }
     default:

@@ -27,6 +27,7 @@ Page {
     property bool error
     property string mimeType
     property alias busy: busyIndicator.running
+    property QtObject document
     property QtObject provider
     property Component preview: defaultPreview
     property alias placeholderPreview: defaultPreview

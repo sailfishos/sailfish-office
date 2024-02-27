@@ -94,9 +94,9 @@ CalligraDocumentPage {
 
         DocumentHeader {
             id: header
+            detailsPage: "TextDetailsPage.qml"
             page: page
             width: page.width
-            indexCount: page.document.indexCount
             x: flickable.contentX
             y: -height
         }

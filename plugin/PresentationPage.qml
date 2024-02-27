@@ -127,9 +127,9 @@ CalligraDocumentPage {
 
         DocumentHeader {
             id: header
+            detailsPage: "PresentationDetailsPage.qml"
             color: Theme.lightPrimaryColor
             page: page
-            indexCount: page.document.indexCount
         }
 
         OverlayToolbar {

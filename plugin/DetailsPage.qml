@@ -24,9 +24,10 @@ import Nemo.FileManager 1.0
 Page {
     id: page
 
+    property QtObject document
     property url source
-    property int indexCount
     property string mimeType
+    default property alias children: contentColumn.data
 
     FileInfo {
         id: info
@@ -78,53 +79,6 @@ Page {
                 //% "Last modified"
                 label: qsTrId("sailfish-office-la-lastmodified")
                 value: Format.formatDate(info.lastModified, Format.DateFull)
-                alignment: Qt.AlignLeft
-            }
-
-            DetailItem {
-                label: {
-                    switch (page.mimeType) {
-                        case "application/vnd.oasis.opendocument.spreadsheet":
-                        case "application/x-kspread":
-                        case "application/vnd.ms-excel":
-                        case "text/csv":
-                        case "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
-                        case "application/vnd.openxmlformats-officedocument.spreadsheetml.template":
-                            //: Sheet count of the spreadsheet
-                            //% "Sheets"
-                            return qsTrId("sailfish-office-la-sheetcount")
-                        case "application/vnd.oasis.opendocument.presentation":
-                        case "application/vnd.oasis.opendocument.presentation-template":
-                        case "application/x-kpresenter":
-                        case "application/vnd.ms-powerpoint":
-                        case "application/vnd.openxmlformats-officedocument.presentationml.presentation":
-                        case "application/vnd.openxmlformats-officedocument.presentationml.template":
-                            //: Slide count detail of the presentation
-                            //% "Slides"
-                            return qsTrId("sailfish-office-la-slidecount")
-                        case "application/vnd.oasis.opendocument.text-master":
-                        case "application/vnd.oasis.opendocument.text":
-                        case "application/vnd.oasis.opendocument.text-template":
-                        case "application/msword":
-                        case "application/rtf":
-                        case "application/x-mswrite":
-                        case "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-                        case "application/vnd.openxmlformats-officedocument.wordprocessingml.template":
-                        case "application/vnd.ms-works":
-                            //: Page count of the text document
-                            //% "Page Count"
-                            return qsTrId("sailfish-office-la-pagecount")
-                        case "application/pdf":
-                            //: Page count of the text document
-                            //% "Page Count"
-                            return qsTrId("sailfish-office-la-pagecount")
-                        default:
-                            //: Index count for unknown document types.
-                            //% "Index Count"
-                            return qsTrId("sailfish-office-la-indexcount")
-                    }
-                }
-                value: page.indexCount
                 alignment: Qt.AlignLeft
             }
         }

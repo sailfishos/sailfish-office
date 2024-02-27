@@ -38,11 +38,13 @@ class PDFDocument : public QObject, public QQmlParserStatus
     Q_PROPERTY(int pageCount READ pageCount NOTIFY pageCountChanged)
     Q_PROPERTY(QObject* tocModel READ tocModel NOTIFY tocModelChanged)
     Q_PROPERTY(bool loaded READ isLoaded NOTIFY documentLoadedChanged)
+    Q_PROPERTY(bool passwordProtected READ isPasswordProtected NOTIFY documentLoadedChanged)
     Q_PROPERTY(bool failure READ isFailed NOTIFY documentFailedChanged)
     Q_PROPERTY(bool locked READ isLocked NOTIFY documentLockedChanged)
     Q_PROPERTY(bool modified READ isModified NOTIFY documentModifiedChanged)
     Q_PROPERTY(bool searching READ searching NOTIFY searchingChanged)
     Q_PROPERTY(QObject* searchModel READ searchModel NOTIFY searchModelChanged)
+    Q_PROPERTY(QString password READ password NOTIFY passwordChanged)
 
     Q_INTERFACES(QQmlParserStatus)
 
@@ -60,10 +62,12 @@ public:
     QObject* tocModel() const;
     bool searching() const;
     QObject* searchModel() const;
+    QString password() const;
     
     TextList textBoxesAtPage(int page);
 
     bool isLoaded() const;
+    bool isPasswordProtected() const;
     bool isFailed() const;
     bool isLocked() const;
     bool isModified() const;
@@ -75,6 +79,8 @@ public:
 
     void setDocumentModified();
 
+    Q_INVOKABLE void clearCachedPassword() const;
+
     int requestPage(int index, int size,
                      QRect subpart = QRect(), int extraData = 0);
 
@@ -84,7 +90,7 @@ public:
 public Q_SLOTS:
     void setSource(const QString &source);
     void setAutoSavePath(const QString &filename);
-    void requestUnLock(const QString &password);
+    void requestUnLock(const QString &password, bool store = false);
     void requestLinksAtPage(int page);
 
     void prioritizeRequest(int index, int size, QRect subpart = QRect());
@@ -105,6 +111,7 @@ Q_SIGNALS:
     void tocModelChanged();
     void searchingChanged();
     void searchModelChanged();
+    void passwordChanged();
     void pageModified(int index, const QRectF &subpart);
 
     void documentLoadedChanged();
