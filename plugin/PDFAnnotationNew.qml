@@ -21,19 +21,23 @@ import Sailfish.Silica 1.0
 
 Dialog {
     id: root
+
     property alias text: areaContents.text
     property bool isTextAnnotation
 
     SilicaFlickable {
         id: flickable
+
         anchors.fill: parent
         contentHeight: content.height
 
         Column {
             id: content
+
             width: parent.width
             DialogHeader {
                 id: dialogHeader
+
                 //% "Save"
                 acceptText: qsTrId("sailfish-office-he-txt-anno-save")
                 //% "Cancel"
@@ -41,13 +45,14 @@ Dialog {
             }
             TextArea {
                 id: areaContents
+
                 width: parent.width
                 height: Math.max(flickable.height - dialogHeader.height, implicitHeight)
                 placeholderText: isTextAnnotation
-                                 //% "Write a note…"
-                                 ? qsTrId("sailfish-office-ta-text-annotation")
-                                 //% "Write a comment…"
-                                 : qsTrId("sailfish-office-ta-comment-annotation")
+                                 ? //% "Write a note…"
+                                   qsTrId("sailfish-office-ta-text-annotation")
+                                 : //% "Write a comment…"
+                                   qsTrId("sailfish-office-ta-comment-annotation")
                 background: null
                 focus: true
             }

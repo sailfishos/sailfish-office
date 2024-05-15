@@ -21,6 +21,7 @@ import Sailfish.Silica 1.0
 
 ContextMenu {
     id: contextMenuLinks
+
     property alias url: linkTarget.text
 
     InfoLabel {

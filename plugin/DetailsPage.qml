@@ -36,11 +36,13 @@ Page {
 
     SilicaFlickable {
         id: flickable
+
         anchors.fill: parent
         contentHeight: contentColumn.height + Theme.paddingLarge
 
         Column {
             id: contentColumn
+
             width: parent.width
 
             PageHeader {

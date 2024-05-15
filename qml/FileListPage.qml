@@ -215,6 +215,7 @@ Page {
             }
             Column {
                 id: labels
+
                 anchors {
                     left: icon.right
                     leftMargin: Theme.paddingMedium
@@ -224,6 +225,7 @@ Page {
                 }
                 Label {
                     id: label
+
                     width: parent.width
                     color: listItem.highlighted ? Theme.highlightColor : Theme.primaryColor
                     text: searchText.length > 0 ? Theme.highlightText(model.fileName, searchText, Theme.highlightColor)
@@ -237,6 +239,7 @@ Page {
                     height: sizeLabel.height
                     Label {
                         id: sizeLabel
+
                         text: Format.formatFileSize(model.fileSize)
                         font.pixelSize: Theme.fontSizeExtraSmall
                         color: listItem.highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor

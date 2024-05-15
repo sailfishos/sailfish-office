@@ -54,6 +54,7 @@ SilicaFlickable {
 
     DragDetectorItem {
         id: dragDetector
+
         flickable: flickable
         anchors.fill: parent
         PinchArea {

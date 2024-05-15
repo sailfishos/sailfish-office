@@ -58,6 +58,7 @@ Rectangle {
 
     ParallelAnimation {
         id: appearingMove
+
         FadeAnimator {
             target: root
             from: 0.0
@@ -65,6 +66,7 @@ Rectangle {
         }
         XAnimator {
             id: translationMove
+
             duration: 200
             easing.type: Easing.InOutQuad
             target: root

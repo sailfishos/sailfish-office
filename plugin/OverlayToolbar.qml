@@ -22,6 +22,7 @@ import Sailfish.Silica.private 1.0
 
 FadeGradient {
     default property alias buttons: row.data
+
     height: row.height + 2 * row.anchors.bottomMargin
     width: parent.width
     anchors.bottom: parent.bottom

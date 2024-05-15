@@ -18,7 +18,7 @@
 
 var Settings = function(file) {
     this.db = LocalStorage.openDatabaseSync("sailfish-office", "1.0",
-                                            "Local storage for the document viewer.", 10000);
+                                            "Local storage for the document viewer.", 10000)
     this.source = file
 }
 
@@ -31,8 +31,8 @@ function createTableLastViewSettings(tx) {
                   + "page INT    NOT NULL,"
                   + "top  REAL           ,"
                   + "left REAL           ,"
-                  + "width INT CHECK(width > 0))");
-    tx.executeSql('CREATE UNIQUE INDEX IF NOT EXISTS idx_file ON LastViewSettings(file)');
+                  + "width INT CHECK(width > 0))")
+    tx.executeSql('CREATE UNIQUE INDEX IF NOT EXISTS idx_file ON LastViewSettings(file)')
 }
 
 /* Get and set operations. */
@@ -43,23 +43,24 @@ Settings.prototype.getLastPage = function() {
     var width = 0
     var file = this.source
     this.db.transaction(function(tx) {
-        createTableLastViewSettings(tx);
-        var rs = tx.executeSql('SELECT page, top, left, width FROM LastViewSettings WHERE file = ?', [file]);
+        createTableLastViewSettings(tx)
+        var rs = tx.executeSql('SELECT page, top, left, width FROM LastViewSettings WHERE file = ?', [file])
         if (rs.rows.length > 0) {
-            page = rs.rows.item(0).page;
-            top  = rs.rows.item(0).top;
-            left = rs.rows.item(0).left;
-            width = rs.rows.item(0).width;
+            page = rs.rows.item(0).page
+            top  = rs.rows.item(0).top
+            left = rs.rows.item(0).left
+            width = rs.rows.item(0).width
         }
-    });
+    })
     // Return page is in [1:]
-    return [page, top, left, width];
+    return [page, top, left, width]
 }
 Settings.prototype.setLastPage = function(page, top, left, width) {
     // page is in [1:]
     var file = this.source
     this.db.transaction(function(tx) {
-        createTableLastViewSettings(tx);
-        var rs = tx.executeSql('INSERT OR REPLACE INTO LastViewSettings(file, page, top, left, width) VALUES (?,?,?,?,?)', [file, page, top, left, width]);
-    });
+        createTableLastViewSettings(tx)
+        var rs = tx.executeSql('INSERT OR REPLACE INTO LastViewSettings(file, page, top, left, width) VALUES (?,?,?,?,?)',
+                               [file, page, top, left, width])
+    })
 }

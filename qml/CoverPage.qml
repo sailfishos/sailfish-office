@@ -39,7 +39,8 @@ CoverBackground {
         id: fileListView
 
         property int itemHeight: height/maxItemCount
-        property int maxItemCount: Math.round(height/(Math.max(fontMetrics.height, iconSize) + Theme.paddingSmall))
+        property int maxItemCount: Math.round(height / (Math.max(fontMetrics.height, iconSize) + Theme.paddingSmall))
+
         clip: true
         interactive: false
         model: window.fileListModel
