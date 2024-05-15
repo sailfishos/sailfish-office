@@ -38,6 +38,7 @@ MouseArea {
 
     PageHeader {
         id: pageHeader
+
         title: page.title
         titleColor: parent.down ? Theme.highlightColor : parent.color
         rightMargin: Theme.horizontalPageMargin + detailsImage.width + Theme.paddingMedium
@@ -45,16 +46,16 @@ MouseArea {
 
     HighlightImage {
         id: detailsImage
+
         color: parent.color
         source: "image://theme/icon-m-about"
         highlighted: parent.down
         Behavior on opacity { FadeAnimator {}}
         opacity: parent.enabled ? 1.0 : Theme.opacityHigh
-
         anchors  {
             right: parent.right
             rightMargin: Theme.horizontalPageMargin
-            verticalCenter: parent.verticalCenter
         }
+        y: pageHeader.topMargin + pageHeader.titleHeight / 2 - height / 2
     }
 }

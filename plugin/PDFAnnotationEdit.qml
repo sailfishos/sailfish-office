@@ -32,6 +32,7 @@ Page {
 
     SilicaFlickable {
         id: flickable
+
         anchors.fill: parent
         contentHeight: content.height
 
@@ -45,6 +46,7 @@ Page {
 
         Column {
             id: content
+
             width: parent.width
             PageHeader {
                 id: pageHeader
@@ -57,17 +59,16 @@ Page {
                           : qsTrId("sailfish-office-hd-comment-annotation"))
             }
             TextArea {
-                id: areaContents
                 width: parent.width
                 height: Math.max(flickable.height - pageHeader.height, implicitHeight)
                 background: null
                 focus: false
                 text: annotation ? annotation.contents : ""
                 placeholderText: _isText
-                                 //% "Write a note…"
-                                 ? qsTrId("sailfish-office-ta-text-annotation-edit")
-                                 //% "Write a comment…"
-                                 : qsTrId("sailfish-office-ta-comment-annotation-edit")
+                                 ? //% "Write a note…"
+                                   qsTrId("sailfish-office-ta-text-annotation-edit")
+                                 : //% "Write a comment…"
+                                   qsTrId("sailfish-office-ta-comment-annotation-edit")
                 onTextChanged: {
                     if (annotation) {
                         annotation.contents = text

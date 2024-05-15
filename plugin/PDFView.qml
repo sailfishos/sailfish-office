@@ -173,12 +173,14 @@ DocumentFlickable {
 
     SequentialAnimation {
         id: focusAnimation
+
         property Item targetItem
         NumberAnimation { target: focusAnimation.targetItem; property: "scale"; duration: 200; to: 3.; easing.type: Easing.InOutCubic }
         NumberAnimation { target: focusAnimation.targetItem; property: "scale"; duration: 200; to: 1.; easing.type: Easing.InOutCubic }
     }
     SequentialAnimation {
         id: scrollAnimation
+
         property Item focusItem
         ParallelAnimation {
             NumberAnimation { id: scrollX; target: root; property: "contentX"; duration: 300; easing.type: Easing.InOutQuad }
@@ -195,8 +197,10 @@ DocumentFlickable {
     }
     SequentialAnimation {
         id: quickScrollAnimation
+
         property int pageTo
         property Item focusItem
+
         ParallelAnimation {
             NumberAnimation { id: leaveX; target: root; property: "contentX"; duration: 300; easing.type: Easing.InQuad }
             NumberAnimation { id: leaveY; target: root; property: "contentY"; duration: 300; easing.type: Easing.InQuad }
@@ -209,15 +213,19 @@ DocumentFlickable {
             NumberAnimation { target: root; property: "opacity"; duration: 300; to: 1.; easing.type: Easing.OutQuad }
         }
         ScriptAction {
-            script: if (quickScrollAnimation.focusItem) {
-                        focusAnimation.targetItem = quickScrollAnimation.focusItem
-                        focusAnimation.start()
-                    }
+            script: {
+                if (quickScrollAnimation.focusItem) {
+                    focusAnimation.targetItem = quickScrollAnimation.focusItem
+                    focusAnimation.start()
+                }
+            }
         }
     }
     NumberAnimation {
         id: selectionOffset
+
         property real start
+
         duration: 200
         easing.type: Easing.InOutCubic
         target: root
@@ -242,7 +250,9 @@ DocumentFlickable {
 
     Connections {
         id: moveToFirstMatch
+
         property bool done
+
         target: document.searchModel
         onCountChanged: {
             if (done) return
@@ -267,9 +277,9 @@ DocumentFlickable {
                     selectionOffset.start = root.contentY
 
                 // Limit offset when being at the bottom of the view.
-                selectionOffset.to = selectionOffset.start +
-                        Math.min(Theme.itemSizeSmall,
-                                 Math.max(0, root.itemHeight - root.height - pdfCanvas.y - root.contentY))
+                selectionOffset.to = selectionOffset.start
+                        + Math.min(Theme.itemSizeSmall,
+                                   Math.max(0, root.itemHeight - root.height - pdfCanvas.y - root.contentY))
                 // Limit offset when being at the top of screen
                 selectionOffset.to =
                         Math.max(root.contentY,
@@ -336,6 +346,7 @@ DocumentFlickable {
 
             PDF.LinkArea {
                 id: linkArea
+
                 anchors.fill: parent
                 onClickedBoxChanged: {
                     if (clickedBox.width > 0) {
@@ -383,11 +394,11 @@ DocumentFlickable {
             id: searchDisplay
 
             model: pdfCanvas.document.searchModel
-
             delegate: Rectangle {
                 property int page: model.page
                 property rect pageRect: model.rect
                 property rect match: pdfCanvas.fromPageToItem(page, pageRect)
+
                 Connections {
                     target: pdfCanvas
                     onPageLayoutChanged: match = pdfCanvas.fromPageToItem(page, pageRect)
@@ -404,6 +415,7 @@ DocumentFlickable {
 
         PDFSelectionView {
             id: selectionView
+
             model: pdfSelection
             flickable: root
             dragHandle1: drag1.pressed
@@ -412,6 +424,7 @@ DocumentFlickable {
         }
         PDFSelectionDrag {
             id: drag1
+
             visible: pdfSelection.selected && selectionView.draggable
             flickable: root
             handle: pdfSelection.handle1
@@ -419,6 +432,7 @@ DocumentFlickable {
         }
         PDFSelectionDrag {
             id: drag2
+
             visible: pdfSelection.selected && selectionView.draggable
             flickable: root
             handle: pdfSelection.handle2
@@ -426,6 +440,7 @@ DocumentFlickable {
         }
         ContextMenuHook {
             id: contextHook
+
             Connections {
                 target: linkArea
                 onPositionChanged: {

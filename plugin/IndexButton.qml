@@ -21,6 +21,7 @@ import Sailfish.Silica 1.0
 
 MouseArea {
     id: root
+
     property bool allowed: true
     property color color: Theme.primaryColor
     property int index
@@ -34,6 +35,7 @@ MouseArea {
 
     Label {
         id: label
+
         anchors.centerIn: parent
         width: parent.width - Theme.paddingSmall
         fontSizeMode: Text.HorizontalFit

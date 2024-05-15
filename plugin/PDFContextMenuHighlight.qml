@@ -27,6 +27,7 @@ ContextMenu {
 
     InfoLabel {
         id: infoContents
+
         visible: infoContents.text != ""
         width: parent.width
         height: implicitHeight + 2 * Theme.paddingSmall
@@ -43,15 +44,16 @@ ContextMenu {
                 return (contextMenuHighlight.annotation.author != ""
                         ? "(" + contextMenuHighlight.annotation.author + ") " : "")
                        + contextMenuHighlight.annotation.contents
-            } else {
-                return ""
             }
+
+            return ""
         }
     }
     Row {
         height: Theme.itemSizeExtraSmall
         Repeater {
             id: colors
+
             model: ["#db431c", "#ffff00", "#8afa72", "#00ffff",
                     "#3828f9", "#a328c7", "#ffffff", "#989898",
                     "#000000"]
@@ -84,6 +86,7 @@ ContextMenu {
                      "label": "<span style=\"text-decoration:line-through\">abc</span>"}]
             delegate: BackgroundItem {
                 id: bgStyle
+
                 width: contextMenuHighlight.width / styles.model.length
                 height: parent.height
                 onClicked: {

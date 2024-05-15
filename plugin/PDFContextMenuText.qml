@@ -22,6 +22,7 @@ import Sailfish.Office.PDF 1.0
 
 ContextMenu {
     id: contextMenuText
+
     property Annotation annotation
     property point at
     

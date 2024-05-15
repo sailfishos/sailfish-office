@@ -86,6 +86,7 @@ Item {
 
     Rectangle {
         id: background
+
         parent: _menu ? _menu : null
         anchors.fill: parent ? parent : undefined
         color: Theme.highlightDimmerColor

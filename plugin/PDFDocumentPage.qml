@@ -255,6 +255,7 @@ DocumentPage {
 
         SearchBarItem {
             id: search
+
             width: textTool.width
             expandedWidth: page.width
             height: parent.height
@@ -272,6 +273,7 @@ DocumentPage {
 
         IconButton {
             id: textTool
+
             property bool first: true
 
             onClicked: {
@@ -310,6 +312,7 @@ DocumentPage {
 
         IconButton {
             id: highlightTool
+
             property bool first: true
 
             function highlightSelection() {
@@ -373,6 +376,7 @@ DocumentPage {
 
         IconButton {
             id: linkBack
+
             anchors.verticalCenter: parent.verticalCenter
             opacity: view.canMoveBack ? 1. : 0.
             visible: opacity > 0
@@ -405,6 +409,7 @@ DocumentPage {
 
     PDF.Document {
         id: doc
+
         source: page.source
         autoSavePath: page.source
 
@@ -450,6 +455,7 @@ DocumentPage {
 
     Component {
         id: noticeComponent
+
         Notification {
             property bool published
             function show(info) {
