@@ -55,7 +55,7 @@ MouseArea {
         anchors  {
             right: parent.right
             rightMargin: Theme.horizontalPageMargin
-            verticalCenter: parent.verticalCenter
         }
+        y: pageHeader.topMargin + pageHeader.titleHeight / 2 - height / 2
     }
 }
