@@ -22,7 +22,6 @@ import Sailfish.Silica 1.0
 import Sailfish.Share 1.0
 import Sailfish.Office.PDF 1.0 as PDF
 import Nemo.Configuration 1.0
-import Nemo.Notifications 1.0
 import QtQuick.LocalStorage 2.0
 import "PDFStorage.js" as PDFStorage
 
@@ -41,8 +40,8 @@ DocumentPage {
     document: doc
 
     preview: doc.loaded
-            ? previewComponent
-            : placeholderPreview
+             ? previewComponent
+             : placeholderPreview
 
     function savePageSettings() {
         if (!rememberPositionConfig.value || doc.failure || doc.locked) {
@@ -54,6 +53,10 @@ DocumentPage {
         }
         var last = view.getPagePosition()
         _settings.setLastPage(last[0] + 1, last[1], last[2], view.itemWidth)
+    }
+
+    function noticeShow(message) {
+        Notices.show(message, Notice.Long, Notice.Bottom, 0, -toolbar.height - Theme.paddingSmall)
     }
 
     // Save and restore view settings when needed.
@@ -204,6 +207,7 @@ DocumentPage {
 
         DocumentHeader {
             id: header
+
             page: page
             detailsPage: "PDFDetailsPage.qml"
             indexCount: doc.pageCount
@@ -226,7 +230,6 @@ DocumentPage {
         property Item activeItem
 
         function toggle(item) {
-            if (toolbar.notice) toolbar.notice.hide()
             view.selection.unselect()
             if (toolbar.activeItem === item) {
                 toolbar.activeItem = null
@@ -444,33 +447,6 @@ DocumentPage {
         anchors.verticalCenter: parent.verticalCenter
     }
 
-    property Notification notice
-
-    function noticeShow(message) {
-        if (!notice) {
-            notice = noticeComponent.createObject(toolbar)
-        }
-        notice.show(message)
-    }
-
-    Component {
-        id: noticeComponent
-
-        Notification {
-            property bool published
-            function show(info) {
-                previewSummary = info
-                if (published) close()
-                publish()
-                published = true
-            }
-            function hide() {
-                if (published) close()
-                published = false
-            }
-        }
-    }
-
     Component {
         id: placeholderComponent
 
@@ -521,6 +497,7 @@ DocumentPage {
 
             TextSwitch {
                 id: storePassword
+
                 visible: doc.locked
                 x: Theme.horizontalPageMargin
                 width: parent.width - 2*x
@@ -592,6 +569,7 @@ DocumentPage {
 
     Timer {
         id: updateSourceSizeTimer
+
         interval: 5000
         onTriggered: linkArea.sourceSize = Qt.size(page.width, pdfCanvas.height)
     }
