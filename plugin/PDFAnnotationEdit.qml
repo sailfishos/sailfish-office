@@ -50,6 +50,7 @@ Page {
             width: parent.width
             PageHeader {
                 id: pageHeader
+
                 title: annotation && annotation.author != ""
                        ? annotation.author
                        : (_isText

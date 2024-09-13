@@ -30,6 +30,7 @@ Page {
 
     SilicaListView {
         id: view
+
         anchors.fill: parent
 
         //: Page with Text document index
@@ -38,6 +39,7 @@ Page {
 
         delegate: BackgroundItem {
             property bool isCurrentItem: model.contentIndex + 1 == page.document.currentIndex
+
             Label {
                 x: Theme.horizontalPageMargin
                 width: parent.width - 2*x

@@ -104,6 +104,7 @@ CalligraDocumentPage {
             }
             Calligra.ImageDataItem {
                 id: largeThumb
+
                 visible: implicitWidth > 0
                 anchors.fill: parent
             }
@@ -112,6 +113,7 @@ CalligraDocumentPage {
 
     Item {
         id: overlay
+
         property bool active: true
 
         enabled: active
@@ -127,6 +129,7 @@ CalligraDocumentPage {
 
         DocumentHeader {
             id: header
+
             detailsPage: "PresentationDetailsPage.qml"
             color: Theme.lightPrimaryColor
             page: page

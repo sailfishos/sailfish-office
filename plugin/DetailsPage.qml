@@ -46,7 +46,6 @@ Page {
             width: parent.width
 
             PageHeader {
-                id: detailsHeader
                 //: Details page title
                 //% "Details"
                 title: qsTrId("sailfish-office-he-details")

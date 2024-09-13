@@ -71,6 +71,7 @@ Page {
 
                 Label {
                     id: label
+
                     anchors.centerIn: parent
                     text: model.contentIndex + 1
                     color: Theme.lightPrimaryColor
@@ -78,7 +79,8 @@ Page {
 
                 Rectangle {
                     anchors.fill: parent
-                    color: mouseArea.pressed && mouseArea.containsMouse ? Theme.highlightBackgroundColor : "transparent"
+                    color: mouseArea.pressed && mouseArea.containsMouse ? Theme.highlightBackgroundColor
+                                                                        : "transparent"
                     opacity: Theme.highlightBackgroundOpacity
                 }
 
@@ -86,6 +88,7 @@ Page {
 
             MouseArea {
                 id: mouseArea
+
                 anchors.fill: parent
                 onClicked: {
                     page.document.currentIndex = model.contentIndex

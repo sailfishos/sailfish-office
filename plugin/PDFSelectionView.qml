@@ -41,6 +41,7 @@ Repeater {
     children: [
         PDFSelectionHandle {
             id: handle1
+
             visible: root.draggable
             attachX: root.flickable !== undefined
                      ? flickable.contentX
@@ -50,6 +51,7 @@ Repeater {
         },
         PDFSelectionHandle {
             id: handle2
+
             visible: root.draggable
             attachX: root.flickable !== undefined
                      ? flickable.contentX + flickable.width

@@ -394,6 +394,7 @@ DocumentPage {
 
         IndexButton {
             id: indexButton
+
             onClicked: {
                 toolbar.toggle(indexButton)
                 var obj = pageStack.animatorPush(Qt.resolvedUrl("PDFDocumentToCPage.qml"),
@@ -530,11 +531,13 @@ DocumentPage {
     }
     ConfigurationValue {
         id: highlightColorConfig
+
         key: "/apps/sailfish-office/settings/highlightColor"
         defaultValue: "#ffff00"
     }
     ConfigurationValue {
         id: highlightStyleConfig
+
         key: "/apps/sailfish-office/settings/highlightStyle"
         defaultValue: "highlight"
 

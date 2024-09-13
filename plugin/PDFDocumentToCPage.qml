@@ -73,6 +73,7 @@ Page {
             }
             Label {
                 id: pageNumberLabel
+
                 anchors {
                     right: parent.right
                     rightMargin: Theme.horizontalPageMargin

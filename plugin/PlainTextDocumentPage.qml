@@ -51,7 +51,9 @@ DocumentPage {
             ListView {
                 id: previewView
 
-                Component.onCompleted: positionViewAtIndex(Math.max(0, documentView.indexAt(0, documentView.contentY)), ListView.Beginning)
+                Component.onCompleted: positionViewAtIndex(Math.max(0,
+                                                                    documentView.indexAt(0, documentView.contentY)),
+                                                           ListView.Beginning)
 
                 anchors.fill: parent
                 model: documentModel
@@ -109,7 +111,9 @@ DocumentPage {
             width: horizontalFlickable.contentWidth
             height: documentPage.height
 
-            _quickScrollItem.rightMargin: horizontalFlickable.contentWidth - horizontalFlickable.width - horizontalFlickable.contentX
+            _quickScrollItem.rightMargin: horizontalFlickable.contentWidth
+                                          - horizontalFlickable.width
+                                          - horizontalFlickable.contentX
 
             model: PlainTextModel {
                 id: documentModel
@@ -151,7 +155,8 @@ DocumentPage {
 
             ViewPlaceholder {
                 enabled: documentModel.lineCount === 0
-                         && (documentModel.status === PlainTextModel.Ready || documentModel.status === PlainTextModel.Error)
+                         && (documentModel.status === PlainTextModel.Ready
+                             || documentModel.status === PlainTextModel.Error)
                 text: documentModel.status === PlainTextModel.Error
                         //% "Error loading text file"
                         ? qsTrId("sailfish-office-la-plain_text_error")
@@ -161,7 +166,9 @@ DocumentPage {
 
             VerticalScrollDecorator {
                 color: Theme.highlightDimmerColor
-                anchors.rightMargin: horizontalFlickable.contentWidth - horizontalFlickable.width - horizontalFlickable.contentX
+                anchors.rightMargin: horizontalFlickable.contentWidth
+                                     - horizontalFlickable.width
+                                     - horizontalFlickable.contentX
             }
 
         }

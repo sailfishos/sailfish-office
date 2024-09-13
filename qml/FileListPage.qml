@@ -109,6 +109,7 @@ Page {
 
             PageHeader {
                 id: pageHeader
+
                 //: Application title
                 //% "Documents"
                 title: qsTrId("sailfish-office-he-apptitle")
@@ -292,6 +293,7 @@ Page {
             menu: Component {
                 ContextMenu {
                     id: contextMenu
+
                     MenuItem {
                         //: Share a file
                         //% "Share"

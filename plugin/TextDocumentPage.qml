@@ -121,7 +121,8 @@ CalligraDocumentPage {
         }
 
         IndexButton {
-            onClicked: pageStack.animatorPush(Qt.resolvedUrl("TextDocumentToCPage.qml"), { document: page.document, contents: page.contents })
+            onClicked: pageStack.animatorPush(Qt.resolvedUrl("TextDocumentToCPage.qml"),
+                                              { document: page.document, contents: page.contents })
 
             index: Math.max(1, page.document.currentIndex)
             count: page.document.indexCount

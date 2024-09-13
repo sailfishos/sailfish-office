@@ -81,7 +81,7 @@ Item {
     }
 
     width: _menu && _menu._flickable ? _menu._flickable.width : 0
-    x:  _menu && _menu._flickable ? _menu._flickable.contentX : 0
+    x: _menu && _menu._flickable ? _menu._flickable.contentX : 0
     height: _hookHeight + (_menu ? Theme.paddingSmall + _menu.height : 0.)
 
     Rectangle {
