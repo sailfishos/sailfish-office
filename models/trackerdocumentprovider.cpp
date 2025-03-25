@@ -39,14 +39,15 @@ static const QString documentQuery{
     "SELECT ?name ?path ?size ?lastModified ?mimeType "
     "WHERE {"
     "  GRAPH tracker:Documents {"
-    "    SELECT nfo:fileName(?path) AS ?name"
-    "      nfo:fileSize(?path) AS ?size"
-    "      nfo:fileLastModified(?path) AS ?lastModified"
-    "      ?path ?mimeType"
+    "    SELECT nfo:fileName(?path1) AS ?name"
+    "      nfo:fileSize(?path1) AS ?size"
+    "      nfo:fileLastModified(?path1) AS ?lastModified"
+    "      ?path1 AS ?path "
+    "      ?mimeType1 AS ?mimeType"
     "    WHERE {"
-    "      ?u nie:isStoredAs ?path ."
-    "      ?path nie:dataSource/tracker:available true . "
-    "      ?u nie:mimeType ?mimeType ."
+    "      ?u nie:isStoredAs ?path1 ."
+    "      ?path1 nie:dataSource/tracker:available true . "
+    "      ?u nie:mimeType ?mimeType1 ."
     "      { ?u a nfo:PaginatedTextDocument . }"
     "      UNION { ?u nie:mimeType 'text/plain' FILTER(fn:ends-with(nfo:fileName(nie:isStoredAs(?u)),'.txt')) }"
     "    }"
@@ -67,7 +68,8 @@ public:
         model->setObjectName("TrackerDocumentList");
     }
 
-    ~Private() {
+    ~Private()
+    {
         model->deleteLater();
     }
 
