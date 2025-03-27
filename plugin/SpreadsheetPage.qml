@@ -65,6 +65,7 @@ CalligraDocumentPage {
 
         Calligra.ViewController {
             id: viewController
+
             view: documentView
             flickable: flickable
             useZoomProxy: false
@@ -89,6 +90,7 @@ CalligraDocumentPage {
 
     Item {
         id: overlay
+
         property bool active: true
 
         enabled: active
@@ -105,6 +107,7 @@ CalligraDocumentPage {
 
         DocumentHeader {
             id: header
+
             detailsPage: "SpreadsheetDetailsPage.qml"
             color: Theme.darkPrimaryColor
             page: page

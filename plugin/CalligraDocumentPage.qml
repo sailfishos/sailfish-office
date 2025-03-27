@@ -50,6 +50,7 @@ DocumentPage {
 
     Timer {
         id: previewDelay
+
         interval: 100
         running: doc.status === Calligra.DocumentStatus.Loaded
         // We're not using a binding for the preview because calligra is sensitive to the order

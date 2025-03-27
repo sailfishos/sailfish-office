@@ -540,6 +540,7 @@ DocumentFlickable {
         }
         NumberAnimation {
             id: zoomOutContentYAnimation
+
             target: root
             properties: "contentY"
             easing.type: Easing.InOutQuad

@@ -39,8 +39,7 @@ public:
     };
     Q_ENUMS(DocumentClass)
 
-    enum Roles
-    {
+    enum Roles {
         FileNameRole = Qt::UserRole + 1,
         FilePathRole,
         FileTypeRole,

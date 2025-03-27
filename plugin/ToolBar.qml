@@ -100,6 +100,7 @@ PanelBackground {
 
     Timer {
         id: autoHideTimer
+
         interval: 4000
         onTriggered: _active = false
     }

@@ -22,6 +22,7 @@ import Sailfish.Share 1.0
 
 IconButton {
     property DocumentPage page
+
     icon.source: "image://theme/icon-m-share"
     visible: page.source != ""  && !page.error
     anchors.verticalCenter: parent.verticalCenter
