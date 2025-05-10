@@ -43,11 +43,11 @@ License: GPLv2
 %setup -q -n %{name}-%{version}
 
 %build
-cmake -DCMAKE_INSTALL_PREFIX=/usr .
-%make_build
+%cmake
+%cmake_build
 
 %install
-make DESTDIR=%{buildroot} install
+%cmake_install
 
 %files
 %license LICENSE
